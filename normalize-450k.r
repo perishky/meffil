@@ -3,132 +3,49 @@ require(IlluminaHumanMethylation450kmanifest)
 require(MASS) ## for huber
 require(limma) ## lm.fit
 
+## autosomes,X,Y
+## all,autosomes,XY,X
 
-meffil.extract.control.matrix <- function(basenames, probes=probe.info()) {
-    basenames <- sub("_Grn\\.idat$", "", basenames)
-    basenames <- sub("_Red\\.idat$", "", basenames)
-    basenames <- unique(basenames)
-    
-    msg("Samples \n", paste(basenames, collapse="\n "))
-    
-    sapply(basenames, function(basename) {
-        rg <- read.rg(basename)
-        collect.controls(rg, probes)
-    })
+meffil.extract.controls <- function(basename, probes=probe.info()) {
+    msg("sample file", basename)
+    rg <- read.rg(basename)
+    extract.controls(rg, probes)
 }
 
-
-meffil.compute.normalization.object <- function(basenames, control.matrix,
-                                                number.pcs=2, number.quantiles=500,
+meffil.compute.normalization.object <- function(basename, control.matrix,
+                                                number.quantiles=500,
                                                 probes=probe.info()) {
-    stopifnot(length(basenames) == ncol(control.matrix))
-    stopifnot(number.pcs >= 2)
-    stopifnot(number.quantiles >= 100)
-
-    colnames(control.matrix) <- basenames
-
-    msg("calculating reference dye intensity") ## must happen before the control matrix gets scaled
-    dye.reference <- which.min(abs(control.matrix["dye.bias",]-1))
-    dye.intensity <- mean(control.matrix[c("normA","normT","normC","normG"), dye.reference])
     
-    msg("cleaning up the control matrix")
-    control.matrix <- impute.matrix(control.matrix)
-    control.matrix <- scale(t(control.matrix))
-    control.matrix[control.matrix > 3] <- 3
-    control.matrix[control.matrix < -3] <- -3
-    control.matrix <- t(scale(control.matrix))
-
-    quantile.sets <- expand.grid(target=c("M","U"), type=c("iR","iG","ii"),
-                                        stringsAsFactors=F)
-    
-    msg("compute probe quantiles")
-    quantiles <- sapply(basenames, function(basename) {
-        rg <- read.rg(basename)
-        rg.correct <- background.correct(rg, probes)        
-        rg.correct <- dye.bias.correct(rg.correct, dye.intensity, probes)
-        mu <- rg.to.mu(rg.correct, probes)
-
-        sapply(1:nrow(quantile.sets), function(i) {
-            target <- quantile.sets$target[i]
-            type <- quantile.sets$type[i]
-            msg("computing quantiles of", target, type, "probes")
-            probe.names <- probes$name[which(probes$target == target
-                                             & probes$type3 == type
-                                             & probes$chr.type == "autosomal")]
-            probs <- seq(0,1,length.out=number.quantiles)
-            quantile(mu[[target]][probe.names], probs=probs, na.rm=T)
-        })
-    }, simplify=F)
-
-    msg("merging corresponding sample quantiles into matrices")
-    quantile.sets$quantiles <- lapply(1:nrow(quantile.sets), function(i) 
-                                   sapply(quantiles, function(sample) sample[,i]))
-    
-    msg("normalizing quantiles")
-    quantile.sets$norm <- lapply(quantile.sets$quantiles, function(original) { 
-        normalize.quantiles(original, control.matrix, number.pcs)
-    })
-    
-    list(origin="meffil.compute.normalization.object",
-         basenames=basenames,
-         control.matrix=control.matrix,
-         quantile.sets=quantile.sets,
-         dye=list(reference=names(dye.reference), intensity=dye.intensity))
-}
-
-is.normalization.object <- function(object) {
-    (all(c("control.matrix", "quantile.sets","dye","origin","basenames") %in% names(object))
-     && all(colnames(object$control.matrix) == object$basenames)
-     && object$origin == "meffil.compute.normalization.object")
-}
-
-meffil.normalize <- function(object,probes=probe.info()) {
-    stopifnot(is.normalization.object(object))
-
-
-    probe.names <- unique(na.omit(probes$name))
-
-    U <- M <- matrix(NA_integer_,
-                     ncol=length(object$basenames),
-                     nrow=length(probe.names),
-                     dimnames=list(probe.names,object$basenames))
-    
-    x.ignore <- sapply(object$basenames, function(basename) {
-        sample.idx <- which(object$basenames == basename)
-        rg <- read.rg(basename)
-        rg.correct <- background.correct(rg, probes)
-        rg.correct <- dye.bias.correct(rg.correct, object$dye$intensity, probes)
-        mu <- rg.to.mu(rg.correct, probes)
+    sample.idx <- match(basename, colnames(control.matrix))
+    stopifnot(!is.na(sample.idx))
+    dye.bias.factors <- calculate.dye.bias.factors(control.matrix, sample.idx)
         
-        mu$M <- mu$M[probe.names]
-        mu$U <- mu$U[probe.names]
+    rg <- read.rg(basename)
+    rg.correct <- background.correct(rg, probes)
+    rg.correct <- dye.bias.correct(rg.correct, dye.bias.factors$R, dye.bias.factors$G)
+    mu <- rg.to.mu(rg.correct, probes)
 
-        for (i in 1:nrow(object$quantile.sets)) {
-            target <- object$quantile.sets$target[i]
-            type <- object$quantile.sets$type[i]
-            msg("normalizing", target, type, "probes for", basename)
+    probes.x <- probes[which(probes$chr.type == "chrX"),]
+    probes.y <- probes[which(probes$chr.type == "chrY"),]
+    x.signal <- median(log(mu$M[probes.x$name] + mu$U[probes.x$name], 2), na.rm=T)
+    y.signal <- median(log(mu$M[probes.y$name] + mu$U[probes.y$name], 2), na.rm=T)
 
-            probe.idx <- which(names(mu[[target]])
-                                     %in% probes$name[which(probes$target == target
-                                                            & probes$type3 == type)])
-
-            is.autosomal <- (names(mu[[target]])[probe.idx]
-                             %in% probes$name[which(probes$chr.type=="autosomal")])
-            
-            mu[[target]][probe.idx] <- normalize.sample(mu[[target]][probe.idx],
-                                                        object$quantile.sets$quantiles[[i]][,sample.idx],
-                                                        object$quantile.sets$norm[[i]][,sample.idx],
-                                                        is.autosomal)
-        }
-        U[names(mu$U),basename] <<- mu$U
-        M[names(mu$M),basename] <<- mu$M
-        NULL
+    probs <- seq(0,1,length.out=number.quantiles)
+    quantile.sets <- define.quantile.probe.sets(probes)
+    quantile.sets$names <- get.quantile.probe.sets(quantile.sets)
+    quantile.sets$quantiles <- sapply(1:nrow(quantile.sets), function(i) {
+        probe.names <- quantile.sets$names[[i]]
+        quantile(mu[[target]][probe.names], probs=probs, na.rm=T)   
     })
+    quantile.sets$names <- NULL
 
-    list(M=M,U=U)
-
+    list(origin="meffil.compute.normalization.object",
+         basename=basename,
+         quantile.sets=quantile.sets,
+         dye.bias.factors=dye.bias.factors,
+         x.signal=x.signal,
+         y.signal=y.signal)         
 }
-
 
 msg <- function(..., verbose=T) {
     x <- paste(list(...))
@@ -141,135 +58,7 @@ read.rg <- function(basename) {
                R=read.idat(paste(basename, "_Red.idat", sep="")))
 }
 
-probe.info <- function() {
-    probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
-        annotation <- paste(array, "anno.", annotation, sep="")
-
-        msg("loading probe genomic location annotation", annotation)
-            
-        require(annotation,character.only=T)
-        data(list=annotation)
-        as.data.frame(get(annotation)@data$Locations)
-    }
-    probe.characteristics <- function(type) {
-        msg("extracting", type)
-        getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
-    }
-    
-    type1.R <- probe.characteristics("I-Red")
-    type1.G <- probe.characteristics("I-Green")
-    type2 <- probe.characteristics("II")
-    controls <- probe.characteristics("Control")
-
-    msg("reorganizing type information")
-    ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA),
-                 data.frame(type="i",target="M", dye="G", address=type1.G$AddressB, name=type1.G$Name,ext=NA),
-                 data.frame(type="ii",target="M", dye="G", address=type2$AddressA, name=type2$Name,ext=NA),
-                 
-                 data.frame(type="i",target="U", dye="R", address=type1.R$AddressA, name=type1.R$Name,ext=NA),
-                 data.frame(type="i",target="U", dye="G", address=type1.G$AddressA, name=type1.G$Name,ext=NA),
-                 data.frame(type="ii",target="U", dye="R", address=type2$AddressA, name=type2$Name,ext=NA),
-                 
-                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressA, name=NA,ext=NA),
-                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressB, name=NA,ext=NA),
-                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressA, name=NA,ext=NA),
-                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressB, name=NA,ext=NA),
-                 
-                 data.frame(type="control",target=controls$Type,dye="R",address=controls$Address, name=NA,ext=controls$ExtendedType),
-                 data.frame(type="control",target=controls$Type,dye="G",address=controls$Address, name=NA,ext=controls$ExtendedType))
-
-    for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
-
-    locations <- probe.locations()
-    ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
-    
-    ret$chr.type <- ret$chr
-    ret$chr.type[with(ret,which(chr.type !="chrX" & chr.type !="chrY"))]<-"autosomal"
-    
-    ret$type3 <- ret$type
-    ret$type3[which(ret$type == "i" & ret$dye == "R")] <- "iR"
-    ret$type3[which(ret$type == "i" & ret$dye == "G")] <- "iG"
-
-    for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
-    ret
-}
-
-
-read.idat <- function(filename) {
-    msg("Reading", filename)
-    
-    if (!file.exists(filename))
-        stop("Filename does not exist:", filename)
-    readIDAT(filename)$Quants[,"Mean"]
-}
-
-is.rg <- function(rg) {
-    (all(c("R","G") %in% names(rg))
-     && is.vector(rg$R) && is.vector(rg$G)
-     #&& length(rg$R) == length(rg$G)
-     && length(names(rg$G)) == length(rg$G)
-     && length(names(rg$R)) == length(rg$R))
-     ##&& all(names(rg$R) == names(rg$G)))
-}
-
-rg.to.mu <- function(rg, probes=probe.info()) {
-    stopifnot(is.rg(rg))
-
-    msg("converting red/green to methylated/unmethylated signal")
-    probes.M.R <- probes[which(probes$target == "M" & probes$dye == "R"),]
-    probes.M.G <- probes[which(probes$target == "M" & probes$dye == "G"),]
-    probes.U.R <- probes[which(probes$target == "U" & probes$dye == "R"),]
-    probes.U.G <- probes[which(probes$target == "U" & probes$dye == "G"),]
-    
-    M <- c(rg$R[probes.M.R$address], rg$G[probes.M.G$address])
-    U <- c(rg$R[probes.U.R$address], rg$G[probes.U.G$address])
-    
-    names(M) <- c(probes.M.R$name, probes.M.G$name)
-    names(U) <- c(probes.U.R$name, probes.U.G$name)
-    
-    U <- U[names(M)]
-    list(M=M,U=U)
-}
-
-background.correct <- function(rg, probes=probe.info(), offset=15) {
-    stopifnot(is.rg(rg))
-    
-    lapply(c(R="R",G="G"), function(dye) {
-        msg("background correction for dye =", dye)
-        addresses <- probes$address[which(probes$target != "OOB" & probes$dye == dye)]
-        xf <- rg[[dye]][addresses]
-        xf[which(xf <= 0)] <- 1
-        
-        addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
-        oob <- rg[[dye]][addresses]
-        
-        ests <- MASS::huber(oob) 
-        mu <- ests$mu
-        sigma <- log(ests$s)
-        alpha <- log(max(MASS::huber(xf)$mu - mu, 10))
-        xf.bkg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), xf) + offset
-        names(xf.bkg) <- names(xf)
-        xf.bkg
-    })
-}
-
-dye.bias.correct <- function(rg, reference, probes=probe.info()) {
-    stopifnot(is.rg(rg))
-    msg()
-    addresses <- probes$address[which(probes$target %in% c("NORM_A","NORM_T")
-                                      & probes$dye == "R")]
-    factor.R <- mean(rg$R[addresses],na.rm=T)
-    
-    addresses <- probes$address[which(probes$target %in% c("NORM_C","NORM_G")
-                                      & probes$dye == "G")]
-    factor.G <- mean(rg$G[addresses],na.rm=T)
-
-    rg$R <- rg$R * reference/factor.R
-    rg$G <- rg$G * reference/factor.G
-    rg
-}
-
-collect.controls <- function(rg, probes=probe.info()) {
+extract.controls <- function(rg, probes=probe.info()) {
     stopifnot(is.rg(rg))
 
     msg()
@@ -362,6 +151,224 @@ collect.controls <- function(rg, probes=probe.info()) {
                       oob.ratio=oob.ratio)
 }
 
+calculate.dye.bias.factors <- function(control.matrix,sample.idx) {
+    reference <- which.min(abs(control.matrix["dye.bias",]-1))
+    intensity <- mean(control.matrix[c("normA","normT","normC","normG"), reference])
+    list(R=intensity/mean(control.matrix[c("normA", "normT"),sample.idx]),
+         G=intensity/mean(control.matrix[c("normC", "normG"),sample.idx]))
+}
+
+
+probe.info <- function() {
+    probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
+        annotation <- paste(array, "anno.", annotation, sep="")
+
+        msg("loading probe genomic location annotation", annotation)
+            
+        require(annotation,character.only=T)
+        data(list=annotation)
+        as.data.frame(get(annotation)@data$Locations)
+    }
+    probe.characteristics <- function(type) {
+        msg("extracting", type)
+        getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
+    }
+    
+    type1.R <- probe.characteristics("I-Red")
+    type1.G <- probe.characteristics("I-Green")
+    type2 <- probe.characteristics("II")
+    controls <- probe.characteristics("Control")
+
+    msg("reorganizing type information")
+    ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA),
+                 data.frame(type="i",target="M", dye="G", address=type1.G$AddressB, name=type1.G$Name,ext=NA),
+                 data.frame(type="ii",target="M", dye="G", address=type2$AddressA, name=type2$Name,ext=NA),
+                 
+                 data.frame(type="i",target="U", dye="R", address=type1.R$AddressA, name=type1.R$Name,ext=NA),
+                 data.frame(type="i",target="U", dye="G", address=type1.G$AddressA, name=type1.G$Name,ext=NA),
+                 data.frame(type="ii",target="U", dye="R", address=type2$AddressA, name=type2$Name,ext=NA),
+                 
+                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressA, name=NA,ext=NA),
+                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressB, name=NA,ext=NA),
+                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressA, name=NA,ext=NA),
+                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressB, name=NA,ext=NA),
+                 
+                 data.frame(type="control",target=controls$Type,dye="R",address=controls$Address, name=NA,ext=controls$ExtendedType),
+                 data.frame(type="control",target=controls$Type,dye="G",address=controls$Address, name=NA,ext=controls$ExtendedType))
+
+    for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
+
+    locations <- probe.locations()
+    ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
+
+    ret$type3 <- ret$type
+    ret$type3[which(ret$type == "i" & ret$dye == "R")] <- "iR"
+    ret$type3[which(ret$type == "i" & ret$dye == "G")] <- "iG"
+
+    ret$chr.type <- ifelse(is.na(ret$chr), NA, "autosomal")
+    ret$chr.type[which(ret$chr %in% c("chrX","chrY"))] <- "sex"
+
+    for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
+    ret
+}
+
+define.quantile.probe.sets <- function(probes=probe.info()) {
+    cbind(expand.grid(target=names(mu),
+                      type3=c("iG","iR","ii"),
+                      chr=NA,
+                      chr.type=c(NA,"autosomal"),
+                      stringsAsFactors=F),
+          expand.grid(target=names(mu),
+                      chr="chrX",
+                      type3=NA,
+                      chr.type="sex",
+                      stringsAsFactors=F),
+          expand.grid(target=names(mu),
+                      chr=NA,
+                      type3=NA,
+                      chr.type="sex",
+                      stringsAsFactors=F))
+}
+
+get.quantile.probe.sets <- function(quantile.sets) {
+    lapply(1:nrow(quantile.sets), function(i) {
+        probes$name[which(probes$target == quantile.sets$target[i]
+                          & probes$type3 == quantile.sets$type3[i]
+                          & probes$chr == quantile.sets$chr[i]
+                          & probes$chr.type == quantile.sets$chr.type[i])]
+    })
+}
+
+apply.quantile.normalization <- function(quantile.sets, sex="M", mixture=T) {
+    (mixture & quantile.sets$chr.type %in% "autosomal"
+     | mixture & sex == "M" & quantile.sets$chr.type %in% "sex"
+     | mixture & sex == "F" & quantile.sets$chr %in% "chrX"
+     | !mixture & sex == "M" & is.na(quantile.sets$chr.type)
+     | !mixture & sex == "F" & quantile.sets$chr.type %in% "autosomal"
+     | !mixture & sex == "F" & object$quantile.sets$chr %in% "chrX")
+}
+ 
+read.idat <- function(filename) {
+    msg("Reading", filename)
+    
+    if (!file.exists(filename))
+        stop("Filename does not exist:", filename)
+    readIDAT(filename)$Quants[,"Mean"]
+}
+
+is.rg <- function(rg) {
+    (all(c("R","G") %in% names(rg))
+     && is.vector(rg$R) && is.vector(rg$G)
+     #&& length(rg$R) == length(rg$G)
+     && length(names(rg$G)) == length(rg$G)
+     && length(names(rg$R)) == length(rg$R))
+     ##&& all(names(rg$R) == names(rg$G)))
+}
+
+rg.to.mu <- function(rg, probes=probe.info()) {
+    stopifnot(is.rg(rg))
+
+    msg("converting red/green to methylated/unmethylated signal")
+    probes.M.R <- probes[which(probes$target == "M" & probes$dye == "R"),]
+    probes.M.G <- probes[which(probes$target == "M" & probes$dye == "G"),]
+    probes.U.R <- probes[which(probes$target == "U" & probes$dye == "R"),]
+    probes.U.G <- probes[which(probes$target == "U" & probes$dye == "G"),]
+    
+    M <- c(rg$R[probes.M.R$address], rg$G[probes.M.G$address])
+    U <- c(rg$R[probes.U.R$address], rg$G[probes.U.G$address])
+    
+    names(M) <- c(probes.M.R$name, probes.M.G$name)
+    names(U) <- c(probes.U.R$name, probes.U.G$name)
+    
+    U <- U[names(M)]
+    list(M=M,U=U)
+}
+
+background.correct <- function(rg, probes=probe.info(), offset=15) {
+    stopifnot(is.rg(rg))
+    
+    lapply(c(R="R",G="G"), function(dye) {
+        msg("background correction for dye =", dye)
+        addresses <- probes$address[which(probes$target != "OOB" & probes$dye == dye)]
+        xf <- rg[[dye]][addresses]
+        xf[which(xf <= 0)] <- 1
+        
+        addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
+        oob <- rg[[dye]][addresses]
+        
+        ests <- MASS::huber(oob) 
+        mu <- ests$mu
+        sigma <- log(ests$s)
+        alpha <- log(max(MASS::huber(xf)$mu - mu, 10))
+        xf.bkg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), xf) + offset
+        names(xf.bkg) <- names(xf)
+        xf.bkg
+    })
+}
+
+dye.bias.correct <- function(rg, factor.R, factor.G) {
+    rg$R <- rg$R * factor.R
+    rg$G <- rg$G * factor.G
+    rg
+}
+
+is.normalization.object <- function(object) {
+    (all(c("quantile.sets","dye.bias.factors","origin","basename","x.signal","y.signal")
+         %in% names(object))
+     && object$origin == "meffil.compute.normalization.object")
+}
+
+meffil.normalize.objects <- function(objects, control.matrix, 
+                                    number.pcs=2, sex.cutoff=-2, sex=NULL,
+                                    probes=probe.info()) {
+    stopifnot(length(objects) == ncol(control.matrix))
+    stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
+    stopifnot(number.pcs >= 2)
+
+    msg("cleaning up the control matrix")
+    control.matrix <- impute.matrix(control.matrix)
+    control.matrix <- scale(t(control.matrix))
+    control.matrix[control.matrix > 3] <- 3
+    control.matrix[control.matrix < -3] <- -3
+    control.matrix <- t(scale(control.matrix))
+
+    if (is.null(sex)) {
+        msg("predicting sex")
+        x.signal <- sapply(objects, function(obj) obj$x.signal)
+        y.signal <- sapply(objects, function(obj) obj$y.signal)
+        xy.diff <- y.signal-x.signal
+        sex <- ifelse(xy.diff < cutoff, "F","M")
+    }
+    
+    msg("normalizing quantiles")
+    quantile.sets <- define.quantile.probe.sets(probes)
+    quantile.sets$sex.diff <- (length(unique(sex)) >= 2
+                               & with(quantile.sets, !is.na(chr.type) & chr.type != "autosomal"))
+    normalized.quantiles <- lapply(1:nrow(quantile.sets), function(i) {
+        original <- sapply(objects, function(obj) obj$quantile.sets$quantiles[[i]])        
+        if (quantile.sets$sex.diff[i]) {
+            norm <- original
+            for (sex.value %in% unique(na.omit(sex))) {
+                sample.idx <- which(sex == sex.value)
+                norm[,sample.idx] <- normalize.quantiles(original[,sample.idx],
+                                                         control.matrix[,sample.idx], number.pcs)
+            }
+            norm
+        }
+        else            
+            normalize.quantiles(original, control.matrix, number.pcs)            
+    })
+    
+    for (i in 1:length(objects)) {
+        objects[[i]]$sex.threshold <- cutoff
+        objects[[i]]$xy.diff <- xy.diff[i]
+        objects[[i]]$sex <- sex[i]
+        objects[[i]]$quantile.sets$sex.diff <- quantile.sets$sex.diff
+        objects[[i]]$quantile.sets$norm <- lapply(normalized.quantiles,
+                                                  function(sample.quantiles) sample.quantiles[,i])
+    }
+    objects
+}
 
 
 
@@ -394,6 +401,39 @@ normalize.quantiles <- function(quantiles, control.matrix, number.pcs) {
 }
 
 
+meffil.normalize.sample <- function(object, probes=probe.info()) {
+    stopifnot(is.normalization.object(object))
+
+    probe.names <- unique(na.omit(probes$name))
+
+    U <- M <- rep(NA_integer_, length(probe.names))
+    names(U) <- names(M) <- probe.names
+
+    rg <- read.rg(object$basename)
+    rg.correct <- background.correct(rg, probes)
+    rg.correct <- dye.bias.correct(rg.correct, object$dye.bias.factors$R, object$dye.bias.factors$G)
+    mu <- rg.to.mu(rg.correct, probes)
+
+    mu$M <- mu$M[probe.names]
+    mu$U <- mu$U[probe.names]
+
+    object$quantile.sets$names <- get.quantile.probe.sets(object$quantile.sets)
+    mixture <- sum(object$quantile.sets$sex.diff) == 0
+    object$quantile.sets$apply <- apply.quantile.normalization(quantile.sets, object$sex, mixture)
+
+    for (i in which(object$quantile.sets$apply)) {
+        target <- object$quantile.sets$target[i]
+        probe.idx <- which(names(mu[[target]]) %in% object$quantile$names[[i]])
+
+        orig.signal <- mu[[target]][probe.idx]
+        norm.target <- compute.quantiles.target(object$quantile.sets$norm[[i]])
+        norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
+                                                                      norm.target)
+        mu[[target]][probe.idx] <- norm.signal
+    }
+    mu
+}
+
 compute.quantiles.target <- function(quantiles) {
     n <- length(quantiles)
     unlist(lapply(1:(n-1), function(j) {
@@ -401,25 +441,12 @@ compute.quantiles.target <- function(quantiles) {
         end <- quantiles[j+1]
         seq(start,end,(end-start)/n)[-n]
     }))
- }   
+}   
 
-normalize.sample <- function(orig.signal, orig.quantiles, norm.quantiles, primary) {
-    stopifnot(length(orig.signal) == length(primary))
-    stopifnot(length(orig.quantiles) == length(norm.quantiles))
-    msg()
-    
-    norm.target <- compute.quantiles.target(norm.quantiles)
 
-    norm.signal <- orig.signal
-    norm.signal[primary] <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal[primary]), norm.target)
-    if (sum(!primary) > 0) {
-        orig.target <- compute.quantiles.target(orig.quantiles)
-        orig.intervals <- findInterval(orig.signal[!primary], orig.target)
-        norm.signal[!primary] <- norm.target[orig.intervals]
-    }
-    norm.signal
+#############.....................################
+check.sex <- function(xy.diff) {
+    fit <- kmeans(xy.diff, centers=range(xy.diff))
+    sex.kmeans <- ifelse(fit$cluster == which.min(fit$centers), "F", "M")        
 }
-
-        
-
 
