@@ -3,9 +3,6 @@ require(IlluminaHumanMethylation450kmanifest)
 require(MASS) ## for huber
 require(limma) ## lm.fit
 
-## autosomes,X,Y
-## all,autosomes,XY,X
-
 meffil.extract.controls <- function(basename, probes=probe.info()) {
     msg("sample file", basename)
     rg <- read.rg(basename)
@@ -15,7 +12,6 @@ meffil.extract.controls <- function(basename, probes=probe.info()) {
 meffil.compute.normalization.object <- function(basename, control.matrix,
                                                 number.quantiles=500,
                                                 probes=probe.info()) {
-    
     sample.idx <- match(basename, colnames(control.matrix))
     stopifnot(!is.na(sample.idx))
     dye.bias.factors <- calculate.dye.bias.factors(control.matrix, sample.idx)
@@ -25,16 +21,17 @@ meffil.compute.normalization.object <- function(basename, control.matrix,
     rg.correct <- dye.bias.correct(rg.correct, dye.bias.factors$R, dye.bias.factors$G)
     mu <- rg.to.mu(rg.correct, probes)
 
-    probes.x <- probes[which(probes$chr.type == "chrX"),]
-    probes.y <- probes[which(probes$chr.type == "chrY"),]
+    probes.x <- probes[which(probes$chr == "chrX"),]
+    probes.y <- probes[which(probes$chr == "chrY"),]
     x.signal <- median(log(mu$M[probes.x$name] + mu$U[probes.x$name], 2), na.rm=T)
     y.signal <- median(log(mu$M[probes.y$name] + mu$U[probes.y$name], 2), na.rm=T)
 
     probs <- seq(0,1,length.out=number.quantiles)
     quantile.sets <- define.quantile.probe.sets(probes)
     quantile.sets$names <- get.quantile.probe.sets(quantile.sets)
-    quantile.sets$quantiles <- sapply(1:nrow(quantile.sets), function(i) {
+    quantile.sets$quantiles <- lapply(1:nrow(quantile.sets), function(i) {
         probe.names <- quantile.sets$names[[i]]
+        target <- quantile.sets$target[i]
         quantile(mu[[target]][probe.names], probs=probs, na.rm=T)   
     })
     quantile.sets$names <- NULL
@@ -124,31 +121,31 @@ extract.controls <- function(rg, probes=probe.info()) {
     oob.R <- quantile(rg$R[with(probes.R, which(target == "OOB" & dye == "R"))], na.rm=T, probs=probs)
     oob.ratio <- oob.G[["50%"]]/oob.R[["50%"]]
     
-    model.matrix <- c(bisulfite1=bisulfite1,
-                      bisulfite2=bisulfite2,
-                      extension.G=extension.G,
-                      extension.R=extension.R,
-                      hybe=hybe,
-                      stain.G=stain.G,
-                      stain.R=stain.R,
-                      nonpoly.G=nonpoly.G,
-                      nonpoly.R=nonpoly.R,
-                      targetrem=targetrem,
-                      spec1.G=spec1.G,
-                      spec1.R=spec1.R,
-                      spec2.G=spec2.G,
-                      spec2.R=spec2.R,
-                      spec1.ratio1=spec1.ratio1,
-                      spec1.ratio=spec1.ratio,
-                      spec2.ratio=spec2.ratio,
-                      spec1.ratio2=spec1.ratio2,
-                      normA=normA,
-                      normC=normC,
-                      normT=normT,
-                      normG=normG,
-                      dye.bias=dye.bias,
-                      oob.G=oob.G,
-                      oob.ratio=oob.ratio)
+    c(bisulfite1=bisulfite1,
+      bisulfite2=bisulfite2,
+      extension.G=extension.G,
+      extension.R=extension.R,
+      hybe=hybe,
+      stain.G=stain.G,
+      stain.R=stain.R,
+      nonpoly.G=nonpoly.G,
+      nonpoly.R=nonpoly.R,
+      targetrem=targetrem,
+      spec1.G=spec1.G,
+      spec1.R=spec1.R,
+      spec2.G=spec2.G,
+      spec2.R=spec2.R,
+      spec1.ratio1=spec1.ratio1,
+      spec1.ratio=spec1.ratio,
+      spec2.ratio=spec2.ratio,
+      spec1.ratio2=spec1.ratio2,
+      normA=normA,
+      normC=normC,
+      normT=normT,
+      normG=normG,
+      dye.bias=dye.bias,
+      oob.G=oob.G,
+      oob.ratio=oob.ratio)
 }
 
 calculate.dye.bias.factors <- function(control.matrix,sample.idx) {
@@ -213,39 +210,45 @@ probe.info <- function() {
 }
 
 define.quantile.probe.sets <- function(probes=probe.info()) {
-    cbind(expand.grid(target=names(mu),
+    cbind(expand.grid(target=c("M","U"),
                       type3=c("iG","iR","ii"),
                       chr=NA,
                       chr.type=c(NA,"autosomal"),
                       stringsAsFactors=F),
-          expand.grid(target=names(mu),
-                      chr="chrX",
+          expand.grid(target=c("M","U"),
                       type3=NA,
+                      chr="chrX",
                       chr.type="sex",
                       stringsAsFactors=F),
-          expand.grid(target=names(mu),
-                      chr=NA,
+          expand.grid(target=c("M","U"),
                       type3=NA,
+                      chr=NA,
                       chr.type="sex",
                       stringsAsFactors=F))
 }
 
+eq.wild <- function(x,y) {
+    is.na(y) | x == y
+}
+
 get.quantile.probe.sets <- function(quantile.sets) {
     lapply(1:nrow(quantile.sets), function(i) {
-        probes$name[which(probes$target == quantile.sets$target[i]
-                          & probes$type3 == quantile.sets$type3[i]
-                          & probes$chr == quantile.sets$chr[i]
-                          & probes$chr.type == quantile.sets$chr.type[i])]
+        probes$name[which(eq.wild(probes$target, quantile.sets$target[i])
+                          & eq.wild(probes$type3, quantile.sets$type3[i])
+                          & eq.wild(probes$chr, quantile.sets$chr[i])
+                          & eq.wild(probes$chr.type, quantile.sets$chr.type[i]))]
     })
 }
 
 apply.quantile.normalization <- function(quantile.sets, sex="M", mixture=T) {
-    (mixture & quantile.sets$chr.type %in% "autosomal"
-     | mixture & sex == "M" & quantile.sets$chr.type %in% "sex"
-     | mixture & sex == "F" & quantile.sets$chr %in% "chrX"
+    (mixture & eq.wild("autosomal", quantile.sets$chr.type)
+     | mixture & sex == "M" & eq.wild("sex", quantile.sets$chr.type)
+     | mixture & sex == "F" & eq.wild("chrX", quantile.sets$chr)     
+     #| !mixture & sex == "M" & eq.wild("autosomal",quantile.sets$chr.type)
+     #| !mixture & sex == "M" & eq.wild("sex",quantile.sets$chr.type)
      | !mixture & sex == "M" & is.na(quantile.sets$chr.type)
-     | !mixture & sex == "F" & quantile.sets$chr.type %in% "autosomal"
-     | !mixture & sex == "F" & object$quantile.sets$chr %in% "chrX")
+     | !mixture & sex == "F" & eq.wild("autosomal", quantile.sets$chr.type)
+     | !mixture & sex == "F" & eq.wild("chrX", quantile.sets$chr))
 }
  
 read.idat <- function(filename) {
@@ -337,7 +340,7 @@ meffil.normalize.objects <- function(objects, control.matrix,
         x.signal <- sapply(objects, function(obj) obj$x.signal)
         y.signal <- sapply(objects, function(obj) obj$y.signal)
         xy.diff <- y.signal-x.signal
-        sex <- ifelse(xy.diff < cutoff, "F","M")
+        sex <- ifelse(xy.diff < sex.cutoff, "F","M")
     }
     
     msg("normalizing quantiles")
@@ -348,7 +351,7 @@ meffil.normalize.objects <- function(objects, control.matrix,
         original <- sapply(objects, function(obj) obj$quantile.sets$quantiles[[i]])        
         if (quantile.sets$sex.diff[i]) {
             norm <- original
-            for (sex.value %in% unique(na.omit(sex))) {
+            for (sex.value in unique(na.omit(sex))) {
                 sample.idx <- which(sex == sex.value)
                 norm[,sample.idx] <- normalize.quantiles(original[,sample.idx],
                                                          control.matrix[,sample.idx], number.pcs)
@@ -360,7 +363,7 @@ meffil.normalize.objects <- function(objects, control.matrix,
     })
     
     for (i in 1:length(objects)) {
-        objects[[i]]$sex.threshold <- cutoff
+        objects[[i]]$sex.cutoff <- sex.cutoff
         objects[[i]]$xy.diff <- xy.diff[i]
         objects[[i]]$sex <- sex[i]
         objects[[i]]$quantile.sets$sex.diff <- quantile.sets$sex.diff
@@ -419,7 +422,7 @@ meffil.normalize.sample <- function(object, probes=probe.info()) {
 
     object$quantile.sets$names <- get.quantile.probe.sets(object$quantile.sets)
     mixture <- sum(object$quantile.sets$sex.diff) == 0
-    object$quantile.sets$apply <- apply.quantile.normalization(quantile.sets, object$sex, mixture)
+    object$quantile.sets$apply <-apply.quantile.normalization(object$quantile.sets,object$sex,mixture)
 
     for (i in which(object$quantile.sets$apply)) {
         target <- object$quantile.sets$target[i]
@@ -433,6 +436,25 @@ meffil.normalize.sample <- function(object, probes=probe.info()) {
     }
     mu
 }
+
+meffil.normalize.samples <- function(objects, probes=probe.info()) {
+    M <- U <- NA
+    for (i in 1:length(objects)) {
+        msg(i)
+        mu <- meffil.normalize.sample(objects[[i]], probes)
+        if (i == 1) {
+            U <- M <- matrix(NA_integer_,
+                             nrow=length(mu$M), ncol=length(objects),
+                             dimnames=list(names(mu$M), names(objects)))
+        }
+        M[,i] <- mu$M
+        U[,i] <- mu$U
+    }
+    list(M=M,U=U)
+}
+
+meffil.get.beta <- function(mu) mu$M/(mu$M+mu$U+100)
+
 
 compute.quantiles.target <- function(quantiles) {
     n <- length(quantiles)
