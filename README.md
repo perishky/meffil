@@ -11,7 +11,7 @@ example <- read.450k.exp(base ="/", targets = sheet)
 example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
 ```
 
-Load the minfi code and the `meffil` probe annotation.
+Load the `meffil` code and probe annotation.
 ```r
 source("normalize-450k.r")
 probes <- probe.info()

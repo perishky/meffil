@@ -3,7 +3,7 @@ require(IlluminaHumanMethylation450kmanifest)
 require(MASS) ## for huber
 require(limma) ## lm.fit
 
-meffil.extract.controls <- function(basename, probes=probe.info()) {
+meffil.extract.controls <- function(basename, probes=meffil.probe.info()) {
     msg("sample file", basename)
     rg <- read.rg(basename)
     extract.controls(rg, probes)
@@ -11,7 +11,7 @@ meffil.extract.controls <- function(basename, probes=probe.info()) {
 
 meffil.compute.normalization.object <- function(basename, control.matrix,
                                                 number.quantiles=500,
-                                                probes=probe.info()) {
+                                                probes=meffil.probe.info()) {
     sample.idx <- match(basename, colnames(control.matrix))
     stopifnot(!is.na(sample.idx))
     dye.bias.factors <- calculate.dye.bias.factors(control.matrix, sample.idx)
@@ -55,7 +55,7 @@ read.rg <- function(basename) {
                R=read.idat(paste(basename, "_Red.idat", sep="")))
 }
 
-extract.controls <- function(rg, probes=probe.info()) {
+extract.controls <- function(rg, probes=meffil.probe.info()) {
     stopifnot(is.rg(rg))
 
     msg()
@@ -156,7 +156,7 @@ calculate.dye.bias.factors <- function(control.matrix,sample.idx) {
 }
 
 
-probe.info <- function() {
+meffil.probe.info <- function() {
     probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
         annotation <- paste(array, "anno.", annotation, sep="")
 
@@ -209,7 +209,7 @@ probe.info <- function() {
     ret
 }
 
-define.quantile.probe.sets <- function(probes=probe.info()) {
+define.quantile.probe.sets <- function(probes=meffil.probe.info()) {
     cbind(expand.grid(target=c("M","U"),
                       type3=c("iG","iR","ii"),
                       chr=NA,
@@ -268,7 +268,7 @@ is.rg <- function(rg) {
      ##&& all(names(rg$R) == names(rg$G)))
 }
 
-rg.to.mu <- function(rg, probes=probe.info()) {
+rg.to.mu <- function(rg, probes=meffil.probe.info()) {
     stopifnot(is.rg(rg))
 
     msg("converting red/green to methylated/unmethylated signal")
@@ -287,7 +287,7 @@ rg.to.mu <- function(rg, probes=probe.info()) {
     list(M=M,U=U)
 }
 
-background.correct <- function(rg, probes=probe.info(), offset=15) {
+background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
     stopifnot(is.rg(rg))
     
     lapply(c(R="R",G="G"), function(dye) {
@@ -323,7 +323,7 @@ is.normalization.object <- function(object) {
 
 meffil.normalize.objects <- function(objects, control.matrix, 
                                     number.pcs=2, sex.cutoff=-2, sex=NULL,
-                                    probes=probe.info()) {
+                                    probes=meffil.probe.info()) {
     stopifnot(length(objects) == ncol(control.matrix))
     stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
     stopifnot(number.pcs >= 2)
@@ -404,7 +404,7 @@ normalize.quantiles <- function(quantiles, control.matrix, number.pcs) {
 }
 
 
-meffil.normalize.sample <- function(object, probes=probe.info()) {
+meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
     stopifnot(is.normalization.object(object))
 
     probe.names <- unique(na.omit(probes$name))
@@ -437,7 +437,7 @@ meffil.normalize.sample <- function(object, probes=probe.info()) {
     mu
 }
 
-meffil.normalize.samples <- function(objects, probes=probe.info()) {
+meffil.normalize.samples <- function(objects, probes=meffil.probe.info()) {
     M <- U <- NA
     for (i in 1:length(objects)) {
         msg(i)
