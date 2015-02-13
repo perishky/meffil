@@ -8,13 +8,14 @@ library(minfi)
 data.dir <- ....
 sheet <- read.450k.sheet(data.dir, pattern="samplesheet")
 example <- read.450k.exp(base ="/", targets = sheet)
-example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
+example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL,
+                                  bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
 ```
 
 Load the `meffil` code and probe annotation.
 ```r
 source("normalize-450k.r")
-probes <- probe.info()
+probes <- meffil.probe.info()
 ```
 
 Extract the control information for each sample.
@@ -34,7 +35,8 @@ norm.objects <- lapply(sheet$Basename, function(basename) {
 
 Normalize the resulting quantiles together. 
 ```r
-norm.objects <- meffil.normalize.objects(norm.objects, control.matrix, number.pcs=2, probes=probes)
+norm.objects <- meffil.normalize.objects(norm.objects, control.matrix,
+                                         number.pcs=2, probes=probes)
 ```
 
 Transform the methylation data to fit the normalized quantiles
