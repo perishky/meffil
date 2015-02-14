@@ -59,7 +59,6 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     stopifnot(is.rg(rg))
 
     msg()
-    
     probes.G <- probes[which(probes$dye == "G"),]
     probes.R <- probes[which(probes$dye == "R"),]
     probes.G <- probes.G[match(names(rg$G), probes.G$address),]
@@ -67,9 +66,10 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     
     bisulfite2 <- mean(rg$R[which(probes.R$target == "BISULFITE CONVERSION II")], na.rm=T)
     
-    bisulfite1.G <- rg$G[which(probes.G$target == "BISULFITE CONVERSION I"
-                               & probes.G$ext
+    bisulfite1.G <- rg$R[which(probes.R$target == "BISULFITE CONVERSION I"
+                               & probes.R$ext
                                %in% sprintf("BS Conversion I%sC%s", c(" ", "-", "-"), 1:3))]
+    ## minfi does this. shouldn't it be green, not red??????
     bisulfite1.R <- rg$R[which(probes.R$target == "BISULFITE CONVERSION I"
                                & probes.R$ext %in% sprintf("BS Conversion I-C%s", 4:6))]
     bisulfite1 <- mean(bisulfite1.G + bisulfite1.R, na.rm=T)
@@ -79,9 +79,9 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     stain.R <- rg$R[which(probes.R$target == "STAINING" & probes.R$ext == "DNP (High)")]
     
     extension.R <- rg$R[which(probes.R$target == "EXTENSION"
-                              & probes.R$ExternalType %in% sprintf("Extension (%s)", c("A", "T")))]
+                              & probes.R$ext %in% sprintf("Extension (%s)", c("A", "T")))]
     extension.G <- rg$G[which(probes.G$target == "EXTENSION"
-                              & probes.G$ExternalType %in% sprintf("Extension (%s)", c("C", "G")))]
+                              & probes.G$ext %in% sprintf("Extension (%s)", c("C", "G")))]
     
     hybe <- rg$G[which(probes.G$target == "HYBRIDIZATION")]
     
@@ -99,13 +99,14 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     
     ext <- sprintf("GT Mismatch %s (PM)", 1:3)
     spec1.G <- rg$G[which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
-    spec1.R <- rg$R[which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
-    spec1.ratio1 <- mean(spec1.R,na.rm=T)/mean(spec2.G,na.rm=T)
+    spec1.Rp <- rg$R[which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
+    spec1.ratio1 <- mean(spec1.Rp,na.rm=T)/mean(spec1.G,na.rm=T)
     
     ext <- sprintf("GT Mismatch %s (PM)", 4:6)
-    spec1.G <- rg$G[which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
+    spec1.Gp <- rg$G[which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
     spec1.R <- rg$R[which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
-    spec1.ratio2 <- mean(spec1.R,na.rm=T)/mean(spec2.G,na.rm=T)
+    spec1.ratio2 <- mean(spec1.Gp,na.rm=T)/mean(spec1.R,na.rm=T)
+    ## color swap vs spec1.ratio1??? just following minfi but that seems weird
     
     spec1.ratio <- (spec1.ratio1 + spec1.ratio2)/2
     
@@ -114,7 +115,13 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     normC <- mean(rg$G[which(probes.G$target == "NORM_C")], na.rm = TRUE)
     normG <- mean(rg$G[which(probes.G$target == "NORM_G")], na.rm = TRUE)
 
-    dye.bias <- (normA + normT)/(normC + normG)
+    dye.bias <- (normC + normG)/(normA + normT)
+
+    rg.bg <- background.correct(rg, probes)
+    addresses <- probes.R$address[which(probes.R$target %in% c("NORM_A", "NORM_T"))]
+    intensity.bc.R <- mean(rg.bg$R[addresses], na.rm = TRUE)
+    addresses <- probes.G$address[which(probes.G$target %in% c("NORM_G", "NORM_C"))]
+    intensity.bc.G <- mean(rg.bg$G[addresses], na.rm = TRUE)
     
     probs <- c(0.01, 0.5, 0.99)
     oob.G <- quantile(rg$G[with(probes.G, which(target == "OOB" & dye == "G"))], na.rm=T, probs=probs)
@@ -145,14 +152,17 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
       normG=normG,
       dye.bias=dye.bias,
       oob.G=oob.G,
-      oob.ratio=oob.ratio)
+      oob.ratio=oob.ratio,
+      intensity.bc.G=intensity.bc.G,
+      intensity.bc.R=intensity.bc.R)
 }
 
 calculate.dye.bias.factors <- function(control.matrix,sample.idx) {
-    reference <- which.min(abs(control.matrix["dye.bias",]-1))
-    intensity <- mean(control.matrix[c("normA","normT","normC","normG"), reference])
-    list(R=intensity/mean(control.matrix[c("normA", "normT"),sample.idx]),
-         G=intensity/mean(control.matrix[c("normC", "normG"),sample.idx]))
+    ratios <- control.matrix["intensity.bc.G",]/control.matrix["intensity.bc.R",]
+    reference <- which.min(abs(ratios-1))
+    intensity <- (control.matrix["intensity.bc.G",] + control.matrix["intensity.bc.R",])[reference]/2
+    list(R=intensity/control.matrix["intensity.bc.R",sample.idx],
+         G=intensity/control.matrix["intensity.bc.G",sample.idx])
 }
 
 
@@ -240,13 +250,13 @@ get.quantile.probe.sets <- function(quantile.sets) {
     })
 }
 
-apply.quantile.normalization <- function(quantile.sets, sex="M", mixture=T) {
+select.normalization.subsets <- function(quantile.sets, sex="M", mixture=T) {
     (mixture & eq.wild("autosomal", quantile.sets$chr.type)
      | mixture & sex == "M" & eq.wild("sex", quantile.sets$chr.type)
      | mixture & sex == "F" & eq.wild("chrX", quantile.sets$chr)     
+     | !mixture & sex == "M" & is.na(quantile.sets$chr.type)
      #| !mixture & sex == "M" & eq.wild("autosomal",quantile.sets$chr.type)
      #| !mixture & sex == "M" & eq.wild("sex",quantile.sets$chr.type)
-     | !mixture & sex == "M" & is.na(quantile.sets$chr.type)
      | !mixture & sex == "F" & eq.wild("autosomal", quantile.sets$chr.type)
      | !mixture & sex == "F" & eq.wild("chrX", quantile.sets$chr))
 }
@@ -262,10 +272,8 @@ read.idat <- function(filename) {
 is.rg <- function(rg) {
     (all(c("R","G") %in% names(rg))
      && is.vector(rg$R) && is.vector(rg$G)
-     #&& length(rg$R) == length(rg$G)
      && length(names(rg$G)) == length(rg$G)
      && length(names(rg$R)) == length(rg$R))
-     ##&& all(names(rg$R) == names(rg$G)))
 }
 
 rg.to.mu <- function(rg, probes=meffil.probe.info()) {
@@ -292,9 +300,13 @@ background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
     
     lapply(c(R="R",G="G"), function(dye) {
         msg("background correction for dye =", dye)
-        addresses <- probes$address[which(probes$target != "OOB" & probes$dye == dye)]
+        addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
         xf <- rg[[dye]][addresses]
         xf[which(xf <= 0)] <- 1
+
+        addresses <- probes$address[which(probes$type == "control" & probes$dye == dye)]
+        xc <- rg[[dye]][addresses]
+        xc[which(xc <= 0)] <- 1
         
         addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
         oob <- rg[[dye]][addresses]
@@ -303,9 +315,9 @@ background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
         mu <- ests$mu
         sigma <- log(ests$s)
         alpha <- log(max(MASS::huber(xf)$mu - mu, 10))
-        xf.bkg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), xf) + offset
-        names(xf.bkg) <- names(xf)
-        xf.bkg
+        bg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), c(xf,xc)) + offset
+        names(bg) <- c(names(xf), names(xc))
+        bg
     })
 }
 
@@ -329,6 +341,7 @@ meffil.normalize.objects <- function(objects, control.matrix,
     stopifnot(number.pcs >= 2)
 
     msg("cleaning up the control matrix")
+    control.matrix <- control.matrix[-grep("^intensity.bc", rownames(control.matrix)),]
     control.matrix <- impute.matrix(control.matrix)
     control.matrix <- scale(t(control.matrix))
     control.matrix[control.matrix > 3] <- 3
@@ -394,7 +407,7 @@ normalize.quantiles <- function(quantiles, control.matrix, number.pcs) {
     stopifnot(number.pcs >= 2)
     
     quantiles[1,] <- 0
-    ## quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + 1000
+    quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + 1000
     
     mean.quantiles <- rowMeans(quantiles)
     control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
@@ -422,7 +435,7 @@ meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
 
     object$quantile.sets$names <- get.quantile.probe.sets(object$quantile.sets)
     mixture <- sum(object$quantile.sets$sex.diff) == 0
-    object$quantile.sets$apply <-apply.quantile.normalization(object$quantile.sets,object$sex,mixture)
+    object$quantile.sets$apply <-select.normalization.subsets(object$quantile.sets,object$sex,mixture)
 
     for (i in which(object$quantile.sets$apply)) {
         target <- object$quantile.sets$target[i]
