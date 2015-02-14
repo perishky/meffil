@@ -413,7 +413,7 @@ normalize.quantiles <- function(quantiles, control.matrix, number.pcs) {
     control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
     design <- model.matrix(~control.components-1)
     fits <- lm.fit(x=design, y=t(quantiles - mean.quantiles))
-    mean.quantiles - t(residuals(fits))
+    mean.quantiles + t(residuals(fits))
 }
 
 
