@@ -1,0 +1,158 @@
+# Comparison of functional normalization implementations
+
+## Load example data set 
+
+Retrieve the data from the Gene Expression Omnibus (GEO) website
+(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
+
+```{r}
+dir.create(data.dir <- "data")
+if (length(list.files(data.dir, "*.idat$")) == 0) {
+  filename <-  file.path(data.dir, "gse55491.tar")
+  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
+  cat(date(), "Extracting files from GEO archive.\n")
+  system(paste("cd", data.dir, ";", "tar xvf", basename(filename)))
+  unlink(filename)
+  cat(date(), "Unzipping IDAT files.\n")
+  system(paste("cd", data.dir, ";", "gunzip *.idat.gz"))
+}
+```
+
+## Load and normalize using `minfi`
+Load the data.
+
+```{r results='hide'}
+library(minfi)
+raw.minfi <- read.450k.exp(base = data.dir)
+```
+
+Normalize using the minfi package.
+```{r}
+norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
+```
+
+## Load and normalize using `meffil`
+Load the code, probe annotation and sample filename information.
+```{r}
+source("../R/functional-normalization.r")
+probes <- meffil.probe.info()
+basenames <- meffil.basenames(data.dir)
+```
+
+Extract the controls for each sample.
+```{r}
+control.matrix <- do.call(cbind, mclapply(basenames, function(basename) {
+    meffil.extract.controls(basename, probes) 
+}))
+colnames(control.matrix) <- basenames
+```
+
+Perform background and dye bias correction and then
+compute quantiles for each sample.
+```{r}
+norm.objects <- mclapply(basenames, function(basename) {
+    meffil.compute.normalization.object(basename, control.matrix, probes=probes) 
+})
+```
+
+Normalize quantiles from each sample using the control
+matrix to identify batch effects.
+```{r}
+norm.objects <- meffil.normalize.objects(norm.objects, control.matrix, number.pcs=2, probes=probes)
+```
+
+Apply quantile normalization to methylation levels of each sample.
+```{r}
+B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
+    meffil.get.beta(meffil.normalize.sample(object, probes)) 
+})) 
+```
+
+## Compare normalizations
+
+First make sure that the raw data is the same.
+```{r}
+raw.meffil <- meffil.read.rg(basenames[1])
+all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
+```
+
+### Background correction
+
+Apply `meffil` background correction.
+```{r results='hide'}
+bc.meffil <- meffil.background.correct(raw.meffil, probes)
+M.meffil <- meffil.rg.to.mu(bc.meffil)$M
+```
+
+Apply `minfi` background correction.
+```{r results='hide'}
+bc.minfi <- preprocessNoob(raw.minfi, dyeCorr = FALSE)
+M.minfi <- getMeth(bc.minfi)[names(M.meffil),1]
+```
+
+Compare results, should be identical.
+```{r}
+quantile(M.meffil - M.minfi)
+```
+
+### Dye bias correction
+Apply `meffil` correction.
+```{r results='hide'}
+dye.meffil <- meffil.dye.bias.correct(bc.meffil, 
+                                      norm.objects[[1]]$dye.bias.factors$R,
+                                      norm.objects[[1]]$dye.bias.factors$G)
+M.meffil <- meffil.rg.to.mu(dye.meffil)$M
+```
+
+Apply `minfi` background and dye bias correction.
+```{r results='hide'}
+dye.minfi <- preprocessNoob(raw.minfi, dyeCorr = TRUE)
+M.minfi <- getMeth(dye.minfi)[names(M.meffil),1]
+```
+
+Compare results, should be identical.
+```{r}
+quantile(M.meffil - M.minfi)
+```
+
+### Control matrix extracted
+
+Extract `minfi` control matrix.
+```{r results='hide'}
+library(matrixStats)                                      
+control.matrix.minfi <- minfi:::.buildControlMatrix450k(minfi:::.extractFromRGSet450k(raw.minfi))
+```
+
+Control matrix for `meffil` was extracted earlier.
+Preprocess the matrix using the same procedure used by `minfi`.
+```{r results='hide'}
+control.matrix.meffil <- t(meffil.preprocess.control.matrix(control.matrix))
+```
+
+The control variable order (columns) may be different between `minfi` and `meffil`
+so they are reordered.
+```{r}
+i <- apply(control.matrix.minfi,2,function(v) {
+    which.min(apply(control.matrix.meffil,2,function(w) {
+        sum(abs(v-w))
+    }))
+})
+control.matrix.meffil <- control.matrix.meffil[,i]
+```
+
+Compare resulting matrices, should be identical.
+```{r}
+quantile(control.matrix.meffil - control.matrix.minfi)
+```
+
+### Final beta values
+Since sex chromosomes are handled differently than minfi,
+final beta values should be identical on the autosomes only.
+```{r}
+autosomal.sites <- unique(probes$name[which(probes$chr.type == "autosomal")])
+B.minfi <- getBeta(norm.minfi)[rownames(B.meffil),]
+quantile(B.meffil[autosomal.sites,] - B.minfi[autosomal.sites,])
+```
+
+This file was generated from R markdown
+using `knitr::knit("functional-normalization.rmd")`.
