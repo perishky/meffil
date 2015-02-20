@@ -290,10 +290,9 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     
     bisulfite2 <- mean(rg$R[which(probes.R$target == "BISULFITE CONVERSION II")], na.rm=T)
     
-    bisulfite1.G <- rg$R[which(probes.R$target == "BISULFITE CONVERSION I"
-                               & probes.R$ext
+    bisulfite1.G <- rg$G[which(probes.G$target == "BISULFITE CONVERSION I"
+                               & probes.G$ext
                                %in% sprintf("BS Conversion I%sC%s", c(" ", "-", "-"), 1:3))]
-    ## minfi does this. shouldn't it be green, not red??????
     bisulfite1.R <- rg$R[which(probes.R$target == "BISULFITE CONVERSION I"
                                & probes.R$ext %in% sprintf("BS Conversion I-C%s", 4:6))]
     bisulfite1 <- mean(bisulfite1.G + bisulfite1.R, na.rm=T)
@@ -330,7 +329,6 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     spec1.Gp <- rg$G[which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
     spec1.R <- rg$R[which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
     spec1.ratio2 <- mean(spec1.Gp,na.rm=T)/mean(spec1.R,na.rm=T)
-    ## color swap vs spec1.ratio1??? just following minfi but that seems weird
     
     spec1.ratio <- (spec1.ratio1 + spec1.ratio2)/2
     
