@@ -26,25 +26,18 @@ source("R/functional-normalization.r")
 probes <- meffil.probe.info()
 basenames <- meffil.basenames(data.dir)
 ```
-Extract the control information for each sample.
-```r
-control.matrix <- sapply(basenames, function(basename) {
-    meffil.extract.controls(basename, probes) 
-})
-```
 
-Background and dye correct each sample and the compute probe quantiles
+Background and dye correct each sample and the compute probe controls and quantiles
 for each sample.
 ```r
 norm.objects <- lapply(basenames, function(basename) {
-    meffil.compute.normalization.object(basename, control.matrix, probes=probes)
+    meffil.compute.normalization.object(basename, probes=probes)
 })
 ```
 
 Normalize the resulting quantiles together. 
 ```r
-norm.objects <- meffil.normalize.objects(norm.objects, control.matrix,
-                                         number.pcs=2, probes=probes)
+norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 ```
 
 Transform the methylation data to fit the normalized quantiles

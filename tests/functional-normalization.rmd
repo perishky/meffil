@@ -22,7 +22,7 @@ if (length(list.files(data.dir, "*.idat$")) == 0) {
 Load the data.
 
 ```{r results='hide'}
-library(minfi)
+library(minfi, quietly=TRUE)
 raw.minfi <- read.450k.exp(base = data.dir)
 ```
 
@@ -39,26 +39,18 @@ probes <- meffil.probe.info()
 basenames <- meffil.basenames(data.dir)
 ```
 
-Extract the controls for each sample.
-```{r}
-control.matrix <- do.call(cbind, mclapply(basenames, function(basename) {
-    meffil.extract.controls(basename, probes) 
-}))
-colnames(control.matrix) <- basenames
-```
-
-Perform background and dye bias correction and then
-compute quantiles for each sample.
+Collect controls, perform background and dye bias correction and then
+compute quantiles for each sample, one at a time.
 ```{r}
 norm.objects <- mclapply(basenames, function(basename) {
-    meffil.compute.normalization.object(basename, control.matrix, probes=probes) 
+    meffil.compute.normalization.object(basename, probes=probes) 
 })
 ```
 
 Normalize quantiles from each sample using the control
 matrix to identify batch effects.
 ```{r}
-norm.objects <- meffil.normalize.objects(norm.objects, control.matrix, number.pcs=2, probes=probes)
+norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 ```
 
 Apply quantile normalization to methylation levels of each sample.
@@ -72,7 +64,7 @@ B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
 
 First make sure that the raw data is the same.
 ```{r}
-raw.meffil <- meffil.read.rg(basenames[1])
+raw.meffil <- meffil.read.rg(basenames[1], probes)
 all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 ```
 
@@ -81,7 +73,7 @@ all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 Apply `meffil` background correction.
 ```{r results='hide'}
 bc.meffil <- meffil.background.correct(raw.meffil, probes)
-M.meffil <- meffil.rg.to.mu(bc.meffil)$M
+M.meffil <- meffil.rg.to.mu(bc.meffil, probes)$M
 ```
 
 Apply `minfi` background correction.
@@ -98,35 +90,40 @@ quantile(M.meffil - M.minfi)
 ### Dye bias correction
 Apply `meffil` correction.
 ```{r results='hide'}
-dye.meffil <- meffil.dye.bias.correct(bc.meffil, 
-                                      norm.objects[[1]]$dye.bias.factors$R,
-                                      norm.objects[[1]]$dye.bias.factors$G)
-M.meffil <- meffil.rg.to.mu(dye.meffil)$M
+dye.meffil <- meffil.dye.bias.correct(bc.meffil,
+                                      intensity=norm.objects[[1]]$reference.intensity,
+                                      probes=probes)
+M.meffil <- meffil.rg.to.mu(dye.meffil, probes)$M
+U.meffil <- meffil.rg.to.mu(dye.meffil, probes)$U
 ```
 
 Apply `minfi` background and dye bias correction.
 ```{r results='hide'}
 dye.minfi <- preprocessNoob(raw.minfi, dyeCorr = TRUE)
 M.minfi <- getMeth(dye.minfi)[names(M.meffil),1]
+U.minfi <- getUnmeth(dye.minfi)[names(U.meffil),1]
 ```
 
 Compare results, should be identical.
 ```{r}
 quantile(M.meffil - M.minfi)
+quantile(U.meffil - U.minfi)
+quantile(M.meffil/(M.meffil+U.meffil+100) - M.minfi/(M.minfi+U.minfi+100))
 ```
 
 ### Control matrix extracted
 
 Extract `minfi` control matrix.
 ```{r results='hide'}
-library(matrixStats)                                      
+library(matrixStats, quietly=TRUE)
 control.matrix.minfi <- minfi:::.buildControlMatrix450k(minfi:::.extractFromRGSet450k(raw.minfi))
 ```
 
 Control matrix for `meffil` was extracted earlier.
 Preprocess the matrix using the same procedure used by `minfi`.
 ```{r results='hide'}
-control.matrix.meffil <- t(meffil.preprocess.control.matrix(control.matrix))
+control.matrix.meffil <- sapply(norm.objects, function(object) object$controls)
+control.matrix.meffil <- t(meffil.preprocess.control.matrix(control.matrix.meffil))
 ```
 
 The control variable order (columns) may be different between `minfi` and `meffil`
@@ -146,13 +143,45 @@ quantile(control.matrix.meffil - control.matrix.minfi)
 ```
 
 ### Final beta values
-Since sex chromosomes are handled differently than minfi,
-final beta values should be identical on the autosomes only.
+
 ```{r}
-autosomal.sites <- unique(probes$name[which(probes$chr.type == "autosomal")])
-B.minfi <- getBeta(norm.minfi)[rownames(B.meffil),]
-quantile(B.meffil[autosomal.sites,] - B.minfi[autosomal.sites,])
+B.minfi <- getBeta(norm.minfi)
+quantile(B.meffil - B.minfi[rownames(B.meffil),])
 ```
+
+On what chromosomes are the biggest differences appearing?
+```{r}
+probe.chromosome <- probes$chr[match(rownames(B.meffil), probes$name)]
+sex <- sapply(norm.objects, function(object) object$sex)
+is.diff <- abs(B.meffil - B.minfi[rownames(B.meffil),]) > 1e-4
+table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])/ncol(is.diff)
+table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])/sum(sex=="M")
+table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])/sum(sex=="F")
+```
+These results not surprising
+because chromosome Y not handled like `minfi` in either males or females, 
+and chromosome X is handled just like `minfi` in females but not in males.
+
+```{r}
+autosomal.cgs <- unique(probes$name[which(probes$chr %in% paste("chr", 1:22, sep=""))])
+quantile(B.meffil[autosomal.cgs,] - B.minfi[autosomal.cgs,])
+```
+
+In spite of the differences, CG correlations between methods are pretty close to 1.
+```{r}
+male.idx <- which(rowSums(is.diff[,sex=="M"]) >= 5)
+system.time(male.cg.r <- unlist(mclapply(male.idx, function(idx) {
+    cor(B.meffil[idx, sex=="M"], B.minfi[rownames(B.meffil)[idx], sex=="M"])
+})))
+quantile(male.cg.r, probs=c(0.05,0.1,0.25,0.5))
+
+female.idx <- which(rowSums(is.diff[,sex=="F"]) > 0)
+system.time(female.cg.r <- sapply(female.idx[1:200], function(idx) {
+    cor(B.meffil[idx, sex=="F"], B.minfi[rownames(B.meffil)[idx], sex=="F"])
+}))
+quantile(female.cg.r, probs=c(0.05,0.1,0.25, 0.5))
+```
+
 
 This file was generated from R markdown
 using `knitr::knit("functional-normalization.rmd")`.

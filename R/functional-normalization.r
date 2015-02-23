@@ -54,25 +54,21 @@ meffil.probe.info <- function() {
     locations <- probe.locations()
     ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
 
-    ret$type3 <- ret$type
-    ret$type3[which(ret$type == "i" & ret$dye == "R")] <- "iR"
-    ret$type3[which(ret$type == "i" & ret$dye == "G")] <- "iG"
-
-    ret$chr.type <- ifelse(is.na(ret$chr), NA, "autosomal")
-    ret$chr.type[which(ret$chr %in% c("chrX","chrY"))] <- "sex"
-
     for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
     ret
 }
 
-meffil.read.rg <- function(basename) {
+meffil.read.rg <- function(basename, probes=meffil.probe.info()) {
     rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = "")),
                R=read.idat(paste(basename, "_Red.idat", sep="")))
+    rg$R <- rg$R[which(names(rg$R) %in% probes$address[which(probes$dye == "R")])]
+    rg$G <- rg$G[which(names(rg$G) %in% probes$address[which(probes$dye == "G")])]
+    rg
 }
 
 meffil.rg.to.mu <- function(rg, probes=meffil.probe.info()) {
     stopifnot(is.rg(rg))
-
+    
     msg("converting red/green to methylated/unmethylated signal")
     probes.M.R <- probes[which(probes$target == "M" & probes$dye == "R"),]
     probes.M.G <- probes[which(probes$target == "M" & probes$dye == "G"),]
@@ -87,12 +83,6 @@ meffil.rg.to.mu <- function(rg, probes=meffil.probe.info()) {
     
     U <- U[names(M)]
     list(M=M,U=U)
-}
-
-meffil.extract.controls <- function(basename, probes=meffil.probe.info()) {
-    msg("sample file", basename)
-    rg <- meffil.read.rg(basename)
-    extract.controls(rg, probes)
 }
 
 meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
@@ -121,50 +111,70 @@ meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15)
     })
 }
 
-meffil.dye.bias.correct <- function(rg, factor.R, factor.G) {
-    rg$R <- rg$R * factor.R
-    rg$G <- rg$G * factor.G
+calculate.intensity.R <- function(rg, probes=meffil.probe.info()) {
+    addresses <- probes$address[which(probes$target %in% c("NORM_A", "NORM_T")
+                                      & probes$dye == "R")]
+    mean(rg$R[match(addresses, names(rg$R))], na.rm=T)
+}
+
+calculate.intensity.G <- function(rg, probes=meffil.probe.info()) {
+    addresses <- probes$address[which(probes$target %in% c("NORM_G", "NORM_C")
+                                      & probes$dye == "G")]
+    mean(rg$G[match(addresses, names(rg$G))], na.rm=T)
+}
+
+meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info()) {
+    msg()
+    stopifnot(is.rg(rg))
+    
+    rg$R <- rg$R * intensity/calculate.intensity.R(rg, probes)
+    rg$G <- rg$G * intensity/calculate.intensity.G(rg, probes)
     rg
 }
 
 
-meffil.compute.normalization.object <- function(basename, control.matrix,
+meffil.compute.normalization.object <- function(basename, 
                                                 number.quantiles=500,
-                                                probes=meffil.probe.info()) {
-    sample.idx <- match(basename, colnames(control.matrix))
-    stopifnot(!is.na(sample.idx))
-    dye.bias.factors <- calculate.dye.bias.factors(control.matrix, sample.idx)
-        
-    rg <- meffil.read.rg(basename)
+                                                dye.intensity=5000,
+                                                probes=meffil.probe.info()) {        
+    rg <- meffil.read.rg(basename, probes)
+
+    controls <- extract.controls(rg, probes)
+ 
     rg.correct <- meffil.background.correct(rg, probes)
-    rg.correct <- meffil.dye.bias.correct(rg.correct, dye.bias.factors$R, dye.bias.factors$G)
+
+    intensity.R <- calculate.intensity.R(rg.correct, probes)
+    intensity.G <- calculate.intensity.G(rg.correct, probes)
+
+    rg.correct <- meffil.dye.bias.correct(rg.correct, dye.intensity, probes)
+    
     mu <- meffil.rg.to.mu(rg.correct, probes)
 
-    probes.x <- probes[which(probes$chr == "chrX"),]
-    probes.y <- probes[which(probes$chr == "chrY"),]
-    x.signal <- median(log(mu$M[probes.x$name] + mu$U[probes.x$name], 2), na.rm=T)
-    y.signal <- median(log(mu$M[probes.y$name] + mu$U[probes.y$name], 2), na.rm=T)
+    probes.x <- probes$name[which(probes$chr == "chrX")]
+    x.signal <- median(log(mu$M[probes.x] + mu$U[probes.x], 2), na.rm=T)
 
+    probes.y <- probes$name[which(probes$chr == "chrY")]
+    y.signal <- median(log(mu$M[probes.y] + mu$U[probes.y], 2), na.rm=T)
+ 
     probs <- seq(0,1,length.out=number.quantiles)
-    quantile.sets <- define.quantile.probe.sets(probes)
-    quantile.sets$names <- get.quantile.probe.sets(quantile.sets)
-    quantile.sets$quantiles <- lapply(1:nrow(quantile.sets), function(i) {
-        probe.names <- quantile.sets$names[[i]]
-        target <- quantile.sets$target[i]
-        quantile(mu[[target]][probe.names], probs=probs, na.rm=T)   
+    
+    quantiles <- lapply(get.quantile.probe.subsets(probes), function(sets) {
+        list(M=quantile(mu$M[sets$M], probs=probs,na.rm=T),
+             U=quantile(mu$U[sets$U], probs=probs,na.rm=T))
     })
-    quantile.sets$names <- NULL
 
     list(origin="meffil.compute.normalization.object",
          basename=basename,
-         quantile.sets=quantile.sets,
-         dye.bias.factors=dye.bias.factors,
+         controls=controls,
+         quantiles=quantiles,
+         dye.intensity=dye.intensity,
+         intensity.R=intensity.R,
+         intensity.G=intensity.G,
          x.signal=x.signal,
          y.signal=y.signal)         
 }
 
 meffil.preprocess.control.matrix <- function(control.matrix) {
-    control.matrix <- control.matrix[-grep("^intensity.bc", rownames(control.matrix)),]
     control.matrix <- impute.matrix(control.matrix)
     control.matrix <- scale(t(control.matrix))
     control.matrix[control.matrix > 3] <- 3
@@ -172,52 +182,77 @@ meffil.preprocess.control.matrix <- function(control.matrix) {
     t(scale(control.matrix))
 }
 
-meffil.normalize.objects <- function(objects, control.matrix, 
-                                    number.pcs=2, sex.cutoff=-2, sex=NULL,
-                                    probes=meffil.probe.info()) {
-    stopifnot(length(objects) == ncol(control.matrix))
+meffil.normalize.objects <- function(objects, 
+                                    number.pcs=2, sex.cutoff=-2, sex=NULL) {
     stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
     stopifnot(number.pcs >= 2)
 
     msg("preprocessing the control matrix")
+    control.matrix <- sapply(objects, function(object) object$controls)
     control.matrix <- meffil.preprocess.control.matrix(control.matrix)
 
-    if (is.null(sex)) {
-        msg("predicting sex")
-        x.signal <- sapply(objects, function(obj) obj$x.signal)
-        y.signal <- sapply(objects, function(obj) obj$y.signal)
-        xy.diff <- y.signal-x.signal
-        sex <- ifelse(xy.diff < sex.cutoff, "F","M")
-    }
+    msg("selecting dye correction reference")
+    intensity.R <- sapply(objects, function(object) object$intensity.R)
+    intensity.G <- sapply(objects, function(object) object$intensity.G)
+    reference.idx <- which.min(abs(intensity.R/intensity.G-1))
+    dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
+                          
+    msg("predicting sex")
+    x.signal <- sapply(objects, function(obj) obj$x.signal)
+    y.signal <- sapply(objects, function(obj) obj$y.signal)
+    xy.diff <- y.signal-x.signal
+    predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
+    if (is.null(sex))
+        sex <- predicted.sex
     
+    sex.summary <- table(sex)
+    has.both.sexes <- length(sex.summary) >= 2 & min(sex.summary) > 1
+
+    male.idx <- which(sex == "M")
+    female.idx <- which(sex == "F")
+
     msg("normalizing quantiles")
-    quantile.sets <- define.quantile.probe.sets(probes)
-    quantile.sets$sex.diff <- (length(unique(sex)) >= 2
-                               & with(quantile.sets, !is.na(chr.type) & chr.type != "autosomal"))
-    normalized.quantiles <- lapply(1:nrow(quantile.sets), function(i) {
-        original <- sapply(objects, function(obj) obj$quantile.sets$quantiles[[i]])        
-        if (quantile.sets$sex.diff[i]) {
-            norm <- original
-            for (sex.value in unique(na.omit(sex))) {
-                sample.idx <- which(sex == sex.value)
-                norm[,sample.idx] <- normalize.quantiles(original[,sample.idx],
-                                                         control.matrix[,sample.idx], number.pcs)
+    subset.names <- names(objects[[1]]$quantiles)
+    normalized.quantiles <- sapply(subset.names, function(name) {
+        sapply(c("M","U"), function(target) {
+            msg(name, target)
+            original <- sapply(objects, function(object) {
+                object$quantiles[[name]][[target]] * dye.intensity/object$dye.intensity
+            })
+
+            if (name %in% sex.specific.quantile.probe.subsets() && has.both.sexes) {
+                norm.male <- normalize.quantiles(original[,male.idx,drop=F],
+                                                 control.matrix[,male.idx,drop=F],
+                                                 number.pcs)
+                norm.female <- normalize.quantiles(original[,female.idx,drop=F],
+                                                   control.matrix[,female.idx,drop=F],
+                                                   number.pcs)
+                norm <- original
+                norm[,male.idx] <- norm.male
+                norm[,female.idx] <- norm.female
             }
+            else
+                norm <- normalize.quantiles(original, control.matrix, number.pcs)
             norm
-        }
-        else            
-            normalize.quantiles(original, control.matrix, number.pcs)            
+        }, simplify=F)
+    }, simplify=F)
+        
+    lapply(1:length(objects), function(i) {
+        object <- objects[[i]]
+        object$sex.cutoff <- sex.cutoff
+        object$xy.diff <- xy.diff[i]
+        object$predicted.sex <- predicted.sex[i]
+        object$sex <- sex[i]
+        object$reference.intensity <- dye.intensity
+
+        subset.names <- applicable.quantile.probe.subsets(object$sex, has.both.sexes)
+        object$norm <- sapply(subset.names, function(subset.name) {
+            list(M=normalized.quantiles[[subset.name]]$M[,i],
+                 U=normalized.quantiles[[subset.name]]$U[,i])
+        },simplify=F)
+        
+        object
     })
-    
-    for (i in 1:length(objects)) {
-        objects[[i]]$sex.cutoff <- sex.cutoff
-        objects[[i]]$xy.diff <- xy.diff[i]
-        objects[[i]]$sex <- sex[i]
-        objects[[i]]$quantile.sets$sex.diff <- quantile.sets$sex.diff
-        objects[[i]]$quantile.sets$norm <- lapply(normalized.quantiles,
-                                                  function(sample.quantiles) sample.quantiles[,i])
-    }
-    objects
 }
 
 meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
@@ -225,30 +260,25 @@ meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
 
     probe.names <- unique(na.omit(probes$name))
 
-    U <- M <- rep(NA_integer_, length(probe.names))
-    names(U) <- names(M) <- probe.names
-
-    rg <- meffil.read.rg(object$basename)
+    rg <- meffil.read.rg(object$basename, probes)
     rg.correct <- meffil.background.correct(rg, probes)
-    rg.correct <- meffil.dye.bias.correct(rg.correct, object$dye.bias.factors$R, object$dye.bias.factors$G)
+    rg.correct <- meffil.dye.bias.correct(rg.correct, object$reference.intensity, probes)
     mu <- meffil.rg.to.mu(rg.correct, probes)
 
     mu$M <- mu$M[probe.names]
     mu$U <- mu$U[probe.names]
 
-    object$quantile.sets$names <- get.quantile.probe.sets(object$quantile.sets)
-    mixture <- sum(object$quantile.sets$sex.diff) == 0
-    object$quantile.sets$apply <-select.normalization.subsets(object$quantile.sets,object$sex,mixture)
-
-    for (i in which(object$quantile.sets$apply)) {
-        target <- object$quantile.sets$target[i]
-        probe.idx <- which(names(mu[[target]]) %in% object$quantile$names[[i]])
-
-        orig.signal <- mu[[target]][probe.idx]
-        norm.target <- compute.quantiles.target(object$quantile.sets$norm[[i]])
-        norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
-                                                                      norm.target)
-        mu[[target]][probe.idx] <- norm.signal
+    msg("Normalizing methylated and unmethylated signals.")
+    probe.subsets <- get.quantile.probe.subsets(probes)
+    for (name in names(object$norm)) {
+        for (target in names(object$norm[[name]])) {
+            probe.idx <- which(names(mu[[target]]) %in% probe.subsets[[name]][[target]])
+            orig.signal <- mu[[target]][probe.idx]
+            norm.target <- compute.quantiles.target(object$norm[[name]][[target]])            
+            norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
+                                                                          norm.target)
+            mu[[target]][probe.idx] <- norm.signal
+        }
     }
     mu
 }
@@ -269,7 +299,9 @@ meffil.normalize.samples <- function(objects, probes=meffil.probe.info()) {
     list(M=M,U=U)
 }
 
-meffil.get.beta <- function(mu) mu$M/(mu$M+mu$U+100)
+meffil.get.beta <- function(mu, pseudo=100) {
+    mu$M/(mu$M+mu$U+pseudo)
+}
 
 
 msg <- function(..., verbose=T) {
@@ -338,12 +370,6 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
     normG <- mean(rg$G[which(probes.G$target == "NORM_G")], na.rm = TRUE)
 
     dye.bias <- (normC + normG)/(normA + normT)
-
-    rg.bg <- meffil.background.correct(rg, probes)
-    addresses <- probes.R$address[which(probes.R$target %in% c("NORM_A", "NORM_T"))]
-    intensity.bc.R <- mean(rg.bg$R[addresses], na.rm = TRUE)
-    addresses <- probes.G$address[which(probes.G$target %in% c("NORM_G", "NORM_C"))]
-    intensity.bc.G <- mean(rg.bg$G[addresses], na.rm = TRUE)
     
     probs <- c(0.01, 0.5, 0.99)
     oob.G <- quantile(rg$G[with(probes.G, which(target == "OOB" & dye == "G"))], na.rm=T, probs=probs)
@@ -374,60 +400,65 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
       normG=normG,
       dye.bias=dye.bias,
       oob.G=oob.G,
-      oob.ratio=oob.ratio,
-      intensity.bc.G=intensity.bc.G,
-      intensity.bc.R=intensity.bc.R)
-}
-
-calculate.dye.bias.factors <- function(control.matrix,sample.idx) {
-    ratios <- control.matrix["intensity.bc.G",]/control.matrix["intensity.bc.R",]
-    reference <- which.min(abs(ratios-1))
-    intensity <- (control.matrix["intensity.bc.G",] + control.matrix["intensity.bc.R",])[reference]/2
-    list(R=intensity/control.matrix["intensity.bc.R",sample.idx],
-         G=intensity/control.matrix["intensity.bc.G",sample.idx])
+      oob.ratio=oob.ratio)
 }
 
 
-define.quantile.probe.sets <- function(probes=meffil.probe.info()) {
-    cbind(expand.grid(target=c("M","U"),
-                      type3=c("iG","iR","ii"),
-                      chr=NA,
-                      chr.type=c(NA,"autosomal"),
-                      stringsAsFactors=F),
-          expand.grid(target=c("M","U"),
-                      type3=NA,
-                      chr="chrX",
-                      chr.type="sex",
-                      stringsAsFactors=F),
-          expand.grid(target=c("M","U"),
-                      type3=NA,
-                      chr=NA,
-                      chr.type="sex",
-                      stringsAsFactors=F))
+get.quantile.probe.subsets <- function(probes=meffil.probe.info()) {
+    rm.na <- function(x) {
+        x[which(is.na(x))] <- F
+        x
+    }
+    
+    is.iG <- rm.na(probes$type == "i" & probes$dye == "G")
+    is.iR <- rm.na(probes$type == "i" & probes$dye == "R")
+    is.ii <- rm.na(probes$type == "ii")
+    is.genomic <- !is.na(probes$chr)
+    is.sex <- rm.na(is.genomic & probes$chr %in% c("chrX","chrY"))
+    is.x <- rm.na(is.genomic & probes$chr == "chrX")
+    is.y <- rm.na(is.genomic & probes$chr == "chrY")
+    is.autosomal <- rm.na(is.genomic & !is.sex)
+    is.not.y <- rm.na(is.genomic & probes$chr != "chrY")
+    
+    get.probe.subsets <- function(in.subset) {
+        list(M=probes$name[which(probes$target == "M" & in.subset)],
+             U=probes$name[which(probes$target == "U" & in.subset)])
+    }
+    
+    list(genomic.iG = get.probe.subsets(is.iG & is.genomic),
+         genomic.iR = get.probe.subsets(is.iR & is.genomic),
+         genomic.ii = get.probe.subsets(is.ii & is.genomic),
+         autosomal.iG = get.probe.subsets(is.iG & is.autosomal),
+         autosomal.iR = get.probe.subsets(is.iR & is.autosomal),
+         autosomal.ii = get.probe.subsets(is.ii & is.autosomal),
+         not.y.iG = get.probe.subsets(is.iG & is.not.y),
+         not.y.iR = get.probe.subsets(is.iR & is.not.y),
+         not.y.ii = get.probe.subsets(is.ii & is.not.y),
+         sex = get.probe.subsets(is.sex),
+         chry = get.probe.subsets(is.y),
+         chrx = get.probe.subsets(is.x))
 }
 
-eq.wild <- function(x,y) {
-    is.na(y) | x == y
+sex.specific.quantile.probe.subsets <- function() {
+    c("genomic.iG",
+      "genomic.iR",
+      "genomic.ii",
+      "not.y.iG",
+      "not.y.iR",
+      "not.y.ii",
+      "sex",
+      "chry",
+      "chrx")
+}
+                                   
+applicable.quantile.probe.subsets <- function(sex, both.sexes) {
+    if (both.sexes && sex == "M") return(c("autosomal.iG","autosomal.iR","autosomal.ii","sex"))
+    if (both.sexes && sex == "F") return(c("autosomal.iG","autosomal.iR","autosomal.ii","chrx","chry"))
+    if (!both.sexes && sex == "M") return(c("genomic.iG", "genomic.iR", "genomic.ii"))
+    if (!both.sexes && sex == "F") return(c("not.y.iG", "not.y.iR", "not.y.ii","chry"))
+    stop("invalid input", "sex =", sex, "both.sexes =", both.sexes)
 }
 
-get.quantile.probe.sets <- function(quantile.sets) {
-    lapply(1:nrow(quantile.sets), function(i) {
-        probes$name[which(eq.wild(probes$target, quantile.sets$target[i])
-                          & eq.wild(probes$type3, quantile.sets$type3[i])
-                          & eq.wild(probes$chr, quantile.sets$chr[i])
-                          & eq.wild(probes$chr.type, quantile.sets$chr.type[i]))]
-    })
-}
-
-select.normalization.subsets <- function(quantile.sets, sex="M", mixture=T) {
-    (mixture & eq.wild("autosomal", quantile.sets$chr.type)
-     | mixture & sex == "M" & eq.wild("sex", quantile.sets$chr.type)
-     | mixture & sex == "F" & eq.wild("chrX", quantile.sets$chr)     
-     | !mixture & sex == "M" & is.na(quantile.sets$chr.type)
-     | !mixture & sex == "F" & eq.wild("autosomal", quantile.sets$chr.type)
-     | !mixture & sex == "F" & eq.wild("chrX", quantile.sets$chr))
-}
- 
 read.idat <- function(filename) {
     msg("Reading", filename)
     
@@ -444,7 +475,8 @@ is.rg <- function(rg) {
 }
 
 is.normalization.object <- function(object) {
-    (all(c("quantile.sets","dye.bias.factors","origin","basename","x.signal","y.signal")
+    (all(c("quantiles","dye.intensity","origin","basename","x.signal","y.signal","controls",
+           "intensity.R","intensity.G")
          %in% names(object))
      && object$origin == "meffil.compute.normalization.object")
 }
@@ -468,7 +500,8 @@ normalize.quantiles <- function(quantiles, control.matrix, number.pcs) {
     stopifnot(number.pcs >= 2)
     
     quantiles[1,] <- 0
-    quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + 1000
+    safe.increment <- 1000 
+    quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + safe.increment
     
     mean.quantiles <- rowMeans(quantiles)
     control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
