@@ -1,7 +1,9 @@
-require(illuminaio) ## for readIDAT
-require(IlluminaHumanMethylation450kmanifest)
-require(MASS) ## for huber
-require(limma) ## lm.fit
+#library(illuminaio) ## for readIDAT()
+#library(IlluminaHumanMethylation450kmanifest) ## for getProbeInfo()
+#library(MASS) ## for huber()
+#library(IlluminaHumanMethylation450kanno.ilmn12.hg19) ## for probe locations
+
+
 
 meffil.basenames <- function(path,recursive=FALSE) {    
     grn.files <- list.files(path, pattern = "_Grn.idat$", recursive = recursive, 
@@ -12,21 +14,22 @@ meffil.basenames <- function(path,recursive=FALSE) {
               sub("_Red.idat$", "", red.files))
 }
 
-meffil.probe.info <- function() {
-    probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
-        annotation <- paste(array, "anno.", annotation, sep="")
-
-        msg("loading probe genomic location annotation", annotation)
-            
-        require(annotation,character.only=T)
-        data(list=annotation)
-        as.data.frame(get(annotation)@data$Locations)
-    }
-    probe.characteristics <- function(type) {
-        msg("extracting", type)
-        getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
-    }
+probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
+    annotation <- paste(array, "anno.", annotation, sep="")
     
+    msg("loading probe genomic location annotation", annotation)
+    
+    require(annotation,character.only=T)
+    data(list=annotation)
+    as.data.frame(get(annotation)@data$Locations)
+}
+
+probe.characteristics <- function(type) {
+    msg("extracting", type)
+    getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
+}
+
+meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {    
     type1.R <- probe.characteristics("I-Red")
     type1.G <- probe.characteristics("I-Green")
     type2 <- probe.characteristics("II")
@@ -51,7 +54,7 @@ meffil.probe.info <- function() {
 
     for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
 
-    locations <- probe.locations()
+    locations <- probe.locations(array, annotation)
     ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
 
     for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
@@ -520,3 +523,20 @@ compute.quantiles.target <- function(quantiles) {
 }   
 
 
+meffil.normalize.dataset <- function(basenames, data.dir, recursive=F, number.pcs=2,
+                                     sex=NULL, probes=meffil.probe.info()) {
+    stopifnot(missing(basenames) && missing(data.dir))
+    
+    if (missing(basenames))
+        basenames <- meffil.basenames(data.dir, recursive)
+    
+    norm.objects <- lapply(basenames, function(basename) {
+        meffil.compute.normalization.object(basename, probes=probes)
+    })
+
+    norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=number.pcs, sex=sex)
+
+    sapply(norm.objects, function(object) {
+        meffil.get.beta(meffil.normalize.sample(object, probes)) 
+    })
+}

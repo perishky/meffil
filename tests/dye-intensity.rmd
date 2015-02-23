@@ -21,7 +21,7 @@ if (length(list.files(data.dir, "*.idat$")) == 0) {
 ## Load and normalize using `meffil`
 Load the code, probe annotation and sample filename information.
 ```{r}
-source("../R/functional-normalization.r")
+library(meffil)
 probes <- meffil.probe.info()
 basenames <- meffil.basenames(data.dir)
 ```

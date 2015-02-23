@@ -10,6 +10,10 @@ Retrieve the data from the Gene Expression Omnibus (GEO) website
 dir.create(data.dir <- "data")
 ```
 
+```
+## Warning in dir.create(data.dir <- "data"): 'data' already exists
+```
+
 ```r
 if (length(list.files(data.dir, "*.idat$")) == 0) {
   filename <-  file.path(data.dir, "gse55491.tar")
@@ -28,6 +32,54 @@ Load the data.
 
 ```r
 library(minfi, quietly=TRUE)
+```
+
+```
+## Loading required package: parallel
+## 
+## Attaching package: 'BiocGenerics'
+## 
+## The following objects are masked from 'package:parallel':
+## 
+##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+##     clusterExport, clusterMap, parApply, parCapply, parLapply,
+##     parLapplyLB, parRapply, parSapply, parSapplyLB
+## 
+## The following object is masked from 'package:stats':
+## 
+##     xtabs
+## 
+## The following objects are masked from 'package:base':
+## 
+##     anyDuplicated, append, as.data.frame, as.vector, cbind,
+##     colnames, do.call, duplicated, eval, evalq, Filter, Find, get,
+##     intersect, is.unsorted, lapply, Map, mapply, match, mget,
+##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+##     rbind, Reduce, rep.int, rownames, sapply, setdiff, sort,
+##     table, tapply, union, unique, unlist, unsplit
+## 
+## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with
+##     'browseVignettes()'. To cite Bioconductor, see
+##     'citation("Biobase")', and for packages 'citation("pkgname")'.
+## 
+## Loading required package: S4Vectors
+## Loading required package: stats4
+## Loading required package: IRanges
+## Loading required package: GenomeInfoDb
+## Loading required package: XVector
+## Loading required package: foreach
+## foreach: simple, scalable parallel programming from Revolution Analytics
+## Use Revolution R for scalability, fault tolerance and more.
+## http://www.revolutionanalytics.com
+## Loading required package: iterators
+## Loading required package: locfit
+## locfit 1.5-9.1 	 2013-03-22
+## Setting options('download.file.method.GEOquery'='curl')
+```
+
+```r
 raw.minfi <- read.450k.exp(base = data.dir)
 ```
 
@@ -57,17 +109,25 @@ norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCor
 Load the code, probe annotation and sample filename information.
 
 ```r
-source("../R/functional-normalization.r")
+library(meffil)
+```
+
+```
+## Loading required package: illuminaio
+## Loading required package: MASS
+```
+
+```r
 probes <- meffil.probe.info()
 ```
 
 ```
-## [probe.characteristics] Mon Feb 23 01:05:15 2015 extracting I-Red 
-## [probe.characteristics] Mon Feb 23 01:05:16 2015 extracting I-Green 
-## [probe.characteristics] Mon Feb 23 01:05:16 2015 extracting II 
-## [probe.characteristics] Mon Feb 23 01:05:16 2015 extracting Control 
-## [meffil.probe.info] Mon Feb 23 01:05:16 2015 reorganizing type information 
-## [probe.locations] Mon Feb 23 01:05:37 2015 loading probe genomic location annotation IlluminaHumanMethylation450kanno.ilmn12.hg19
+## [probe.characteristics] Mon Feb 23 13:29:06 2015 extracting I-Red 
+## [probe.characteristics] Mon Feb 23 13:29:06 2015 extracting I-Green 
+## [probe.characteristics] Mon Feb 23 13:29:06 2015 extracting II 
+## [probe.characteristics] Mon Feb 23 13:29:06 2015 extracting Control 
+## [meffil.probe.info] Mon Feb 23 13:29:06 2015 reorganizing type information 
+## [probe.locations] Mon Feb 23 13:29:32 2015 loading probe genomic location annotation IlluminaHumanMethylation450kanno.ilmn12.hg19
 ```
 
 ```r
@@ -91,10 +151,34 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 ```
 
 ```
-## [meffil.normalize.objects] Mon Feb 23 01:08:29 2015 preprocessing the control matrix 
-## [meffil.normalize.objects] Mon Feb 23 01:08:29 2015 selecting dye correction reference 
-## [meffil.normalize.objects] Mon Feb 23 01:08:29 2015 predicting sex 
-## [meffil.normalize.objects] Mon Feb 23 01:08:29 2015 normalizing quantiles 
+## [meffil.normalize.objects] Mon Feb 23 13:33:50 2015 preprocessing the control matrix 
+## [meffil.normalize.objects] Mon Feb 23 13:33:50 2015 selecting dye correction reference 
+## [meffil.normalize.objects] Mon Feb 23 13:33:50 2015 predicting sex 
+## [meffil.normalize.objects] Mon Feb 23 13:33:50 2015 normalizing quantiles 
+## [FUN] Mon Feb 23 13:33:50 2015 genomic.iG M 
+## [FUN] Mon Feb 23 13:33:50 2015 genomic.iG U 
+## [FUN] Mon Feb 23 13:33:50 2015 genomic.iR M 
+## [FUN] Mon Feb 23 13:33:50 2015 genomic.iR U 
+## [FUN] Mon Feb 23 13:33:50 2015 genomic.ii M 
+## [FUN] Mon Feb 23 13:33:50 2015 genomic.ii U 
+## [FUN] Mon Feb 23 13:33:50 2015 autosomal.iG M 
+## [FUN] Mon Feb 23 13:33:50 2015 autosomal.iG U 
+## [FUN] Mon Feb 23 13:33:50 2015 autosomal.iR M 
+## [FUN] Mon Feb 23 13:33:50 2015 autosomal.iR U 
+## [FUN] Mon Feb 23 13:33:50 2015 autosomal.ii M 
+## [FUN] Mon Feb 23 13:33:50 2015 autosomal.ii U 
+## [FUN] Mon Feb 23 13:33:50 2015 not.y.iG M 
+## [FUN] Mon Feb 23 13:33:50 2015 not.y.iG U 
+## [FUN] Mon Feb 23 13:33:50 2015 not.y.iR M 
+## [FUN] Mon Feb 23 13:33:50 2015 not.y.iR U 
+## [FUN] Mon Feb 23 13:33:50 2015 not.y.ii M 
+## [FUN] Mon Feb 23 13:33:50 2015 not.y.ii U 
+## [FUN] Mon Feb 23 13:33:50 2015 sex M 
+## [FUN] Mon Feb 23 13:33:50 2015 sex U 
+## [FUN] Mon Feb 23 13:33:50 2015 chry M 
+## [FUN] Mon Feb 23 13:33:50 2015 chry U 
+## [FUN] Mon Feb 23 13:33:50 2015 chrx M 
+## [FUN] Mon Feb 23 13:33:50 2015 chrx U
 ```
 
 Apply quantile normalization to methylation levels of each sample.
@@ -114,8 +198,8 @@ raw.meffil <- meffil.read.rg(basenames[1], probes)
 ```
 
 ```
-## [read.idat] Mon Feb 23 01:10:51 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
-## [read.idat] Mon Feb 23 01:10:52 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
+## [read.idat] Mon Feb 23 13:37:08 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
+## [read.idat] Mon Feb 23 13:37:09 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
 ```
 
 ```r
@@ -207,6 +291,18 @@ Extract `minfi` control matrix.
 
 ```r
 library(matrixStats, quietly=TRUE)
+```
+
+```
+## 
+## Attaching package: 'matrixStats'
+## 
+## The following objects are masked from 'package:Biobase':
+## 
+##     anyMissing, rowMedians
+```
+
+```r
 control.matrix.minfi <- minfi:::.buildControlMatrix450k(minfi:::.extractFromRGSet450k(raw.minfi))
 ```
 
@@ -260,33 +356,33 @@ On what chromosomes are the biggest differences appearing?
 probe.chromosome <- probes$chr[match(rownames(B.meffil), probes$name)]
 sex <- sapply(norm.objects, function(object) object$sex)
 is.diff <- abs(B.meffil - B.minfi[rownames(B.meffil),]) > 1e-4
-table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])/ncol(is.diff)
+table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])
 ```
 
 ```
 ## 
-##      chrX      chrY 
-## 1770.3750  409.9583
+##  chrX  chrY 
+## 42489  9839
 ```
 
 ```r
-table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])/sum(sex=="M")
+table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])
 ```
 
 ```
 ## 
-##      chrX      chrY 
-## 3268.3077  408.2308
+##  chrX  chrY 
+## 42488  5307
 ```
 
 ```r
-table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])/sum(sex=="F")
+table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])
 ```
 
 ```
 ## 
-##         chrX         chrY 
-##   0.09090909 412.00000000
+## chrX chrY 
+##    1 4532
 ```
 These results not surprising
 because chromosome Y not handled like `minfi` in either males or females, 
@@ -307,9 +403,9 @@ In spite of the differences, CG correlations between methods are pretty close to
 
 ```r
 male.idx <- which(rowSums(is.diff[,sex=="M"]) >= 5)
-system.time(male.cg.r <- unlist(mclapply(male.idx, function(idx) {
+male.cg.r <- unlist(mclapply(male.idx, function(idx) {
     cor(B.meffil[idx, sex=="M"], B.minfi[rownames(B.meffil)[idx], sex=="M"])
-})))
+}))
 quantile(male.cg.r, probs=c(0.05,0.1,0.25,0.5))
 ```
 
@@ -320,9 +416,9 @@ quantile(male.cg.r, probs=c(0.05,0.1,0.25,0.5))
 
 ```r
 female.idx <- which(rowSums(is.diff[,sex=="F"]) > 0)
-system.time(female.cg.r <- sapply(female.idx[1:200], function(idx) {
+female.cg.r <- sapply(female.idx[1:200], function(idx) {
     cor(B.meffil[idx, sex=="F"], B.minfi[rownames(B.meffil)[idx], sex=="F"])
-}))
+})
 quantile(female.cg.r, probs=c(0.05,0.1,0.25, 0.5))
 ```
 

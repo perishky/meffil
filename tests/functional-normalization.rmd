@@ -34,7 +34,7 @@ norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCor
 ## Load and normalize using `meffil`
 Load the code, probe annotation and sample filename information.
 ```{r}
-source("../R/functional-normalization.r")
+library(meffil)
 probes <- meffil.probe.info()
 basenames <- meffil.basenames(data.dir)
 ```
@@ -154,9 +154,9 @@ On what chromosomes are the biggest differences appearing?
 probe.chromosome <- probes$chr[match(rownames(B.meffil), probes$name)]
 sex <- sapply(norm.objects, function(object) object$sex)
 is.diff <- abs(B.meffil - B.minfi[rownames(B.meffil),]) > 1e-4
-table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])/ncol(is.diff)
-table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])/sum(sex=="M")
-table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])/sum(sex=="F")
+table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])
+table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])
+table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])
 ```
 These results not surprising
 because chromosome Y not handled like `minfi` in either males or females, 
@@ -170,15 +170,15 @@ quantile(B.meffil[autosomal.cgs,] - B.minfi[autosomal.cgs,])
 In spite of the differences, CG correlations between methods are pretty close to 1.
 ```{r}
 male.idx <- which(rowSums(is.diff[,sex=="M"]) >= 5)
-system.time(male.cg.r <- unlist(mclapply(male.idx, function(idx) {
+male.cg.r <- unlist(mclapply(male.idx, function(idx) {
     cor(B.meffil[idx, sex=="M"], B.minfi[rownames(B.meffil)[idx], sex=="M"])
-})))
+}))
 quantile(male.cg.r, probs=c(0.05,0.1,0.25,0.5))
 
 female.idx <- which(rowSums(is.diff[,sex=="F"]) > 0)
-system.time(female.cg.r <- sapply(female.idx[1:200], function(idx) {
+female.cg.r <- sapply(female.idx[1:200], function(idx) {
     cor(B.meffil[idx, sex=="F"], B.minfi[rownames(B.meffil)[idx], sex=="F"])
-}))
+})
 quantile(female.cg.r, probs=c(0.05,0.1,0.25, 0.5))
 ```
 
