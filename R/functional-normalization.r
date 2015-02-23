@@ -29,7 +29,11 @@ probe.characteristics <- function(type) {
     getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
 }
 
-meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {    
+saved.probe.info <- NULL
+
+meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
+    if (!is.null(saved.probe.info)) return(save.probe.info)
+    
     type1.R <- probe.characteristics("I-Red")
     type1.G <- probe.characteristics("I-Green")
     type2 <- probe.characteristics("II")
@@ -58,6 +62,7 @@ meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="i
     ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
 
     for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
+    save.probe.info <- ret
     ret
 }
 
@@ -525,7 +530,7 @@ compute.quantiles.target <- function(quantiles) {
 
 meffil.normalize.dataset <- function(basenames, data.dir, recursive=F, number.pcs=2,
                                      sex=NULL, probes=meffil.probe.info()) {
-    stopifnot(missing(basenames) && missing(data.dir))
+    stopifnot(!missing(basenames) || !missing(data.dir))
     
     if (missing(basenames))
         basenames <- meffil.basenames(data.dir, recursive)

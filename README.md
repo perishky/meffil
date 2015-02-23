@@ -21,6 +21,7 @@ example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL,
 ### `meffil` (short version)
 Here is the simplest way to apply the `meffil` version.
 ```r
+library(meffil)
 B <- meffil.normalize.dataset(data.dir=data.dir, number.pcs=2)
 ```
 In this implementation, data for each sample is handled one at a time
@@ -37,7 +38,6 @@ Load the `meffil` code, probe annotation and
 raw data file information.
 ```r
 library(meffil)
-probes <- meffil.probe.info()
 basenames <- meffil.basenames(data.dir)
 ```
 
@@ -45,7 +45,7 @@ Background and dye correct each sample and the compute probe controls and quanti
 for each sample.
 ```r
 norm.objects <- mclapply(basenames, function(basename) {
-    meffil.compute.normalization.object(basename, probes=probes)
+    meffil.compute.normalization.object(basename)
 })
 ```
 
@@ -57,8 +57,8 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 Transform the methylation data to fit the normalized quantiles
 and return resulting beta-values.
 ```r
-B <- do.call(cbind, mclapply(norm.objects, function(object) {
-    meffil.get.beta(meffil.normalize.sample(object, probes)) 
+B.long <- do.call(cbind, mclapply(norm.objects, function(object) {
+    meffil.get.beta(meffil.normalize.sample(object)) 
 }))
 ```
 
