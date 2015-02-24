@@ -13,8 +13,8 @@ Code for applying the `minfi` functional normalization algorithm
 to a dataset (source directory unspecified).
 ```r
 library(minfi)
-data.dir <- ....
-example <- read.450k.exp(data.dir)
+path <- ....
+example <- read.450k.exp(path)
 example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL,
                                   bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
 ```
@@ -22,7 +22,7 @@ example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL,
 Here is the simplest way to apply the `meffil` version.
 ```r
 library(meffil)
-B <- meffil.normalize.dataset(data.dir=data.dir, number.pcs=2)
+B <- meffil.normalize.dataset(path=path, number.pcs=2)
 ```
 In this implementation, data for each sample is handled one at a time
 until the final step when normalized beta values are merged into
@@ -38,7 +38,7 @@ Load the `meffil` code, probe annotation and
 raw data file information.
 ```r
 library(meffil)
-basenames <- meffil.basenames(data.dir)
+basenames <- meffil.basenames(path)
 ```
 
 Background and dye correct each sample and the compute probe controls and quantiles

@@ -6,15 +6,15 @@ Retrieve the data from the Gene Expression Omnibus (GEO) website
 (http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
 
 ```{r}
-dir.create(data.dir <- "data")
-if (length(list.files(data.dir, "*.idat$")) == 0) {
-  filename <-  file.path(data.dir, "gse55491.tar")
+dir.create(path <- "data")
+if (length(list.files(path, "*.idat$")) == 0) {
+  filename <-  file.path(path, "gse55491.tar")
   download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
   cat(date(), "Extracting files from GEO archive.\n")
-  system(paste("cd", data.dir, ";", "tar xvf", basename(filename)))
+  system(paste("cd", path, ";", "tar xvf", basename(filename)))
   unlink(filename)
   cat(date(), "Unzipping IDAT files.\n")
-  system(paste("cd", data.dir, ";", "gunzip *.idat.gz"))
+  system(paste("cd", path, ";", "gunzip *.idat.gz"))
 }
 ```
 
@@ -23,7 +23,7 @@ Load the code, probe annotation and sample filename information.
 ```{r}
 library(meffil)
 probes <- meffil.probe.info()
-basenames <- meffil.basenames(data.dir)
+basenames <- meffil.basenames(path)
 ```
 
 Next we collect controls, perform background and dye bias correction and then

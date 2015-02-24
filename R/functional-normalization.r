@@ -2,37 +2,67 @@
 #library(IlluminaHumanMethylation450kmanifest) ## for getProbeInfo()
 #library(MASS) ## for huber()
 #library(IlluminaHumanMethylation450kanno.ilmn12.hg19) ## for probe locations
+#library(limma) ## normexp.signal
 
-
-
-meffil.basenames <- function(path,recursive=FALSE) {    
-    grn.files <- list.files(path, pattern = "_Grn.idat$", recursive = recursive, 
-                            ignore.case = TRUE, full.names = TRUE)
-    red.files <- list.files(path, pattern = "_Red.idat$", recursive = recursive, 
-                            ignore.case = TRUE, full.names = TRUE)
-    intersect(sub("_Grn.idat$", "", grn.files), 
-              sub("_Red.idat$", "", red.files))
-}
-
-probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
-    annotation <- paste(array, "anno.", annotation, sep="")
+#' Functional normalization
+#'
+#' Apply functional normalization to a set of Infinium HumanMethylation450 BeadChip IDAT files.
+#'
+#' Fortin JP, Labbe A, Lemire M, Zanke BW, Hudson TJ, Fertig EJ, Greenwood CM, Hansen KD.
+#' Functional normalization of 450k methylation array data
+#' improves replication in large cancer studies.
+#' Genome Biol. 2014 Dec 3;15(12):503. doi: 10.1186/s13059-014-0503-2.
+#' PMID: 25599564
+#' 
+#' @param path Directory containing the idat files.  Ignored if \code{filenames} is defined.
+#' @param recursive If \code{TRUE}, any idat file in \code{path} or a subdirectory is included
+#' in the normalization; otherwise, only those in the immediate directory are included
+#' (Default: \code{FALSE}).
+#' @param filenames Optional character vector
+#' listing the idat files to include in the normalization. Filenames may omit
+#' the "_Grn.idat"/"_Red.idat" suffix.
+#' @param number.pcs Number of control matrix principal components to adjust for (Default: 2).
+#' @param sex Optional character vector assigning a sex label ("M" or "F") to each sample.
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @return Normalized beta matrix (rows = CG sites, columns = samples, values = 0..1).
+#' 
+#' @export
+meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
+                                     sex=NULL, probes=meffil.probe.info()) {
+    stopifnot(!missing(filenames) || !missing(path))
     
-    msg("loading probe genomic location annotation", annotation)
+    if (missing(filenames))
+        basenames <- meffil.basenames(path, recursive)
+    else
+        basenames <- get.basenames(filenames)
     
-    require(annotation,character.only=T)
-    data(list=annotation)
-    as.data.frame(get(annotation)@data$Locations)
+    norm.objects <- lapply(basenames, function(basename) {
+        meffil.compute.normalization.object(basename, probes=probes)
+    })
+
+    norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=number.pcs, sex=sex)
+
+    sapply(norm.objects, function(object) {
+        meffil.get.beta(meffil.normalize.sample(object, probes)) 
+    })
 }
 
-probe.characteristics <- function(type) {
-    msg("extracting", type)
-    getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
-}
 
 saved.probe.info <- NULL
 
+#' Probe type and location annotation
+#'
+#' Constructs an data frame annotating probe types
+#' for the Infinium HumanMethylation450 BeadChip
+#' based on \code{\link[minfi]{getProbeInfo}()}.
+#'
+#' @param array Microarray identifier (Default: "IlluminaHumanMethylation450k").
+#' @param annotation Genomic probe locations annotation (Default: "ilmn12.hg19").
+#'
+#' @export
 meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
-    if (!is.null(saved.probe.info)) return(save.probe.info)
+    if (!is.null(saved.probe.info)) return(saved.probe.info)
     
     type1.R <- probe.characteristics("I-Red")
     type1.G <- probe.characteristics("I-Green")
@@ -62,85 +92,61 @@ meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="i
     ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
 
     for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
-    save.probe.info <- ret
+    saved.probe.info <<- ret
     ret
 }
 
-meffil.read.rg <- function(basename, probes=meffil.probe.info()) {
-    rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = "")),
-               R=read.idat(paste(basename, "_Red.idat", sep="")))
-    rg$R <- rg$R[which(names(rg$R) %in% probes$address[which(probes$dye == "R")])]
-    rg$G <- rg$G[which(names(rg$G) %in% probes$address[which(probes$dye == "G")])]
-    rg
+probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
+    annotation <- paste(array, "anno.", annotation, sep="")
+    
+    msg("loading probe genomic location annotation", annotation)
+    
+    require(annotation,character.only=T)
+    data(list=annotation)
+    as.data.frame(get(annotation)@data$Locations)
 }
 
-meffil.rg.to.mu <- function(rg, probes=meffil.probe.info()) {
-    stopifnot(is.rg(rg))
-    
-    msg("converting red/green to methylated/unmethylated signal")
-    probes.M.R <- probes[which(probes$target == "M" & probes$dye == "R"),]
-    probes.M.G <- probes[which(probes$target == "M" & probes$dye == "G"),]
-    probes.U.R <- probes[which(probes$target == "U" & probes$dye == "R"),]
-    probes.U.G <- probes[which(probes$target == "U" & probes$dye == "G"),]
-    
-    M <- c(rg$R[probes.M.R$address], rg$G[probes.M.G$address])
-    U <- c(rg$R[probes.U.R$address], rg$G[probes.U.G$address])
-    
-    names(M) <- c(probes.M.R$name, probes.M.G$name)
-    names(U) <- c(probes.U.R$name, probes.U.G$name)
-    
-    U <- U[names(M)]
-    list(M=M,U=U)
+probe.characteristics <- function(type) {
+    msg("extracting", type)
+    minfi::getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
 }
 
-meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
-    stopifnot(is.rg(rg))
-    
-    lapply(c(R="R",G="G"), function(dye) {
-        msg("background correction for dye =", dye)
-        addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
-        xf <- rg[[dye]][addresses]
-        xf[which(xf <= 0)] <- 1
-
-        addresses <- probes$address[which(probes$type == "control" & probes$dye == dye)]
-        xc <- rg[[dye]][addresses]
-        xc[which(xc <= 0)] <- 1
-        
-        addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
-        oob <- rg[[dye]][addresses]
-        
-        ests <- MASS::huber(oob) 
-        mu <- ests$mu
-        sigma <- log(ests$s)
-        alpha <- log(max(MASS::huber(xf)$mu - mu, 10))
-        bg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), c(xf,xc)) + offset
-        names(bg) <- c(names(xf), names(xc))
-        bg
-    })
+#' IDAT file basenames
+#'
+#' List IDAT file basenames in a given directory.
+#'
+#' @param path Directory containing the IDAT files.
+#' @param recursive If \code{TRUE}, search for IDAT files in subdirectories as well
+#' (Default: \code{FALSE}).
+#' @return Character vector of IDAT file basenames
+#' (i.e. filenames with "_Grn.idat" and "_Red.idat" removed).
+#' In other words, each identifies the Cy5 and Cy3 output files corresponding to a single microarray.
+#' 
+#' @export
+meffil.basenames <- function(path,recursive=FALSE) {    
+    grn.files <- list.files(path, pattern = "_Grn.idat$", recursive = recursive, 
+                            ignore.case = TRUE, full.names = TRUE)
+    red.files <- list.files(path, pattern = "_Red.idat$", recursive = recursive, 
+                            ignore.case = TRUE, full.names = TRUE)
+    get.basenames(c(grn.files, red.files))
 }
 
-calculate.intensity.R <- function(rg, probes=meffil.probe.info()) {
-    addresses <- probes$address[which(probes$target %in% c("NORM_A", "NORM_T")
-                                      & probes$dye == "R")]
-    mean(rg$R[match(addresses, names(rg$R))], na.rm=T)
-}
+get.basenames <- function(filenames) 
+    unique(gsub("_Red.idat$|_Grn.idat$", "", filenames))
 
-calculate.intensity.G <- function(rg, probes=meffil.probe.info()) {
-    addresses <- probes$address[which(probes$target %in% c("NORM_G", "NORM_C")
-                                      & probes$dye == "G")]
-    mean(rg$G[match(addresses, names(rg$G))], na.rm=T)
-}
-
-meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info()) {
-    msg()
-    stopifnot(is.rg(rg))
-    
-    rg$R <- rg$R * intensity/calculate.intensity.R(rg, probes)
-    rg$G <- rg$G * intensity/calculate.intensity.G(rg, probes)
-    rg
-}
-
-
+#' Normalization object
+#'
+#' Create a normalization object for a given Infinium HumanMethylation450 BeadChip.  
+#'
+#' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
+#' @param number.quantiles Number of quantiles to compute for probe subset (Default: 500).
+#' @param dye.intensity Reference intensity for scaling each color channel (Default: 5000).
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @return List containing control probe information, probe summaries
+#' and quantiles.
+#' 
+#' @export
 meffil.compute.normalization.object <- function(basename, 
                                                 number.quantiles=500,
                                                 dye.intensity=5000,
@@ -182,142 +188,100 @@ meffil.compute.normalization.object <- function(basename,
          y.signal=y.signal)         
 }
 
-meffil.preprocess.control.matrix <- function(control.matrix) {
-    control.matrix <- impute.matrix(control.matrix)
-    control.matrix <- scale(t(control.matrix))
-    control.matrix[control.matrix > 3] <- 3
-    control.matrix[control.matrix < -3] <- -3
-    t(scale(control.matrix))
+is.normalization.object <- function(object) {
+    (all(c("quantiles","dye.intensity","origin","basename","x.signal","y.signal","controls",
+           "intensity.R","intensity.G")
+         %in% names(object))
+     && object$origin == "meffil.compute.normalization.object")
 }
 
-meffil.normalize.objects <- function(objects, 
-                                    number.pcs=2, sex.cutoff=-2, sex=NULL) {
-    stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
-    stopifnot(number.pcs >= 2)
-
-    msg("preprocessing the control matrix")
-    control.matrix <- sapply(objects, function(object) object$controls)
-    control.matrix <- meffil.preprocess.control.matrix(control.matrix)
-
-    msg("selecting dye correction reference")
-    intensity.R <- sapply(objects, function(object) object$intensity.R)
-    intensity.G <- sapply(objects, function(object) object$intensity.G)
-    reference.idx <- which.min(abs(intensity.R/intensity.G-1))
-    dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
-                          
-    msg("predicting sex")
-    x.signal <- sapply(objects, function(obj) obj$x.signal)
-    y.signal <- sapply(objects, function(obj) obj$y.signal)
-    xy.diff <- y.signal-x.signal
-    predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
-    if (is.null(sex))
-        sex <- predicted.sex
+get.quantile.probe.subsets <- function(probes=meffil.probe.info()) {
+    rm.na <- function(x) {
+        x[which(is.na(x))] <- F
+        x
+    }
     
-    sex.summary <- table(sex)
-    has.both.sexes <- length(sex.summary) >= 2 & min(sex.summary) > 1
-
-    male.idx <- which(sex == "M")
-    female.idx <- which(sex == "F")
-
-    msg("normalizing quantiles")
-    subset.names <- names(objects[[1]]$quantiles)
-    normalized.quantiles <- sapply(subset.names, function(name) {
-        sapply(c("M","U"), function(target) {
-            msg(name, target)
-            original <- sapply(objects, function(object) {
-                object$quantiles[[name]][[target]] * dye.intensity/object$dye.intensity
-            })
-
-            if (name %in% sex.specific.quantile.probe.subsets() && has.both.sexes) {
-                norm.male <- normalize.quantiles(original[,male.idx,drop=F],
-                                                 control.matrix[,male.idx,drop=F],
-                                                 number.pcs)
-                norm.female <- normalize.quantiles(original[,female.idx,drop=F],
-                                                   control.matrix[,female.idx,drop=F],
-                                                   number.pcs)
-                norm <- original
-                norm[,male.idx] <- norm.male
-                norm[,female.idx] <- norm.female
-            }
-            else
-                norm <- normalize.quantiles(original, control.matrix, number.pcs)
-            norm
-        }, simplify=F)
-    }, simplify=F)
-        
-    lapply(1:length(objects), function(i) {
-        object <- objects[[i]]
-        object$sex.cutoff <- sex.cutoff
-        object$xy.diff <- xy.diff[i]
-        object$predicted.sex <- predicted.sex[i]
-        object$sex <- sex[i]
-        object$reference.intensity <- dye.intensity
-
-        subset.names <- applicable.quantile.probe.subsets(object$sex, has.both.sexes)
-        object$norm <- sapply(subset.names, function(subset.name) {
-            list(M=normalized.quantiles[[subset.name]]$M[,i],
-                 U=normalized.quantiles[[subset.name]]$U[,i])
-        },simplify=F)
-        
-        object
-    })
-}
-
-meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
-    stopifnot(is.normalization.object(object))
-
-    probe.names <- unique(na.omit(probes$name))
-
-    rg <- meffil.read.rg(object$basename, probes)
-    rg.correct <- meffil.background.correct(rg, probes)
-    rg.correct <- meffil.dye.bias.correct(rg.correct, object$reference.intensity, probes)
-    mu <- meffil.rg.to.mu(rg.correct, probes)
-
-    mu$M <- mu$M[probe.names]
-    mu$U <- mu$U[probe.names]
-
-    msg("Normalizing methylated and unmethylated signals.")
-    probe.subsets <- get.quantile.probe.subsets(probes)
-    for (name in names(object$norm)) {
-        for (target in names(object$norm[[name]])) {
-            probe.idx <- which(names(mu[[target]]) %in% probe.subsets[[name]][[target]])
-            orig.signal <- mu[[target]][probe.idx]
-            norm.target <- compute.quantiles.target(object$norm[[name]][[target]])            
-            norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
-                                                                          norm.target)
-            mu[[target]][probe.idx] <- norm.signal
-        }
+    is.iG <- rm.na(probes$type == "i" & probes$dye == "G")
+    is.iR <- rm.na(probes$type == "i" & probes$dye == "R")
+    is.ii <- rm.na(probes$type == "ii")
+    is.genomic <- !is.na(probes$chr)
+    is.sex <- rm.na(is.genomic & probes$chr %in% c("chrX","chrY"))
+    is.x <- rm.na(is.genomic & probes$chr == "chrX")
+    is.y <- rm.na(is.genomic & probes$chr == "chrY")
+    is.autosomal <- rm.na(is.genomic & !is.sex)
+    is.not.y <- rm.na(is.genomic & probes$chr != "chrY")
+    
+    get.probe.subsets <- function(in.subset) {
+        list(M=probes$name[which(probes$target == "M" & in.subset)],
+             U=probes$name[which(probes$target == "U" & in.subset)])
     }
-    mu
+    
+    list(genomic.iG = get.probe.subsets(is.iG & is.genomic),
+         genomic.iR = get.probe.subsets(is.iR & is.genomic),
+         genomic.ii = get.probe.subsets(is.ii & is.genomic),
+         autosomal.iG = get.probe.subsets(is.iG & is.autosomal),
+         autosomal.iR = get.probe.subsets(is.iR & is.autosomal),
+         autosomal.ii = get.probe.subsets(is.ii & is.autosomal),
+         not.y.iG = get.probe.subsets(is.iG & is.not.y),
+         not.y.iR = get.probe.subsets(is.iR & is.not.y),
+         not.y.ii = get.probe.subsets(is.ii & is.not.y),
+         sex = get.probe.subsets(is.sex),
+         chry = get.probe.subsets(is.y),
+         chrx = get.probe.subsets(is.x))
 }
 
-meffil.normalize.samples <- function(objects, probes=meffil.probe.info()) {
-    M <- U <- NA
-    for (i in 1:length(objects)) {
-        msg(i)
-        mu <- meffil.normalize.sample(objects[[i]], probes)
-        if (i == 1) {
-            U <- M <- matrix(NA_integer_,
-                             nrow=length(mu$M), ncol=length(objects),
-                             dimnames=list(names(mu$M), names(objects)))
-        }
-        M[,i] <- mu$M
-        U[,i] <- mu$U
-    }
-    list(M=M,U=U)
+sex.specific.quantile.probe.subsets <- function() {
+    c("genomic.iG",
+      "genomic.iR",
+      "genomic.ii",
+      "not.y.iG",
+      "not.y.iR",
+      "not.y.ii",
+      "sex",
+      "chry",
+      "chrx")
+}
+                                   
+applicable.quantile.probe.subsets <- function(sex, both.sexes) {
+    if (both.sexes && sex == "M") return(c("autosomal.iG","autosomal.iR","autosomal.ii","sex"))
+    if (both.sexes && sex == "F") return(c("autosomal.iG","autosomal.iR","autosomal.ii","chrx","chry"))
+    if (!both.sexes && sex == "M") return(c("genomic.iG", "genomic.iR", "genomic.ii"))
+    if (!both.sexes && sex == "F") return(c("not.y.iG", "not.y.iR", "not.y.ii","chry"))
+    stop("invalid input", "sex =", sex, "both.sexes =", both.sexes)
 }
 
-meffil.get.beta <- function(mu, pseudo=100) {
-    mu$M/(mu$M+mu$U+pseudo)
+#' Read Infinium HumanMethylation450 BeadChip.
+#'
+#' Reads Cy5 and Cy3 files for a given Infinium HumanMethylation450 BeadChip.
+#'
+#' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @return List containing raw Cy5 ('R') and Cy3 ('G') intensities for the sample.
+#' 
+#' @export
+meffil.read.rg <- function(basename, probes=meffil.probe.info()) {
+    rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = "")),
+               R=read.idat(paste(basename, "_Red.idat", sep="")))
+    rg$R <- rg$R[which(names(rg$R) %in% probes$address[which(probes$dye == "R")])]
+    rg$G <- rg$G[which(names(rg$G) %in% probes$address[which(probes$dye == "G")])]
+    rg
 }
 
-
-msg <- function(..., verbose=T) {
-    x <- paste(list(...))
-    name <- sys.call(sys.parent(1))[[1]]
-    cat(paste("[", name, "]", sep=""), date(), x, "\n")
+read.idat <- function(filename) {
+    msg("Reading", filename)
+    
+    if (!file.exists(filename))
+        stop("Filename does not exist:", filename)
+    illuminaio::readIDAT(filename)$Quants[,"Mean"]
 }
 
+is.rg <- function(rg) {
+    (all(c("R","G") %in% names(rg))
+     && is.vector(rg$R) && is.vector(rg$G)
+     && length(names(rg$G)) == length(rg$G)
+     && length(names(rg$R)) == length(rg$R))
+}
 
 extract.controls <- function(rg, probes=meffil.probe.info()) {
     stopifnot(is.rg(rg))
@@ -412,81 +376,202 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
 }
 
 
-get.quantile.probe.subsets <- function(probes=meffil.probe.info()) {
-    rm.na <- function(x) {
-        x[which(is.na(x))] <- F
-        x
+#' Convert to methylated/unmethylated signal
+#'
+#' Converts Cy5/Cy3 signals to methylated/unmethylated signals from a
+#' Infinium HumanMethylation450 BeadChip.
+#'
+#' @param rg Cy5/Cy3 signal generated by \code{\link{meffil.read.rg}()}.
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @return List containing methylated and unmethylated signals.
+#' 
+#' @export
+meffil.rg.to.mu <- function(rg, probes=meffil.probe.info()) {
+    stopifnot(is.rg(rg))
+    
+    msg("converting red/green to methylated/unmethylated signal")
+    probes.M.R <- probes[which(probes$target == "M" & probes$dye == "R"),]
+    probes.M.G <- probes[which(probes$target == "M" & probes$dye == "G"),]
+    probes.U.R <- probes[which(probes$target == "U" & probes$dye == "R"),]
+    probes.U.G <- probes[which(probes$target == "U" & probes$dye == "G"),]
+    
+    M <- c(rg$R[probes.M.R$address], rg$G[probes.M.G$address])
+    U <- c(rg$R[probes.U.R$address], rg$G[probes.U.G$address])
+    
+    names(M) <- c(probes.M.R$name, probes.M.G$name)
+    names(U) <- c(probes.U.R$name, probes.U.G$name)
+    
+    U <- U[names(M)]
+    list(M=M,U=U)
+}
+
+#' Background correction
+#'
+#' Background correct Cy5/Cy3 signal of a Infinium HumanMethylation450 BeadChip.
+#'
+#' @param rg Cy5/Cy3 signal generated by \code{\link{meffil.read.rg}()}.
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @param offset Number to add to background corrected signal (Default: 15).
+#' @return Background corrected Cy5/Cy3 signal by \code{\link[limma][normexp.signal}.
+#'
+#' @export
+meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
+    stopifnot(is.rg(rg))
+    
+    lapply(c(R="R",G="G"), function(dye) {
+        msg("background correction for dye =", dye)
+        addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
+        xf <- rg[[dye]][addresses]
+        xf[which(xf <= 0)] <- 1
+
+        addresses <- probes$address[which(probes$type == "control" & probes$dye == dye)]
+        xc <- rg[[dye]][addresses]
+        xc[which(xc <= 0)] <- 1
+        
+        addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
+        oob <- rg[[dye]][addresses]
+        
+        ests <- MASS::huber(oob) 
+        mu <- ests$mu
+        sigma <- log(ests$s)
+        alpha <- log(max(MASS::huber(xf)$mu - mu, 10))
+        bg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), c(xf,xc)) + offset
+        names(bg) <- c(names(xf), names(xc))
+        bg
+    })
+}
+
+#' Infinium HumanMethylation450 BeadChip
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#'
+#' @export
+meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info()) {
+    msg()
+    stopifnot(is.rg(rg))
+    
+    rg$R <- rg$R * intensity/calculate.intensity.R(rg, probes)
+    rg$G <- rg$G * intensity/calculate.intensity.G(rg, probes)
+    rg
+}
+
+calculate.intensity.R <- function(rg, probes=meffil.probe.info()) {
+    addresses <- probes$address[which(probes$target %in% c("NORM_A", "NORM_T")
+                                      & probes$dye == "R")]
+    mean(rg$R[match(addresses, names(rg$R))], na.rm=T)
+}
+
+calculate.intensity.G <- function(rg, probes=meffil.probe.info()) {
+    addresses <- probes$address[which(probes$target %in% c("NORM_G", "NORM_C")
+                                      & probes$dye == "G")]
+    mean(rg$G[match(addresses, names(rg$G))], na.rm=T)
+}
+
+#' Normalize objects
+#'
+#' Normalize microarray quantiles using controls extracted (Infinium HumanMethylation450 BeadChip).
+#'
+#' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
+#' @param number.pcs Number of control matrix principal components to adjust for (Default: 2).
+#' @param sex Optional character vector assigning a sex label ("M" or "F") to each sample.
+#' @return Same list as input with additional elements added for each sample
+#' including normalized quantiles needed for normalizing each sample.
+#' 
+#' @export
+meffil.normalize.objects <- function(objects, 
+                                    number.pcs=2, sex.cutoff=-2, sex=NULL) {
+    stopifnot(all(sapply(objects, is.normalization.object)))    
+    stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
+    stopifnot(number.pcs >= 1)
+
+    msg("selecting dye correction reference")
+    intensity.R <- sapply(objects, function(object) object$intensity.R)
+    intensity.G <- sapply(objects, function(object) object$intensity.G)
+    reference.idx <- which.min(abs(intensity.R/intensity.G-1))
+    dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
+                          
+    msg("predicting sex")
+    x.signal <- sapply(objects, function(obj) obj$x.signal)
+    y.signal <- sapply(objects, function(obj) obj$y.signal)
+    xy.diff <- y.signal-x.signal
+    predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
+    if (is.null(sex))
+        sex <- predicted.sex
+    
+    sex.summary <- table(sex)
+    has.both.sexes <- length(sex.summary) >= 2 & min(sex.summary) > 1
+
+    male.idx <- which(sex == "M")
+    female.idx <- which(sex == "F")
+
+    msg("creating control matrix")
+    design.matrix <- meffil.design.matrix(objects, number.pcs)
+    if (has.both.sexes) {
+        design.male <- meffil.design.matrix(objects[male.idx], number.pcs)
+        design.female <- meffil.design.matrix(objects[female.idx], number.pcs)
     }
     
-    is.iG <- rm.na(probes$type == "i" & probes$dye == "G")
-    is.iR <- rm.na(probes$type == "i" & probes$dye == "R")
-    is.ii <- rm.na(probes$type == "ii")
-    is.genomic <- !is.na(probes$chr)
-    is.sex <- rm.na(is.genomic & probes$chr %in% c("chrX","chrY"))
-    is.x <- rm.na(is.genomic & probes$chr == "chrX")
-    is.y <- rm.na(is.genomic & probes$chr == "chrY")
-    is.autosomal <- rm.na(is.genomic & !is.sex)
-    is.not.y <- rm.na(is.genomic & probes$chr != "chrY")
+    msg("normalizing quantiles")
+    subset.names <- names(objects[[1]]$quantiles)
+    normalized.quantiles <- sapply(subset.names, function(name) {
+        sapply(c("M","U"), function(target) {
+            msg(name, target)
+            original <- sapply(objects, function(object) {
+                object$quantiles[[name]][[target]] * dye.intensity/object$dye.intensity
+            })
+
+            if (name %in% sex.specific.quantile.probe.subsets() && has.both.sexes) {
+                norm.male <- normalize.quantiles(original[,male.idx,drop=F], design.male)
+                norm.female <- normalize.quantiles(original[,female.idx,drop=F], design.female)
+                norm <- original
+                norm[,male.idx] <- norm.male
+                norm[,female.idx] <- norm.female
+            }
+            else
+                norm <- normalize.quantiles(original, design.matrix)
+            norm
+        }, simplify=F)
+    }, simplify=F)
+        
+    lapply(1:length(objects), function(i) {
+        object <- objects[[i]]
+        object$sex.cutoff <- sex.cutoff
+        object$xy.diff <- xy.diff[i]
+        object$predicted.sex <- predicted.sex[i]
+        object$sex <- sex[i]
+        object$reference.intensity <- dye.intensity
+
+        subset.names <- applicable.quantile.probe.subsets(object$sex, has.both.sexes)
+        object$norm <- sapply(subset.names, function(subset.name) {
+            list(M=normalized.quantiles[[subset.name]]$M[,i],
+                 U=normalized.quantiles[[subset.name]]$U[,i])
+        },simplify=F)
+        
+        object
+    })
+}
+
+#' Infinium HumanMethylation450 BeadChip
+meffil.design.matrix <- function(objects, number.pcs) {
+    stopifnot(number.pcs >= 1)
+
+    control.matrix <- meffil.control.matrix(objects)
+    control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
+    model.matrix(~control.components-1)
+}
+
+#' Infinium HumanMethylation450 BeadChip
+meffil.control.matrix <- function(objects) {
+    stopifnot(all(sapply(objects, is.normalization.object)))
     
-    get.probe.subsets <- function(in.subset) {
-        list(M=probes$name[which(probes$target == "M" & in.subset)],
-             U=probes$name[which(probes$target == "U" & in.subset)])
-    }
-    
-    list(genomic.iG = get.probe.subsets(is.iG & is.genomic),
-         genomic.iR = get.probe.subsets(is.iR & is.genomic),
-         genomic.ii = get.probe.subsets(is.ii & is.genomic),
-         autosomal.iG = get.probe.subsets(is.iG & is.autosomal),
-         autosomal.iR = get.probe.subsets(is.iR & is.autosomal),
-         autosomal.ii = get.probe.subsets(is.ii & is.autosomal),
-         not.y.iG = get.probe.subsets(is.iG & is.not.y),
-         not.y.iR = get.probe.subsets(is.iR & is.not.y),
-         not.y.ii = get.probe.subsets(is.ii & is.not.y),
-         sex = get.probe.subsets(is.sex),
-         chry = get.probe.subsets(is.y),
-         chrx = get.probe.subsets(is.x))
-}
-
-sex.specific.quantile.probe.subsets <- function() {
-    c("genomic.iG",
-      "genomic.iR",
-      "genomic.ii",
-      "not.y.iG",
-      "not.y.iR",
-      "not.y.ii",
-      "sex",
-      "chry",
-      "chrx")
-}
-                                   
-applicable.quantile.probe.subsets <- function(sex, both.sexes) {
-    if (both.sexes && sex == "M") return(c("autosomal.iG","autosomal.iR","autosomal.ii","sex"))
-    if (both.sexes && sex == "F") return(c("autosomal.iG","autosomal.iR","autosomal.ii","chrx","chry"))
-    if (!both.sexes && sex == "M") return(c("genomic.iG", "genomic.iR", "genomic.ii"))
-    if (!both.sexes && sex == "F") return(c("not.y.iG", "not.y.iR", "not.y.ii","chry"))
-    stop("invalid input", "sex =", sex, "both.sexes =", both.sexes)
-}
-
-read.idat <- function(filename) {
-    msg("Reading", filename)
-    
-    if (!file.exists(filename))
-        stop("Filename does not exist:", filename)
-    readIDAT(filename)$Quants[,"Mean"]
-}
-
-is.rg <- function(rg) {
-    (all(c("R","G") %in% names(rg))
-     && is.vector(rg$R) && is.vector(rg$G)
-     && length(names(rg$G)) == length(rg$G)
-     && length(names(rg$R)) == length(rg$R))
-}
-
-is.normalization.object <- function(object) {
-    (all(c("quantiles","dye.intensity","origin","basename","x.signal","y.signal","controls",
-           "intensity.R","intensity.G")
-         %in% names(object))
-     && object$origin == "meffil.compute.normalization.object")
+    control.matrix <- matrix(sapply(objects, function(object) object$controls), ncol=length(objects))
+    control.matrix <- impute.matrix(control.matrix)
+    control.matrix <- scale(t(control.matrix))
+    control.matrix[control.matrix > 3] <- 3
+    control.matrix[control.matrix < -3] <- -3
+    t(scale(control.matrix))
 }
 
 impute.matrix <- function(x, FUN=function(x) mean(x, na.rm=T)) {
@@ -500,22 +585,17 @@ impute.matrix <- function(x, FUN=function(x) mean(x, na.rm=T)) {
     x
 }
 
-
-normalize.quantiles <- function(quantiles, control.matrix, number.pcs) {
+normalize.quantiles <- function(quantiles, design.matrix) {
     stopifnot(is.matrix(quantiles))
-    stopifnot(is.matrix(control.matrix))
-    stopifnot(ncol(quantiles) == ncol(control.matrix))
-    stopifnot(number.pcs >= 2)
+    stopifnot(is.matrix(design.matrix))
+    stopifnot(ncol(quantiles) == nrow(design.matrix))
     
     quantiles[1,] <- 0
     safe.increment <- 1000 
-    quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + safe.increment
-    
+    quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + safe.increment    
     mean.quantiles <- rowMeans(quantiles)
-    control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
-    design <- model.matrix(~control.components-1)
-    fits <- lm.fit(x=design, y=t(quantiles - mean.quantiles))
-    mean.quantiles + t(residuals(fits))
+    fit <- lm.fit(x=design.matrix, y=t(quantiles - mean.quantiles))
+    mean.quantiles + t(residuals(fit))
 }
 
 compute.quantiles.target <- function(quantiles) {
@@ -527,21 +607,92 @@ compute.quantiles.target <- function(quantiles) {
     }))
 }   
 
-
-meffil.normalize.dataset <- function(basenames, data.dir, recursive=F, number.pcs=2,
-                                     sex=NULL, probes=meffil.probe.info()) {
-    stopifnot(!missing(basenames) || !missing(data.dir))
-    
-    if (missing(basenames))
-        basenames <- meffil.basenames(data.dir, recursive)
-    
-    norm.objects <- lapply(basenames, function(basename) {
-        meffil.compute.normalization.object(basename, probes=probes)
-    })
-
-    norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=number.pcs, sex=sex)
-
-    sapply(norm.objects, function(object) {
-        meffil.get.beta(meffil.normalize.sample(object, probes)) 
-    })
+#' Infinium HumanMethylation450 BeadChip
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#'
+#' @export
+meffil.normalize.samples <- function(objects, probes=meffil.probe.info()) {
+    M <- U <- NA
+    for (i in 1:length(objects)) {
+        msg(i)
+        mu <- meffil.normalize.sample(objects[[i]], probes)
+        if (i == 1) {
+            U <- M <- matrix(NA_integer_,
+                             nrow=length(mu$M), ncol=length(objects),
+                             dimnames=list(names(mu$M), names(objects)))
+        }
+        M[,i] <- mu$M
+        U[,i] <- mu$U
+    }
+    list(M=M,U=U)
 }
+
+#' Normalize sample
+#'
+#' Normalize sample methylation data using normalized quantiles
+#' (Infinium HumanMethylation450 BeadChip).
+#'
+#' @param object A list element from output of \code{\link{meffil.normalize.objects}()}.
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @return List containing normalized methylated and unmethylated signals.
+#'
+#' @examples
+#'
+#' path <- ...
+#' basenames <- meffil.basenames(path)
+#' norm.objects <- lapply(basenames, function(basename) {
+#'   meffil.compute.normalization.object(basename)
+#' })
+#' norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
+#' mu1 <- mefill.normalize.sample(norm.objects[[1]])
+#' beta1 <- mefill.get.beta(mu1)
+#' 
+#' @export
+meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
+    stopifnot(is.normalization.object(object))
+
+    probe.names <- unique(na.omit(probes$name))
+
+    rg <- meffil.read.rg(object$basename, probes)
+    rg.correct <- meffil.background.correct(rg, probes)
+    rg.correct <- meffil.dye.bias.correct(rg.correct, object$reference.intensity, probes)
+    mu <- meffil.rg.to.mu(rg.correct, probes)
+
+    mu$M <- mu$M[probe.names]
+    mu$U <- mu$U[probe.names]
+
+    msg("Normalizing methylated and unmethylated signals.")
+    probe.subsets <- get.quantile.probe.subsets(probes)
+    for (name in names(object$norm)) {
+        for (target in names(object$norm[[name]])) {
+            probe.idx <- which(names(mu[[target]]) %in% probe.subsets[[name]][[target]])
+            orig.signal <- mu[[target]][probe.idx]
+            norm.target <- compute.quantiles.target(object$norm[[name]][[target]])            
+            norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
+                                                                          norm.target)
+            mu[[target]][probe.idx] <- norm.signal
+        }
+    }
+    mu
+}
+
+#' Infinium HumanMethylation450 BeadChip
+meffil.get.beta <- function(mu, pseudo=100) {
+    mu$M/(mu$M+mu$U+pseudo)
+}
+
+
+msg <- function(..., verbose=T) {
+    x <- paste(list(...))
+    name <- sys.call(sys.parent(1))[[1]]
+    cat(paste("[", name, "]", sep=""), date(), x, "\n")
+}
+
+
+
+
+
+
+

@@ -8,6 +8,7 @@ Authors@R: c(person("Matthew", "Suderman", role = c("cre", "aut"),
              person("Josine", "Min", role = c("cre", "aut")))
 Depends:  illuminaio, 
 	  MASS, 
+          limma,
 	  IlluminaHumanMethylation450kmanifest,
 	  IlluminaHumanMethylation450kanno.ilmn12.hg19
 License: Artistic-2.0

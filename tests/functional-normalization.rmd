@@ -6,15 +6,15 @@ Retrieve the data from the Gene Expression Omnibus (GEO) website
 (http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
 
 ```{r}
-dir.create(data.dir <- "data")
-if (length(list.files(data.dir, "*.idat$")) == 0) {
-  filename <-  file.path(data.dir, "gse55491.tar")
+dir.create(path <- "data")
+if (length(list.files(path, "*.idat$")) == 0) {
+  filename <-  file.path(path, "gse55491.tar")
   download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
   cat(date(), "Extracting files from GEO archive.\n")
-  system(paste("cd", data.dir, ";", "tar xvf", basename(filename)))
+  system(paste("cd", path, ";", "tar xvf", basename(filename)))
   unlink(filename)
   cat(date(), "Unzipping IDAT files.\n")
-  system(paste("cd", data.dir, ";", "gunzip *.idat.gz"))
+  system(paste("cd", path, ";", "gunzip *.idat.gz"))
 }
 ```
 
@@ -23,7 +23,7 @@ Load the data.
 
 ```{r results='hide'}
 library(minfi, quietly=TRUE)
-raw.minfi <- read.450k.exp(base = data.dir)
+raw.minfi <- read.450k.exp(base = path)
 ```
 
 Normalize using the minfi package.
@@ -36,17 +36,17 @@ Load the code, probe annotation and sample filename information.
 ```{r}
 library(meffil)
 probes <- meffil.probe.info()
-basenames <- meffil.basenames(data.dir)
+basenames <- meffil.basenames(path)
 ```
 
 Collect controls, perform background and dye bias correction and then
 compute quantiles for each sample, one at a time.
 ```{r}
 norm.objects <- mclapply(basenames, function(basename) {
-    meffil.compute.normalization.object(basename, probes=probes) 
+    meffil.compute.normalization.object(basename) 
 })
 ```
-
+ 
 Normalize quantiles from each sample using the control
 matrix to identify batch effects.
 ```{r}
@@ -56,7 +56,7 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 Apply quantile normalization to methylation levels of each sample.
 ```{r}
 B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
-    meffil.get.beta(meffil.normalize.sample(object, probes)) 
+    meffil.get.beta(meffil.normalize.sample(object)) 
 })) 
 ```
 
@@ -64,7 +64,7 @@ B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
 
 First make sure that the raw data is the same.
 ```{r}
-raw.meffil <- meffil.read.rg(basenames[1], probes)
+raw.meffil <- meffil.read.rg(basenames[1])
 all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 ```
 
@@ -72,8 +72,8 @@ all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 
 Apply `meffil` background correction.
 ```{r results='hide'}
-bc.meffil <- meffil.background.correct(raw.meffil, probes)
-M.meffil <- meffil.rg.to.mu(bc.meffil, probes)$M
+bc.meffil <- meffil.background.correct(raw.meffil)
+M.meffil <- meffil.rg.to.mu(bc.meffil)$M
 ```
 
 Apply `minfi` background correction.
@@ -91,10 +91,9 @@ quantile(M.meffil - M.minfi)
 Apply `meffil` correction.
 ```{r results='hide'}
 dye.meffil <- meffil.dye.bias.correct(bc.meffil,
-                                      intensity=norm.objects[[1]]$reference.intensity,
-                                      probes=probes)
-M.meffil <- meffil.rg.to.mu(dye.meffil, probes)$M
-U.meffil <- meffil.rg.to.mu(dye.meffil, probes)$U
+                                      intensity=norm.objects[[1]]$reference.intensity)
+M.meffil <- meffil.rg.to.mu(dye.meffil)$M
+U.meffil <- meffil.rg.to.mu(dye.meffil)$U
 ```
 
 Apply `minfi` background and dye bias correction.
