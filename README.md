@@ -60,4 +60,18 @@ B.long <- do.call(cbind, mclapply(norm.objects, function(object) {
 }))
 ```
 
+### Deciding on the number of principal components
 
+The function `meffil.normalize.objects()` has a parameter `number.pcs`
+indicating the number of principal components to
+include in the normalization linear model design matrix.
+The default is 2 but there may be cases that justify using a larger number.
+To decide, it is possible to obtain the design matrix
+that will be used by `meffil.normalize.objects()`.
+
+The following returns the design matrix containing two principal components.
+```r
+design.matrix <- meffil.design.matrix(norm.objects, number.pcs=2)
+```
+
+If `number.pcs` is left undefined, all principal components will be included.

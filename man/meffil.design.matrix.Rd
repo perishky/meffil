@@ -9,7 +9,7 @@ meffil.design.matrix(objects, number.pcs)
 \arguments{
 \item{objects}{A list of outputs from \code{\link{meffil.compute.normalization.object}()}.}
 
-\item{number.pcs}{Number of principal components to include in the design matrix.}
+\item{number.pcs}{Number of principal components to include in the design matrix (Default: \code{length(objects)}).}
 }
 \value{
 Design matrix with one column for each of the first \code{number.pcs} prinicipal

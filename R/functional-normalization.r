@@ -565,13 +565,16 @@ meffil.normalize.objects <- function(objects,
 #' Design matrix derived by applying principal components analysis to control probes.
 #'
 #' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
-#' @param number.pcs Number of principal components to include in the design matrix.
+#' @param number.pcs Number of principal components to include in the design matrix (Default: \code{length(objects)}).
 #' @return Design matrix with one column for each of the first \code{number.pcs} prinicipal
 #' components.
 #'
 #' @export
 meffil.design.matrix <- function(objects, number.pcs) {
-    stopifnot(number.pcs >= 1)
+    if (missing(number.pcs))
+        number.pcs <- length(objects)
+        
+    stopifnot(number.pcs >= 1 && number.pcs <= length(objects))
 
     control.matrix <- meffil.control.matrix(objects)
     control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
