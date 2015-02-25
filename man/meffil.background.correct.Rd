@@ -15,7 +15,7 @@ meffil.background.correct(rg, probes = meffil.probe.info(), offset = 15)
 \item{offset}{Number to add to background corrected signal (Default: 15).}
 }
 \value{
-Background corrected Cy5/Cy3 signal by \code{\link[limma][normexp.signal}.
+Background corrected Cy5/Cy3 signal by \code{\link[limma]{normexp.signal}}.
 }
 \description{
 Background correct Cy5/Cy3 signal of a Infinium HumanMethylation450 BeadChip.

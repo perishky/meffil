@@ -36,6 +36,8 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
         basenames <- meffil.basenames(path, recursive)
     else
         basenames <- get.basenames(filenames)
+
+    stopifnot(length(basenames) > 1)
     
     norm.objects <- lapply(basenames, function(basename) {
         meffil.compute.normalization.object(basename, probes=probes)
@@ -150,7 +152,11 @@ get.basenames <- function(filenames)
 meffil.compute.normalization.object <- function(basename, 
                                                 number.quantiles=500,
                                                 dye.intensity=5000,
-                                                probes=meffil.probe.info()) {        
+                                                probes=meffil.probe.info()) {
+    stopifnot(number.quantiles >= 100)
+    stopifnot(dye.intensity >= 100)
+    stopifnot(nrow(probes) > 100000)
+    
     rg <- meffil.read.rg(basename, probes)
 
     controls <- extract.controls(rg, probes)
@@ -265,6 +271,10 @@ meffil.read.rg <- function(basename, probes=meffil.probe.info()) {
                R=read.idat(paste(basename, "_Red.idat", sep="")))
     rg$R <- rg$R[which(names(rg$R) %in% probes$address[which(probes$dye == "R")])]
     rg$G <- rg$G[which(names(rg$G) %in% probes$address[which(probes$dye == "G")])]
+
+    stopifnot(length(rg$R) > 100000)
+    stopifnot(length(rg$R) > 100000)
+    
     rg
 }
 
@@ -278,6 +288,7 @@ read.idat <- function(filename) {
 
 is.rg <- function(rg) {
     (all(c("R","G") %in% names(rg))
+     && length(rg$R) >= 100000 & length(rg$G) >= 100000
      && is.vector(rg$R) && is.vector(rg$G)
      && length(names(rg$G)) == length(rg$G)
      && length(names(rg$R)) == length(rg$R))
@@ -286,66 +297,76 @@ is.rg <- function(rg) {
 extract.controls <- function(rg, probes=meffil.probe.info()) {
     stopifnot(is.rg(rg))
 
+    x.mean <- function(x, na.rm=T) {
+        stopifnot(length(x) > 1)
+        mean(x,na.rm=na.rm)
+    }
+    x.which <- function(x) {
+        i <- which(x)
+        stopifnot(length(i) > 0)
+        i
+    }
+    
     msg()
-    probes.G <- probes[which(probes$dye == "G"),]
-    probes.R <- probes[which(probes$dye == "R"),]
+    probes.G <- probes[x.which(probes$dye == "G"),]
+    probes.R <- probes[x.which(probes$dye == "R"),]
     probes.G <- probes.G[match(names(rg$G), probes.G$address),]
     probes.R <- probes.R[match(names(rg$R), probes.R$address),]
     
-    bisulfite2 <- mean(rg$R[which(probes.R$target == "BISULFITE CONVERSION II")], na.rm=T)
+    bisulfite2 <- x.mean(rg$R[x.which(probes.R$target == "BISULFITE CONVERSION II")])
     
-    bisulfite1.G <- rg$G[which(probes.G$target == "BISULFITE CONVERSION I"
+    bisulfite1.G <- rg$G[x.which(probes.G$target == "BISULFITE CONVERSION I"
                                & probes.G$ext
                                %in% sprintf("BS Conversion I%sC%s", c(" ", "-", "-"), 1:3))]
-    bisulfite1.R <- rg$R[which(probes.R$target == "BISULFITE CONVERSION I"
+    bisulfite1.R <- rg$R[x.which(probes.R$target == "BISULFITE CONVERSION I"
                                & probes.R$ext %in% sprintf("BS Conversion I-C%s", 4:6))]
-    bisulfite1 <- mean(bisulfite1.G + bisulfite1.R, na.rm=T)
+    bisulfite1 <- x.mean(bisulfite1.G + bisulfite1.R)
     
-    stain.G <- rg$G[which(probes.G$target == "STAINING" & probes.G$ext == "Biotin (High)")]
+    stain.G <- rg$G[x.which(probes.G$target == "STAINING" & probes.G$ext == "Biotin (High)")]
     
-    stain.R <- rg$R[which(probes.R$target == "STAINING" & probes.R$ext == "DNP (High)")]
+    stain.R <- rg$R[x.which(probes.R$target == "STAINING" & probes.R$ext == "DNP (High)")]
     
-    extension.R <- rg$R[which(probes.R$target == "EXTENSION"
+    extension.R <- rg$R[x.which(probes.R$target == "EXTENSION"
                               & probes.R$ext %in% sprintf("Extension (%s)", c("A", "T")))]
-    extension.G <- rg$G[which(probes.G$target == "EXTENSION"
+    extension.G <- rg$G[x.which(probes.G$target == "EXTENSION"
                               & probes.G$ext %in% sprintf("Extension (%s)", c("C", "G")))]
     
-    hybe <- rg$G[which(probes.G$target == "HYBRIDIZATION")]
+    hybe <- rg$G[x.which(probes.G$target == "HYBRIDIZATION")]
     
-    targetrem <- rg$G[which(probes.G$target %in% "TARGET REMOVAL")]
+    targetrem <- rg$G[x.which(probes.G$target %in% "TARGET REMOVAL")]
     
-    nonpoly.R <- rg$R[which(probes.R$target == "NON-POLYMORPHIC"
+    nonpoly.R <- rg$R[x.which(probes.R$target == "NON-POLYMORPHIC"
                             & probes.R$ext %in% sprintf("NP (%s)", c("A", "T")))]
     
-    nonpoly.G <- rg$G[which(probes.G$target == "NON-POLYMORPHIC"
+    nonpoly.G <- rg$G[x.which(probes.G$target == "NON-POLYMORPHIC"
                             & probes.G$ext %in% sprintf("NP (%s)", c("C", "G")))]
     
-    spec2.G <- rg$G[which(probes.G$target == "SPECIFICITY II")]
-    spec2.R <- rg$R[which(probes.R$target == "SPECIFICITY II")]
-    spec2.ratio <- mean(spec2.G,na.rm=T)/mean(spec2.R,na.rm=T)
+    spec2.G <- rg$G[x.which(probes.G$target == "SPECIFICITY II")]
+    spec2.R <- rg$R[x.which(probes.R$target == "SPECIFICITY II")]
+    spec2.ratio <- x.mean(spec2.G,na.rm=T)/x.mean(spec2.R,na.rm=T)
     
     ext <- sprintf("GT Mismatch %s (PM)", 1:3)
-    spec1.G <- rg$G[which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
-    spec1.Rp <- rg$R[which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
-    spec1.ratio1 <- mean(spec1.Rp,na.rm=T)/mean(spec1.G,na.rm=T)
+    spec1.G <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
+    spec1.Rp <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
+    spec1.ratio1 <- x.mean(spec1.Rp,na.rm=T)/x.mean(spec1.G,na.rm=T)
     
     ext <- sprintf("GT Mismatch %s (PM)", 4:6)
-    spec1.Gp <- rg$G[which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
-    spec1.R <- rg$R[which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
-    spec1.ratio2 <- mean(spec1.Gp,na.rm=T)/mean(spec1.R,na.rm=T)
+    spec1.Gp <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
+    spec1.R <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
+    spec1.ratio2 <- x.mean(spec1.Gp,na.rm=T)/x.mean(spec1.R,na.rm=T)
     
     spec1.ratio <- (spec1.ratio1 + spec1.ratio2)/2
     
-    normA <- mean(rg$R[which(probes.R$target == "NORM_A")], na.rm = TRUE)
-    normT <- mean(rg$R[which(probes.R$target == "NORM_T")], na.rm = TRUE)
-    normC <- mean(rg$G[which(probes.G$target == "NORM_C")], na.rm = TRUE)
-    normG <- mean(rg$G[which(probes.G$target == "NORM_G")], na.rm = TRUE)
+    normA <- x.mean(rg$R[x.which(probes.R$target == "NORM_A")], na.rm = TRUE)
+    normT <- x.mean(rg$R[x.which(probes.R$target == "NORM_T")], na.rm = TRUE)
+    normC <- x.mean(rg$G[x.which(probes.G$target == "NORM_C")], na.rm = TRUE)
+    normG <- x.mean(rg$G[x.which(probes.G$target == "NORM_G")], na.rm = TRUE)
 
     dye.bias <- (normC + normG)/(normA + normT)
     
     probs <- c(0.01, 0.5, 0.99)
-    oob.G <- quantile(rg$G[with(probes.G, which(target == "OOB" & dye == "G"))], na.rm=T, probs=probs)
-    oob.R <- quantile(rg$R[with(probes.R, which(target == "OOB" & dye == "R"))], na.rm=T, probs=probs)
+    oob.G <- quantile(rg$G[with(probes.G, x.which(target == "OOB"))], na.rm=T, probs=probs)
+    oob.R <- quantile(rg$R[with(probes.R, x.which(target == "OOB"))], na.rm=T, probs=probs)
     oob.ratio <- oob.G[["50%"]]/oob.R[["50%"]]
     
     c(bisulfite1=bisulfite1,
@@ -403,6 +424,10 @@ meffil.rg.to.mu <- function(rg, probes=meffil.probe.info()) {
     names(U) <- c(probes.U.R$name, probes.U.G$name)
     
     U <- U[names(M)]
+    
+    stopifnot(length(U) > 100000)
+    stopifnot(length(M) > 100000)
+    
     list(M=M,U=U)
 }
 
@@ -414,7 +439,7 @@ meffil.rg.to.mu <- function(rg, probes=meffil.probe.info()) {
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
 #' @param offset Number to add to background corrected signal (Default: 15).
-#' @return Background corrected Cy5/Cy3 signal by \code{\link[limma][normexp.signal}.
+#' @return Background corrected Cy5/Cy3 signal by \code{\link[limma]{normexp.signal}}.
 #'
 #' @export
 meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
@@ -458,6 +483,7 @@ meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15)
 meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info()) {
     msg()
     stopifnot(is.rg(rg))
+    stopifnot(intensity >= 100)
     
     rg$R <- rg$R * intensity/calculate.intensity.R(rg, probes)
     rg$G <- rg$G * intensity/calculate.intensity.G(rg, probes)
@@ -467,13 +493,17 @@ meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info
 calculate.intensity.R <- function(rg, probes=meffil.probe.info()) {
     addresses <- probes$address[which(probes$target %in% c("NORM_A", "NORM_T")
                                       & probes$dye == "R")]
-    mean(rg$R[match(addresses, names(rg$R))], na.rm=T)
+    idx <- match(addresses, names(rg$R))
+    stopifnot(length(idx) >= 10) ## there are 93 in total
+    mean(rg$R[idx], na.rm=T)
 }
 
 calculate.intensity.G <- function(rg, probes=meffil.probe.info()) {
     addresses <- probes$address[which(probes$target %in% c("NORM_G", "NORM_C")
                                       & probes$dye == "G")]
-    mean(rg$G[match(addresses, names(rg$G))], na.rm=T)
+    idx <- match(addresses, names(rg$G))
+    stopifnot(length(idx) >= 10) ## there are 93 in total
+    mean(rg$G[idx], na.rm=T)
 }
 
 #' Normalize objects
@@ -489,6 +519,7 @@ calculate.intensity.G <- function(rg, probes=meffil.probe.info()) {
 #' @export
 meffil.normalize.objects <- function(objects, 
                                     number.pcs=2, sex.cutoff=-2, sex=NULL) {
+    stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))    
     stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
     stopifnot(number.pcs >= 1)
@@ -571,6 +602,9 @@ meffil.normalize.objects <- function(objects,
 #'
 #' @export
 meffil.design.matrix <- function(objects, number.pcs) {
+    stopifnot(length(objects) >= 2)
+    stopifnot(number.pcs >= 1)
+    
     if (missing(number.pcs))
         number.pcs <- length(objects)
         
@@ -592,6 +626,7 @@ meffil.design.matrix <- function(objects, number.pcs) {
 #'
 #' @export
 meffil.control.matrix <- function(objects) {
+    stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
     
     control.matrix <- matrix(sapply(objects, function(object) object$controls), ncol=length(objects))
@@ -646,6 +681,8 @@ compute.quantiles.target <- function(quantiles) {
 #' 
 #' @export
 meffil.normalize.samples <- function(objects, probes=meffil.probe.info()) {
+    stopifnot(length(objects) >= 2)
+    
     M <- U <- NA
     for (i in 1:length(objects)) {
         msg(i)
@@ -719,6 +756,8 @@ meffil.normalize.sample <- function(object, probes=meffil.probe.info()) {
 #' @param pseudo Value to add to the denominator to make the methylation estimate more stable.
 #' @param Vector of 0..1 methylation level estimates.
 #' Equal to methylated/(methylated + unmethylated + pseudo).
+#'
+#' @export
 meffil.get.beta <- function(mu, pseudo=100) {
     mu$M/(mu$M+mu$U+pseudo)
 }

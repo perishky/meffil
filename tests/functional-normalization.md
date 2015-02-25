@@ -7,6 +7,10 @@
 source("get-dataset.r")
 ```
 
+```
+## Warning in dir.create(path <- "data"): 'data' already exists
+```
+
 ## Load and normalize using `minfi`
 
 The current version `minfi::preprocessFunnorm()` contains a bug (Feb 25, 2015).
@@ -19,6 +23,54 @@ Load the data.
 
 ```r
 library(minfi, quietly=TRUE)
+```
+
+```
+## Loading required package: parallel
+## 
+## Attaching package: 'BiocGenerics'
+## 
+## The following objects are masked from 'package:parallel':
+## 
+##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+##     clusterExport, clusterMap, parApply, parCapply, parLapply,
+##     parLapplyLB, parRapply, parSapply, parSapplyLB
+## 
+## The following object is masked from 'package:stats':
+## 
+##     xtabs
+## 
+## The following objects are masked from 'package:base':
+## 
+##     anyDuplicated, append, as.data.frame, as.vector, cbind,
+##     colnames, do.call, duplicated, eval, evalq, Filter, Find, get,
+##     intersect, is.unsorted, lapply, Map, mapply, match, mget,
+##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+##     rbind, Reduce, rep.int, rownames, sapply, setdiff, sort,
+##     table, tapply, union, unique, unlist, unsplit
+## 
+## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with
+##     'browseVignettes()'. To cite Bioconductor, see
+##     'citation("Biobase")', and for packages 'citation("pkgname")'.
+## 
+## Loading required package: S4Vectors
+## Loading required package: stats4
+## Loading required package: IRanges
+## Loading required package: GenomeInfoDb
+## Loading required package: XVector
+## Loading required package: foreach
+## foreach: simple, scalable parallel programming from Revolution Analytics
+## Use Revolution R for scalability, fault tolerance and more.
+## http://www.revolutionanalytics.com
+## Loading required package: iterators
+## Loading required package: locfit
+## locfit 1.5-9.1 	 2013-03-22
+## Setting options('download.file.method.GEOquery'='curl')
+```
+
+```r
 raw.minfi <- read.450k.exp(base = path)
 ```
 
@@ -30,7 +82,15 @@ system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
 ```
 
 ```
-## [preprocessFunnorm] Background and dye bias correction with noob 
+## [preprocessFunnorm] Background and dye bias correction with noob
+```
+
+```
+## Loading required package: IlluminaHumanMethylation450kmanifest
+## Loading required package: IlluminaHumanMethylation450kanno.ilmn12.hg19
+```
+
+```
 ## Using sample number 4 as reference level...
 ## [preprocessFunnorm] Mapping to genome
 ## [preprocessFunnorm] Quantile extraction
@@ -39,7 +99,7 @@ system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
 
 ```
 ##    user  system elapsed 
-##  97.144   1.377  98.544
+## 115.261   2.109 117.540
 ```
 
 ## Load and normalize using `meffil`
@@ -53,6 +113,21 @@ Load the code, probe annotation and sample filename information.
 
 ```r
 library(meffil)
+```
+
+```
+## Loading required package: illuminaio
+## Loading required package: MASS
+## Loading required package: limma
+## 
+## Attaching package: 'limma'
+## 
+## The following object is masked from 'package:BiocGenerics':
+## 
+##     plotMA
+```
+
+```r
 probes <- meffil.probe.info()
 basenames <- meffil.basenames(path)
 ```
@@ -72,34 +147,34 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 ```
 
 ```
-## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 selecting dye correction reference 
-## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 predicting sex 
-## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 creating control matrix 
-## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 normalizing quantiles 
-## [FUN] Wed Feb 25 10:35:04 2015 genomic.iG M 
-## [FUN] Wed Feb 25 10:35:04 2015 genomic.iG U 
-## [FUN] Wed Feb 25 10:35:04 2015 genomic.iR M 
-## [FUN] Wed Feb 25 10:35:04 2015 genomic.iR U 
-## [FUN] Wed Feb 25 10:35:04 2015 genomic.ii M 
-## [FUN] Wed Feb 25 10:35:04 2015 genomic.ii U 
-## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iG M 
-## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iG U 
-## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iR M 
-## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iR U 
-## [FUN] Wed Feb 25 10:35:04 2015 autosomal.ii M 
-## [FUN] Wed Feb 25 10:35:04 2015 autosomal.ii U 
-## [FUN] Wed Feb 25 10:35:04 2015 not.y.iG M 
-## [FUN] Wed Feb 25 10:35:04 2015 not.y.iG U 
-## [FUN] Wed Feb 25 10:35:04 2015 not.y.iR M 
-## [FUN] Wed Feb 25 10:35:04 2015 not.y.iR U 
-## [FUN] Wed Feb 25 10:35:04 2015 not.y.ii M 
-## [FUN] Wed Feb 25 10:35:04 2015 not.y.ii U 
-## [FUN] Wed Feb 25 10:35:04 2015 sex M 
-## [FUN] Wed Feb 25 10:35:04 2015 sex U 
-## [FUN] Wed Feb 25 10:35:04 2015 chry M 
-## [FUN] Wed Feb 25 10:35:04 2015 chry U 
-## [FUN] Wed Feb 25 10:35:04 2015 chrx M 
-## [FUN] Wed Feb 25 10:35:04 2015 chrx U
+## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 selecting dye correction reference 
+## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 predicting sex 
+## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 creating control matrix 
+## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 normalizing quantiles 
+## [FUN] Wed Feb 25 19:59:41 2015 genomic.iG M 
+## [FUN] Wed Feb 25 19:59:41 2015 genomic.iG U 
+## [FUN] Wed Feb 25 19:59:41 2015 genomic.iR M 
+## [FUN] Wed Feb 25 19:59:41 2015 genomic.iR U 
+## [FUN] Wed Feb 25 19:59:41 2015 genomic.ii M 
+## [FUN] Wed Feb 25 19:59:41 2015 genomic.ii U 
+## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iG M 
+## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iG U 
+## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iR M 
+## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iR U 
+## [FUN] Wed Feb 25 19:59:41 2015 autosomal.ii M 
+## [FUN] Wed Feb 25 19:59:41 2015 autosomal.ii U 
+## [FUN] Wed Feb 25 19:59:41 2015 not.y.iG M 
+## [FUN] Wed Feb 25 19:59:41 2015 not.y.iG U 
+## [FUN] Wed Feb 25 19:59:41 2015 not.y.iR M 
+## [FUN] Wed Feb 25 19:59:41 2015 not.y.iR U 
+## [FUN] Wed Feb 25 19:59:41 2015 not.y.ii M 
+## [FUN] Wed Feb 25 19:59:41 2015 not.y.ii U 
+## [FUN] Wed Feb 25 19:59:41 2015 sex M 
+## [FUN] Wed Feb 25 19:59:41 2015 sex U 
+## [FUN] Wed Feb 25 19:59:41 2015 chry M 
+## [FUN] Wed Feb 25 19:59:41 2015 chry U 
+## [FUN] Wed Feb 25 19:59:41 2015 chrx M 
+## [FUN] Wed Feb 25 19:59:41 2015 chrx U
 ```
 
 Apply quantile normalization to methylation levels of each sample.
@@ -119,8 +194,8 @@ raw.meffil <- meffil.read.rg(basenames[1])
 ```
 
 ```
-## [read.idat] Wed Feb 25 10:35:47 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
-## [read.idat] Wed Feb 25 10:35:47 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
+## [read.idat] Wed Feb 25 20:00:25 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
+## [read.idat] Wed Feb 25 20:00:25 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
 ```
 
 ```r
@@ -211,6 +286,18 @@ Extract `minfi` control matrix.
 
 ```r
 library(matrixStats, quietly=TRUE)
+```
+
+```
+## 
+## Attaching package: 'matrixStats'
+## 
+## The following objects are masked from 'package:Biobase':
+## 
+##     anyMissing, rowMedians
+```
+
+```r
 control.matrix.minfi <- minfi:::.buildControlMatrix450k(minfi:::.extractFromRGSet450k(raw.minfi))
 ```
 
