@@ -22,10 +22,15 @@ raw.minfi <- read.450k.exp(base = path)
 
 Normalize using the minfi package.
 ```{r}
-norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
+system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
+                                            sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE))
 ```
 
 ## Load and normalize using `meffil`
+
+```{r}
+options(mc.cores=10)
+```
 
 Load the code, probe annotation and sample filename information.
 ```{r}

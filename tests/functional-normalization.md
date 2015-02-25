@@ -7,10 +7,6 @@
 source("get-dataset.r")
 ```
 
-```
-## Warning in dir.create(path <- "data"): 'data' already exists
-```
-
 ## Load and normalize using `minfi`
 
 The current version `minfi::preprocessFunnorm()` contains a bug (Feb 25, 2015).
@@ -29,7 +25,8 @@ raw.minfi <- read.450k.exp(base = path)
 Normalize using the minfi package.
 
 ```r
-norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
+system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
+                                            sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE))
 ```
 
 ```
@@ -40,7 +37,17 @@ norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCor
 ## [preprocessFunnorm] Normalization
 ```
 
+```
+##    user  system elapsed 
+##  97.144   1.377  98.544
+```
+
 ## Load and normalize using `meffil`
+
+
+```r
+options(mc.cores=10)
+```
 
 Load the code, probe annotation and sample filename information.
 
@@ -65,34 +72,34 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 ```
 
 ```
-## [meffil.normalize.objects] Wed Feb 25 01:56:59 2015 selecting dye correction reference 
-## [meffil.normalize.objects] Wed Feb 25 01:56:59 2015 predicting sex 
-## [meffil.normalize.objects] Wed Feb 25 01:56:59 2015 creating control matrix 
-## [meffil.normalize.objects] Wed Feb 25 01:56:59 2015 normalizing quantiles 
-## [FUN] Wed Feb 25 01:56:59 2015 genomic.iG M 
-## [FUN] Wed Feb 25 01:56:59 2015 genomic.iG U 
-## [FUN] Wed Feb 25 01:56:59 2015 genomic.iR M 
-## [FUN] Wed Feb 25 01:56:59 2015 genomic.iR U 
-## [FUN] Wed Feb 25 01:56:59 2015 genomic.ii M 
-## [FUN] Wed Feb 25 01:56:59 2015 genomic.ii U 
-## [FUN] Wed Feb 25 01:56:59 2015 autosomal.iG M 
-## [FUN] Wed Feb 25 01:56:59 2015 autosomal.iG U 
-## [FUN] Wed Feb 25 01:56:59 2015 autosomal.iR M 
-## [FUN] Wed Feb 25 01:56:59 2015 autosomal.iR U 
-## [FUN] Wed Feb 25 01:56:59 2015 autosomal.ii M 
-## [FUN] Wed Feb 25 01:56:59 2015 autosomal.ii U 
-## [FUN] Wed Feb 25 01:56:59 2015 not.y.iG M 
-## [FUN] Wed Feb 25 01:56:59 2015 not.y.iG U 
-## [FUN] Wed Feb 25 01:56:59 2015 not.y.iR M 
-## [FUN] Wed Feb 25 01:56:59 2015 not.y.iR U 
-## [FUN] Wed Feb 25 01:56:59 2015 not.y.ii M 
-## [FUN] Wed Feb 25 01:56:59 2015 not.y.ii U 
-## [FUN] Wed Feb 25 01:56:59 2015 sex M 
-## [FUN] Wed Feb 25 01:56:59 2015 sex U 
-## [FUN] Wed Feb 25 01:56:59 2015 chry M 
-## [FUN] Wed Feb 25 01:56:59 2015 chry U 
-## [FUN] Wed Feb 25 01:56:59 2015 chrx M 
-## [FUN] Wed Feb 25 01:56:59 2015 chrx U
+## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 selecting dye correction reference 
+## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 predicting sex 
+## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 creating control matrix 
+## [meffil.normalize.objects] Wed Feb 25 10:35:04 2015 normalizing quantiles 
+## [FUN] Wed Feb 25 10:35:04 2015 genomic.iG M 
+## [FUN] Wed Feb 25 10:35:04 2015 genomic.iG U 
+## [FUN] Wed Feb 25 10:35:04 2015 genomic.iR M 
+## [FUN] Wed Feb 25 10:35:04 2015 genomic.iR U 
+## [FUN] Wed Feb 25 10:35:04 2015 genomic.ii M 
+## [FUN] Wed Feb 25 10:35:04 2015 genomic.ii U 
+## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iG M 
+## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iG U 
+## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iR M 
+## [FUN] Wed Feb 25 10:35:04 2015 autosomal.iR U 
+## [FUN] Wed Feb 25 10:35:04 2015 autosomal.ii M 
+## [FUN] Wed Feb 25 10:35:04 2015 autosomal.ii U 
+## [FUN] Wed Feb 25 10:35:04 2015 not.y.iG M 
+## [FUN] Wed Feb 25 10:35:04 2015 not.y.iG U 
+## [FUN] Wed Feb 25 10:35:04 2015 not.y.iR M 
+## [FUN] Wed Feb 25 10:35:04 2015 not.y.iR U 
+## [FUN] Wed Feb 25 10:35:04 2015 not.y.ii M 
+## [FUN] Wed Feb 25 10:35:04 2015 not.y.ii U 
+## [FUN] Wed Feb 25 10:35:04 2015 sex M 
+## [FUN] Wed Feb 25 10:35:04 2015 sex U 
+## [FUN] Wed Feb 25 10:35:04 2015 chry M 
+## [FUN] Wed Feb 25 10:35:04 2015 chry U 
+## [FUN] Wed Feb 25 10:35:04 2015 chrx M 
+## [FUN] Wed Feb 25 10:35:04 2015 chrx U
 ```
 
 Apply quantile normalization to methylation levels of each sample.
@@ -112,8 +119,8 @@ raw.meffil <- meffil.read.rg(basenames[1])
 ```
 
 ```
-## [read.idat] Wed Feb 25 01:59:13 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
-## [read.idat] Wed Feb 25 01:59:14 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
+## [read.idat] Wed Feb 25 10:35:47 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
+## [read.idat] Wed Feb 25 10:35:47 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
 ```
 
 ```r

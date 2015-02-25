@@ -34,6 +34,12 @@ The long `meffil` version is available in order to
 improve performance using parallel computing.
 The example below uses `mclapply` to spread computation across multiple processors.
 
+By default, `mclapply` will use only two processors.
+If more are available, then it is possible to change this:
+```r
+options(mc.cores=6)
+```
+
 Load the `meffil` code, probe annotation and
 raw data file information.
 ```r
