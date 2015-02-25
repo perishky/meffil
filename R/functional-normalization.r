@@ -48,9 +48,6 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
     })
 }
 
-
-saved.probe.info <- NULL
-
 #' Probe type and location annotation
 #'
 #' Constructs an data frame annotating probe types
@@ -62,37 +59,40 @@ saved.probe.info <- NULL
 #'
 #' @export
 meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
-    if (!is.null(saved.probe.info)) return(saved.probe.info)
-    
+    if (array=="IlluminaHumanMethylation450k" && annotation=="ilmn12.hg19") {
+        return(probe.info) ## precomputed, see code in ../data-raw/
+    }
+    else {
+        collect.probe.info(array, annotation)
+    }
+}
+
+collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
     type1.R <- probe.characteristics("I-Red")
     type1.G <- probe.characteristics("I-Green")
     type2 <- probe.characteristics("II")
     controls <- probe.characteristics("Control")
 
     msg("reorganizing type information")
-    ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA),
-                 data.frame(type="i",target="M", dye="G", address=type1.G$AddressB, name=type1.G$Name,ext=NA),
-                 data.frame(type="ii",target="M", dye="G", address=type2$AddressA, name=type2$Name,ext=NA),
+    ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i",target="M", dye="G", address=type1.G$AddressB, name=type1.G$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="ii",target="M", dye="G", address=type2$AddressA, name=type2$Name,ext=NA,stringsAsFactors=F),
                  
-                 data.frame(type="i",target="U", dye="R", address=type1.R$AddressA, name=type1.R$Name,ext=NA),
-                 data.frame(type="i",target="U", dye="G", address=type1.G$AddressA, name=type1.G$Name,ext=NA),
-                 data.frame(type="ii",target="U", dye="R", address=type2$AddressA, name=type2$Name,ext=NA),
+                 data.frame(type="i",target="U", dye="R", address=type1.R$AddressA, name=type1.R$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i",target="U", dye="G", address=type1.G$AddressA, name=type1.G$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="ii",target="U", dye="R", address=type2$AddressA, name=type2$Name,ext=NA,stringsAsFactors=F),
                  
-                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressA, name=NA,ext=NA),
-                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressB, name=NA,ext=NA),
-                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressA, name=NA,ext=NA),
-                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressB, name=NA,ext=NA),
+                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressA, name=NA,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressB, name=NA,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressA, name=NA,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i",target="OOB", dye="R", address=type1.G$AddressB, name=NA,ext=NA,stringsAsFactors=F),
                  
-                 data.frame(type="control",target=controls$Type,dye="R",address=controls$Address, name=NA,ext=controls$ExtendedType),
-                 data.frame(type="control",target=controls$Type,dye="G",address=controls$Address, name=NA,ext=controls$ExtendedType))
-
-    for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
-
+                 data.frame(type="control",target=controls$Type,dye="R",address=controls$Address, name=NA,ext=controls$ExtendedType,stringsAsFactors=F),
+                 data.frame(type="control",target=controls$Type,dye="G",address=controls$Address, name=NA,ext=controls$ExtendedType, stringsAsFactors=F))
+    
     locations <- probe.locations(array, annotation)
     ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
 
-    for (col in setdiff(colnames(ret), "pos")) ret[,col] <- as.character(ret[,col])
-    saved.probe.info <<- ret
     ret
 }
 

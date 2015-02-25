@@ -1,24 +1,18 @@
 # Comparison of functional normalization implementations
 
-## Load example data set 
-
-Retrieve the data from the Gene Expression Omnibus (GEO) website
-(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
+## Download example data set 
 
 ```{r}
-dir.create(path <- "data")
-if (length(list.files(path, "*.idat$")) == 0) {
-  filename <-  file.path(path, "gse55491.tar")
-  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
-  cat(date(), "Extracting files from GEO archive.\n")
-  system(paste("cd", path, ";", "tar xvf", basename(filename)))
-  unlink(filename)
-  cat(date(), "Unzipping IDAT files.\n")
-  system(paste("cd", path, ";", "gunzip *.idat.gz"))
-}
+source("get-dataset.r")
 ```
 
 ## Load and normalize using `minfi`
+
+The current version `minfi::preprocessFunnorm()` contains a bug (Feb 25, 2015).
+To make a proper comparison with `meffil`, this bug should be fixed
+and `minfi` reinstalled.
+This can be done with the included patch file: `fix-minfi-control-matrix.patch`.
+
 Load the data.
 
 ```{r results='hide'}
@@ -32,6 +26,7 @@ norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2, sex=NULL, bgCorr=TRUE, dyeCor
 ```
 
 ## Load and normalize using `meffil`
+
 Load the code, probe annotation and sample filename information.
 ```{r}
 library(meffil)
@@ -42,9 +37,7 @@ basenames <- meffil.basenames(path)
 Collect controls, perform background and dye bias correction and then
 compute quantiles for each sample, one at a time.
 ```{r}
-norm.objects <- mclapply(basenames, function(basename) {
-    meffil.compute.normalization.object(basename) 
-})
+norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
 ```
  
 Normalize quantiles from each sample using the control
@@ -121,8 +114,7 @@ control.matrix.minfi <- minfi:::.buildControlMatrix450k(minfi:::.extractFromRGSe
 Control matrix for `meffil` was extracted earlier.
 Preprocess the matrix using the same procedure used by `minfi`.
 ```{r results='hide'}
-control.matrix.meffil <- sapply(norm.objects, function(object) object$controls)
-control.matrix.meffil <- t(meffil.preprocess.control.matrix(control.matrix.meffil))
+control.matrix.meffil <- t(meffil.control.matrix(norm.objects))
 ```
 
 The control variable order (columns) may be different between `minfi` and `meffil`

@@ -44,9 +44,7 @@ basenames <- meffil.basenames(path)
 Background and dye correct each sample and the compute probe controls and quantiles
 for each sample.
 ```r
-norm.objects <- mclapply(basenames, function(basename) {
-    meffil.compute.normalization.object(basename)
-})
+norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
 ```
 
 Normalize the resulting quantiles together. 
