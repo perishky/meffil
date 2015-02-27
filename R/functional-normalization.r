@@ -547,8 +547,10 @@ meffil.normalize.objects <- function(objects,
     msg("creating control matrix")
     design.matrix <- meffil.design.matrix(objects, number.pcs)
     if (has.both.sexes) {
-        design.male <- meffil.design.matrix(objects[male.idx], number.pcs)
-        design.female <- meffil.design.matrix(objects[female.idx], number.pcs)
+        design.male <- meffil.design.matrix(objects[male.idx],
+                                            min(length(male.idx), number.pcs))
+        design.female <- meffil.design.matrix(objects[female.idx],
+                                              min(length(female.idx), number.pcs))
     }
     
     msg("normalizing quantiles")
