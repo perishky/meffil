@@ -4,14 +4,17 @@
 \alias{meffil.control.matrix}
 \title{Infinium HumanMethylation450 BeadChip control matrix}
 \usage{
-meffil.control.matrix(objects)
+meffil.control.matrix(objects, scale.matrix = T)
 }
 \arguments{
 \item{objects}{A list of outputs from \code{\link{meffil.compute.normalization.object}()}.}
+
+\item{scale.matrix}{(Default: TRUE).}
 }
 \value{
-Matrix with one column per object consisting of control probe intensity z-scores.
-Missing values are imputed (row mean) and values more than 3 standard deviations
+Matrix with one column per object consisting of control probe intensities.
+If scale.matrix is `TRUE`, then intensities are converted to z-scores,
+missing values are imputed (row mean) and values more than 3 standard deviations
 truncated.
 }
 \description{

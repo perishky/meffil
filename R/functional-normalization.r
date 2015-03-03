@@ -622,8 +622,10 @@ meffil.design.matrix <- function(objects, number.pcs) {
 #' Matrix containing control probe intensities from the Infinium HumanMethylation450 BeadChip.
 #'
 #' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
-#' @return Matrix with one column per object consisting of control probe intensity z-scores.
-#' Missing values are imputed (row mean) and values more than 3 standard deviations
+#' @param scale.matrix (Default: TRUE).
+#' @return Matrix with one column per object consisting of control probe intensities.
+#' If scale.matrix is `TRUE`, then intensities are converted to z-scores, 
+#' missing values are imputed (row mean) and values more than 3 standard deviations
 #' truncated.
 #'
 #' @export
