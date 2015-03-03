@@ -627,16 +627,19 @@ meffil.design.matrix <- function(objects, number.pcs) {
 #' truncated.
 #'
 #' @export
-meffil.control.matrix <- function(objects) {
+meffil.control.matrix <- function(objects, scale.matrix=T) {
     stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
     
     control.matrix <- matrix(sapply(objects, function(object) object$controls), ncol=length(objects))
-    control.matrix <- impute.matrix(control.matrix)
-    control.matrix <- scale(t(control.matrix))
-    control.matrix[control.matrix > 3] <- 3
-    control.matrix[control.matrix < -3] <- -3
-    t(scale(control.matrix))
+    if (scale.matrix) {
+        control.matrix <- impute.matrix(control.matrix)
+        control.matrix <- scale(t(control.matrix))
+        control.matrix[control.matrix > 3] <- 3
+        control.matrix[control.matrix < -3] <- -3
+        control.matrix <- t(scale(control.matrix))
+    }
+    control.matrix
 }
 
 impute.matrix <- function(x, FUN=function(x) mean(x, na.rm=T)) {
