@@ -58,6 +58,14 @@ B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
 })) 
 ```
 
+Make sure both methods for normalizing samples produce the same output.
+```{r}
+B.meffil.2 <- meffil.normalize.samples(norm.objects)
+B.meffil.3 <- meffil.normalize.dataset(path, number.pcs=2)
+quantile(B.meffil - B.meffil.2)
+quantile(B.meffil - B.meffil.3)
+```
+
 ## Compare normalizations
 
 First make sure that the raw data is the same.

@@ -99,7 +99,7 @@ system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
 
 ```
 ##    user  system elapsed 
-## 115.261   2.109 117.540
+## 113.376   1.871 115.530
 ```
 
 ## Load and normalize using `meffil`
@@ -147,34 +147,34 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
 ```
 
 ```
-## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 selecting dye correction reference 
-## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 predicting sex 
-## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 creating control matrix 
-## [meffil.normalize.objects] Wed Feb 25 19:59:41 2015 normalizing quantiles 
-## [FUN] Wed Feb 25 19:59:41 2015 genomic.iG M 
-## [FUN] Wed Feb 25 19:59:41 2015 genomic.iG U 
-## [FUN] Wed Feb 25 19:59:41 2015 genomic.iR M 
-## [FUN] Wed Feb 25 19:59:41 2015 genomic.iR U 
-## [FUN] Wed Feb 25 19:59:41 2015 genomic.ii M 
-## [FUN] Wed Feb 25 19:59:41 2015 genomic.ii U 
-## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iG M 
-## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iG U 
-## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iR M 
-## [FUN] Wed Feb 25 19:59:41 2015 autosomal.iR U 
-## [FUN] Wed Feb 25 19:59:41 2015 autosomal.ii M 
-## [FUN] Wed Feb 25 19:59:41 2015 autosomal.ii U 
-## [FUN] Wed Feb 25 19:59:41 2015 not.y.iG M 
-## [FUN] Wed Feb 25 19:59:41 2015 not.y.iG U 
-## [FUN] Wed Feb 25 19:59:41 2015 not.y.iR M 
-## [FUN] Wed Feb 25 19:59:41 2015 not.y.iR U 
-## [FUN] Wed Feb 25 19:59:41 2015 not.y.ii M 
-## [FUN] Wed Feb 25 19:59:41 2015 not.y.ii U 
-## [FUN] Wed Feb 25 19:59:41 2015 sex M 
-## [FUN] Wed Feb 25 19:59:41 2015 sex U 
-## [FUN] Wed Feb 25 19:59:41 2015 chry M 
-## [FUN] Wed Feb 25 19:59:41 2015 chry U 
-## [FUN] Wed Feb 25 19:59:41 2015 chrx M 
-## [FUN] Wed Feb 25 19:59:41 2015 chrx U
+## [meffil.normalize.objects] Fri Mar  6 02:12:37 2015 selecting dye correction reference 
+## [meffil.normalize.objects] Fri Mar  6 02:12:37 2015 predicting sex 
+## [meffil.normalize.objects] Fri Mar  6 02:12:37 2015 creating control matrix 
+## [meffil.normalize.objects] Fri Mar  6 02:12:37 2015 normalizing quantiles 
+## [FUN] Fri Mar  6 02:12:37 2015 genomic.iG M 
+## [FUN] Fri Mar  6 02:12:37 2015 genomic.iG U 
+## [FUN] Fri Mar  6 02:12:37 2015 genomic.iR M 
+## [FUN] Fri Mar  6 02:12:37 2015 genomic.iR U 
+## [FUN] Fri Mar  6 02:12:37 2015 genomic.ii M 
+## [FUN] Fri Mar  6 02:12:37 2015 genomic.ii U 
+## [FUN] Fri Mar  6 02:12:37 2015 autosomal.iG M 
+## [FUN] Fri Mar  6 02:12:37 2015 autosomal.iG U 
+## [FUN] Fri Mar  6 02:12:37 2015 autosomal.iR M 
+## [FUN] Fri Mar  6 02:12:37 2015 autosomal.iR U 
+## [FUN] Fri Mar  6 02:12:37 2015 autosomal.ii M 
+## [FUN] Fri Mar  6 02:12:37 2015 autosomal.ii U 
+## [FUN] Fri Mar  6 02:12:37 2015 not.y.iG M 
+## [FUN] Fri Mar  6 02:12:37 2015 not.y.iG U 
+## [FUN] Fri Mar  6 02:12:37 2015 not.y.iR M 
+## [FUN] Fri Mar  6 02:12:37 2015 not.y.iR U 
+## [FUN] Fri Mar  6 02:12:37 2015 not.y.ii M 
+## [FUN] Fri Mar  6 02:12:37 2015 not.y.ii U 
+## [FUN] Fri Mar  6 02:12:37 2015 sex M 
+## [FUN] Fri Mar  6 02:12:37 2015 sex U 
+## [FUN] Fri Mar  6 02:12:37 2015 chry M 
+## [FUN] Fri Mar  6 02:12:37 2015 chry U 
+## [FUN] Fri Mar  6 02:12:37 2015 chrx M 
+## [FUN] Fri Mar  6 02:12:37 2015 chrx U
 ```
 
 Apply quantile normalization to methylation levels of each sample.
@@ -183,6 +183,62 @@ Apply quantile normalization to methylation levels of each sample.
 B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
     meffil.get.beta(meffil.normalize.sample(object)) 
 })) 
+```
+
+Make sure both methods for normalizing samples produce the same output.
+
+```r
+B.meffil.2 <- meffil.normalize.samples(norm.objects)
+B.meffil.3 <- meffil.normalize.dataset(path, number.pcs=2)
+```
+
+```
+## [meffil.normalize.objects] Fri Mar  6 02:15:02 2015 selecting dye correction reference 
+## [meffil.normalize.objects] Fri Mar  6 02:15:02 2015 predicting sex 
+## [meffil.normalize.objects] Fri Mar  6 02:15:02 2015 creating control matrix 
+## [meffil.normalize.objects] Fri Mar  6 02:15:02 2015 normalizing quantiles 
+## [FUN] Fri Mar  6 02:15:02 2015 genomic.iG M 
+## [FUN] Fri Mar  6 02:15:02 2015 genomic.iG U 
+## [FUN] Fri Mar  6 02:15:02 2015 genomic.iR M 
+## [FUN] Fri Mar  6 02:15:02 2015 genomic.iR U 
+## [FUN] Fri Mar  6 02:15:02 2015 genomic.ii M 
+## [FUN] Fri Mar  6 02:15:02 2015 genomic.ii U 
+## [FUN] Fri Mar  6 02:15:02 2015 autosomal.iG M 
+## [FUN] Fri Mar  6 02:15:02 2015 autosomal.iG U 
+## [FUN] Fri Mar  6 02:15:02 2015 autosomal.iR M 
+## [FUN] Fri Mar  6 02:15:02 2015 autosomal.iR U 
+## [FUN] Fri Mar  6 02:15:02 2015 autosomal.ii M 
+## [FUN] Fri Mar  6 02:15:02 2015 autosomal.ii U 
+## [FUN] Fri Mar  6 02:15:02 2015 not.y.iG M 
+## [FUN] Fri Mar  6 02:15:02 2015 not.y.iG U 
+## [FUN] Fri Mar  6 02:15:02 2015 not.y.iR M 
+## [FUN] Fri Mar  6 02:15:02 2015 not.y.iR U 
+## [FUN] Fri Mar  6 02:15:02 2015 not.y.ii M 
+## [FUN] Fri Mar  6 02:15:02 2015 not.y.ii U 
+## [FUN] Fri Mar  6 02:15:02 2015 sex M 
+## [FUN] Fri Mar  6 02:15:02 2015 sex U 
+## [FUN] Fri Mar  6 02:15:02 2015 chry M 
+## [FUN] Fri Mar  6 02:15:02 2015 chry U 
+## [FUN] Fri Mar  6 02:15:02 2015 chrx M 
+## [FUN] Fri Mar  6 02:15:02 2015 chrx U
+```
+
+```r
+quantile(B.meffil - B.meffil.2)
+```
+
+```
+##   0%  25%  50%  75% 100% 
+##    0    0    0    0    0
+```
+
+```r
+quantile(B.meffil - B.meffil.3)
+```
+
+```
+##   0%  25%  50%  75% 100% 
+##    0    0    0    0    0
 ```
 
 ## Compare normalizations
@@ -194,8 +250,8 @@ raw.meffil <- meffil.read.rg(basenames[1])
 ```
 
 ```
-## [read.idat] Wed Feb 25 20:00:25 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
-## [read.idat] Wed Feb 25 20:00:25 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
+## [read.idat] Fri Mar  6 02:15:43 2015 Reading data/GSM1338100_6057825094_R01C01_Grn.idat 
+## [read.idat] Fri Mar  6 02:15:44 2015 Reading data/GSM1338100_6057825094_R01C01_Red.idat
 ```
 
 ```r
