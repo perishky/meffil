@@ -71,7 +71,7 @@ B.long <- do.call(cbind, mclapply(norm.objects, function(object) {
 
 We note that if the number of samples is large (i.e. larger than about 500),
 then `mclapply` as used above will fail.
-We provide an alternative that applies `mclapply` to appropriate
+We provide an alternative that applies `mclapply` to appropriately sized
 subsets of the list of objects.
 
 ```r
