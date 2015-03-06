@@ -26,9 +26,11 @@ meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
     n.sites <- length(unique(probes$name))
     if (beta) {
         ret.bytes <- object.size(rep(NA_real_, n.sites))
-        do.call(cbind, meffil.mclapply(objects, function(object) {
+        ret <- do.call(cbind, meffil.mclapply(objects, function(object) {
             meffil.get.beta(meffil.normalize.sample(object, probes=probes), pseudo)
         }, ret.bytes=ret.bytes, ...))
+        names(ret) <- sapply(objects, function(object) object$basename)
+        ret
     }
     else {
         ret.bytes <- object.size(list(rep(NA_real_, n.sites),
@@ -37,6 +39,7 @@ meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
         ret <- meffil.mclapply(objects,
                                meffil.normalize.sample, probes=probes,
                                ret.bytes=ret.bytes, ...)
+        names(ret) <- sapply(objects, function(object) object$basename)
         list(M=sapply(ret, function(x) x$M),
              U=sapply(ret, function(x) x$U))
     }
