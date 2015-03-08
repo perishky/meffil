@@ -25,7 +25,7 @@
 #' Element i is equal to \code{FUN(X[[i]])}.
 #'
 #' @export
-meffil.mclapply <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2*2^30-1) {
+meffil.mclapply <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2^30-1) {
     stopifnot(!is.na(ret.bytes) & ret.bytes <= max.bytes)
     n.fun <- floor(max.bytes/ret.bytes)
     n.mclapply <- ceiling(length(X)/n.fun)

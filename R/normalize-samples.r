@@ -24,20 +24,26 @@ meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
                                      probes=meffil.probe.info(), verbose=F, ...) {
     stopifnot(length(objects) >= 2)
 
-    n.sites <- length(unique(probes$name))
+    probe.names <- unique(probes$name)
+    n.sites <- length(probe.names)
     if (beta) {
-        ret.bytes <- object.size(rep(NA_real_, n.sites))
+        example <- rep(NA_real_, n.sites)
+        names(example) <- probe.names
+        ret.bytes <- as.integer(object.size(example))
+        
         ret <- do.call(cbind, meffil.mclapply(objects, function(object) {
             msg("Normalizing", object$basename, verbose=verbose)
-            meffil.get.beta(meffil.normalize.sample(object, probes=probes, verbose=verbose), pseudo)
+            ret <- meffil.normalize.sample(object, probes=probes, verbose=verbose)
+            ret <- meffil.get.beta(ret, pseudo)
         }, ret.bytes=ret.bytes, ...))
         colnames(ret) <- sapply(objects, function(object) object$basename)
         ret
     }
     else {
-        ret.bytes <- object.size(list(rep(NA_real_, n.sites),
-                                      rep(NA_real_, n.sites)))
-        ## approx 8 x n.sites x 2
+        example <- list(rep(NA_real_, n.sites), rep(NA_real_, n.sites))
+        names(example[[1]]) <- names(example[[2]]) <- probe.names
+        ret.bytes <- as.integer(object.size(example))
+        
         ret <- meffil.mclapply(objects, function(object) {
             msg("Normalizing", object$basename, verbose=verbose)
             meffil.normalize.sample(object, probes=probes, verbose=verbose)
