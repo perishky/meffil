@@ -5,12 +5,17 @@
 \title{Probe type and location annotation}
 \usage{
 meffil.probe.info(array = "IlluminaHumanMethylation450k",
-  annotation = "ilmn12.hg19")
+  annotation = "ilmn12.hg19", verbose = F)
 }
 \arguments{
 \item{array}{Microarray identifier (Default: "IlluminaHumanMethylation450k").}
 
 \item{annotation}{Genomic probe locations annotation (Default: "ilmn12.hg19").}
+
+\item{verbose}{If \code{TRUE}, then status messages printed during execution (Default: \code{FALSE}).}
+}
+\value{
+Data frame listing all probes along with annotation information on the micorarray.
 }
 \description{
 Constructs an data frame annotating probe types

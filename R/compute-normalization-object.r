@@ -8,6 +8,7 @@
 #' @param dye.intensity Reference intensity for scaling each color channel (Default: 5000).
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing control probe information, probe summaries
 #' and quantiles.
 #'
@@ -15,23 +16,24 @@
 meffil.compute.normalization.object <- function(basename,
                                                 number.quantiles=500,
                                                 dye.intensity=5000,
-                                                probes=meffil.probe.info()) {
+                                                probes=meffil.probe.info(),
+                                                verbose=F) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(nrow(probes) > 100000)
 
-    rg <- meffil.read.rg(basename, probes)
+    rg <- meffil.read.rg(basename, probes, verbose=verbose)
 
-    controls <- extract.controls(rg, probes)
+    controls <- extract.controls(rg, probes, verbose=verbose)
 
-    rg.correct <- meffil.background.correct(rg, probes)
+    rg.correct <- meffil.background.correct(rg, probes, verbose=verbose)
 
     intensity.R <- calculate.intensity.R(rg.correct, probes)
     intensity.G <- calculate.intensity.G(rg.correct, probes)
 
-    rg.correct <- meffil.dye.bias.correct(rg.correct, dye.intensity, probes)
+    rg.correct <- meffil.dye.bias.correct(rg.correct, dye.intensity, probes, verbose=verbose)
 
-    mu <- meffil.rg.to.mu(rg.correct, probes)
+    mu <- meffil.rg.to.mu(rg.correct, probes, verbose=verbose)
 
     probes.x <- probes$name[which(probes$chr == "chrX")]
     x.signal <- median(log(mu$M[probes.x] + mu$U[probes.x], 2), na.rm=T)
@@ -42,8 +44,8 @@ meffil.compute.normalization.object <- function(basename,
     probs <- seq(0,1,length.out=number.quantiles)
 
     quantiles <- lapply(get.quantile.probe.subsets(probes), function(sets) {
-        list(M=quantile(mu$M[sets$M], probs=probs,na.rm=T),
-             U=quantile(mu$U[sets$U], probs=probs,na.rm=T))
+        list(M=unname(quantile(mu$M[sets$M], probs=probs,na.rm=T)),
+             U=unname(quantile(mu$U[sets$U], probs=probs,na.rm=T)))
     })
 
     list(origin="meffil.compute.normalization.object",
@@ -121,7 +123,7 @@ applicable.quantile.probe.subsets <- function(sex, both.sexes) {
 
 
 
-extract.controls <- function(rg, probes=meffil.probe.info()) {
+extract.controls <- function(rg, probes=meffil.probe.info(), verbose=F) {
     stopifnot(is.rg(rg))
 
     x.mean <- function(x, na.rm=T) {
@@ -134,7 +136,7 @@ extract.controls <- function(rg, probes=meffil.probe.info()) {
         i
     }
 
-    msg()
+    msg(verbose=verbose)
     probes.G <- probes[x.which(probes$dye == "G"),]
     probes.R <- probes[x.which(probes$dye == "R"),]
     probes.G <- probes.G[match(names(rg$G), probes.G$address),]

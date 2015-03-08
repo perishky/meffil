@@ -8,12 +8,13 @@
 #' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing raw Cy5 ('R') and Cy3 ('G') intensities for the sample.
 #'
 #' @export
-meffil.read.rg <- function(basename, probes=meffil.probe.info()) {
-    rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = "")),
-               R=read.idat(paste(basename, "_Red.idat", sep="")))
+meffil.read.rg <- function(basename, probes=meffil.probe.info(), verbose=F) {
+    rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = ""), verbose=verbose),
+               R=read.idat(paste(basename, "_Red.idat", sep=""), verbose=verbose))
     rg$R <- rg$R[which(names(rg$R) %in% probes$address[which(probes$dye == "R")])]
     rg$G <- rg$G[which(names(rg$G) %in% probes$address[which(probes$dye == "G")])]
 
@@ -23,8 +24,8 @@ meffil.read.rg <- function(basename, probes=meffil.probe.info()) {
     rg
 }
 
-read.idat <- function(filename) {
-    msg("Reading", filename)
+read.idat <- function(filename, verbose=F) {
+    msg("Reading", filename, verbose=verbose)
 
     if (!file.exists(filename))
         stop("Filename does not exist:", filename)

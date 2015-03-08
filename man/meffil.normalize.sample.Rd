@@ -4,13 +4,15 @@
 \alias{meffil.normalize.sample}
 \title{Normalize Infinium HumanMethylation450 BeadChip}
 \usage{
-meffil.normalize.sample(object, probes = meffil.probe.info())
+meffil.normalize.sample(object, probes = meffil.probe.info(), verbose = F)
 }
 \arguments{
 \item{object}{A list element from output of \code{\link{meffil.normalize.objects}()}.}
 
 \item{probes}{Probe annotation used to construct the control matrix
 (Default: \code{\link{meffil.probe.info}()}).}
+
+\item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }
 \value{
 List containing normalized methylated and unmethylated signals.

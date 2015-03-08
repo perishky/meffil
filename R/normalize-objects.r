@@ -8,24 +8,25 @@
 #' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
 #' @param number.pcs Number of control matrix principal components to adjust for (Default: 2).
 #' @param sex Optional character vector assigning a sex label ("M" or "F") to each sample.
+#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return Same list as input with additional elements added for each sample
 #' including normalized quantiles needed for normalizing each sample.
 #'
 #' @export
 meffil.normalize.objects <- function(objects,
-                                    number.pcs=2, sex.cutoff=-2, sex=NULL) {
+                                    number.pcs=2, sex.cutoff=-2, sex=NULL, verbose=F) {
     stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
     stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
     stopifnot(number.pcs >= 1)
 
-    msg("selecting dye correction reference")
+    msg("selecting dye correction reference", verbose=verbose)
     intensity.R <- sapply(objects, function(object) object$intensity.R)
     intensity.G <- sapply(objects, function(object) object$intensity.G)
     reference.idx <- which.min(abs(intensity.R/intensity.G-1))
     dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
 
-    msg("predicting sex")
+    msg("predicting sex", verbose=verbose)
     x.signal <- sapply(objects, function(obj) obj$x.signal)
     y.signal <- sapply(objects, function(obj) obj$y.signal)
     xy.diff <- y.signal-x.signal
@@ -39,7 +40,7 @@ meffil.normalize.objects <- function(objects,
     male.idx <- which(sex == "M")
     female.idx <- which(sex == "F")
 
-    msg("creating control matrix")
+    msg("creating control matrix", verbose=verbose)
     design.matrix <- meffil.design.matrix(objects, number.pcs)
     if (has.both.sexes) {
         design.male <- meffil.design.matrix(objects[male.idx],
@@ -48,11 +49,11 @@ meffil.normalize.objects <- function(objects,
                                               min(length(female.idx), number.pcs))
     }
 
-    msg("normalizing quantiles")
+    msg("normalizing quantiles", verbose=verbose)
     subset.names <- names(objects[[1]]$quantiles)
     normalized.quantiles <- sapply(subset.names, function(name) {
         sapply(c("M","U"), function(target) {
-            msg(name, target)
+            msg(name, target, verbose=verbose)
             original <- sapply(objects, function(object) {
                 object$quantiles[[name]][[target]] * dye.intensity/object$dye.intensity
             })
@@ -158,11 +159,3 @@ normalize.quantiles <- function(quantiles, design.matrix) {
     mean.quantiles + t(residuals(fit))
 }
 
-compute.quantiles.target <- function(quantiles) {
-    n <- length(quantiles)
-    unlist(lapply(1:(n-1), function(j) {
-        start <- quantiles[j]
-        end <- quantiles[j+1]
-        seq(start,end,(end-start)/n)[-n]
-    }))
-}

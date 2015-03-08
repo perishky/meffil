@@ -9,24 +9,27 @@
 #'
 #' @param array Microarray identifier (Default: "IlluminaHumanMethylation450k").
 #' @param annotation Genomic probe locations annotation (Default: "ilmn12.hg19").
+#' @param verbose If \code{TRUE}, then status messages printed during execution (Default: \code{FALSE}).
+#' @return Data frame listing all probes along with annotation information on the micorarray.
 #'
 #' @export
-meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
+meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
+    msg(verbose=verbose)
     if (array=="IlluminaHumanMethylation450k" && annotation=="ilmn12.hg19") {
         return(probe.info) ## precomputed, see code in ../data-raw/
     }
     else {
-        collect.probe.info(array, annotation)
+        collect.probe.info(array, annotation, verbose=verbose)
     }
 }
 
-collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
-    type1.R <- probe.characteristics("I-Red")
-    type1.G <- probe.characteristics("I-Green")
-    type2 <- probe.characteristics("II")
-    controls <- probe.characteristics("Control")
+collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
+    type1.R <- probe.characteristics("I-Red", verbose)
+    type1.G <- probe.characteristics("I-Green", verbose)
+    type2 <- probe.characteristics("II", verbose)
+    controls <- probe.characteristics("Control", verbose)
 
-    msg("reorganizing type information")
+    msg("reorganizing type information", verbose=verbose)
     ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA,stringsAsFactors=F),
                  data.frame(type="i",target="M", dye="G", address=type1.G$AddressB, name=type1.G$Name,ext=NA,stringsAsFactors=F),
                  data.frame(type="ii",target="M", dye="G", address=type2$AddressA, name=type2$Name,ext=NA,stringsAsFactors=F),
@@ -43,23 +46,23 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
                  data.frame(type="control",target=controls$Type,dye="R",address=controls$Address, name=NA,ext=controls$ExtendedType,stringsAsFactors=F),
                  data.frame(type="control",target=controls$Type,dye="G",address=controls$Address, name=NA,ext=controls$ExtendedType, stringsAsFactors=F))
 
-    locations <- probe.locations(array, annotation)
+    locations <- probe.locations(array, annotation, verbose)
     ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
 
     ret
 }
 
-probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19") {
+probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
     annotation <- paste(array, "anno.", annotation, sep="")
 
-    msg("loading probe genomic location annotation", annotation)
+    msg("loading probe genomic location annotation", annotation, verbose=verbose)
 
     require(annotation,character.only=T)
     data(list=annotation)
     as.data.frame(get(annotation)@data$Locations)
 }
 
-probe.characteristics <- function(type) {
-    msg("extracting", type)
+probe.characteristics <- function(type, verbose=F) {
+    msg("extracting", type, verbose=verbose)
     minfi::getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
 }

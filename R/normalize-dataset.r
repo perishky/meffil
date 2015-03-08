@@ -24,6 +24,7 @@
 #' estimate more stable when calculating methylation levels (Default: 100).
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @param ... Arguments passed to \code{\link[parallel]{mclapply}()}.
 #' @return Matrix of normalized methylation levels if \code{beta} is \code{TRUE};
 #' otherwise matrices of normalized methylated and unmethylated signals.
@@ -38,10 +39,12 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
                                      sex=NULL,
                                      beta=T, pseudo=100,
                                      probes=meffil.probe.info(),
+                                     verbose=F,
                                      ...) {
 
     stopifnot(!missing(filenames) || !missing(path))
 
+    msg("Collecting idat files ...")
     if (missing(filenames))
         basenames <- meffil.basenames(path, recursive)
     else
@@ -49,16 +52,23 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
 
     stopifnot(length(basenames) > 1)
 
+    msg("Computing normalization objects ...")
     norm.objects <- mclapply(basenames,
                              meffil.compute.normalization.object,
-                             probes=probes, ...)
+                             probes=probes, verbose=verbose, ...)
 
+    msg("Normalizing objects ...")
     norm.objects <- meffil.normalize.objects(norm.objects,
-                                             number.pcs=number.pcs, sex=sex)
+                                             number.pcs=number.pcs,
+                                             sex=sex,
+                                             verbose=verbose)
 
-    meffil.normalize.samples(norm.objects,
-                             beta=beta, pseudo=pseudo,
-                             probes=probes,
-                             ...)
-
+    msg("Normalizing methylation data from normalized objects ...")
+    norm.objects <- meffil.normalize.samples(norm.objects,
+                                             beta=beta, pseudo=pseudo,
+                                             probes=probes,
+                                             verbose=verbose,
+                                             ...)
+    msg("Finished.")
+    norm.objects
 }

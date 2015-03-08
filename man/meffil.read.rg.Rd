@@ -4,13 +4,15 @@
 \alias{meffil.read.rg}
 \title{Read Infinium HumanMethylation450 BeadChip.}
 \usage{
-meffil.read.rg(basename, probes = meffil.probe.info())
+meffil.read.rg(basename, probes = meffil.probe.info(), verbose = F)
 }
 \arguments{
 \item{basename}{IDAT file basename (see \code{\link{meffil.basenames}}).}
 
 \item{probes}{Probe annotation used to construct the control matrix
 (Default: \code{\link{meffil.probe.info}()}).}
+
+\item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }
 \value{
 List containing raw Cy5 ('R') and Cy3 ('G') intensities for the sample.

@@ -10,6 +10,7 @@
 #' estimate more stable when calculating methylation levels (Default: 100).
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
+#' @param verbose If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).
 #' @param ... Arguments passed to \code{\link[parallel]{mclapply}()}
 #' except for \code{ret.bytes}.
 #' @return Matrix of normalized methylation levels if \code{beta} is \code{TRUE};
@@ -20,25 +21,27 @@
 #'
 #' @export
 meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
-                                     probes=meffil.probe.info(), ...) {
+                                     probes=meffil.probe.info(), verbose=F, ...) {
     stopifnot(length(objects) >= 2)
 
     n.sites <- length(unique(probes$name))
     if (beta) {
         ret.bytes <- object.size(rep(NA_real_, n.sites))
         ret <- do.call(cbind, meffil.mclapply(objects, function(object) {
-            meffil.get.beta(meffil.normalize.sample(object, probes=probes), pseudo)
+            msg("Normalizing", object$basename, verbose=verbose)
+            meffil.get.beta(meffil.normalize.sample(object, probes=probes, verbose=verbose), pseudo)
         }, ret.bytes=ret.bytes, ...))
-        names(ret) <- sapply(objects, function(object) object$basename)
+        colnames(ret) <- sapply(objects, function(object) object$basename)
         ret
     }
     else {
         ret.bytes <- object.size(list(rep(NA_real_, n.sites),
                                       rep(NA_real_, n.sites)))
         ## approx 8 x n.sites x 2
-        ret <- meffil.mclapply(objects,
-                               meffil.normalize.sample, probes=probes,
-                               ret.bytes=ret.bytes, ...)
+        ret <- meffil.mclapply(objects, function(object) {
+            msg("Normalizing", object$basename, verbose=verbose)
+            meffil.normalize.sample(object, probes=probes, verbose=verbose)
+        }, ret.bytes=ret.bytes, ...)
         names(ret) <- sapply(objects, function(object) object$basename)
         list(M=sapply(ret, function(x) x$M),
              U=sapply(ret, function(x) x$U))

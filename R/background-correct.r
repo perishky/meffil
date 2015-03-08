@@ -7,14 +7,15 @@
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
 #' @param offset Number to add to background corrected signal (Default: 15).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return Background corrected Cy5/Cy3 signal by \code{\link[limma]{normexp.signal}}.
 #'
 #' @export
-meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15) {
+meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15, verbose=F) {
     stopifnot(is.rg(rg))
 
     lapply(c(R="R",G="G"), function(dye) {
-        msg("background correction for dye =", dye)
+        msg("background correction for dye =", dye, verbose=verbose)
         addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
         xf <- rg[[dye]][addresses]
         xf[which(xf <= 0)] <- 1

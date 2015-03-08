@@ -18,7 +18,7 @@ The function to be applied to each element of 'X'.}
 \item{...}{Optional arguments to \code{FUN} and \code{\link[parallel]{mclapply}()}.}
 
 \item{ret.bytes}{Number of bytes needed to store
-each object returned by \code{FUN}, i.e. \coe{FUN(X[[i]])}.
+each object returned by \code{FUN}, i.e. \code{FUN(X[[i]])}.
 Number of bytes can be computed using the function \code{\link{object.size}()}.
 If this value underestimates the actual memory requirements
 and the returned list requires more than 2Gb of storage space,

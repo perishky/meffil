@@ -5,7 +5,7 @@
 \title{Normalization object}
 \usage{
 meffil.compute.normalization.object(basename, number.quantiles = 500,
-  dye.intensity = 5000, probes = meffil.probe.info())
+  dye.intensity = 5000, probes = meffil.probe.info(), verbose = F)
 }
 \arguments{
 \item{basename}{IDAT file basename (see \code{\link{meffil.basenames}}).}
@@ -16,6 +16,8 @@ meffil.compute.normalization.object(basename, number.quantiles = 500,
 
 \item{probes}{Probe annotation used to construct the control matrix
 (Default: \code{\link{meffil.probe.info}()}).}
+
+\item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }
 \value{
 List containing control probe information, probe summaries

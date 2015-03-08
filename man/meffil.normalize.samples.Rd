@@ -5,7 +5,7 @@
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
 meffil.normalize.samples(objects, beta = T, pseudo = 100,
-  probes = meffil.probe.info(), ...)
+  probes = meffil.probe.info(), verbose = F, ...)
 }
 \arguments{
 \item{objects}{A list or sublist returned by \code{\link{meffil.normalize.objects}()}.}
@@ -19,6 +19,8 @@ estimate more stable when calculating methylation levels (Default: 100).}
 
 \item{probes}{Probe annotation used to construct the control matrix
 (Default: \code{\link{meffil.probe.info}()}).}
+
+\item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
 
 \item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}
 except for \code{ret.bytes}.}

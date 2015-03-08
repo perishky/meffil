@@ -10,8 +10,8 @@
 #' @return Cy5/Cy3 signals with average intensity equal to \code{intensity}.
 #'
 #' @export
-meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info()) {
-    msg()
+meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info(), verbose=F) {
+    msg(verbose=verbose)
     stopifnot(is.rg(rg))
     stopifnot(intensity >= 100)
 
