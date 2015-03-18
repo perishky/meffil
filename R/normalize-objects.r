@@ -135,6 +135,7 @@ meffil.control.matrix <- function(objects) {
     t(scale(control.matrix))
 }
 
+
 impute.matrix <- function(x, FUN=function(x) mean(x, na.rm=T)) {
     idx <- which(is.na(x), arr.ind=T)
     if (length(idx) > 0) {
@@ -156,6 +157,11 @@ normalize.quantiles <- function(quantiles, design.matrix) {
     quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + safe.increment
     mean.quantiles <- rowMeans(quantiles)
     fit <- lm.fit(x=design.matrix, y=t(quantiles - mean.quantiles))
-    mean.quantiles + t(residuals(fit))
+    norm.quantiles <- mean.quantiles + t(residuals(fit))
+    
+    ## make sure that the quantiles in monotonically increasing, not usually a problem but ...
+    for (i in 2:nrow(norm.quantiles))
+        norm.quantiles[i,] <- apply(norm.quantiles[(i-1):i,], 2, max, na.rm=T)
+    norm.quantiles
 }
 
