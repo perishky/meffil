@@ -2,8 +2,21 @@
 
 ## Download example data set 
 
+Retrieve the data from the Gene Expression Omnibus (GEO) website
+(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
+
 ```{r}
-source("get-dataset.r")
+dir.create(path <- "data")
+
+if (length(list.files(path, "*.idat$")) == 0) {
+  filename <-  file.path(path, "gse55491.tar")
+  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
+  cat(date(), "Extracting files from GEO archive.\n")
+  system(paste("cd", path, ";", "tar xvf", basename(filename)))
+  unlink(filename)
+  cat(date(), "Unzipping IDAT files.\n")
+  system(paste("cd", path, ";", "gunzip *.idat.gz"))
+}
 ```
 
 ## Load and normalize using `minfi`
@@ -29,7 +42,7 @@ system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
 ## Load and normalize using `meffil`
 
 ```{r}
-options(mc.cores=10)
+options(mc.cores=6)
 ```
 
 Load the code, probe annotation and sample filename information.
@@ -62,8 +75,8 @@ Make sure both methods for normalizing samples produce the same output.
 ```{r}
 B.meffil.2 <- meffil.normalize.samples(norm.objects)
 B.meffil.3 <- meffil.normalize.dataset(path, number.pcs=2)
-quantile(B.meffil - B.meffil.2)
-quantile(B.meffil - B.meffil.3)
+quantile(B.meffil - B.meffil.2[rownames(B.meffil),])
+quantile(B.meffil - B.meffil.3[rownames(B.meffil),])
 ```
 
 ## Compare normalizations

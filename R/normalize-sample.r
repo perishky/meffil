@@ -23,7 +23,8 @@
 #' @export
 meffil.normalize.sample <- function(object, probes=meffil.probe.info(), verbose=F) {
     stopifnot(is.normalization.object(object))
-
+    stopifnot("norm" %in% names(object))
+    
     probe.names <- unique(na.omit(probes$name))
 
     rg <- meffil.read.rg(object$basename, probes, verbose=verbose)

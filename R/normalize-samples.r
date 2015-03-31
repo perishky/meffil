@@ -23,33 +23,45 @@
 meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
                                      probes=meffil.probe.info(), verbose=F, ...) {
     stopifnot(length(objects) >= 2)
+    stopifnot(all(sapply(objects, is.normalization.object)))
+    stopifnot(all(sapply(objects, function(x) "norm" %in% names(x))))
 
-    probe.names <- unique(probes$name)
+    basenames <- sapply(objects, function(object) object$basename)
+    probe.names <- na.omit(unique(probes$name))
     n.sites <- length(probe.names)
+
     if (beta) {
         example <- rep(NA_real_, n.sites)
-        names(example) <- probe.names
         ret.bytes <- as.integer(object.size(example))
-        
-        ret <- do.call(cbind, meffil.mclapply(objects, function(object) {
-            msg("Normalizing", object$basename, verbose=verbose)
+
+        ret <- meffil.mclapply(objects, function(object) {
+            msg("Normalizing", object$basename, which(basenames == object$basename),
+                verbose=verbose)
             ret <- meffil.normalize.sample(object, probes=probes, verbose=verbose)
             ret <- meffil.get.beta(ret, pseudo)
-        }, ret.bytes=ret.bytes, ...))
+            unname(ret[probe.names])
+        }, ret.bytes=ret.bytes, ...)
+        ret <- do.call(cbind, ret)
         colnames(ret) <- sapply(objects, function(object) object$basename)
+        rownames(ret) <- probe.names
         ret
     }
     else {
         example <- list(rep(NA_real_, n.sites), rep(NA_real_, n.sites))
-        names(example[[1]]) <- names(example[[2]]) <- probe.names
         ret.bytes <- as.integer(object.size(example))
         
         ret <- meffil.mclapply(objects, function(object) {
-            msg("Normalizing", object$basename, verbose=verbose)
-            meffil.normalize.sample(object, probes=probes, verbose=verbose)
+            msg("Normalizing", object$basename, which(basenames == object$basename),
+                verbose=verbose)
+            ret <- meffil.normalize.sample(object, probes=probes, verbose=verbose)
+            ret$M <- unname(ret$M[probe.names])
+            ret$U <- unname(ret$U[probe.names])
+            ret
         }, ret.bytes=ret.bytes, ...)
         names(ret) <- sapply(objects, function(object) object$basename)
-        list(M=sapply(ret, function(x) x$M),
-             U=sapply(ret, function(x) x$U))
+        ret <- list(M=sapply(ret, function(x) x$M),
+                    U=sapply(ret, function(x) x$U))
+        rownames(ret$M) <- rownames(ret$U) <- probe.names
+        ret
     }
 }

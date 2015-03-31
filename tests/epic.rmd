@@ -1,0 +1,88 @@
+Retrieve the dataset IDAT files from GEO:
+```
+wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE51nnn/GSE51032/suppl/GSE51032_RAW.tar
+tar xvf GSE51032_RAW.tar
+gunzip *.gz
+```
+
+Set `path` to be the location of the IDAT files for the dataset.
+```{r}
+path <- "~/work/data/GSE51032-epic"
+```
+
+```{r}
+library(meffil)
+basenames <- meffil.basenames(path)
+options(mc.cores=10)
+```
+
+```{r}
+step1.time <- system.time(norm.objects <- mclapply(basenames, meffil.compute.normalization.object))
+step1.mem <- gc(reset=TRUE)
+step2.time <- system.time(norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2))
+step2.mem <- gc(reset=TRUE)
+step3.time <- system.time(beta <- meffil.normalize.samples(norm.objects, verbose=T))
+step3.mem <- gc(reset=TRUE)
+```
+Takes about 1 hour.
+
+```{r}
+step1.time
+step2.time
+step3.time
+```
+
+```{r}
+step1.mem
+step2.mem
+step3.mem
+```
+
+```{r}
+print(object.size(norm.objects), units="Mb")
+print(object.size(beta), units="Mb")
+```
+
+```{r}
+(print(length(norm.objects))
+ * print(length(norm.objects[[1]]$quantiles))
+ * print(length(norm.objects[[1]]$quantiles[[1]]))
+ * print(length(norm.objects[[1]]$quantiles[[1]][[1]]))
+ * print(.Machine$sizeof.long)
+ / 2^20)
+```
+
+```{r}
+min(beta,na.rm=T)
+max(beta,na.rm=T)
+sum(is.na(beta))
+```
+
+
+
+```{r, results='hide', message=F}
+library(minfi, quietly=TRUE)
+```
+
+```{r, cache=TRUE}
+raw.minfi <- read.450k.exp(base = path)
+minfi.time <- system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
+                                                          sex=NULL, bgCorr=TRUE, dyeCorr=TRUE,
+                                                          verbose=TRUE))
+B.minfi <- getBeta(norm.minfi)
+```
+
+```{r}
+minfi.time
+```
+Took about 4 hours but likely because memory use maximum.
+
+```{r}
+rm(norm.minfi)
+gc(reset=TRUE)
+```
+
+
+```{r}
+quantile(B.minfi[rownames(beta),] - beta, na.rm=T)
+```

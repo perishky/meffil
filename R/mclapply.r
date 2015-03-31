@@ -30,10 +30,21 @@ meffil.mclapply <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2^30-1) {
     n.fun <- floor(max.bytes/ret.bytes)
     n.mclapply <- ceiling(length(X)/n.fun)
     partitions <- partition.integer.subsequence(1,length(X),n.mclapply)
-    do.call(c, lapply(1:nrow(partitions), function(i) {
-        mclapply(X[partitions[i,"start"]:partitions[i,"end"]], FUN, ...)
+    filenames <- sapply(1:nrow(partitions), function(i) tempfile())
+    for (i in 1:nrow(partitions)) {
+        ret <- mclapply(X[partitions[i,"start"]:partitions[i,"end"]], FUN, ...)
+        save(ret, file=filenames[i])
+        rm(ret)
+        gc()
+    }
+    do.call(c, lapply(filenames, function(filename) {
+        msg("meffil.mclapply is loading", filename, "of", length(filenames), "filenames")
+        load(filename, envir=sys.frame(sys.nframe()))
+        unlink(filename)
+        ret
     }))
 }
+
 
 partition.integer.subsequence <- function(start, end, n) {
     stopifnot(start <= end)
