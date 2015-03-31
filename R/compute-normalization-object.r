@@ -1,3 +1,43 @@
+# Dear Matt
+# Please implement this to extract detectionp values AND bead number 
+# Lots of love
+# Gib and Josine
+# P.S. Here is the minfi code that does it.
+
+detectionP <- function(rgSet, type = "m+u") {
+    locusNames <- getManifestInfo(rgSet, "locusNames")
+    detP <- matrix(NA_real_, ncol = ncol(rgSet), nrow = length(locusNames),
+                   dimnames = list(locusNames, sampleNames(rgSet)))
+
+    controlIdx <- getControlAddress(rgSet, controlType = "NEGATIVE")   
+    r <- getRed(rgSet)
+    rBg <- r[controlIdx,]
+    rMu <- matrixStats::colMedians(rBg)
+    rSd <- matrixStats::colMads(rBg)
+
+    g <- getGreen(rgSet)
+    gBg <- g[controlIdx,]
+    gMu <- matrixStats::colMedians(gBg)
+    gSd <- matrixStats::colMads(gBg)
+
+    TypeII <- getProbeInfo(rgSet, type = "II")
+    TypeI.Red <- getProbeInfo(rgSet, type = "I-Red")
+    TypeI.Green <- getProbeInfo(rgSet, type = "I-Green")
+    for (i in 1:ncol(rgSet)) {   
+        ## Type I Red
+        intensity <- r[TypeI.Red$AddressA, i] + r[TypeI.Red$AddressB, i]
+        detP[TypeI.Red$Name, i] <- 1-pnorm(intensity, mean=rMu[i]*2, sd=rSd[i]*2)
+        ## Type I Green
+        intensity <- g[TypeI.Green$AddressA, i] + g[TypeI.Green$AddressB, i]
+        detP[TypeI.Green$Name, i] <- 1-pnorm(intensity, mean=gMu[i]*2, sd=gSd[i]*2)
+        ## Type II
+        intensity <- r[TypeII$AddressA, i] + g[TypeII$AddressA, i]
+        detP[TypeII$Name, i] <- 1-pnorm(intensity, mean=rMu[i]+gMu[i], sd=rSd[i]+gSd[i])
+    }
+    detP
+}
+
+
 
 #' Normalization object
 #'
@@ -9,6 +49,8 @@
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
+#' @param pvalue.threshold Default value = 0.01. All probes ABOVE this detection threhsold are returned
+#' @param bead.threshold Default value = 3. All probes with less than this number of beads detected.
 #' @return List containing control probe information, probe summaries
 #' and quantiles.
 #'
@@ -17,7 +59,9 @@ meffil.compute.normalization.object <- function(basename,
                                                 number.quantiles=500,
                                                 dye.intensity=5000,
                                                 probes=meffil.probe.info(),
-                                                verbose=F) {
+                                                verbose=F,
+                                                pvalue.threshold=0.01,
+                                                bead.threshold=3) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(nrow(probes) > 100000)
@@ -48,6 +92,14 @@ meffil.compute.normalization.object <- function(basename,
              U=unname(quantile(mu$U[sets$U], probs=probs,na.rm=T)))
     })
 
+
+    bad.probes.detectionp=array()
+    bad.probes.beadnum=array()
+
+    #extract SNP probes
+    snp.probes=array()
+
+
     list(origin="meffil.compute.normalization.object",
          basename=basename,
          controls=controls,
@@ -56,7 +108,13 @@ meffil.compute.normalization.object <- function(basename,
          intensity.R=intensity.R,
          intensity.G=intensity.G,
          x.signal=x.signal,
-         y.signal=y.signal)
+         y.signal=y.signal,
+         median.m.signal=median(mu$M),
+         median.u.signal=median(mu$U),
+         bad.probes.detectionp=bad.probes.detectionp,
+         bad.probes.beadnum=bad.probes.beadnum,
+         snp.probes=snp.probes
+         )
 }
 
 is.normalization.object <- function(object) {
