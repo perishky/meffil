@@ -21,7 +21,8 @@
 #'
 #' @export
 meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
-                                     probes=meffil.probe.info(), verbose=F, ...) {
+                                     probes=meffil.probe.info(), verbose=F,
+                                     tempdir=tempdir(), ...) {
     stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
     stopifnot(all(sapply(objects, function(x) "norm" %in% names(x))))
@@ -40,7 +41,7 @@ meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
             ret <- meffil.normalize.sample(object, probes=probes, verbose=verbose)
             ret <- meffil.get.beta(ret, pseudo)
             unname(ret[probe.names])
-        }, ret.bytes=ret.bytes, ...)
+        }, ret.bytes=ret.bytes, tempdir=tempdir, ...)
         ret <- do.call(cbind, ret)
         colnames(ret) <- sapply(objects, function(object) object$basename)
         rownames(ret) <- probe.names
