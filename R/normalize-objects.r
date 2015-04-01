@@ -109,6 +109,13 @@ meffil.design.matrix <- function(objects, number.pcs) {
     stopifnot(number.pcs >= 1 && number.pcs <= length(objects))
 
     control.matrix <- meffil.control.matrix(objects)
+
+    control.matrix <- impute.matrix(control.matrix)
+    control.matrix <- scale(t(control.matrix))
+    control.matrix[control.matrix > 3] <- 3
+    control.matrix[control.matrix < -3] <- -3
+    control.matrix <- t(scale(control.matrix))
+    
     control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
     model.matrix(~control.components-1)
 }
@@ -118,21 +125,15 @@ meffil.design.matrix <- function(objects, number.pcs) {
 #' Matrix containing control probe intensities from the Infinium HumanMethylation450 BeadChip.
 #'
 #' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
-#' @return Matrix with one column per object consisting of control probe intensity z-scores.
-#' Missing values are imputed (row mean) and values more than 3 standard deviations
-#' truncated.
+#' @return Matrix with one column per object consisting of control probe intensities and summaries.
 #'
 #' @export
 meffil.control.matrix <- function(objects) {
     stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
 
-    control.matrix <- matrix(sapply(objects, function(object) object$controls), ncol=length(objects))
-    control.matrix <- impute.matrix(control.matrix)
-    control.matrix <- scale(t(control.matrix))
-    control.matrix[control.matrix > 3] <- 3
-    control.matrix[control.matrix < -3] <- -3
-    t(scale(control.matrix))
+    names(objects) <- sapply(objects, function(object) object$basename)
+    sapply(objects, function(object) object$controls)
 }
 
 
