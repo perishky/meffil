@@ -29,6 +29,9 @@ meffil.mclapply <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2^30-1, tempdi
     stopifnot(!is.na(ret.bytes) & ret.bytes <= max.bytes)
     n.fun <- floor(max.bytes/ret.bytes)
     n.mclapply <- ceiling(length(X)/n.fun)
+    
+    if (n.mclapply <= 1) return(mclapply(X, FUN, ...))
+    
     partitions <- partition.integer.subsequence(1,length(X),n.mclapply)
     filenames <- sapply(1:nrow(partitions), function(i) tempfile(tmpdir=tempdir))
     for (i in 1:nrow(partitions)) {
