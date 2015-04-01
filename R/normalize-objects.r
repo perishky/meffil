@@ -101,7 +101,6 @@ meffil.normalize.objects <- function(objects,
 #' @export
 meffil.design.matrix <- function(objects, number.pcs) {
     stopifnot(length(objects) >= 2)
-    stopifnot(number.pcs >= 1)
 
     if (missing(number.pcs))
         number.pcs <- length(objects)
@@ -117,7 +116,9 @@ meffil.design.matrix <- function(objects, number.pcs) {
     control.matrix <- t(scale(control.matrix))
     
     control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
-    model.matrix(~control.components-1)
+    design.matrix <- model.matrix(~control.components-1)
+    rownames(design.matrix) <- colnames(control.matrix)
+    design.matrix
 }
 
 #' Infinium HumanMethylation450 BeadChip control matrix
