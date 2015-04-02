@@ -1,44 +1,3 @@
-# Dear Matt
-# Please implement this to extract detectionp values AND bead number 
-# Lots of love
-# Gib and Josine
-# P.S. Here is the minfi code that does it.
-
-detectionP <- function(rgSet, type = "m+u") {
-    locusNames <- getManifestInfo(rgSet, "locusNames")
-    detP <- matrix(NA_real_, ncol = ncol(rgSet), nrow = length(locusNames),
-                   dimnames = list(locusNames, sampleNames(rgSet)))
-
-    controlIdx <- getControlAddress(rgSet, controlType = "NEGATIVE")   
-    r <- getRed(rgSet)
-    rBg <- r[controlIdx,]
-    rMu <- matrixStats::colMedians(rBg)
-    rSd <- matrixStats::colMads(rBg)
-
-    g <- getGreen(rgSet)
-    gBg <- g[controlIdx,]
-    gMu <- matrixStats::colMedians(gBg)
-    gSd <- matrixStats::colMads(gBg)
-
-    TypeII <- getProbeInfo(rgSet, type = "II")
-    TypeI.Red <- getProbeInfo(rgSet, type = "I-Red")
-    TypeI.Green <- getProbeInfo(rgSet, type = "I-Green")
-    for (i in 1:ncol(rgSet)) {   
-        ## Type I Red
-        intensity <- r[TypeI.Red$AddressA, i] + r[TypeI.Red$AddressB, i]
-        detP[TypeI.Red$Name, i] <- 1-pnorm(intensity, mean=rMu[i]*2, sd=rSd[i]*2)
-        ## Type I Green
-        intensity <- g[TypeI.Green$AddressA, i] + g[TypeI.Green$AddressB, i]
-        detP[TypeI.Green$Name, i] <- 1-pnorm(intensity, mean=gMu[i]*2, sd=gSd[i]*2)
-        ## Type II
-        intensity <- r[TypeII$AddressA, i] + g[TypeII$AddressA, i]
-        detP[TypeII$Name, i] <- 1-pnorm(intensity, mean=rMu[i]+gMu[i], sd=rSd[i]+gSd[i])
-    }
-    detP
-}
-
-
-
 #' Normalization object
 #'
 #' Create a normalization object for a given Infinium HumanMethylation450 BeadChip.
@@ -49,8 +8,10 @@ detectionP <- function(rgSet, type = "m+u") {
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
-#' @param pvalue.threshold Default value = 0.01. All probes ABOVE this detection threhsold are returned
-#' @param bead.threshold Default value = 3. All probes with less than this number of beads detected.
+#' @param detection.threshold Default value = 0.01.
+#' All probes above this detection threshold detected.
+#' @param bead.threshold Default value = 3.
+#' All probes with less than this number of beads detected.
 #' @return List containing control probe information, probe summaries
 #' and quantiles.
 #'
@@ -60,7 +21,7 @@ meffil.compute.normalization.object <- function(basename,
                                                 dye.intensity=5000,
                                                 probes=meffil.probe.info(),
                                                 verbose=F,
-                                                pvalue.threshold=0.01,
+                                                detection.threshold=0.01,
                                                 bead.threshold=3) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
@@ -68,16 +29,22 @@ meffil.compute.normalization.object <- function(basename,
 
     rg <- meffil.read.rg(basename, probes, verbose=verbose)
 
+    bad.probes.detectionp <- identify.bad.probes.detectionp(rg, detection.threshold, probes, verbose=verbose)
+
+    bad.probes.beadnum <- identify.bad.probes.beadnum(rg, bead.threshold, probes, verbose=verbose)
+
+    snp.probes <- get.snp.probes(rg, probes, verbose=verbose)
+
     controls <- extract.controls(rg, probes, verbose=verbose)
 
-    rg.correct <- meffil.background.correct(rg, probes, verbose=verbose)
+    rg <- meffil.background.correct(rg, probes, verbose=verbose)
 
-    intensity.R <- calculate.intensity.R(rg.correct, probes)
-    intensity.G <- calculate.intensity.G(rg.correct, probes)
+    intensity.R <- calculate.intensity.R(rg, probes)
+    intensity.G <- calculate.intensity.G(rg, probes)
 
-    rg.correct <- meffil.dye.bias.correct(rg.correct, dye.intensity, probes, verbose=verbose)
+    rg <- meffil.dye.bias.correct(rg, dye.intensity, probes, verbose=verbose)
 
-    mu <- meffil.rg.to.mu(rg.correct, probes, verbose=verbose)
+    mu <- meffil.rg.to.mu(rg, probes, verbose=verbose)
 
     probes.x <- probes$name[which(probes$chr == "chrX")]
     x.signal <- median(log(mu$M[probes.x] + mu$U[probes.x], 2), na.rm=T)
@@ -92,14 +59,6 @@ meffil.compute.normalization.object <- function(basename,
              U=unname(quantile(mu$U[sets$U], probs=probs,na.rm=T)))
     })
 
-
-    bad.probes.detectionp=array()
-    bad.probes.beadnum=array()
-
-    #extract SNP probes
-    snp.probes=array()
-
-
     list(origin="meffil.compute.normalization.object",
          basename=basename,
          controls=controls,
@@ -109,8 +68,8 @@ meffil.compute.normalization.object <- function(basename,
          intensity.G=intensity.G,
          x.signal=x.signal,
          y.signal=y.signal,
-         median.m.signal=median(mu$M),
-         median.u.signal=median(mu$U),
+         median.m.signal=median(mu$M,na.rm=T),
+         median.u.signal=median(mu$U,na.rm=T),
          bad.probes.detectionp=bad.probes.detectionp,
          bad.probes.beadnum=bad.probes.beadnum,
          snp.probes=snp.probes
@@ -197,63 +156,63 @@ extract.controls <- function(rg, probes=meffil.probe.info(), verbose=F) {
     msg(verbose=verbose)
     probes.G <- probes[x.which(probes$dye == "G"),]
     probes.R <- probes[x.which(probes$dye == "R"),]
-    probes.G <- probes.G[match(names(rg$G), probes.G$address),]
-    probes.R <- probes.R[match(names(rg$R), probes.R$address),]
+    probes.G <- probes.G[match(rownames(rg$G), probes.G$address),]
+    probes.R <- probes.R[match(rownames(rg$R), probes.R$address),]
 
-    bisulfite2 <- x.mean(rg$R[x.which(probes.R$target == "BISULFITE CONVERSION II")])
+    bisulfite2 <- x.mean(rg$R[x.which(probes.R$target == "BISULFITE CONVERSION II"), "Mean"])
 
     bisulfite1.G <- rg$G[x.which(probes.G$target == "BISULFITE CONVERSION I"
                                & probes.G$ext
-                               %in% sprintf("BS Conversion I%sC%s", c(" ", "-", "-"), 1:3))]
+                               %in% sprintf("BS Conversion I%sC%s", c(" ", "-", "-"), 1:3)),"Mean"]
     bisulfite1.R <- rg$R[x.which(probes.R$target == "BISULFITE CONVERSION I"
-                               & probes.R$ext %in% sprintf("BS Conversion I-C%s", 4:6))]
+                               & probes.R$ext %in% sprintf("BS Conversion I-C%s", 4:6)),"Mean"]
     bisulfite1 <- x.mean(bisulfite1.G + bisulfite1.R)
 
-    stain.G <- rg$G[x.which(probes.G$target == "STAINING" & probes.G$ext == "Biotin (High)")]
+    stain.G <- rg$G[x.which(probes.G$target == "STAINING" & probes.G$ext == "Biotin (High)"),"Mean"]
 
-    stain.R <- rg$R[x.which(probes.R$target == "STAINING" & probes.R$ext == "DNP (High)")]
+    stain.R <- rg$R[x.which(probes.R$target == "STAINING" & probes.R$ext == "DNP (High)"),"Mean"]
 
     extension.R <- rg$R[x.which(probes.R$target == "EXTENSION"
-                              & probes.R$ext %in% sprintf("Extension (%s)", c("A", "T")))]
+                              & probes.R$ext %in% sprintf("Extension (%s)", c("A", "T"))),"Mean"]
     extension.G <- rg$G[x.which(probes.G$target == "EXTENSION"
-                              & probes.G$ext %in% sprintf("Extension (%s)", c("C", "G")))]
+                              & probes.G$ext %in% sprintf("Extension (%s)", c("C", "G"))),"Mean"]
 
-    hybe <- rg$G[x.which(probes.G$target == "HYBRIDIZATION")]
+    hybe <- rg$G[x.which(probes.G$target == "HYBRIDIZATION"),"Mean"]
 
-    targetrem <- rg$G[x.which(probes.G$target %in% "TARGET REMOVAL")]
+    targetrem <- rg$G[x.which(probes.G$target %in% "TARGET REMOVAL"),"Mean"]
 
     nonpoly.R <- rg$R[x.which(probes.R$target == "NON-POLYMORPHIC"
-                            & probes.R$ext %in% sprintf("NP (%s)", c("A", "T")))]
+                            & probes.R$ext %in% sprintf("NP (%s)", c("A", "T"))),"Mean"]
 
     nonpoly.G <- rg$G[x.which(probes.G$target == "NON-POLYMORPHIC"
-                            & probes.G$ext %in% sprintf("NP (%s)", c("C", "G")))]
+                            & probes.G$ext %in% sprintf("NP (%s)", c("C", "G"))),"Mean"]
 
-    spec2.G <- rg$G[x.which(probes.G$target == "SPECIFICITY II")]
-    spec2.R <- rg$R[x.which(probes.R$target == "SPECIFICITY II")]
+    spec2.G <- rg$G[x.which(probes.G$target == "SPECIFICITY II"),"Mean"]
+    spec2.R <- rg$R[x.which(probes.R$target == "SPECIFICITY II"),"Mean"]
     spec2.ratio <- x.mean(spec2.G,na.rm=T)/x.mean(spec2.R,na.rm=T)
 
     ext <- sprintf("GT Mismatch %s (PM)", 1:3)
-    spec1.G <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
-    spec1.Rp <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
+    spec1.G <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext),"Mean"]
+    spec1.Rp <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext),"Mean"]
     spec1.ratio1 <- x.mean(spec1.Rp,na.rm=T)/x.mean(spec1.G,na.rm=T)
 
     ext <- sprintf("GT Mismatch %s (PM)", 4:6)
-    spec1.Gp <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext)]
-    spec1.R <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext)]
+    spec1.Gp <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext),"Mean"]
+    spec1.R <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext),"Mean"]
     spec1.ratio2 <- x.mean(spec1.Gp,na.rm=T)/x.mean(spec1.R,na.rm=T)
 
     spec1.ratio <- (spec1.ratio1 + spec1.ratio2)/2
 
-    normA <- x.mean(rg$R[x.which(probes.R$target == "NORM_A")], na.rm = TRUE)
-    normT <- x.mean(rg$R[x.which(probes.R$target == "NORM_T")], na.rm = TRUE)
-    normC <- x.mean(rg$G[x.which(probes.G$target == "NORM_C")], na.rm = TRUE)
-    normG <- x.mean(rg$G[x.which(probes.G$target == "NORM_G")], na.rm = TRUE)
+    normA <- x.mean(rg$R[x.which(probes.R$target == "NORM_A"),"Mean"], na.rm = TRUE)
+    normT <- x.mean(rg$R[x.which(probes.R$target == "NORM_T"),"Mean"], na.rm = TRUE)
+    normC <- x.mean(rg$G[x.which(probes.G$target == "NORM_C"),"Mean"], na.rm = TRUE)
+    normG <- x.mean(rg$G[x.which(probes.G$target == "NORM_G"),"Mean"], na.rm = TRUE)
 
     dye.bias <- (normC + normG)/(normA + normT)
 
     probs <- c(0.01, 0.5, 0.99)
-    oob.G <- quantile(rg$G[with(probes.G, x.which(target == "OOB"))], na.rm=T, probs=probs)
-    oob.R <- quantile(rg$R[with(probes.R, x.which(target == "OOB"))], na.rm=T, probs=probs)
+    oob.G <- quantile(rg$G[with(probes.G, x.which(target == "OOB")),"Mean"], na.rm=T, probs=probs)
+    oob.R <- quantile(rg$R[with(probes.R, x.which(target == "OOB")),"Mean"], na.rm=T, probs=probs)
     oob.ratio <- oob.G[["50%"]]/oob.R[["50%"]]
 
     c(bisulfite1=bisulfite1,
@@ -281,5 +240,77 @@ extract.controls <- function(rg, probes=meffil.probe.info(), verbose=F) {
       dye.bias=dye.bias,
       oob.G=oob.G,
       oob.ratio=oob.ratio)
+}
+
+identify.bad.probes.beadnum <- function(rg, threshold=3, probes=meffil.probe.info(), verbose=F) {
+    msg(verbose=verbose)
+
+    cpg.sites <- unique(na.omit(probes$name))
+ 
+    targets <- c(M="M", U="U")
+    n.beads <- sapply(targets, function(target) {
+        probes <- probes[which(probes$target == target),]
+        probes <- probes[match(cpg.sites, probes$name),]
+        r.idx <- which(probes$dye == "R")
+        g.idx <- which(probes$dye == "G")        
+        n.beads <- rep(NA, nrow(probes))
+        n.beads[r.idx] <- rg$R[match(probes$address[r.idx], rownames(rg$R)), "NBeads"]
+        n.beads[g.idx] <- rg$G[match(probes$address[g.idx], rownames(rg$G)), "NBeads"]
+        n.beads
+    })
+    n.beads <- pmin(n.beads[,"U"], n.beads[,"M"])
+    names(n.beads) <- cpg.sites
+    n.beads[which(n.beads < threshold)]
+}
+
+identify.bad.probes.detectionp <- function(rg, threshold=0.01, probes=meffil.probe.info(), verbose=F) {
+    msg(verbose=verbose)
+
+    dyes <- c(R="R", G="G")
+    negative.intensities <- lapply(dyes, function(color) {
+        addresses <- with(probes, address[which(dye == color & target == "NEGATIVE")])
+        rg[[color]][which(rownames(rg[[color]]) %in% addresses),"Mean"]
+    })
+    negative.med <- lapply(negative.intensities, median, na.rm=T)
+    negative.sd  <- lapply(negative.intensities, mad, na.rm=T)
+
+    cpg.sites <- unique(na.omit(probes$name))
+
+    targets <- c(M="M", U="U")
+    detection.stats <- lapply(targets, function(target) {
+        probes <- probes[which(probes$target == target),]
+        probes <- probes[match(cpg.sites, probes$name),]
+        r.idx <- which(probes$dye == "R")
+        g.idx <- which(probes$dye == "G")
+
+        intensity <- rep(NA, nrow(probes))
+        intensity[r.idx] <- rg$R[match(probes$address[r.idx], rownames(rg$R)),"Mean"]
+        intensity[g.idx] <- rg$G[match(probes$address[g.idx], rownames(rg$G)),"Mean"]
+
+        med <- rep(NA, nrow(probes))
+        med[r.idx] <- negative.med$R
+        med[g.idx] <- negative.med$G
+
+        sd <- rep(NA, nrow(probes))
+        sd[r.idx] <- negative.sd$R
+        sd[g.idx] <- negative.sd$G
+
+        data.frame(intensity=intensity, med=med, sd=sd)
+    })
+
+    p.value <- with(detection.stats, 1-pnorm(M$intensity + U$intensity,
+                                             mean=M$med + U$med,
+                                             sd=M$sd + U$sd))
+    names(p.value) <- cpg.sites
+    p.value[which(p.value > threshold)]
+}
+
+
+get.snp.probes <- function(rg, probes=meffil.probe.info(), verbose=F) {
+    msg(verbose=verbose)
+    probes <- probes[which(probes$target %in% c("UG","MG")),]
+    probes$target <- substring(probes$target, 1, 1)
+    snp.mu <- rg.to.mu(rg, probes)
+    snp.mu$M/(snp.mu$M + snp.mu$U + 100)
 }
 

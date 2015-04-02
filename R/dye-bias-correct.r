@@ -15,24 +15,28 @@ meffil.dye.bias.correct <- function(rg, intensity=5000, probes=meffil.probe.info
     stopifnot(is.rg(rg))
     stopifnot(intensity >= 100)
 
-    rg$R <- rg$R * intensity/calculate.intensity.R(rg, probes)
-    rg$G <- rg$G * intensity/calculate.intensity.G(rg, probes)
+    rg$R[,"Mean"] <- rg$R[,"Mean"] * intensity/calculate.intensity.R(rg, probes)
+    rg$G[,"Mean"] <- rg$G[,"Mean"] * intensity/calculate.intensity.G(rg, probes)
     rg
 }
 
 calculate.intensity.R <- function(rg, probes=meffil.probe.info()) {
     addresses <- probes$address[which(probes$target %in% c("NORM_A", "NORM_T")
                                       & probes$dye == "R")]
-    idx <- match(addresses, names(rg$R))
+    idx <- match(addresses, rownames(rg$R))
+    idx <- na.omit(idx)
     stopifnot(length(idx) >= 10) ## there are 93 in total
-    mean(rg$R[idx], na.rm=T)
+
+    mean(rg$R[idx,"Mean"], na.rm=T)
 }
 
 calculate.intensity.G <- function(rg, probes=meffil.probe.info()) {
     addresses <- probes$address[which(probes$target %in% c("NORM_G", "NORM_C")
                                       & probes$dye == "G")]
-    idx <- match(addresses, names(rg$G))
+    idx <- match(addresses, rownames(rg$G))
+    idx <- na.omit(idx)
     stopifnot(length(idx) >= 10) ## there are 93 in total
-    mean(rg$G[idx], na.rm=T)
+
+    mean(rg$G[idx,"Mean"], na.rm=T)
 }
 

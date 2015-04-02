@@ -5,7 +5,7 @@
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
 meffil.normalize.samples(objects, beta = T, pseudo = 100,
-  probes = meffil.probe.info(), verbose = F, ...)
+  probes = meffil.probe.info(), verbose = F, tempdir = tempdir(), ...)
 }
 \arguments{
 \item{objects}{A list or sublist returned by \code{\link{meffil.normalize.objects}()}.}

@@ -14,23 +14,25 @@
 #' @export
 meffil.rg.to.mu <- function(rg, probes=meffil.probe.info(), verbose=F) {
     stopifnot(is.rg(rg))
-
     msg("converting red/green to methylated/unmethylated signal", verbose=verbose)
+    rg.to.mu(rg, probes)
+}
+
+
+
+rg.to.mu <- function(rg, probes) {
     probes.M.R <- probes[which(probes$target == "M" & probes$dye == "R"),]
     probes.M.G <- probes[which(probes$target == "M" & probes$dye == "G"),]
     probes.U.R <- probes[which(probes$target == "U" & probes$dye == "R"),]
     probes.U.G <- probes[which(probes$target == "U" & probes$dye == "G"),]
 
-    M <- c(rg$R[probes.M.R$address], rg$G[probes.M.G$address])
-    U <- c(rg$R[probes.U.R$address], rg$G[probes.U.G$address])
+    M <- c(rg$R[probes.M.R$address,"Mean"],
+           rg$G[probes.M.G$address,"Mean"])
+    U <- c(rg$R[probes.U.R$address,"Mean"],
+           rg$G[probes.U.G$address,"Mean"])
 
     names(M) <- c(probes.M.R$name, probes.M.G$name)
     names(U) <- c(probes.U.R$name, probes.U.G$name)
 
-    U <- U[names(M)]
-
-    stopifnot(length(U) > 100000)
-    stopifnot(length(M) > 100000)
-
-    list(M=M,U=U)
+    list(M=M,U=U[names(M)])
 }

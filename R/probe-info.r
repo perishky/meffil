@@ -28,15 +28,27 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
     type1.G <- probe.characteristics("I-Green", verbose)
     type2 <- probe.characteristics("II", verbose)
     controls <- probe.characteristics("Control", verbose)
+    snps1 <- probe.characteristics("SnpI", verbose)
+    snps1.R <- snps1[which(snps1$Color == "Grn"),]
+    snps1.G <- snps1[which(snps1$Color == "Red"),]
+    snps2 <- probe.characteristics("SnpII", verbose)
 
     msg("reorganizing type information", verbose=verbose)
     ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA,stringsAsFactors=F),
                  data.frame(type="i",target="M", dye="G", address=type1.G$AddressB, name=type1.G$Name,ext=NA,stringsAsFactors=F),
                  data.frame(type="ii",target="M", dye="G", address=type2$AddressA, name=type2$Name,ext=NA,stringsAsFactors=F),
 
+                 data.frame(type="i-snp",target="MG", dye="R", address=snps1.R$AddressB, name=snps1.R$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i-snp",target="MG", dye="G", address=snps1.G$AddressB, name=snps1.G$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="ii-snp",target="MG", dye="G", address=snps2$AddressA, name=snps2$Name,ext=NA,stringsAsFactors=F),
+
                  data.frame(type="i",target="U", dye="R", address=type1.R$AddressA, name=type1.R$Name,ext=NA,stringsAsFactors=F),
                  data.frame(type="i",target="U", dye="G", address=type1.G$AddressA, name=type1.G$Name,ext=NA,stringsAsFactors=F),
                  data.frame(type="ii",target="U", dye="R", address=type2$AddressA, name=type2$Name,ext=NA,stringsAsFactors=F),
+
+                 data.frame(type="i-snp",target="UG", dye="R", address=snps1.R$AddressA, name=snps1.R$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="i-snp",target="UG", dye="G", address=snps1.G$AddressA, name=snps1.G$Name,ext=NA,stringsAsFactors=F),
+                 data.frame(type="ii-snp",target="UG", dye="R", address=snps2$AddressA, name=snps2$Name,ext=NA,stringsAsFactors=F),
 
                  data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressA, name=NA,ext=NA,stringsAsFactors=F),
                  data.frame(type="i",target="OOB", dye="G", address=type1.R$AddressB, name=NA,ext=NA,stringsAsFactors=F),

@@ -64,11 +64,11 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
                                              verbose=verbose)
 
     msg("Normalizing methylation data from normalized objects ...")
-    norm.objects <- meffil.normalize.samples(norm.objects,
-                                             beta=beta, pseudo=pseudo,
-                                             probes=probes,
-                                             verbose=verbose,
-                                             ...)
+    ret <- meffil.normalize.samples(norm.objects,
+                                    beta=beta, pseudo=pseudo,
+                                    probes=probes,
+                                    verbose=verbose,
+                                    ...)
     msg("Finished.")
-    norm.objects
+    ret
 }

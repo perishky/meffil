@@ -1,5 +1,10 @@
 library(devtools)
-source("../R/functional-normalization.r")
+
+library(IlluminaHumanMethylation450kmanifest)
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+
+source("../R/msg.r")
+source("../R/probe-info.r")
 probe.info <- collate.probe.info()
 use_data(probe.info, internal=TRUE)
 

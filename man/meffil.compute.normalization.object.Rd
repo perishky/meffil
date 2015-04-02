@@ -5,7 +5,8 @@
 \title{Normalization object}
 \usage{
 meffil.compute.normalization.object(basename, number.quantiles = 500,
-  dye.intensity = 5000, probes = meffil.probe.info(), verbose = F)
+  dye.intensity = 5000, probes = meffil.probe.info(), verbose = F,
+  detection.threshold = 0.01, bead.threshold = 3)
 }
 \arguments{
 \item{basename}{IDAT file basename (see \code{\link{meffil.basenames}}).}
@@ -18,6 +19,12 @@ meffil.compute.normalization.object(basename, number.quantiles = 500,
 (Default: \code{\link{meffil.probe.info}()}).}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
+
+\item{detection.threshold}{Default value = 0.01.
+All probes above this detection threshold detected.}
+
+\item{bead.threshold}{Default value = 3.
+All probes with less than this number of beads detected.}
 }
 \value{
 List containing control probe information, probe summaries

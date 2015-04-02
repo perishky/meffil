@@ -10,9 +10,7 @@ meffil.control.matrix(objects)
 \item{objects}{A list of outputs from \code{\link{meffil.compute.normalization.object}()}.}
 }
 \value{
-Matrix with one column per object consisting of control probe intensity z-scores.
-Missing values are imputed (row mean) and values more than 3 standard deviations
-truncated.
+Matrix with one column per object consisting of control probe intensities and summaries.
 }
 \description{
 Matrix containing control probe intensities from the Infinium HumanMethylation450 BeadChip.

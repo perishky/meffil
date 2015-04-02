@@ -14,25 +14,29 @@
 meffil.background.correct <- function(rg, probes=meffil.probe.info(), offset=15, verbose=F) {
     stopifnot(is.rg(rg))
 
-    lapply(c(R="R",G="G"), function(dye) {
+    for (dye in names(rg)) {
         msg("background correction for dye =", dye, verbose=verbose)
         addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
-        xf <- rg[[dye]][addresses]
+        addresses <- intersect(addresses, rownames(rg[[dye]]))
+        xf <- rg[[dye]][addresses,"Mean"]
         xf[which(xf <= 0)] <- 1
 
         addresses <- probes$address[which(probes$type == "control" & probes$dye == dye)]
-        xc <- rg[[dye]][addresses]
+        addresses <- intersect(addresses, rownames(rg[[dye]]))
+        xc <- rg[[dye]][addresses,"Mean"]
         xc[which(xc <= 0)] <- 1
 
         addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
-        oob <- rg[[dye]][addresses]
+        addresses <- intersect(addresses, rownames(rg[[dye]]))
+        oob <- rg[[dye]][addresses,"Mean"]
 
         ests <- MASS::huber(oob)
         mu <- ests$mu
         sigma <- log(ests$s)
         alpha <- log(max(MASS::huber(xf)$mu - mu, 10))
         bg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), c(xf,xc)) + offset
-        names(bg) <- c(names(xf), names(xc))
-        bg
-    })
+
+        rg[[dye]][c(names(xf), names(xc)), "Mean"] <- bg
+    }
+    rg
 }

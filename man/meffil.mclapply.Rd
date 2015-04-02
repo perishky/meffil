@@ -4,7 +4,8 @@
 \alias{meffil.mclapply}
 \title{mclapply}
 \usage{
-meffil.mclapply(X, FUN, ..., ret.bytes = NA, max.bytes = 2 * 2^30 - 1)
+meffil.mclapply(X, FUN, ..., ret.bytes = NA, max.bytes = 2^30 - 1,
+  tempdir = tempdir())
 }
 \arguments{
 \item{X}{Same as \code{\link[parallel]{mclapply}()}:

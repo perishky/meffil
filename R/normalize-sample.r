@@ -26,11 +26,12 @@ meffil.normalize.sample <- function(object, probes=meffil.probe.info(), verbose=
     stopifnot("norm" %in% names(object))
     
     probe.names <- unique(na.omit(probes$name))
+    probe.names <- probe.names[which(substring(probe.names,1,2) %in% c("cg","ch"))]
 
     rg <- meffil.read.rg(object$basename, probes, verbose=verbose)
-    rg.correct <- meffil.background.correct(rg, probes, verbose=verbose)
-    rg.correct <- meffil.dye.bias.correct(rg.correct, object$reference.intensity, probes, verbose=verbose)
-    mu <- meffil.rg.to.mu(rg.correct, probes, verbose=verbose)
+    rg <- meffil.background.correct(rg, probes, verbose=verbose)
+    rg <- meffil.dye.bias.correct(rg, object$reference.intensity, probes, verbose=verbose)
+    mu <- meffil.rg.to.mu(rg, probes, verbose=verbose)
 
     mu$M <- mu$M[probe.names]
     mu$U <- mu$U[probe.names]
