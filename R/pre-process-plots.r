@@ -176,7 +176,7 @@ meffil.plot.detectionp <- function(samplesheet, norm.objects, threshold = 0.05, 
     return(list(graph=p1, tab=dat))
 }
 
-meffil.plot.detectionp(samplesheet, norm.objects)
+# meffil.plot.detectionp(samplesheet, norm.objects)
 
 #' Manhattan plot of detection pval per probe - percentage with pvalue < 0.01
 #'
