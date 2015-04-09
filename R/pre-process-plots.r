@@ -1,3 +1,7 @@
+library(ggplot2)
+library(plyr)
+library(reshape2)
+
 # ## pre normalisation data
 
 # sample missmatches concordance with genotype data
@@ -6,8 +10,57 @@
 # gender
 # - check predicted sex against manifest files
 
+meffil.plot.gender <- function(samplesheet, norm.objects)
+{
+    dat <- data.frame(
+        Sample_Name = samplesheet$Sample_Name,
+        xy.diff = sapply(norm.objects, function(x) x$xy.diff),
+        predicted.sex = sapply(norm.objects, function(x) x$predicted.sex),
+        declared.sex = samplesheet$sex
+    )
+    dat$agree <- dat$declared.sex == dat$predicted.sex
+    p1 <- ggplot(dat, aes(y=1, x=xy.diff)) +
+        geom_jitter(aes(shape=predicted.sex, colour=agree), size=3) +
+        scale_colour_manual(values=c("black", "red")) +
+        labs(shape="Predicted sex", x="XY diff", y="", colour="Correct\nprediction") +
+        theme_bw() +
+        theme(axis.ticks.y=element_blank(), axis.text.y=element_blank(), axis.line.y=element_blank())
+    return(list(plot=p1, tab=dat))
+}
+
+
 # methylated vs unmethylated
 # - plot raw control probes and fit linear regression, remove samples that have sd(y - yhat) > mean*3
+
+meffil.plot.meth.unmeth <- function(samplesheet, norm.objects, outlier.sd=3, colour.code = NULL)
+{
+    dat <- data.frame(
+        Sample_Name = samplesheet$Sample_Name,
+        methylated = sapply(norm.objects, function(x) x$median.m.signal),
+        unmethylated = sapply(norm.objects, function(x) x$median.u.signal)
+    )
+    if(!is.null(colour.code))
+    {
+        dat$colour.code <- samplesheet[[colour.code]]
+        g <- "legend"
+    } else {
+        dat$colour.code <- 1
+        g <- FALSE
+    }
+    dat$resids <- residuals(lm(methylated ~ unmethylated, dat))
+    dat$outliers <- dat$resids > mean(dat$resids)+outlier.sd*sd(dat$resids) | dat$resids < mean(dat$resids)-outlier.sd*sd(dat$resids)
+    print(dat)
+    p1 <- ggplot(dat, aes(y=methylated, x=unmethylated)) +
+        geom_point(aes(colour=colour.code)) +
+        guides(colour = g) +
+        geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
+        labs(y = "Median methylated signal", x = "Median unmethylated signal", colour = colour.code) +
+        stat_smooth(method="lm", se=FALSE)
+    return(list(plot=p1, tab=dat))
+}
+
+meffil.plot.meth.unmeth(samplesheet, norm.objects, outlier.sd=2, colour.code = "sex")
+
 
 # calculate means for each sample from control probes of each
 # - dyebias
@@ -19,18 +72,84 @@
 
 # plot all of them - sample against mean ,  colour by plate
 
+meffil.plot.controlmeans <- function(samplesheet, norm.objects, control.categories=names(norm.objects[[1]]$controls), colour.code = NULL, outlier.sd=5)
+{
+    dat <- data.frame(Sample_Name = samplesheet$Sample_Name)
+    if(!is.null(colour.code))
+    {
+        dat$colour.code <- samplesheet[[colour.code]]
+        g <- "legend"
+    } else {
+        dat$colour.code <- 1
+        g <- FALSE
+    }
+
+    d <- data.frame(t(sapply(norm.objects, function(x) x$controls)))
+    names(d) <- names(norm.objects[[1]]$controls)
+    dat <- data.frame(dat, subset(d, select=control.categories))
+    names(dat) <- c("Sample_Name", "colour.code", control.categories)
+    dat <- dat[order(dat$colour.code), ]
+    dat$colour.code <- as.character(dat$colour.code)
+    dat$id <- 1:nrow(dat)
+    dat <- reshape2::melt(dat, id.vars=c("Sample_Name", "colour.code", "id"))
+    dat <- ddply(dat, .(variable), function(x)
+    {
+        x <- mutate(x)
+        x$outliers <- x$value > mean(x$value) + outlier.sd * sd(x$value) | x$value < mean(x$value) - outlier.sd * sd(x$value)
+        return(x)
+    })
+    p1 <- ggplot(dat, aes(x=id, y=value)) +
+        geom_point(aes(colour=colour.code)) +
+        geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
+        guides(colour=g) +
+        facet_wrap(~ variable, scales="free_y") +
+        labs(y="Mean signal", x="ID", colour=colour.code)
+    return(p1)
+}
+
+meffil.plot.controlmeans(samplesheet, norm.objects, colour.code="sex", outlier.sd=5)
+
+
 
 # plot detection p values from idat files
+meffil.plot.detectionp <- function(samplesheet, norm.objects)
+{
+
+}
+
+meffil.plot.detectionp.manhattan <- function(samplesheet, norm.objects)
+{
+
+}
 
 # plot number of beads per sample
+meffil.plot.beadnum <- function(samplesheet, norm.objects)
+{
+    
+}
+
+meffil.plot.beadnum.manhattan <- function(samplesheet, norm.objects)
+{
+    
+}
 
 # manhattan plot of detection pval per probe - percentage with pvalue < 0.01
 # manhattan plot of number of beads by probe - percentage of probes with beads < 3 for each sample
 
 
 # plot scree plot of control matrix
+meffil.plot.control.scree <- function(norm.objects)
+{
+
+}
+
 
 # plot each PC against each of chiprow, chip column, plate, slide IF there is a significant lm
+meffil.plot.pc.batch <- function(samplesheet, norm.objects, threshold = 0.05, pcs=1:10)
+{
+
+}
+
 
 
 # ## post normalisation data
@@ -563,24 +682,59 @@ dev.off()
 
 
 # sandpit
+
+
+dir.create(path <- "data")
+
+if (length(list.files(path, "*.idat$")) == 0) {
+  filename <-  file.path(path, "gse55491.tar")
+  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
+  cat(date(), "Extracting files from GEO archive.\n")
+  system(paste("cd", path, ";", "tar xvf", basename(filename)))
+  unlink(filename)
+  cat(date(), "Unzipping IDAT files.\n")
+  system(paste("cd", path, ";", "gunzip *.idat.gz"))
+}
+
+
+
+
+
+# Plots
+
+
+
+
+
+
 library(meffil)
 options(mc.cores=24)
 path <- "~/data/test_meffil/"
 B <- meffil.normalize.dataset(path=path, number.pcs=2)
 
 
+read.450k.sheet("~/R/x86_64-unknown-linux-gnu-library/3.1/minfiData/extdata/")
+
+
+
+
 
 library(meffil)
-options(mc.cores=24)
+options(mc.cores=4)
 basenames <- meffil.basenames(path)
 
-norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
 
+samplesheet <- data.frame(Sample_Name = paste("id",1:24, sep=""), sex=sample(c("M", "F"), 24, replace=T))
+
+
+norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
 norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=10)
+
 
 B.long <- do.call(cbind, mclapply(norm.objects, function(object) {
     meffil.get.beta(meffil.normalize.sample(object))
 }))
+
 
 
 
