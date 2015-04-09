@@ -134,7 +134,7 @@ meffil.plot.controlmeans <- function(samplesheet, norm.objects, control.categori
         guides(colour=g) +
         facet_wrap(~ variable, scales="free_y") +
         labs(y="Mean signal", x="ID", colour=colour.code)
-    return(list(graph=p1, tab=dat)
+    return(list(graph=p1, tab=dat))
 }
 
 # meffil.plot.controlmeans(samplesheet, norm.objects, colour.code="sex", outlier.sd=5)
