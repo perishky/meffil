@@ -1,3 +1,15 @@
+# ## post normalisation data
+
+
+# use beta values to calculate PCs on 20k most variable probes
+
+# plot each PC against each of chiprow, chip column, plate, slide IF there is a significant lm
+# - see if technical variance is gone
+
+
+
+
+
 #' Plot scree plot of control matrix
 #'
 #' @param  norm.objects From \code{meffil.normalize.objects}

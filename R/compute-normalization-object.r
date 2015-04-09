@@ -72,6 +72,8 @@ meffil.compute.normalization.object <- function(basename,
          median.u.signal=median(mu$U,na.rm=T),
          bad.probes.detectionp=bad.probes.detectionp,
          bad.probes.beadnum=bad.probes.beadnum,
+         bad.probes.detectionp.threshold=detection.threshold,
+         bad.probes.beadnum.threshold=bead.threshold,
          snp.probes=snp.probes
          )
 }
