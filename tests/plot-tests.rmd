@@ -9,6 +9,7 @@ output:
 ```{r, eval=TRUE, echo=FALSE}
 
 opts_knit$set(eval=TRUE, echo=FALSE, warnings=FALSE, message=FALSE)
+read_chunk(system.file(""))
 
 ```
 
