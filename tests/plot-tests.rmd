@@ -1,0 +1,94 @@
+---
+title: "Meffil Pre-processing"
+output: 
+	html_document:
+		toc: true
+		number_sections: true
+---
+
+```{r, eval=TRUE, echo=FALSE}
+
+opts_knit$set(eval=TRUE, echo=FALSE, warnings=FALSE, message=FALSE)
+
+```
+
+# Setup
+
+Using some data found on GEO:
+
+```{r, echo=TRUE}
+
+library(meffil)
+options(mc.cores=3)
+
+dir.create(path <- "~/data/test_meffil", recursive=TRUE)
+
+if (length(list.files(path, "*.idat$")) == 0) {
+  filename <-  file.path(path, "gse55491.tar")
+  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
+  cat(date(), "Extracting files from GEO archive.\n")
+  system(paste("cd", path, ";", "tar xvf", basename(filename)))
+  unlink(filename)
+  cat(date(), "Unzipping IDAT files.\n")
+  system(paste("cd", path, ";", "gunzip *.idat.gz"))
+}
+
+```
+
+The first step is to perform background and dye correction and to extract the control matrices. 
+
+```{r }
+
+
+bg.dye.objects <- mclapply(basenames, meffil.compute.normalization.object, detection.threshold = 0.05)
+
+```
+
+
+
+
+
+
+```{r }
+
+pre.processing <- meffil.pre.processing(
+	samplesheet, 
+	norm.objects, 
+	colour.code = NULL, 
+	control.categories=names(norm.objects[[1]]$controls), 
+	sex.outlier.sd = 3, 
+	meth.unmeth.outlier.sd = 3, 
+	control.means.outlier.sd = 5, 
+	detectionp.samples.threshold = 0.05, 
+	beadnum.samples.threshold = 0.05, 
+	detectionp.cpgs.threshold = 0.05, 
+	beadnum.cpgs.threshold = 0.05
+)
+
+```
+
+
+# Sex mismatches
+
+Sex can be predicted by using ratios of X and Y chromosome probe intensities. The mean ratios for each sample are plotted here, and those that do not match the sex specified in the sample sheet are highlighted.
+
+```{r }
+	
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
