@@ -25,15 +25,17 @@
 #' Element i is equal to \code{FUN(X[[i]])}.
 #'
 #' @export
-meffil.mclapply <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2^30-1, tempdir=tempdir()) {
+meffil.mclapply <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2^30-1, temp.dir=NULL) {
     stopifnot(!is.na(ret.bytes) & ret.bytes <= max.bytes)
     n.fun <- floor(max.bytes/ret.bytes)
     n.mclapply <- ceiling(length(X)/n.fun)
+
+    if (is.null(temp.dir)) temp.dir <- tempdir()
     
     if (n.mclapply <= 1) return(mclapply(X, FUN, ...))
     
     partitions <- partition.integer.subsequence(1,length(X),n.mclapply)
-    filenames <- sapply(1:nrow(partitions), function(i) tempfile(tmpdir=tempdir))
+    filenames <- sapply(1:nrow(partitions), function(i) tempfile(tmpdir=temp.dir))
     for (i in 1:nrow(partitions)) {
         ret <- mclapply(X[partitions[i,"start"]:partitions[i,"end"]], FUN, ...)
         save(ret, file=filenames[i])
