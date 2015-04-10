@@ -50,13 +50,32 @@ design.matrix <- meffil.design.matrix(norm.objects)
 
 # Potential alternative workflow:
 
+# Get basenames
 basenames <- meffil.basenames(path)
+
+# Get sample sheet 
+# - Sample_Name
+# - Sex
+# - Batch variables (optional)
 samplesheet <- read.450k.sheet(path)
+
+# Do background and dye correction
 bgdye.objects <- meffil.bgdye.correction(basenames, samplesheet)
+
+# Find individuals and probes that should be removed prior to performing normalisation
+# Generate html doc with some graphs
 pre.normalization.report <- meffil.pre.normalization(samplesheet, bgdye.objects)
+
+# Remove individuals (and probes at this stage? Maybe not because bad probes shouldn't have a big effect on normalisation I don't think)
 bgdye.objects <- meffil.remove.outliers(pre.normalization.report$samples, pre.normalization.report$cpgs)
+
+# Normalise
 norm.objects <- meffil.normalize.objects(bgdye.objects)
+
+# Generate betas
 B <- meffil.normalize.samples(norm.objects)
+
+# Generate html doc with summary of normalisation
 post.normalization.report <- meffil.post.normalization(samplesheet, B, norm.objects)
 
 
