@@ -29,8 +29,8 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
     type2 <- probe.characteristics("II", verbose)
     controls <- probe.characteristics("Control", verbose)
     snps1 <- probe.characteristics("SnpI", verbose)
-    snps1.R <- snps1[which(snps1$Color == "Grn"),]
-    snps1.G <- snps1[which(snps1$Color == "Red"),]
+    snps1.R <- snps1[which(snps1$Color == "Red"),]
+    snps1.G <- snps1[which(snps1$Color == "Grn"),]
     snps2 <- probe.characteristics("SnpII", verbose)
 
     msg("reorganizing type information", verbose=verbose)
