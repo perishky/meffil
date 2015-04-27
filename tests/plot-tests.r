@@ -1,5 +1,5 @@
 library(meffil)
-options(mc.cores=3)
+options(mc.cores=24)
 
 
 dir.create(path <- "~/data/test_meffil", recursive=TRUE)
@@ -14,10 +14,17 @@ if (length(list.files(path, "*.idat$")) == 0) {
   system(paste("cd", path, ";", "gunzip *.idat.gz"))
 }
 
-B <- meffil.normalize.dataset(path=path, number.pcs=2)
+# B <- meffil.normalize.dataset(path=path, number.pcs=2)
 
 basenames <- meffil.basenames(path)
+
+samplesheet <- data.frame(do.call(rbind, strsplit(basename(basenames), split="_")), basenames)
+names(samplesheet) <- c("Sample_Name", "Sentrix_ID", "Sentrix_Position", "Basename")
+
+
 samplesheet <- data.frame(Sample_Name = paste("id",1:24, sep=""), sex=sample(c("M", "F"), 24, replace=T))
+
+
 
 norm.objects <- mclapply(basenames, meffil.compute.normalization.object, detection.threshold = 0.05)
 norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=10)
@@ -57,7 +64,7 @@ basenames <- meffil.basenames(path)
 # - Sample_Name
 # - Sex
 # - Batch variables (optional)
-samplesheet <- read.450k.sheet(path)
+samplesheet <- meffil.read.samplesheet(path, basenames)
 
 # Do background and dye correction
 bgdye.objects <- meffil.bgdye.correction(basenames, samplesheet)
