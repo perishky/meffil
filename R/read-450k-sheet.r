@@ -1,10 +1,11 @@
-#' @title Function to read Illumina "Sample Sheet" taken from R/minfi
+#' @title Function to read Illumina "Sample Sheet" adapted from \code{read.450k.sheet} in \code{R/minfi}
 #'
 #' @description
 #' Reading an Illumina methylation sample sheet, containing pheno-data 
 #' information for the samples in an experiment.
 #'
 #' @param base The base directory from which the search is started.
+#' @param basenames Output from \code{\link{meffil.basenames}}
 #' @param  pattern = "csv$" What pattern is used to identify a sample sheet file, see \code{list.files}
 #' @param  ignore.case = TRUE Should the file search be case sensitive?
 #' @param  recursive = TRUE Should the file search be recursive, see \code{list.files}?
@@ -42,7 +43,7 @@
 #' to \code{Array} and \code{Sentrix_ID} is renamed to \code{Slide}.  In addition 
 #' the \code{data.frame} will contain a column named \code{Basename}.
 #'
-read.450k.sheet <- function(base, pattern = "csv$", ignore.case = TRUE, recursive = TRUE, verbose = TRUE) {
+meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, recursive = TRUE, verbose = TRUE) {
 	readSheet <- function(file) {
 		dataheader <- grep("^\\[DATA\\]", readLines(file), ignore.case = TRUE)
 		if(length(dataheader) == 0)
@@ -77,10 +78,10 @@ read.450k.sheet <- function(base, pattern = "csv$", ignore.case = TRUE, recursiv
 		if(!is.null(df$Array)) {
 			patterns <- sprintf("%s_%s_Grn.idat", df$Slide, df$Array)
 			allfiles <- list.files(dirname(file), recursive = recursive, full.names = TRUE)
-			basenames <- sapply(patterns, function(xx) grep(xx, allfiles, value = TRUE))
-			names(basenames) <- NULL
-			basenames <- sub("_Grn\\.idat", "", basenames, ignore.case = TRUE)
-			df$Basename <- basenames
+			mbasenames <- sapply(patterns, function(xx) grep(xx, allfiles, value = TRUE))
+			names(mbasenames) <- NULL
+			mbasenames <- sub("_Grn\\.idat", "", mbasenames, ignore.case = TRUE)
+			df$Basename <- mbasenames
 		}
 		df
 	}
@@ -105,9 +106,76 @@ read.450k.sheet <- function(base, pattern = "csv$", ignore.case = TRUE, recursiv
 		newdf <- matrix(NA, ncol = length(newnames), nrow = nrow(df), dimnames = list(NULL, newnames))
 		cbind(df, as.data.frame(newdf))
 	}))
-	df
+
+	# Check that Sex column is present in sample sheet
+	# Avoid case issues
+	
+	if(length(nam <- grep("Sex", names(df), ignore.case = TRUE)) == 1)
+	{
+		names(df)[nam] <- "Sex"
+	} else {
+		stop("There should be one 'Sex' column")
+	}
+
+	# Check Sample_Name column
+	if(length(nam <- grep("Sample_Name", names(df), ignore.case = TRUE)) == 1)
+	{
+		names(df)[nam] <- "Sample_Name"
+	} else if(length(nam) > 1) {
+		warning("Multiple Sample_Name columns. Keeping first column only.")
+		temp <- df[,nam]
+		df[,nam] <- NULL
+		df$Sample_Name <- temp[,1]
+	} else if("Slide" %in% names(df) & "Array" %in% names(df)) {
+		warning("No 'Sample_Name' column in samplesheet. Creating Sample_Name using <Slide>_<Array>")
+		df$Sample_Name <- paste(df$Slide, df$Array, sep="_")
+	} else {
+		warning("No Sample_Name column, and no Slide and Array columns to generate Sample_Name column. Using IDAT basenames.")
+		df$Sample_Name <- make.samplename.from.basename(df$Basename)
+	}
+
+	# Order samplesheet in same order as basenames from meffil.basenames
+
+	stopifnot(all(basenames) %in% df$Basename)
+	
+
+	check.samplesheet(df, basenames)
+
+	return(df)
 }
 
 
+make.samplename.from.basename <- function(basenames)
+{
+	Sample_Name <- basename(basenames)
+	if(any(duplicated(Sample_Name)))
+	{
+		warning("Some duplicated Sample_Name entries")
+		Sample_Name <- make.unique(Sample_Name)
+	}
+	return(Sample_Name)
+}
 
+
+#' Create sample sheet if an Illumina one isn't available
+#'
+#' If necessary generates two columns necessary for some functions: \code{Sample_Name} and \code{Sex}
+#' @param basenames Output from \code{\link{meffil.basenames}}
+#' @param  Sample_Name Array of unique sample IDs
+#' @param  Sex Array of values denoting sex for each sample, must be "M", "F" or NA
+#' @param  delim Optional delim character to separate \code{Sample_Name} into multiple columns. Default: "_"
+#' @export
+#' @return Sample sheet data frame
+meffil.create.samplesheet <- function(basenames, Sample_Name = NULL, Sex = NULL, delim = "_")
+{
+	if(is.null(Sex)) Sex <- rep(NA, length(basenames))
+	if(any(!Sex %in% c("M", "F", NA))) stop("Sex column must only contain 'M', 'F' or NA values")
+	if(is.null(Sample_Name)) make.samplename.from.basename(basenames)
+	stopifnot(length(Sample_Name) == length(basenames))
+	stopifnot(length(Sex) == length(basenames))
+
+	dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)))
+	samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = Sex, dat, Basename = basenames)
+	return(samplesheet)
+}
 

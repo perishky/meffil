@@ -3,6 +3,7 @@
 #' Create a normalization object for a given Infinium HumanMethylation450 BeadChip.
 #'
 #' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
+#' @param samplesheet Data frame resulting from \code{\link{meffil.read.samplesheet}}.
 #' @param number.quantiles Number of quantiles to compute for probe subset (Default: 500).
 #' @param dye.intensity Reference intensity for scaling each color channel (Default: 5000).
 #' @param probes Probe annotation used to construct the control matrix
@@ -17,6 +18,7 @@
 #'
 #' @export
 meffil.compute.normalization.object <- function(basename,
+                                                samplesheet,
                                                 number.quantiles=500,
                                                 dye.intensity=5000,
                                                 probes=meffil.probe.info(),
@@ -314,5 +316,26 @@ get.snp.probes <- function(rg, probes=meffil.probe.info(), verbose=F) {
     probes$target <- substring(probes$target, 1, 1)
     snp.mu <- rg.to.mu(rg, probes)
     snp.mu$M/(snp.mu$M + snp.mu$U + 100)
+}
+
+
+check.samplesheet <- function(samplesheet)
+{
+  if(!"Sample_Name" %in% names(samplesheet))
+  {
+    stop("No 'Sample_Name' column in samplesheet")
+  }
+  if(any(duplicated(samplesheet$Sample_Name)))
+  {
+    stop("Duplicate IDs in samplesheet")
+  }
+  if(!"Sex" %in% names(samplesheet))
+  {
+    stop("No 'Sex' column in samplesheet")
+  }
+  if(any(! samplesheet$Sex %in% c("M", "F", NA)))
+  {
+    stop("Sex column must only contain 'M', 'F' or NA values")
+  }
 }
 
