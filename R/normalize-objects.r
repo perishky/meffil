@@ -7,17 +7,17 @@
 #'
 #' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
 #' @param number.pcs Number of control matrix principal components to adjust for (Default: 2).
-#' @param sex Optional character vector assigning a sex label ("M" or "F") to each sample.
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return Same list as input with additional elements added for each sample
 #' including normalized quantiles needed for normalizing each sample.
 #'
 #' @export
 meffil.normalize.objects <- function(objects,
-                                    number.pcs=2, sex.cutoff=-2, sex=NULL, verbose=F) {
+                                    number.pcs=2, 
+                                    verbose=F) {
+
     stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
-    stopifnot(is.null(sex) || length(sex) == length(objects) && all(sex %in% c("F","M")))
     stopifnot(number.pcs >= 1)
 
     msg("selecting dye correction reference", verbose=verbose)
@@ -26,14 +26,7 @@ meffil.normalize.objects <- function(objects,
     reference.idx <- which.min(abs(intensity.R/intensity.G-1))
     dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
 
-    msg("predicting sex", verbose=verbose)
-    x.signal <- sapply(objects, function(obj) obj$x.signal)
-    y.signal <- sapply(objects, function(obj) obj$y.signal)
-    xy.diff <- y.signal-x.signal
-    predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
-    if (is.null(sex))
-        sex <- predicted.sex
-
+    sex <- sapply(objects, function(obj) obj$predicted.sex)
     sex.summary <- table(sex)
     has.both.sexes <- length(sex.summary) >= 2 & min(sex.summary) > 1
 
@@ -73,10 +66,6 @@ meffil.normalize.objects <- function(objects,
 
     lapply(1:length(objects), function(i) {
         object <- objects[[i]]
-        object$sex.cutoff <- sex.cutoff
-        object$xy.diff <- xy.diff[i]
-        object$predicted.sex <- predicted.sex[i]
-        object$sex <- sex[i]
         object$reference.intensity <- dye.intensity
 
         subset.names <- applicable.quantile.probe.subsets(object$sex, has.both.sexes)

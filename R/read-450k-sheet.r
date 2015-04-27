@@ -82,7 +82,10 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 			names(mbasenames) <- NULL
 			mbasenames <- sub("_Grn\\.idat", "", mbasenames, ignore.case = TRUE)
 			df$Basename <- mbasenames
-		}
+			sapply(df$Basename, function(x) {
+				if(!file.exists(nom <- paste(x, "_Grn.idat", sep=""))) warning(paste("Inferred basename", nom, "does not exist"))
+				if(!file.exists(nom <- paste(x, "_Red.idat", sep=""))) warning(paste("Inferred basename", nom, "does not exist"))
+			})
 		df
 	}
 	if(!all(file.exists(base)))
@@ -145,6 +148,28 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 }
 
 
+check.samplesheet <- function(samplesheet)
+{
+  if(!"Sample_Name" %in% names(samplesheet))
+  {
+    stop("No 'Sample_Name' column in samplesheet")
+  }
+  if(any(duplicated(samplesheet$Sample_Name)))
+  {
+    stop("Duplicate IDs in samplesheet")
+  }
+  if(!"Sex" %in% names(samplesheet))
+  {
+    stop("No 'Sex' column in samplesheet")
+  }
+  if(any(! samplesheet$Sex %in% c("M", "F", NA)))
+  {
+    stop("Sex column must only contain 'M', 'F' or NA values")
+  }
+}
+
+
+
 make.samplename.from.basename <- function(basenames)
 {
 	Sample_Name <- basename(basenames)
@@ -166,11 +191,12 @@ make.samplename.from.basename <- function(basenames)
 #' @param  delim Optional delim character to separate \code{Sample_Name} into multiple columns. Default: "_"
 #' @export
 #' @return Sample sheet data frame
-meffil.create.samplesheet <- function(basenames, Sample_Name = NULL, Sex = NULL, delim = "_")
+meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, delim = "_")
 {
+	basenames <- meffil.basenames(path)
 	if(is.null(Sex)) Sex <- rep(NA, length(basenames))
 	if(any(!Sex %in% c("M", "F", NA))) stop("Sex column must only contain 'M', 'F' or NA values")
-	if(is.null(Sample_Name)) make.samplename.from.basename(basenames)
+	if(is.null(Sample_Name)) Sample_Name <- make.samplename.from.basename(basenames)
 	stopifnot(length(Sample_Name) == length(basenames))
 	stopifnot(length(Sex) == length(basenames))
 

@@ -274,7 +274,7 @@ meffil.plot.beadnum.cpgs <- function(samplesheet, norm.objects, threshold = 0.05
 
 #' Generate lists of bad probes and bad samples
 #'
-#' @param samplesheet From \code{read.450k.sheet}
+#' @param samplesheet From \code{meffil.read.samplesheet}
 #' @param  norm.objects From \code{meffil.normalize.objects}
 #' @param  colour.code See above
 #' @param  control.categories See above

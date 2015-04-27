@@ -57,27 +57,27 @@ design.matrix <- meffil.design.matrix(norm.objects)
 
 # Potential alternative workflow:
 
-# Get basenames
-basenames <- meffil.basenames(path)
 
 # Get sample sheet 
 # - Sample_Name
 # - Sex
 # - Batch variables (optional)
-samplesheet <- meffil.read.samplesheet(path, basenames)
+samplesheet <- meffil.read.samplesheet(path)
+# or
+samplesheet <- meffil.create.samplesheet(path)
 
 # Do background and dye correction
-bgdye.objects <- meffil.bgdye.correction(basenames, samplesheet)
+qc.objects <- meffil.qc(basenames, samplesheet)
 
 # Find individuals and probes that should be removed prior to performing normalisation
 # Generate html doc with some graphs
-pre.normalization.report <- meffil.pre.normalization(samplesheet, bgdye.objects)
+qc.report <- meffil.qc(samplesheet, qc.objects)
 
 # Remove individuals (and probes at this stage? Maybe not because bad probes shouldn't have a big effect on normalisation I don't think)
-bgdye.objects <- meffil.remove.outliers(pre.normalization.report$samples, pre.normalization.report$cpgs)
+qc.objects <- meffil.remove.outliers(qc.report$samples, pre.normalization.report$cpgs)
 
 # Normalise
-norm.objects <- meffil.normalize.objects(bgdye.objects)
+norm.objects <- meffil.normalize.objects(qc.objects)
 
 # Generate betas
 B <- meffil.normalize.samples(norm.objects)
@@ -91,4 +91,30 @@ post.normalization.report <- meffil.post.normalization(samplesheet, B, norm.obje
 # B vs B.long:
 # - 65 fewer probes - SNPs missing?
 # - No sample names
+
+
+
+
+
+
+
+library(meffil)
+options(mc.cores=16)
+basenames <- meffil.basenames("~/data/test_meffil")
+
+samplesheet <- meffil.create.samplesheet(basenames)
+
+meffil.qc <- function(samplesheet)
+{
+	norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
+
+}
+
+
+
+
+norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
+
+B.long <- meffil.normalize.samples(norm.objects)
+
 

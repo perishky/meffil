@@ -2,8 +2,7 @@
 #'
 #' Create a normalization object for a given Infinium HumanMethylation450 BeadChip.
 #'
-#' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
-#' @param samplesheet Data frame resulting from \code{\link{meffil.read.samplesheet}}.
+#' @param samplesheet Data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} pr \code{\link{meffil.create.samplesheet}}).
 #' @param number.quantiles Number of quantiles to compute for probe subset (Default: 500).
 #' @param dye.intensity Reference intensity for scaling each color channel (Default: 5000).
 #' @param probes Probe annotation used to construct the control matrix
@@ -17,17 +16,18 @@
 #' and quantiles.
 #'
 #' @export
-meffil.compute.normalization.object <- function(basename,
-                                                samplesheet,
+meffil.compute.normalization.object <- function(samplesheet.row,
                                                 number.quantiles=500,
                                                 dye.intensity=5000,
                                                 probes=meffil.probe.info(),
                                                 verbose=F,
                                                 detection.threshold=0.01,
-                                                bead.threshold=3) {
+                                                bead.threshold=3,
+                                                sex.cutoff=-2) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(nrow(probes) > 100000)
+    stopifnot(samplesheet.row$Sex %in% c(NA, "F", "M"))
 
     rg <- meffil.read.rg(basename, probes, verbose=verbose)
 
@@ -61,6 +61,11 @@ meffil.compute.normalization.object <- function(basename,
              U=unname(quantile(mu$U[sets$U], probs=probs,na.rm=T)))
     })
 
+    msg("predicting sex", verbose=verbose)
+    xy.diff <- y.signal-x.signal
+    predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
+
+
     list(origin="meffil.compute.normalization.object",
          basename=basename,
          controls=controls,
@@ -70,6 +75,10 @@ meffil.compute.normalization.object <- function(basename,
          intensity.G=intensity.G,
          x.signal=x.signal,
          y.signal=y.signal,
+         xy.diff=xy.diff,
+         sex=samplesheet$Sex,
+         sex.cutoff=sex.cutoff,
+         predicted.sex=predicted.sex,
          median.m.signal=median(mu$M,na.rm=T),
          median.u.signal=median(mu$U,na.rm=T),
          bad.probes.detectionp=bad.probes.detectionp,
@@ -77,6 +86,15 @@ meffil.compute.normalization.object <- function(basename,
          bad.probes.detectionp.threshold=detection.threshold,
          bad.probes.beadnum.threshold=bead.threshold,
          snp.probes=snp.probes
+
+
+
+         object$sex.cutoff <- sex.cutoff
+         object$xy.diff <- xy.diff[i]
+         object$predicted.sex <- predicted.sex[i]
+         object$sex <- sex[i]
+
+
          )
 }
 
@@ -318,24 +336,4 @@ get.snp.probes <- function(rg, probes=meffil.probe.info(), verbose=F) {
     snp.mu$M/(snp.mu$M + snp.mu$U + 100)
 }
 
-
-check.samplesheet <- function(samplesheet)
-{
-  if(!"Sample_Name" %in% names(samplesheet))
-  {
-    stop("No 'Sample_Name' column in samplesheet")
-  }
-  if(any(duplicated(samplesheet$Sample_Name)))
-  {
-    stop("Duplicate IDs in samplesheet")
-  }
-  if(!"Sex" %in% names(samplesheet))
-  {
-    stop("No 'Sex' column in samplesheet")
-  }
-  if(any(! samplesheet$Sex %in% c("M", "F", NA)))
-  {
-    stop("Sex column must only contain 'M', 'F' or NA values")
-  }
-}
 
