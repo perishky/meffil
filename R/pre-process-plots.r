@@ -292,6 +292,14 @@ meffil.plot.beadnum.cpgs <- function(samplesheet, norm.objects, threshold = 0.05
 #'}
 meffil.pre.processing <- function(samplesheet, norm.objects, colour.code, control.categories=names(norm.objects[[1]]$controls), sex.outlier.sd = 3, meth.unmeth.outlier.sd = 3, control.means.outlier.sd = 5, detectionp.samples.threshold = 0.05, beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05, beadnum.cpgs.threshold = 0.05)
 {
+
+    y.probes <- with(meffil.probe.info(), name[which(chr == "chrY")])
+    for (i in 1:length(norm.objects)) 
+        if (norm.objects[[i]]$predicted.sex == "F") {
+            norm.objects[[i]]$bad.probes.detectionp <- setdiff(norm.objects[[i]]$bad.probes.detectionp, y.probes)
+            norm.objects[[i]]$bad.probes.beadnum <- setdiff(norm.objects[[i]]$bad.probes.beadnum, y.probes)
+        }       
+    
     p1 <- meffil.plot.sex(samplesheet, norm.objects, outlier.sd=sex.outlier.sd)
     p2 <- meffil.plot.meth.unmeth(samplesheet, norm.objects, colour.code=colour.code, outlier.sd=meth.unmeth.outlier.sd)
     p3 <- meffil.plot.controlmeans(samplesheet, norm.objects, control.categories=control.categories, colour.code=colour.code, outlier.sd=control.means.outlier.sd)
