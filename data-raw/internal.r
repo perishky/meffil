@@ -1,13 +1,9 @@
 library(devtools)
 
-library(IlluminaHumanMethylation450kmanifest)
-library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+library(meffil)
+options(mc.cores=10)
 
-source("../R/msg.r")
-source("../R/probe-info.r")
-probe.info <- collate.probe.info()
-use_data(probe.info, internal=TRUE)
-
+probe.info <- meffil:::collate.probe.info()
 ## I tried to make probe.info a global variable that
 ## is computed only the first time after meffil.probe.info()
 ## is called after the package is loaded.
@@ -29,3 +25,8 @@ use_data(probe.info, internal=TRUE)
 ## Parallelization is one of the points of the package so another solution was required.
 ## I then decided to precompute the object and load it when referenced
 ## (LazyData is set to 'yes' in the package DESCRIPTION file).
+
+gse35069.references <- meffil:::create.gse35069.references(probes=probe.info, verbose=T)
+
+use_data(gse35069.references, probe.info, internal=TRUE, overwrite=TRUE)
+

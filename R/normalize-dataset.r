@@ -40,6 +40,7 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
                                      beta=T, pseudo=100,
                                      probes=meffil.probe.info(),
                                      verbose=F,
+                                     temp.dir=NULL,
                                      ...) {
 
     stopifnot(!missing(filenames) || !missing(path))
@@ -68,6 +69,7 @@ meffil.normalize.dataset <- function(path, recursive=F, filenames, number.pcs=2,
                                     beta=beta, pseudo=pseudo,
                                     probes=probes,
                                     verbose=verbose,
+                                    temp.dir=temp.dir,
                                     ...)
     msg("Finished.")
     ret

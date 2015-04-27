@@ -55,8 +55,8 @@ meffil.compute.normalization.object <- function(basename,
     probs <- seq(0,1,length.out=number.quantiles)
 
     quantiles <- lapply(get.quantile.probe.subsets(probes), function(sets) {
-        list(M=unname(quantile(mu$M[sets$M], probs=probs,na.rm=T)),
-             U=unname(quantile(mu$U[sets$U], probs=probs,na.rm=T)))
+        list(M=unname(quantile(mu$M[sets], probs=probs,na.rm=T)),
+             U=unname(quantile(mu$U[sets], probs=probs,na.rm=T)))
     })
 
     list(origin="meffil.compute.normalization.object",
@@ -86,38 +86,32 @@ is.normalization.object <- function(object) {
 }
 
 get.quantile.probe.subsets <- function(probes=meffil.probe.info()) {
-    rm.na <- function(x) {
-        x[which(is.na(x))] <- F
-        x
-    }
-
-    is.iG <- rm.na(probes$type == "i" & probes$dye == "G")
-    is.iR <- rm.na(probes$type == "i" & probes$dye == "R")
-    is.ii <- rm.na(probes$type == "ii")
+    is.iG <- probes$type == "i" & probes$dye == "G"
+    is.iR <- probes$type == "i" & probes$dye == "R"
+    is.ii <- probes$type == "ii"
     is.genomic <- !is.na(probes$chr)
-    is.sex <- rm.na(is.genomic & probes$chr %in% c("chrX","chrY"))
-    is.x <- rm.na(is.genomic & probes$chr == "chrX")
-    is.y <- rm.na(is.genomic & probes$chr == "chrY")
-    is.autosomal <- rm.na(is.genomic & !is.sex)
-    is.not.y <- rm.na(is.genomic & probes$chr != "chrY")
+    is.sex <- is.genomic & probes$chr %in% c("chrX","chrY")
+    is.x <- is.genomic & probes$chr == "chrX"
+    is.y <- is.genomic & probes$chr == "chrY"
+    is.autosomal <- is.genomic & !is.sex
+    is.not.y <- is.genomic & probes$chr != "chrY"
 
-    get.probe.subsets <- function(in.subset) {
-        list(M=probes$name[which(probes$target == "M" & in.subset)],
-             U=probes$name[which(probes$target == "U" & in.subset)])
+    get.probe.subset <- function(in.subset) {
+        probes$name[which(probes$target == "M" & in.subset)]
     }
 
-    list(genomic.iG = get.probe.subsets(is.iG & is.genomic),
-         genomic.iR = get.probe.subsets(is.iR & is.genomic),
-         genomic.ii = get.probe.subsets(is.ii & is.genomic),
-         autosomal.iG = get.probe.subsets(is.iG & is.autosomal),
-         autosomal.iR = get.probe.subsets(is.iR & is.autosomal),
-         autosomal.ii = get.probe.subsets(is.ii & is.autosomal),
-         not.y.iG = get.probe.subsets(is.iG & is.not.y),
-         not.y.iR = get.probe.subsets(is.iR & is.not.y),
-         not.y.ii = get.probe.subsets(is.ii & is.not.y),
-         sex = get.probe.subsets(is.sex),
-         chry = get.probe.subsets(is.y),
-         chrx = get.probe.subsets(is.x))
+    list(genomic.iG = get.probe.subset(is.iG & is.genomic),
+         genomic.iR = get.probe.subset(is.iR & is.genomic),
+         genomic.ii = get.probe.subset(is.ii & is.genomic),
+         autosomal.iG = get.probe.subset(is.iG & is.autosomal),
+         autosomal.iR = get.probe.subset(is.iR & is.autosomal),
+         autosomal.ii = get.probe.subset(is.ii & is.autosomal),
+         not.y.iG = get.probe.subset(is.iG & is.not.y),
+         not.y.iR = get.probe.subset(is.iR & is.not.y),
+         not.y.ii = get.probe.subset(is.ii & is.not.y),
+         sex = get.probe.subset(is.sex),
+         chry = get.probe.subset(is.y),
+         chrx = get.probe.subset(is.x))
 }
 
 sex.specific.quantile.probe.subsets <- function() {
@@ -139,6 +133,8 @@ applicable.quantile.probe.subsets <- function(sex, both.sexes) {
     if (!both.sexes && sex == "F") return(c("not.y.iG", "not.y.iR", "not.y.ii","chry"))
     stop("invalid input", "sex =", sex, "both.sexes =", both.sexes)
 }
+
+
 
 
 
@@ -314,5 +310,15 @@ get.snp.probes <- function(rg, probes=meffil.probe.info(), verbose=F) {
     probes$target <- substring(probes$target, 1, 1)
     snp.mu <- rg.to.mu(rg, probes)
     snp.mu$M/(snp.mu$M + snp.mu$U + 100)
+}
+
+
+get.island.probe.subsets <- function(probes=meffil.probe.info()) {
+    get.probe.subset <- function(in.subset) {
+        probes$name[which(probes$target == "M" & in.subset)]
+    }
+    ret <- list(island=get.probe.subset(probes$Relation_to_Island == "Island"),
+                shore=get.probe.subset(probes$Relation_to_Island %in% c("N_Shore","S_Shore")),
+                far=get.probe.subset(probes$Relation_to_Island %in% c("N_Shelf","S_Shelf","OpenSea")))
 }
 

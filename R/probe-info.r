@@ -19,11 +19,17 @@ meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="i
         return(probe.info) ## precomputed, see code in ../data-raw/
     }
     else {
-        collect.probe.info(array, annotation, verbose=verbose)
+        collate.probe.info(array, annotation, verbose=verbose)
     }
 }
 
 collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
+
+    probe.characteristics <- function(type, verbose=F) {
+        msg("extracting", type, verbose=verbose)
+        minfi::getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
+    }
+    
     type1.R <- probe.characteristics("I-Red", verbose)
     type1.G <- probe.characteristics("I-Green", verbose)
     type2 <- probe.characteristics("II", verbose)
@@ -58,23 +64,16 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
                  data.frame(type="control",target=controls$Type,dye="R",address=controls$Address, name=NA,ext=controls$ExtendedType,stringsAsFactors=F),
                  data.frame(type="control",target=controls$Type,dye="G",address=controls$Address, name=NA,ext=controls$ExtendedType, stringsAsFactors=F))
 
-    locations <- probe.locations(array, annotation, verbose)
-    ret <- cbind(ret, locations[match(ret$name, rownames(locations)),])
-
+    
+    annotation <- paste(array, "anno.", annotation, sep="")
+    require(annotation,character.only=T)
+    data(list=annotation)
+    locations <- as.data.frame(get(annotation)@data$Locations)
+    islands <- as.data.frame(get(annotation)@data$Islands.UCSC)
+    
+    ret <- cbind(ret,
+                 locations[match(ret$name, rownames(locations)),],
+                 islands[match(ret$name, rownames(islands)),])
     ret
 }
 
-probe.locations <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
-    annotation <- paste(array, "anno.", annotation, sep="")
-
-    msg("loading probe genomic location annotation", annotation, verbose=verbose)
-
-    require(annotation,character.only=T)
-    data(list=annotation)
-    as.data.frame(get(annotation)@data$Locations)
-}
-
-probe.characteristics <- function(type, verbose=F) {
-    msg("extracting", type, verbose=verbose)
-    minfi::getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
-}

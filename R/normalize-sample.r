@@ -21,31 +21,35 @@
 #' beta1 <- mefill.get.beta(mu1)
 #'
 #' @export
-meffil.normalize.sample <- function(object, probes=meffil.probe.info(), verbose=F) {
+meffil.normalize.sample <- function(object, mu=NULL, probes=meffil.probe.info(), verbose=F) {
     stopifnot(is.normalization.object(object))
     stopifnot("norm" %in% names(object))
     
     probe.names <- unique(na.omit(probes$name))
     probe.names <- probe.names[which(substring(probe.names,1,2) %in% c("cg","ch"))]
 
-    rg <- meffil.read.rg(object$basename, probes, verbose=verbose)
-    rg <- meffil.background.correct(rg, probes, verbose=verbose)
-    rg <- meffil.dye.bias.correct(rg, object$reference.intensity, probes, verbose=verbose)
-    mu <- meffil.rg.to.mu(rg, probes, verbose=verbose)
-
-    mu$M <- mu$M[probe.names]
-    mu$U <- mu$U[probe.names]
+    if (is.null(mu)) {
+        rg <- meffil.read.rg(object$basename, probes, verbose=verbose)
+        rg <- meffil.background.correct(rg, probes, verbose=verbose)
+        rg <- meffil.dye.bias.correct(rg, object$reference.intensity, probes, verbose=verbose)
+        mu <- meffil.rg.to.mu(rg, probes, verbose=verbose)
+        
+        mu$M <- mu$M[probe.names]
+        mu$U <- mu$U[probe.names]
+    }
 
     msg("Normalizing methylated and unmethylated signals.", verbose=verbose)
     probe.subsets <- get.quantile.probe.subsets(probes)
     for (name in names(object$norm)) {
         for (target in names(object$norm[[name]])) {
-            probe.idx <- which(names(mu[[target]]) %in% probe.subsets[[name]][[target]])
-            orig.signal <- mu[[target]][probe.idx]
-            norm.target <- compute.quantiles.target(object$norm[[name]][[target]])
-            norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
-                                                                          norm.target)
-            mu[[target]][probe.idx] <- norm.signal
+            probe.idx <- which(names(mu[[target]]) %in% probe.subsets[[name]])
+            if (length(probe.idx) > 0) {
+                orig.signal <- mu[[target]][probe.idx]
+                norm.target <- compute.quantiles.target(object$norm[[name]][[target]])
+                norm.signal <- preprocessCore::normalize.quantiles.use.target(matrix(orig.signal),
+                                                                              norm.target)
+                mu[[target]][probe.idx] <- norm.signal
+            }
         }
     }
     mu

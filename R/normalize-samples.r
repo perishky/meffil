@@ -60,7 +60,7 @@ meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
             ret$M <- unname(ret$M[probe.names])
             ret$U <- unname(ret$U[probe.names])
             ret
-        }, ret.bytes=ret.bytes, ...)
+        }, ret.bytes=ret.bytes, temp.dir=temp.dir, ...)
         names(ret) <- sapply(objects, function(object) object$basename)
         ret <- list(M=sapply(ret, function(x) x$M),
                     U=sapply(ret, function(x) x$U))

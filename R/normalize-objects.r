@@ -78,7 +78,8 @@ meffil.normalize.objects <- function(objects,
         object$predicted.sex <- predicted.sex[i]
         object$sex <- sex[i]
         object$reference.intensity <- dye.intensity
-
+        object$number.pcs <- number.pcs
+        
         subset.names <- applicable.quantile.probe.subsets(object$sex, has.both.sexes)
         object$norm <- sapply(subset.names, function(subset.name) {
             list(M=normalized.quantiles[[subset.name]]$M[,i],
@@ -102,12 +103,14 @@ meffil.normalize.objects <- function(objects,
 meffil.design.matrix <- function(objects, number.pcs) {
     stopifnot(length(objects) >= 2)
 
-    if (missing(number.pcs))
-        number.pcs <- length(objects)
-
-    stopifnot(number.pcs >= 1 && number.pcs <= length(objects))
-
     control.matrix <- meffil.control.matrix(objects)
+    
+    if (missing(number.pcs))
+        number.pcs <- min(length(objects), nrow(control.matrix))
+    
+    stopifnot(number.pcs >= 1
+              && number.pcs <= length(objects)
+              && number.pcs <= nrow(control.matrix))
 
     control.matrix <- impute.matrix(control.matrix)
     control.matrix <- scale(t(control.matrix))

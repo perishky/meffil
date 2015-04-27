@@ -216,6 +216,40 @@ quantile(sex.minfi[rownames(sex.meffil),"xMed"] - sex.meffil$x.signal)
 quantile(sex.minfi[rownames(sex.meffil),"yMed"] - sex.meffil$y.signal)
 ```
 
+## Cell count estimates
+
+```{r, results="hide"}
+counts.meffil <- mclapply(norm.objects,
+                          meffil.estimate.cell.counts,
+                          reference=meffil.gse35069.references()$standard,
+                          verbose=T)
+counts.meffil.beta <- sapply(counts.meffil, function(x) x$beta)
+counts.meffil <- t(sapply(counts.meffil, function(x) x$counts))
+colnames(counts.meffil) <- gsub("cell.types", "", colnames(counts.meffil))
+```
+
+```{r, results="hide"}
+counts.minfi <- estimateCellCounts(raw.minfi)
+counts.minfi <- counts.minfi[rownames(counts.meffil), colnames(counts.meffil)]
+```
+
+```{r}
+unname(sapply(rownames(counts.meffil), function(i) cor(counts.meffil[i,], counts.minfi[i,])))
+sapply(colnames(counts.meffil), function(i) cor(counts.meffil[,i], counts.minfi[,i]))
+```
+
+```{r, dev=CairoPNG}
+library(Cairo)
+for (cell.type in colnames(counts.meffil)) {
+    lim <- range(c(counts.meffil[,cell.type], counts.minfi[,cell.type]))
+    plot(counts.meffil[,cell.type], counts.minfi[,cell.type], pch=19,
+         main=cell.type,
+         sub=paste("R =", format(cor(counts.meffil[,cell.type], counts.minfi[,cell.type]), digits=3)),
+         xlim=lim,ylim=lim)
+    abline(a=0,b=1,col="red")
+}
+```
+
 
 This file was generated from R markdown
 using `knitr::knit("functional-normalization.rmd")`.
