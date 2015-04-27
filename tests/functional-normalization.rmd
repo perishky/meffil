@@ -238,8 +238,11 @@ unname(sapply(rownames(counts.meffil), function(i) cor(counts.meffil[i,], counts
 sapply(colnames(counts.meffil), function(i) cor(counts.meffil[,i], counts.minfi[,i]))
 ```
 
+```{r}
+library(Cairo, quietly=TRUE)
+```
+
 ```{r, dev=CairoPNG}
-library(Cairo)
 for (cell.type in colnames(counts.meffil)) {
     lim <- range(c(counts.meffil[,cell.type], counts.minfi[,cell.type]))
     plot(counts.meffil[,cell.type], counts.minfi[,cell.type], pch=19,
