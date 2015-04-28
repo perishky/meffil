@@ -94,31 +94,10 @@ samplesheet <- meffil.create.samplesheet("~/data/test_meffil")
 # samplesheet$Sex <- 
 # samplesheet$Sample_Name <- 
 qc.objects <- meffil.qc(samplesheet, verbose=TRUE)
-qc.report <- meffil.qc.report(qc.objects)
-qc.objects <- meffil.remove.ids(qc.objects, qc.report$bad.ids)
-qc.quantiles <- meffil.generate.quantiles(qc.objects, number.pcs=2)
-B <- meffil.normalize.samples(qc.quantiles, cpglist.remove=qc.report$bad.cpgs)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-B <- meffil.normalize.samples(norm.objects)
-
-qc.objects2 <- meffil.remove.ids(qc.objects, "GSM1338100_6057825094_R01C01")
-
-b <- meffil.normalize.samples(norm.objects, cpglist.remove=c("cg00050873"))
-b1 <- meffil.normalize.samples(norm.objects, cpglist.remove=c("cg00050873", "cg01707559", "dfsf"))
-
-
-B.long <- meffil.normalize.samples(norm.objects)
-
+qc.summary <- meffil.qc.summary(qc.objects)
+meffil.qc.report(qc.summary)
+qc.objects <- meffil.remove.ids(qc.objects, qc.summary$bad.ids)
+qc.quantiles <- meffil.normalize.quantiles(qc.objects, number.pcs=2)
+normalized.beta <- meffil.normalize.samples(qc.quantiles, cpglist.remove=qc.report$bad.cpgs)
+normalization.summary <- meffil.normalization.summary(normalized.beta, qc.quantiles)
+meffil.normalization.report(normalization.summary)

@@ -4,10 +4,10 @@
 \alias{meffil.design.matrix}
 \title{Infinium HumanMethylation450 BeadChip normalization design matrix}
 \usage{
-meffil.design.matrix(objects, number.pcs)
+meffil.design.matrix(control.pca, number.pcs)
 }
 \arguments{
-\item{objects}{A list of outputs from \code{\link{meffil.compute.normalization.object}()}.}
+\item{control.pca}{Output from \code{\link{meffil.pcs}}}
 
 \item{number.pcs}{Number of principal components to include in the design matrix (Default: \code{length(objects)}).}
 }

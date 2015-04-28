@@ -409,7 +409,7 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
     if(nrow(beadnum) > 0) beadnum$issue <- "Low bead numbers"
 
     removeids <- rbind(methunmeth, controlmeans, detectionp, beadnum, sexo)
-    removeids <- removeids[order(removeids$Sample_Name),]
+    removeids <- as.character(removeids[order(removeids$Sample_Name),])
 
 
     # Bad quality probes
@@ -449,7 +449,7 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
 #' @param  studyname Default = "IlluminaHuman450 data". Study name to be specified on report.
 #' @param  ... Arguments to be passed to \code{\link{rmarkdown::render}}
 #' @export
-#' @return List of tables and graphs describing QC.
+#' @return NULL
 #' @examples \dontrun{
 #'
 #'}

@@ -4,10 +4,10 @@
 \alias{meffil.plot.control.scree}
 \title{Plot scree plot of control matrix}
 \usage{
-meffil.plot.control.scree(norm.objects)
+meffil.plot.control.scree(qc.quantiles)
 }
 \arguments{
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.quantiles}{From \code{meffil.normalize.objects}}
 }
 \value{
 Data frame of results plus plot

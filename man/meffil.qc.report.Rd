@@ -4,30 +4,23 @@
 \alias{meffil.qc.report}
 \title{Generate QC report}
 \usage{
-meffil.qc.report(qc.objects, output.file = NULL, author = "Analyst",
-  studyname = "IlluminaHuman450 data", parameters = meffil.qc.parameters())
+meffil.qc.report(qc.summary, output.file = "meffil.qc.report.html",
+  author = "Analyst", studyname = "IlluminaHuman450 data", ...)
 }
 \arguments{
-\item{output.file}{Default = NULL.
+\item{qc.summary}{Output from \code{meffil.qc.summary}.}
+
+\item{output.file}{Default = "meffil.qc.report.html"
 If specified then a html report will be generated summarising the QC.}
 
 \item{author}{Default = "Analyst". Author name to be specified on report.}
 
 \item{studyname}{Default = "IlluminaHuman450 data". Study name to be specified on report.}
 
-\item{parameters}{Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}}
-
-\item{qc.objects.}{Output from \code{meffil.qc}.}
-}
-\value{
-List of tables and graphs describing QC.
+\item{...}{Arguments to be passed to \code{\link{rmarkdown::render}}}
 }
 \description{
-Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels,
-deviation from control probe means, detection p-values and bead numbers per sample and probe.
-}
-\details{
-If output.file is specified then it will generate a report in the form of a html document.
+Generate HTML file that summarises the QC.
 }
 \examples{
 \dontrun{

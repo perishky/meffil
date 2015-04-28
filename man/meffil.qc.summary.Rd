@@ -2,9 +2,10 @@
 % Please edit documentation in R/pre-process-plots.r
 \name{meffil.qc.summary}
 \alias{meffil.qc.summary}
-\title{Generate lists of bad probes and bad samples}
+\title{Perform QC analysis on idat files}
 \usage{
-meffil.qc.summary(qc.objects, parameters = meffil.qc.parameters())
+meffil.qc.summary(qc.objects, parameters = meffil.qc.parameters(),
+  verbose = TRUE)
 }
 \arguments{
 \item{qc.objects}{From \code{meffil.normalize.objects}}
@@ -15,7 +16,11 @@ meffil.qc.summary(qc.objects, parameters = meffil.qc.parameters())
 List
 }
 \description{
-Generate lists of bad probes and bad samples
+Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels,
+deviation from control probe means, detection p-values and bead numbers per sample and probe.
+}
+\details{
+Also returns list of sample IDs and CPGs that are low quality.
 }
 \examples{
 \dontrun{

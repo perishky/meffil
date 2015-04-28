@@ -12,7 +12,7 @@
 #' including normalized quantiles needed for normalizing each sample.
 #'
 #' @export
-meffil.normalize.objects <- function(objects,
+meffil.normalize.quantiles <- function(objects,
                                     number.pcs=2, 
                                     verbose=F) {
 
@@ -34,12 +34,18 @@ meffil.normalize.objects <- function(objects,
     female.idx <- which(sex == "F")
 
     msg("creating control matrix", verbose=verbose)
-    design.matrix <- meffil.design.matrix(objects, number.pcs)
+    control.pca <- meffil.pcs(objects)
+    design.matrix <- meffil.design.matrix(control.pca, number.pcs)
+    pca <- list(all=control.pca)
     if (has.both.sexes) {
-        design.male <- meffil.design.matrix(objects[male.idx],
+        male.pca <- meffil.pcs(objects[male.idx])
+        design.male <- meffil.design.matrix(male.pca,
                                             min(length(male.idx), number.pcs))
-        design.female <- meffil.design.matrix(objects[female.idx],
+        female.pca <- meffil.pcs(objects[female.idx])
+        design.female <- meffil.design.matrix(female.pca,
                                               min(length(female.idx), number.pcs))
+        pca$male <- male.pca
+        pca$female <- female.pca
     }
 
     msg("normalizing quantiles", verbose=verbose)
@@ -77,38 +83,49 @@ meffil.normalize.objects <- function(objects,
         object
     })
     names(out) <- sapply(out, function(x) x$Sample_Name)
+    out <- list(samples=out, pca=pca)
     return(out)
 }
+
+
+#' Calculate control probe PCs
+#'
+#' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
+#' @export
+#' @return PCA of control probes
+meffil.pcs <- function(objects)
+{
+    stopifnot(length(objects) >= 2)
+    control.matrix <- meffil.control.matrix(objects)
+    control.matrix <- impute.matrix(control.matrix)
+    control.matrix <- scale(t(control.matrix))
+    control.matrix[control.matrix > 3] <- 3
+    control.matrix[control.matrix < -3] <- -3
+    control.matrix <- t(scale(control.matrix))    
+    control.pca <- prcomp(t(control.matrix))
+    return(control.pca)
+}
+
 
 #' Infinium HumanMethylation450 BeadChip normalization design matrix
 #'
 #' Design matrix derived by applying principal components analysis to control probes.
 #'
-#' @param objects A list of outputs from \code{\link{meffil.compute.normalization.object}()}.
+#' @param control.pca Output from \code{\link{meffil.pcs}}
 #' @param number.pcs Number of principal components to include in the design matrix (Default: \code{length(objects)}).
 #' @return Design matrix with one column for each of the first \code{number.pcs} prinicipal
 #' components.
 #'
 #' @export
-meffil.design.matrix <- function(objects, number.pcs) {
-    stopifnot(length(objects) >= 2)
-
+meffil.design.matrix <- function(control.pca, number.pcs) {
     if (missing(number.pcs))
         number.pcs <- length(objects)
 
-    stopifnot(number.pcs >= 1 && number.pcs <= length(objects))
+    stopifnot(number.pcs >= 1 && number.pcs <= nrow(control.pca$x))
 
-    control.matrix <- meffil.control.matrix(objects)
-
-    control.matrix <- impute.matrix(control.matrix)
-    control.matrix <- scale(t(control.matrix))
-    control.matrix[control.matrix > 3] <- 3
-    control.matrix[control.matrix < -3] <- -3
-    control.matrix <- t(scale(control.matrix))
-    
-    control.components <- prcomp(t(control.matrix))$x[,1:number.pcs,drop=F]
+    control.components <- control.pca$x[,1:number.pcs,drop=F]
     design.matrix <- model.matrix(~control.components-1)
-    rownames(design.matrix) <- colnames(control.matrix)
+    rownames(design.matrix) <- rownames(control.pca$x)
     design.matrix
 }
 
@@ -157,4 +174,3 @@ normalize.quantiles <- function(quantiles, design.matrix) {
         norm.quantiles[i,] <- apply(norm.quantiles[(i-1):i,], 2, max, na.rm=T)
     norm.quantiles
 }
-

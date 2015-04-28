@@ -25,6 +25,7 @@
 meffil.normalize.samples <- function(objects, beta=T, pseudo=100,
                                      probes=meffil.probe.info(), verbose=F,
                                      temp.dir=tempdir(), cpglist.remove=NULL, ...) {
+    objects <- objects$samples
     stopifnot(length(objects) >= 2)
     stopifnot(all(sapply(objects, is.normalization.object)))
     stopifnot(all(sapply(objects, function(x) "norm" %in% names(x))))

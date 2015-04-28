@@ -4,8 +4,8 @@
 #' Reading an Illumina methylation sample sheet, containing pheno-data 
 #' information for the samples in an experiment.
 #'
-#' @param base The base directory from which the search is started.
-#' @param basenames Output from \code{\link{meffil.basenames}}
+#' @param  base The base directory from which the search is started.
+#' @param  basenames Output from \code{\link{meffil.basenames}}
 #' @param  pattern = "csv$" What pattern is used to identify a sample sheet file, see \code{list.files}
 #' @param  ignore.case = TRUE Should the file search be case sensitive?
 #' @param  recursive = TRUE Should the file search be recursive, see \code{list.files}?
@@ -202,6 +202,20 @@ meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, deli
 	stopifnot(length(Sex) == length(basenames))
 
 	dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)), stringsAsFactors=FALSE)
+	idcol <- which(apply(dat, 2, function(x) all(!duplicated(x))))
+	if(length(idcol) == 1)
+	{
+		Sample_Name <- dat[,idcol]
+		dat <- dat[,-idcol]
+	}
+	sentrixpos <- grep("^R[0-9][0-9]C[0-9][0-9]$", as.character(unlist(dat[1,])))
+	if(length(sentrixpos)==1)
+	{
+		temp <- do.call(rbind, strsplit(as.character(dat[,sentrixpos]), split="C"))
+		dat$sentrix_row <- gsub("R", "", temp[,1])
+		dat$sentrix_col <- temp[,2]
+		dat <- dat[,-sentrixpos]
+	}
 	samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = Sex, dat, Basename = basenames, stringsAsFactors=FALSE)
 	return(samplesheet)
 }
