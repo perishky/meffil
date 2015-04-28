@@ -26,7 +26,7 @@ samplesheet <- data.frame(Sample_Name = paste("id",1:24, sep=""), sex=sample(c("
 
 
 
-norm.objects <- mclapply(basenames, meffil.compute.normalization.object, detection.threshold = 0.05)
+norm.objects <- mclapply(basenames[1:5], meffil.compute.normalization.object)
 norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=10)
 
 
@@ -67,11 +67,11 @@ samplesheet <- meffil.read.samplesheet(path)
 samplesheet <- meffil.create.samplesheet(path)
 
 # Do background and dye correction
-qc.objects <- meffil.qc(basenames, samplesheet)
+qc.objects <- meffil.qc(samplesheet)
 
 # Find individuals and probes that should be removed prior to performing normalisation
 # Generate html doc with some graphs
-qc.report <- meffil.qc(samplesheet, qc.objects)
+qc.report <- meffil.qc.report(qc.objects)
 
 # Remove individuals (and probes at this stage? Maybe not because bad probes shouldn't have a big effect on normalisation I don't think)
 qc.objects <- meffil.remove.outliers(qc.report$samples, pre.normalization.report$cpgs)
@@ -87,29 +87,11 @@ post.normalization.report <- meffil.post.normalization(samplesheet, B, norm.obje
 
 
 
-# Issues:
-# B vs B.long:
-# - 65 fewer probes - SNPs missing?
-# - No sample names
-
-
-
-
-
-
-
 library(meffil)
 options(mc.cores=16)
-basenames <- meffil.basenames("~/data/test_meffil")
 
-samplesheet <- meffil.create.samplesheet(basenames)
-
-meffil.qc <- function(samplesheet)
-{
-	norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
-
-}
-
+samplesheet <- meffil.create.samplesheet("~/data/test_meffil")
+qc.objects <- meffil.qc(samplesheet[1:5,], verbose=TRUE)
 
 
 

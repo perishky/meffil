@@ -86,6 +86,7 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 				if(!file.exists(nom <- paste(x, "_Grn.idat", sep=""))) warning(paste("Inferred basename", nom, "does not exist"))
 				if(!file.exists(nom <- paste(x, "_Red.idat", sep=""))) warning(paste("Inferred basename", nom, "does not exist"))
 			})
+		}
 		df
 	}
 	if(!all(file.exists(base)))
@@ -200,8 +201,8 @@ meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, deli
 	stopifnot(length(Sample_Name) == length(basenames))
 	stopifnot(length(Sex) == length(basenames))
 
-	dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)))
-	samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = Sex, dat, Basename = basenames)
+	dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)), stringsAsFactors=FALSE)
+	samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = Sex, dat, Basename = basenames, stringsAsFactors=FALSE)
 	return(samplesheet)
 }
 

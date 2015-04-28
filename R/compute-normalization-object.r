@@ -1,7 +1,10 @@
-#' Normalization object
+##library(plyr) ## for dlply()
+
+#' Perform QC on HumanMethylation450 idat files
 #'
-#' Create a normalization object for a given Infinium HumanMethylation450 BeadChip.
-#'
+#' Read in control matrices for each sample.
+#' Perform background correction and R/G dye bias correction. 
+#' Predict sex 
 #' @param samplesheet Data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} pr \code{\link{meffil.create.samplesheet}}).
 #' @param number.quantiles Number of quantiles to compute for probe subset (Default: 500).
 #' @param dye.intensity Reference intensity for scaling each color channel (Default: 5000).
@@ -12,6 +15,47 @@
 #' All probes above this detection threshold detected.
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
+#' @param sex.cutoff Sex prediction cutoff. Default value = -2.
+#' @return List containing control probe information, probe summaries
+#' and quantiles.
+#'
+#' @export
+meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000, probes=meffil.probe.info(), verbose=F, detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2)
+{
+  s <- dlply(samplesheet, .(Sample_Name))
+  norm.objects <- mclapply(
+    s, 
+    meffil.compute.normalization.object,
+    number.quantiles=number.quantiles,
+    dye.intensity=dye.intensity,
+    probes=probes,
+    verbose=verbose,
+    detection.threshold=detection.threshold,
+    bead.threshold=bead.threshold,
+    sex.cutoff=sex.cutoff
+  )
+  names(norm.objects) <- samplesheet$Sample_Name
+  return(norm.objects)
+}
+
+
+
+
+#' Normalization object
+#'
+#' Create a normalization object for a given Infinium HumanMethylation450 BeadChip.
+#'
+#' @param samplesheet.row Row from data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} or \code{\link{meffil.create.samplesheet}}).
+#' @param number.quantiles Number of quantiles to compute for probe subset (Default: 500).
+#' @param dye.intensity Reference intensity for scaling each color channel (Default: 5000).
+#' @param probes Probe annotation used to construct the control matrix
+#' (Default: \code{\link{meffil.probe.info}()}).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
+#' @param detection.threshold Default value = 0.01.
+#' All probes above this detection threshold detected.
+#' @param bead.threshold Default value = 3.
+#' All probes with less than this number of beads detected.
+#' @param sex.cutoff Sex prediction cutoff. Default value = -2.
 #' @return List containing control probe information, probe summaries
 #' and quantiles.
 #'
@@ -29,7 +73,7 @@ meffil.compute.normalization.object <- function(samplesheet.row,
     stopifnot(nrow(probes) > 100000)
     stopifnot(samplesheet.row$Sex %in% c(NA, "F", "M"))
 
-    rg <- meffil.read.rg(basename, probes, verbose=verbose)
+    rg <- meffil.read.rg(samplesheet.row$Basename, probes, verbose=verbose)
 
     bad.probes.detectionp <- identify.bad.probes.detectionp(rg, detection.threshold, probes, verbose=verbose)
 
@@ -67,7 +111,8 @@ meffil.compute.normalization.object <- function(samplesheet.row,
 
 
     list(origin="meffil.compute.normalization.object",
-         basename=basename,
+         Sample_Name=samplesheet.row$Sample_Name,
+         basename=samplesheet.row$Basename,
          controls=controls,
          quantiles=quantiles,
          dye.intensity=dye.intensity,
@@ -76,7 +121,7 @@ meffil.compute.normalization.object <- function(samplesheet.row,
          x.signal=x.signal,
          y.signal=y.signal,
          xy.diff=xy.diff,
-         sex=samplesheet$Sex,
+         sex=samplesheet.row$Sex,
          sex.cutoff=sex.cutoff,
          predicted.sex=predicted.sex,
          median.m.signal=median(mu$M,na.rm=T),
@@ -85,16 +130,8 @@ meffil.compute.normalization.object <- function(samplesheet.row,
          bad.probes.beadnum=bad.probes.beadnum,
          bad.probes.detectionp.threshold=detection.threshold,
          bad.probes.beadnum.threshold=bead.threshold,
-         snp.probes=snp.probes
-
-
-
-         object$sex.cutoff <- sex.cutoff
-         object$xy.diff <- xy.diff[i]
-         object$predicted.sex <- predicted.sex[i]
-         object$sex <- sex[i]
-
-
+         snp.probes=snp.probes,
+         samplesheet=samplesheet.row
          )
 }
 
