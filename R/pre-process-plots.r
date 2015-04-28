@@ -27,6 +27,7 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
         return(x)
     })
     dat$sex.mismatch <- dat$declared.sex != dat$predicted.sex
+    dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Sex not specified"
     p1 <- ggplot(dat, aes(y=1, x=xy.diff)) +
         geom_jitter(aes(shape=predicted.sex, colour=sex.mismatch), size=3) +
         scale_colour_manual(values=c("black", "red")) +
@@ -59,9 +60,13 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
         g <- "legend"
-    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
-        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
-        g <- "legend"
+    } else if(length(colour.code) == 1) {
+        if(colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+            dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+            g <- "legend"
+        } else {
+            stop("colour.code unknown")
+        }
     } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
@@ -76,7 +81,8 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
         guides(colour = g) +
         geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
         labs(y = "Median methylated signal", x = "Median unmethylated signal", colour = colour.code) +
-        stat_smooth(method="lm", se=FALSE)
+        stat_smooth(method="lm", se=FALSE, colour="red") +
+        geom_smooth()
     return(list(graph=p1, tab=dat))
 }
 
@@ -98,9 +104,13 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=names(qc.obj
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
         g <- "legend"
-    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
-        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
-        g <- "legend"
+    } else if(length(colour.code) == 1) {
+        if(colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+            dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+            g <- "legend"
+        } else {
+            stop("colour.code unknown")
+        }
     } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
@@ -152,9 +162,13 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
         g <- "legend"
-    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
-        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
-        g <- "legend"
+    } else if(length(colour.code) == 1) {
+        if(colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+            dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+            g <- "legend"
+        } else {
+            stop("colour.code unknown")
+        }
     } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
@@ -224,9 +238,13 @@ meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.cod
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
         g <- "legend"
-    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
-        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
-        g <- "legend"
+    } else if(length(colour.code) == 1) {
+        if(colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+            dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+            g <- "legend"
+        } else {
+            stop("colour.code unknown")
+        }
     } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
@@ -316,7 +334,12 @@ meffil.qc.parameters <- function(colour.code = NULL, control.categories = contro
 }
 
 
-#' Generate lists of bad probes and bad samples
+#' Perform QC analysis on idat files
+#'
+#' Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels, 
+#' deviation from control probe means, detection p-values and bead numbers per sample and probe.
+#'
+#' Also returns list of sample IDs and CPGs that are low quality.
 #'
 #' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  parameters Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}
@@ -325,36 +348,43 @@ meffil.qc.parameters <- function(colour.code = NULL, control.categories = contro
 #' @examples \dontrun{
 #'
 #'}
-meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters()) {
+meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), verbose=TRUE) {
+    msg("Sex summary", verbose)
     sex.summary <- meffil.plot.sex(
         qc.objects,
         outlier.sd=parameters$sex.outlier.sd
     )
+    msg("Meth vs unmeth summary", verbose=verbose)
     meth.unmeth.summary <- meffil.plot.meth.unmeth(
         qc.objects, 
         colour.code=parameters$colour.code, 
         outlier.sd=parameters$meth.unmeth.outlier.sd
     )
+    msg("Control means summary", verbose=verbose)
     controlmeans.summary <- meffil.plot.controlmeans(
         qc.objects,
         control.categories=parameters$control.categories,
         colour.code=parameters$colour.code,
         outlier.sd=parameters$control.means.outlier.sd
     )
+    msg("Sample detection summary", verbose=verbose)
     sample.detectionp.summary <- meffil.plot.detectionp.samples(
         qc.objects,
         colour.code=parameters$colour.code,
         threshold=parameters$detectionp.samples.threshold
     )
+    msg("CpG detection summary", verbose=verbose)
     cpg.detectionp.summary <- meffil.plot.detectionp.cpgs(
         qc.objects,
         threshold=parameters$detectionp.cpgs.threshold
     )
+    msg("Sample bead numbers summary", verbose=verbose)
     sample.beadnum.summary <- meffil.plot.beadnum.samples(
         qc.objects,
         colour.code=parameters$colour.code,
         threshold=parameters$beadnum.samples.threshold
     )
+    msg("CpG bead numbers summary", verbose=verbose)
     cpg.beadnum.summary <- meffil.plot.beadnum.cpgs(
         qc.objects,
         threshold=parameters$beadnum.cpgs.threshold
@@ -362,7 +392,7 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters()) {
 
 
     # Sex mismatches
-    sex <- subset(sex.summary$tab, sex.mismatch | outliers, select=c(Sample_Name, predicted.sex, declared.sex, xy.diff))
+    sex <- subset(sex.summary$tab, sex.mismatch == "FALSE" | outliers, select=c(Sample_Name, predicted.sex, declared.sex, xy.diff))
 
 
     # Bad quality samples
@@ -410,40 +440,34 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters()) {
 
 #' Generate QC report
 #'
-#' Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels, 
-#' deviation from control probe means, detection p-values and bead numbers per sample and probe.
-#' 
-#' If output.file is specified then it will generate a report in the form of a html document.
+#' Generate HTML file that summarises the QC. 
 #'
-#' @param  qc.objects. Output from \code{meffil.qc}.
-#' @param  output.file Default = NULL.
+#' @param  qc.summary Output from \code{meffil.qc.summary}.
+#' @param  output.file Default = "meffil.qc.report.html"
 #' If specified then a html report will be generated summarising the QC.
 #' @param  author Default = "Analyst". Author name to be specified on report.
 #' @param  studyname Default = "IlluminaHuman450 data". Study name to be specified on report.
-#' @param  parameters Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}
+#' @param  ... Arguments to be passed to \code{\link{rmarkdown::render}}
 #' @export
 #' @return List of tables and graphs describing QC.
 #' @examples \dontrun{
 #'
 #'}
 meffil.qc.report <- function(
-    qc.objects,
-    output.file = NULL,
+    qc.summary,
+    output.file = "meffil.qc.report.html",
     author = "Analyst",
     studyname = "IlluminaHuman450 data",
-    parameters = meffil.qc.parameters()
+    ...
 ) {
-    qc.summary <- meffil.qc.summary(qc.objects, parameters)
-    if(!is.null(output.file)) {
-        cat("Writing report as html file to", output.file, "\n")
-        save(qc.summary,
-            author,
-            studyname,
-            file = file.path(tempdir(), "meffil.qc.report.rdata")
-        )
-        rmarkdown::render(system.file("reports", "meffil.qc.report.rmd", package="meffil"), output_file=output.file)
-    }
-    return(qc.summary)
+    cat("Writing report as html file to", output.file, "\n")
+    save(qc.summary,
+        author,
+        studyname,
+        file = file.path(tempdir(), "meffil.qc.report.rdata")
+    )
+    output.dir <- ifelse(dirname(output.file) == ".", getwd(), dirname(output.file))
+    rmarkdown::render(system.file("reports", "meffil.qc.report.rmd", package="meffil"), output_file=basename(output.file), output_dir=output.dir, ...)
 }
 
 
@@ -451,7 +475,7 @@ meffil.qc.report <- function(
 #' Remove samples from QC objects
 #'
 #'
-#' @param qc.objects Output from \code{\link{meffil.qc}}
+#' @param  qc.objects Output from \code{\link{meffil.qc}}
 #' @param  idlist.remove Array of Sample_Name IDs to be removed
 #' @export
 #' @return qc.objects with samples removed
