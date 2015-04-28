@@ -4,13 +4,11 @@
 \alias{meffil.plot.detectionp.samples}
 \title{Plot detection p values from idat files}
 \usage{
-meffil.plot.detectionp.samples(samplesheet, norm.objects, threshold = 0.05,
+meffil.plot.detectionp.samples(qc.objects, threshold = 0.05,
   colour.code = NULL)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 
 \item{threshold}{Cut off value for proportion of CpGs with poor detection p values. Default 0.05}
 

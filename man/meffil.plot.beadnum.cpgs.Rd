@@ -4,12 +4,10 @@
 \alias{meffil.plot.beadnum.cpgs}
 \title{Manhattan plot of number of beads by probe - percentage of probes with beads < 3 for each sample}
 \usage{
-meffil.plot.beadnum.cpgs(samplesheet, norm.objects, threshold = 0.05)
+meffil.plot.beadnum.cpgs(qc.objects, threshold = 0.05)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 
 \item{threshold}{Cut off value for proportion of samples with poor detection p values. Default 0.05.}
 }

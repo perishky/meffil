@@ -4,13 +4,10 @@
 \alias{meffil.plot.meth.unmeth}
 \title{Plot average methylated vs unmethylated levels for each individuals}
 \usage{
-meffil.plot.meth.unmeth(samplesheet, norm.objects, outlier.sd = 3,
-  colour.code = NULL)
+meffil.plot.meth.unmeth(qc.objects, outlier.sd = 3, colour.code = NULL)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 
 \item{outlier.sd}{Cut off for declaring outliers. Default = 3}
 

@@ -4,14 +4,12 @@
 \alias{meffil.plot.controlmeans}
 \title{Plot the means of control probes for each sample and for each control probe type}
 \usage{
-meffil.plot.controlmeans(samplesheet, norm.objects,
-  control.categories = names(norm.objects[[1]]$controls),
-  colour.code = NULL, outlier.sd = 5)
+meffil.plot.controlmeans(qc.objects,
+  control.categories = names(qc.objects[[1]]$controls), colour.code = NULL,
+  outlier.sd = 5)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 
 \item{control.categories}{Which control probe categories to plot. Defaults to all available}
 

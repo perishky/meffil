@@ -4,15 +4,12 @@
 \alias{meffil.normalize.objects}
 \title{Normalize objects}
 \usage{
-meffil.normalize.objects(objects, number.pcs = 2, sex.cutoff = -2,
-  sex = NULL, verbose = F)
+meffil.normalize.objects(objects, number.pcs = 2, verbose = F)
 }
 \arguments{
 \item{objects}{A list of outputs from \code{\link{meffil.compute.normalization.object}()}.}
 
 \item{number.pcs}{Number of control matrix principal components to adjust for (Default: 2).}
-
-\item{sex}{Optional character vector assigning a sex label ("M" or "F") to each sample.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }

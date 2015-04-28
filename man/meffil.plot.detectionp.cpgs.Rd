@@ -4,12 +4,10 @@
 \alias{meffil.plot.detectionp.cpgs}
 \title{Manhattan plot of detection pval per probe - percentage with pvalue < 0.01}
 \usage{
-meffil.plot.detectionp.cpgs(samplesheet, norm.objects, threshold = 0.05)
+meffil.plot.detectionp.cpgs(qc.objects, threshold = 0.05)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 
 \item{threshold}{Cut off value for proportion of samples with poor detection p values. Default 0.05.}
 }

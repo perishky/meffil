@@ -5,7 +5,8 @@
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
 meffil.normalize.samples(objects, beta = T, pseudo = 100,
-  probes = meffil.probe.info(), verbose = F, tempdir = tempdir(), ...)
+  probes = meffil.probe.info(), verbose = F, temp.dir = tempdir(),
+  cpglist.remove = NULL, ...)
 }
 \arguments{
 \item{objects}{A list or sublist returned by \code{\link{meffil.normalize.objects}()}.}
@@ -21,6 +22,10 @@ estimate more stable when calculating methylation levels (Default: 100).}
 (Default: \code{\link{meffil.probe.info}()}).}
 
 \item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
+
+\item{temp.dir}{Option to choose alternative temporary directory, otherwise uses result from \code{tempdir()}}
+
+\item{cpglist.remove}{Optional list of CpGs to exclude from final output}
 
 \item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}
 except for \code{ret.bytes}.}

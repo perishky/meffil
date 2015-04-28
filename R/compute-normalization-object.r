@@ -1,4 +1,4 @@
-##library(plyr) ## for dlply()
+library(plyr) ## for dlply()
 
 #' Perform QC on HumanMethylation450 idat files
 #'

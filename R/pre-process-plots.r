@@ -1,24 +1,24 @@
 library(ggplot2)
-library(plyr)
 library(reshape2)
-
+library(knitr)
+library(rmarkdown)
+library(pander)
 
 #' Plot predicted sex
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @export
 #' @return Data frame of results plus plot
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.sex <- function(samplesheet, norm.objects, outlier.sd=3)
+meffil.plot.sex <- function(qc.objects, outlier.sd=3)
 {
     dat <- data.frame(
-        Sample_Name = samplesheet$Sample_Name,
-        xy.diff = sapply(norm.objects, function(x) x$xy.diff),
-        predicted.sex = sapply(norm.objects, function(x) x$predicted.sex),
-        declared.sex = samplesheet$sex
+        Sample_Name = sapply(qc.objects, function(x) x$Sample_Name),
+        xy.diff = sapply(qc.objects, function(x) x$xy.diff),
+        predicted.sex = sapply(qc.objects, function(x) x$predicted.sex),
+        declared.sex = sapply(qc.objects, function(x) x$sex)
     )
     dat <- ddply(dat, .(predicted.sex), function(x)
     {
@@ -41,8 +41,7 @@ meffil.plot.sex <- function(samplesheet, norm.objects, outlier.sd=3)
 #'
 #' plot raw control probes and fit linear regression, remove samples that have sd(y - yhat) > mean*3
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  outlier.sd Cut off for declaring outliers. Default = 3
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @export
@@ -50,23 +49,28 @@ meffil.plot.sex <- function(samplesheet, norm.objects, outlier.sd=3)
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.meth.unmeth <- function(samplesheet, norm.objects, outlier.sd=3, colour.code = NULL)
+meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL)
 {
     dat <- data.frame(
-        Sample_Name = samplesheet$Sample_Name,
-        methylated = sapply(norm.objects, function(x) x$median.m.signal),
-        unmethylated = sapply(norm.objects, function(x) x$median.u.signal)
+        Sample_Name = sapply(qc.objects, function(x) x$Sample_Name),
+        methylated = sapply(qc.objects, function(x) x$median.m.signal),
+        unmethylated = sapply(qc.objects, function(x) x$median.u.signal)
     )
-    if(!is.null(colour.code))
-    {
-        dat$colour.code <- samplesheet[[colour.code]]
+    if(length(colour.code) == nrow(dat)) {
+        dat$colour.code <- colour.code
         g <- "legend"
-    } else {
+    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+        g <- "legend"
+    } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
+    } else {
+        stop("colour.code unknown")
     }
     dat$resids <- residuals(lm(methylated ~ unmethylated, dat))
     dat$outliers <- dat$resids > mean(dat$resids)+outlier.sd*sd(dat$resids) | dat$resids < mean(dat$resids)-outlier.sd*sd(dat$resids)
+
     p1 <- ggplot(dat, aes(y=methylated, x=unmethylated)) +
         geom_point(aes(colour=colour.code)) +
         guides(colour = g) +
@@ -79,8 +83,7 @@ meffil.plot.meth.unmeth <- function(samplesheet, norm.objects, outlier.sd=3, col
 
 #' Plot the means of control probes for each sample and for each control probe type
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  control.categories Which control probe categories to plot. Defaults to all available
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @param  outlier.sd Cut off for declaring outliers. Default = 5
@@ -89,20 +92,24 @@ meffil.plot.meth.unmeth <- function(samplesheet, norm.objects, outlier.sd=3, col
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.controlmeans <- function(samplesheet, norm.objects, control.categories=names(norm.objects[[1]]$controls), colour.code = NULL, outlier.sd=5)
+meffil.plot.controlmeans <- function(qc.objects, control.categories=names(qc.objects[[1]]$controls), colour.code = NULL, outlier.sd=5)
 {
-    dat <- data.frame(Sample_Name = samplesheet$Sample_Name)
-    if(!is.null(colour.code))
-    {
-        dat$colour.code <- samplesheet[[colour.code]]
+    dat <- data.frame(Sample_Name = sapply(qc.objects, function(x) x$Sample_Name))
+    if(length(colour.code) == nrow(dat)) {
+        dat$colour.code <- colour.code
         g <- "legend"
-    } else {
+    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+        g <- "legend"
+    } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
+    } else {
+        stop("colour.code unknown")
     }
 
-    d <- data.frame(t(sapply(norm.objects, function(x) x$controls)))
-    names(d) <- names(norm.objects[[1]]$controls)
+    d <- data.frame(t(sapply(qc.objects, function(x) x$controls)))
+    names(d) <- names(qc.objects[[1]]$controls)
     dat <- data.frame(dat, subset(d, select=control.categories))
     names(dat) <- c("Sample_Name", "colour.code", control.categories)
     dat <- dat[order(dat$colour.code), ]
@@ -127,8 +134,7 @@ meffil.plot.controlmeans <- function(samplesheet, norm.objects, control.categori
 
 #' Plot detection p values from idat files
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  threshold Cut off value for proportion of CpGs with poor detection p values. Default 0.05
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @export
@@ -136,20 +142,24 @@ meffil.plot.controlmeans <- function(samplesheet, norm.objects, control.categori
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.detectionp.samples <- function(samplesheet, norm.objects, threshold = 0.05, colour.code=NULL)
+meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
     nprobe <- length(unique(meffil.probe.info()$name))
     dat <- data.frame(
-        Sample_Name = samplesheet$Sample_Name,
-        prop.badprobes = sapply(norm.objects, function(x) length(x$bad.probes.detectionp) / nprobe)
+        Sample_Name = sapply(qc.objects, function(x) x$Sample_Name),
+        prop.badprobes = sapply(qc.objects, function(x) length(x$bad.probes.detectionp) / nprobe)
     )
-    if(!is.null(colour.code))
-    {
-        dat$colour.code <- samplesheet[[colour.code]]
+    if(length(colour.code) == nrow(dat)) {
+        dat$colour.code <- colour.code
         g <- "legend"
-    } else {
+    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+        g <- "legend"
+    } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
+    } else {
+        stop("colour.code unknown")
     }
     dat <- dat[order(dat$colour.code), ]
     dat$id <- 1:nrow(dat)
@@ -158,28 +168,27 @@ meffil.plot.detectionp.samples <- function(samplesheet, norm.objects, threshold 
         geom_point(aes(colour=colour.code)) +
         guides(colour = g) +
         geom_hline(yintercept=threshold) +
-        labs(y = paste("Proportion CpG sites with p >", norm.objects[[1]]$bad.probes.detectionp.threshold), x = "Sample ID", colour = colour.code)
+        labs(y = paste("Proportion CpG sites with p >", qc.objects[[1]]$bad.probes.detectionp.threshold), x = "Sample ID", colour = colour.code)
     return(list(graph=p1, tab=dat))
 }
 
 #' Manhattan plot of detection pval per probe - percentage with pvalue < 0.01
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  threshold Cut off value for proportion of samples with poor detection p values. Default 0.05.
 #' @export
 #' @return Data frame of results plus plot
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.detectionp.cpgs <- function(samplesheet, norm.objects, threshold=0.05)
+meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 {
-    n.badprobes = as.data.frame(table(unlist(sapply(norm.objects, function(x) names(x$bad.probes.detectionp)))))
+    n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.detectionp)))))
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
     probe.info <- merge(probe.info, n.badprobes, by="name")
     probe.info$n[is.na(probe.info$n)] <- 0
-    probe.info$n <- probe.info$n / length(norm.objects)
+    probe.info$n <- probe.info$n / length(qc.objects)
     probe.info$chr <- factor(gsub("chr", "", probe.info$chr), levels=c(1:22, "X", "Y"))
     probe.info$chr.colour <- 0
     probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
@@ -189,7 +198,7 @@ meffil.plot.detectionp.cpgs <- function(samplesheet, norm.objects, threshold=0.0
         geom_point(aes(colour=chr.colour)) +
         facet_grid(. ~ chr, space="free_x", scales="free_x") +
         guides(colour=FALSE) +
-        labs(x="Position", y=paste("Proportion samples with p >", norm.objects[[1]]$bad.probes.detectionp.threshold)) +
+        labs(x="Position", y=paste("Proportion samples with p >", qc.objects[[1]]$bad.probes.detectionp.threshold)) +
         geom_hline(yintercept=threshold) +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
     return(list(graph=p1, tab=subset(probe.info, select=-c(chr.colour))))
@@ -197,8 +206,7 @@ meffil.plot.detectionp.cpgs <- function(samplesheet, norm.objects, threshold=0.0
 
 #' Plot number of beads per sample
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  threshold Cut off value for proportion of CpGs with low bead numbers. Default 0.05
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @export
@@ -206,20 +214,24 @@ meffil.plot.detectionp.cpgs <- function(samplesheet, norm.objects, threshold=0.0
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.beadnum.samples <- function(samplesheet, norm.objects, threshold = 0.05, colour.code=NULL)
+meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
     nprobe <- length(unique(meffil.probe.info()$name))
     dat <- data.frame(
-        Sample_Name = samplesheet$Sample_Name,
-        prop.badprobes = sapply(norm.objects, function(x) length(x$bad.probes.beadnum) / nprobe)
+        Sample_Name = sapply(qc.objects, function(x) x$Sample_Name),
+        prop.badprobes = sapply(qc.objects, function(x) length(x$bad.probes.beadnum) / nprobe)
     )
-    if(!is.null(colour.code))
-    {
-        dat$colour.code <- samplesheet[[colour.code]]
+    if(length(colour.code) == nrow(dat)) {
+        dat$colour.code <- colour.code
         g <- "legend"
-    } else {
+    } else if(length(colour.code == 1) & colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+        dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+        g <- "legend"
+    } else if(is.null(colour.code)) {
         dat$colour.code <- 1
         g <- FALSE
+    } else {
+        stop("colour.code unknown")
     }
     dat <- dat[order(dat$colour.code), ]
     dat$id <- 1:nrow(dat)
@@ -228,28 +240,27 @@ meffil.plot.beadnum.samples <- function(samplesheet, norm.objects, threshold = 0
         geom_point(aes(colour=colour.code)) +
         guides(colour = g) +
         geom_hline(yintercept=threshold) +
-        labs(y = paste("Proportion CpG sites with bead number < ", norm.objects[[1]]$bad.probes.beadnum.threshold), x = "Sample ID", colour = colour.code)
+        labs(y = paste("Proportion CpG sites with bead number < ", qc.objects[[1]]$bad.probes.beadnum.threshold), x = "Sample ID", colour = colour.code)
     return(list(graph=p1, tab=dat))
 }
 
 #' Manhattan plot of number of beads by probe - percentage of probes with beads < 3 for each sample
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param  qc.objects From \code{meffil.normalize.objects}
 #' @param  threshold Cut off value for proportion of samples with poor detection p values. Default 0.05.
 #' @export
 #' @return Data frame of results plus plot
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.beadnum.cpgs <- function(samplesheet, norm.objects, threshold = 0.05)
+meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 {
-    n.badprobes = as.data.frame(table(unlist(sapply(norm.objects, function(x) names(x$bad.probes.beadnum)))))
+    n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.beadnum)))))
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
     probe.info <- merge(probe.info, n.badprobes, by="name")
     probe.info$n[is.na(probe.info$n)] <- 0
-    probe.info$n <- probe.info$n / length(norm.objects)
+    probe.info$n <- probe.info$n / length(qc.objects)
     probe.info$chr <- factor(gsub("chr", "", probe.info$chr), levels=c(1:22, "X", "Y"))
     probe.info$chr.colour <- 0
     probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
@@ -259,63 +270,112 @@ meffil.plot.beadnum.cpgs <- function(samplesheet, norm.objects, threshold = 0.05
         geom_point(aes(colour=chr.colour)) +
         facet_grid(. ~ chr, space="free_x", scales="free_x") +
         guides(colour=FALSE) +
-        labs(x="Position", y=paste("Proportion samples with bead number <", norm.objects[[1]]$bad.probes.beadnum.threshold)) +
+        labs(x="Position", y=paste("Proportion samples with bead number <", qc.objects[[1]]$bad.probes.beadnum.threshold)) +
         geom_hline(yintercept=threshold) +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
     return(list(graph=p1, tab=subset(probe.info, select=-c(chr.colour))))
 }
 
 
+control.probe.categories <- function()
+{
+    return(c("bisulfite1", "bisulfite2", "extension.G.31698466", "extension.G.74666473", "extension.R.47640365", "extension.R.63642461", "hybe.21771417", "hybe.26772442", "hybe.28684356", "stain.G", "stain.R", "nonpoly.G.23663352", "nonpoly.G.70645401", "nonpoly.R.18773482", "nonpoly.R.24701411", "targetrem.13643320", "targetrem.42790394", "spec1.G.10673427", "spec1.G.23777311", "spec1.G.51804467", "spec1.R.46779338", "spec1.R.53740460", "spec1.R.59783305", "spec2.G.17661470", "spec2.G.29662396", "spec2.G.34730329", "spec2.R.17661470", "spec2.R.29662396", "spec2.R.34730329", "spec1.ratio1", "spec1.ratio", "spec2.ratio", "spec1.ratio2", "normA", "normC", "normT", "normG", "dye.bias", "oob.G.1%", "oob.G.50%", "oob.G.99%", "oob.ratio"))
+}
 
-# Bad quality probes
-# Bad quality samples
-# Gender mixups
-# Sample mixups
+
+#' Specify parameters for QC
+#'
+#' 
+#' @param  colour.code Default value = NULL <what param does>
+#' @param  control.categories Default value = control.probe.categories() <what param does>
+#' @param  sex.outlier.sd Default value = 3 <what param does>
+#' @param  meth.unmeth.outlier.sd Default value = 3 <what param does>
+#' @param  control.means.outlier.sd Default value = 5 <what param does>
+#' @param  detectionp.samples.threshold Default value = 0.05 <what param does>
+#' @param  beadnum.samples.threshold Default value = 0.05 <what param does>
+#' @param  detectionp.cpgs.threshold Default value = 0.05 <what param does>
+#' @param  beadnum.cpgs.threshold Default value = 0.05 <what param does>
+#' @export
+#' @return List of parameter values
+#' @examples \dontrun{
+#'
+#'}
+meffil.qc.parameters <- function(colour.code = NULL, control.categories = control.probe.categories(), sex.outlier.sd = 3, meth.unmeth.outlier.sd = 3, control.means.outlier.sd = 5, detectionp.samples.threshold = 0.05, beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05, beadnum.cpgs.threshold = 0.05) {
+    parameters <- list(
+        colour.code = colour.code, 
+        control.categories = control.categories,
+        sex.outlier.sd = sex.outlier.sd,
+        meth.unmeth.outlier.sd = meth.unmeth.outlier.sd,
+        control.means.outlier.sd = control.means.outlier.sd,
+        detectionp.samples.threshold = detectionp.samples.threshold,
+        beadnum.samples.threshold = beadnum.samples.threshold,
+        detectionp.cpgs.threshold = detectionp.cpgs.threshold,
+        beadnum.cpgs.threshold = beadnum.cpgs.threshold
+    )
+    return(parameters)
+}
+
 
 #' Generate lists of bad probes and bad samples
 #'
-#' @param samplesheet From \code{meffil.read.samplesheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
-#' @param  colour.code See above
-#' @param  control.categories See above
-#' @param  sex.outlier.sd See above
-#' @param  meth.unmeth.outlier.sd See above
-#' @param  control.means.outlier.sd See above
-#' @param  detectionp.samples.threshold See above
-#' @param  beadnum.samples.threshold See above
-#' @param  detectionp.cpgs.threshold See above
-#' @param  beadnum.cpgs.threshold See above
+#' @param  qc.objects From \code{meffil.normalize.objects}
+#' @param  parameters Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}
 #' @export
 #' @return List
 #' @examples \dontrun{
 #'
 #'}
-meffil.pre.processing <- function(samplesheet, norm.objects, colour.code, control.categories=names(norm.objects[[1]]$controls), sex.outlier.sd = 3, meth.unmeth.outlier.sd = 3, control.means.outlier.sd = 5, detectionp.samples.threshold = 0.05, beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05, beadnum.cpgs.threshold = 0.05)
-{
-    p1 <- meffil.plot.sex(samplesheet, norm.objects, outlier.sd=sex.outlier.sd)
-    p2 <- meffil.plot.meth.unmeth(samplesheet, norm.objects, colour.code=colour.code, outlier.sd=meth.unmeth.outlier.sd)
-    p3 <- meffil.plot.controlmeans(samplesheet, norm.objects, control.categories=control.categories, colour.code=colour.code, outlier.sd=control.means.outlier.sd)
-    p4 <- meffil.plot.detectionp.samples(samplesheet, norm.objects, colour.code=colour.code, threshold=detectionp.samples.threshold)
-    p5 <- meffil.plot.detectionp.cpgs(samplesheet, norm.objects, threshold=detectionp.cpgs.threshold)
-    p6 <- meffil.plot.beadnum.samples(samplesheet, norm.objects, colour.code=colour.code, threshold=beadnum.samples.threshold)
-    p7 <- meffil.plot.beadnum.cpgs(samplesheet, norm.objects, threshold=beadnum.cpgs.threshold)
+meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters()) {
+    sex.summary <- meffil.plot.sex(
+        qc.objects,
+        outlier.sd=parameters$sex.outlier.sd
+    )
+    meth.unmeth.summary <- meffil.plot.meth.unmeth(
+        qc.objects, 
+        colour.code=parameters$colour.code, 
+        outlier.sd=parameters$meth.unmeth.outlier.sd
+    )
+    controlmeans.summary <- meffil.plot.controlmeans(
+        qc.objects,
+        control.categories=parameters$control.categories,
+        colour.code=parameters$colour.code,
+        outlier.sd=parameters$control.means.outlier.sd
+    )
+    sample.detectionp.summary <- meffil.plot.detectionp.samples(
+        qc.objects,
+        colour.code=parameters$colour.code,
+        threshold=parameters$detectionp.samples.threshold
+    )
+    cpg.detectionp.summary <- meffil.plot.detectionp.cpgs(
+        qc.objects,
+        threshold=parameters$detectionp.cpgs.threshold
+    )
+    sample.beadnum.summary <- meffil.plot.beadnum.samples(
+        qc.objects,
+        colour.code=parameters$colour.code,
+        threshold=parameters$beadnum.samples.threshold
+    )
+    cpg.beadnum.summary <- meffil.plot.beadnum.cpgs(
+        qc.objects,
+        threshold=parameters$beadnum.cpgs.threshold
+    )
 
 
     # Sex mismatches
-    sex <- subset(p1$tab, sex.mismatch, select=c(Sample_Name, predicted.sex, declared.sex))
+    sex <- subset(sex.summary$tab, sex.mismatch | outliers, select=c(Sample_Name, predicted.sex, declared.sex, xy.diff))
 
 
     # Bad quality samples
-    sexo <- subset(p1$tab, outliers, select=c(Sample_Name))
+    sexo <- subset(sex.summary$tab, outliers, select=c(Sample_Name))
     if(nrow(sexo) > 0) sexo$issue <- "X-Y ratio outlier"
-    methunmeth <- subset(p2$tab, outliers, select=c(Sample_Name))
+    methunmeth <- subset(meth.unmeth.summary$tab, outliers, select=c(Sample_Name))
     if(nrow(methunmeth) > 0) methunmeth$issue <- "Methylated vs Unmethylated"
-    controlmeans <- subset(p3$tab, outliers, select=c(Sample_Name, variable))
+    controlmeans <- subset(controlmeans.summary$tab, outliers, select=c(Sample_Name, variable))
     names(controlmeans) <- c("Sample_Name", "issue")
     if(nrow(controlmeans) > 0) controlmeans$issue <- paste("Control probe (", controlmeans$issue, ")", sep="")
-    detectionp <- subset(p4$tab, outliers, select=c(Sample_Name))
+    detectionp <- subset(sample.detectionp.summary$tab, outliers, select=c(Sample_Name))
     if(nrow(detectionp) > 0) detectionp$issue <- "Detection p-value"
-    beadnum <- subset(p6$tab, outliers, select=c(Sample_Name))
+    beadnum <- subset(sample.beadnum.summary$tab, outliers, select=c(Sample_Name))
     if(nrow(beadnum) > 0) beadnum$issue <- "Low bead numbers"
 
     removeids <- rbind(methunmeth, controlmeans, detectionp, beadnum, sexo)
@@ -323,22 +383,87 @@ meffil.pre.processing <- function(samplesheet, norm.objects, colour.code, contro
 
 
     # Bad quality probes
-    detectionp.cpg <- subset(p5$tab, outliers, select=c(name))
+    detectionp.cpg <- subset(cpg.detectionp.summary$tab, outliers, select=c(name))
     if(nrow(detectionp.cpg) > 0) detectionp.cpg$issue <- "Detection p-value"
-    beadnum.cpg <- subset(p7$tab, outliers, select=c(name))
+    beadnum.cpg <- subset(cpg.beadnum.summary$tab, outliers, select=c(name))
     if(nrow(beadnum.cpg) > 0) beadnum.cpg$issue <- "Low bead number"
 
     removecpgs <- rbind(detectionp.cpg, beadnum.cpg)
     removecpgs <- ddply(removecpgs, .(name), summarise, issue = paste(issue, collapse=", "))
 
-    return(list(sex.mismatch = sex, bad.ids = removeids, bad.cpgs = removecpgs, p1, p2, p3, p4, p5, p6, p7))
+
+    return(list(
+        sex.check = sex,
+        bad.ids = removeids,
+        bad.cpgs = removecpgs,
+        parameters = parameters,
+        sex.summary = sex.summary,
+        meth.unmeth.summary = meth.unmeth.summary,
+        controlmeans.summary = controlmeans.summary,
+        sample.detectionp.summary = sample.detectionp.summary,
+        cpg.detectionp.summary = cpg.detectionp.summary,
+        sample.beadnum.summary = sample.beadnum.summary,
+        cpg.beadnum.summary = cpg.beadnum.summary
+    ))
+}
+
+
+#' Generate QC report
+#'
+#' Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels, 
+#' deviation from control probe means, detection p-values and bead numbers per sample and probe.
+#' 
+#' If output.file is specified then it will generate a report in the form of a html document.
+#'
+#' @param  qc.objects. Output from \code{meffil.qc}.
+#' @param  output.file Default = NULL.
+#' If specified then a html report will be generated summarising the QC.
+#' @param  author Default = "Analyst". Author name to be specified on report.
+#' @param  studyname Default = "IlluminaHuman450 data". Study name to be specified on report.
+#' @param  parameters Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}
+#' @export
+#' @return List of tables and graphs describing QC.
+#' @examples \dontrun{
+#'
+#'}
+meffil.qc.report <- function(
+    qc.objects,
+    output.file = NULL,
+    author = "Analyst",
+    studyname = "IlluminaHuman450 data",
+    parameters = meffil.qc.parameters()
+) {
+    qc.summary <- meffil.qc.summary(qc.objects, parameters)
+    if(!is.null(output.file)) {
+        cat("Writing report as html file to", output.file, "\n")
+        save(qc.summary,
+            author,
+            studyname,
+            file = file.path(tempdir(), "meffil.qc.report.rdata")
+        )
+        rmarkdown::render(system.file("reports", "meffil.qc.report.rmd", package="meffil"), output_file=output.file)
+    }
+    return(qc.summary)
 }
 
 
 
+#' Remove samples from QC objects
+#'
+#'
+#' @param qc.objects Output from \code{\link{meffil.qc}}
+#' @param  idlist.remove Array of Sample_Name IDs to be removed
+#' @export
+#' @return qc.objects with samples removed
+#' @examples \dontrun{
+#'
+#'}
+meffil.remove.ids <- function(qc.objects, idlist.remove)
+{
+    stopifnot(all(idlist.remove %in% names(qc.objects)))
+    qc.objects <- qc.objects[!names(qc.objects) %in% idlist.remove]
+    return(qc.objects)
+}
 
 # Still to do:
 # - Sample mismatches
-
-
-

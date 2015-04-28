@@ -1,0 +1,185 @@
+
+```{r echo=FALSE}
+
+library(knitr)
+library(meffil)
+library(pander)
+opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis")
+read_chunk(system.file("reports", "meffil.qc.report.r", package="meffil"))
+
+```
+
+```{r setup}
+
+# sex.mismatch = sex
+# bad.ids = removeids
+# bad.cpgs = removecpgs
+# parameters = parameters
+# sex.summary = sex.summary
+# meth.unmeth.summary = meth.unmeth.summary
+# controlmeans.summary = controlmeans.summary
+# sample.detectionp.summary = sample.detectionp.summary
+# cpg.detectionp.summary = cpg.detectionp.summary
+# sample.beadnum.summary = sample.beadnum.summary
+# cpg.beadnum.summary = cpg.beadnum.summary
+
+load(file.path(tempdir(), "meffil.qc.report.rdata"))
+
+```
+
+---
+title: QC report for "`r studyname`"
+author: "`r author`"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+* * *
+
+
+## Parameters used for QC
+
+```{r }
+
+pander(qc.summary$parameters)
+
+```
+
+
+## Sex mismatches
+
+There are `r sum(qc.summary$sex.summary$tab$outliers)` sex detection outliers, and `r sum(qc.summary$sex.summary$tab$sex.mismatch)` sex detection mismatches.
+
+```{r }
+
+tab <- qc.summary$sex.check
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+This is a plot of the `xy.diff` values estimated from the methylation data.
+
+```{r }
+
+qc.summary$sex.summary$graph
+
+```
+
+
+## Methylated vs unmethylated
+
+There are `r sum(qc.summary$meth.unmeth.summary$tab$outliers)` outliers from the meth vs unmeth comparison.
+
+```{r }
+
+tab <- subset(qc.summary$meth.unmeth.summary$tab, outliers)
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+This is a plot of the methylation signals vs unmethylated signals
+
+```{r }
+
+qc.summary$meth.unmeth.summary$graph
+
+```
+
+
+## Control probe means
+
+There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detected based on deviations from mean values for control probes.
+
+```{r }
+
+tab <- subset(qc.summary$controlmeans.summary$tab, outliers)
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+The distribution of sample control means are plotted here:
+
+```{r }
+
+qc.summary$controlmeans.summary$graph
+
+```
+
+
+## Sample detection p-values
+
+There were `r sum(qc.summary$sample.detectionp.summary$tab$outliers)` outliers detected based on having low detection p-values
+
+```{r }
+
+tab <- subset(qc.summary$sample.detectionp.summary$tab, outliers)
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+Distribution:
+
+```{r }
+
+qc.summary$sample.detectionp.summary$graph
+
+```
+
+
+## Sample bead numbers
+
+There were `r sum(qc.summary$sample.beadnum.summary$tab$outliers)` outliers detected based on having low average bead numbers
+
+```{r }
+
+tab <- subset(qc.summary$sample.beadnum.summary$tab, outliers)
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+Distribution:
+
+```{r }
+
+qc.summary$sample.beadnum.summary$graph
+
+```
+
+
+## CpG detection p-values
+
+There were `r sum(qc.summary$cpg.detectionp.summary$tab$outliers)` CpGs with low detection p-values.
+
+```{r }
+
+tab <- subset(qc.summary$cpg.detectionp.summary$tab, outliers)
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+Manhattan plot of detection p-values for CpGs:
+
+```{r }
+
+qc.summary$cpg.detectionp.summary$graph
+
+```
+
+## CpG low bead numbers
+
+There were `r sum(qc.summary$cpg.beadnum.summary$tab$outliers)` CpGs with low bead numbers.
+
+```{r }
+
+tab <- subset(qc.summary$cpg.beadnum.summary$tab, outliers)
+if(nrow(tab) > 0) pander(tab)
+
+```
+
+Manhattan plot of detection p-values for CpGs:
+
+```{r }
+
+qc.summary$cpg.beadnum.summary$graph
+
+```

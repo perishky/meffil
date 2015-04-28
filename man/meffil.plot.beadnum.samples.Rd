@@ -4,13 +4,11 @@
 \alias{meffil.plot.beadnum.samples}
 \title{Plot number of beads per sample}
 \usage{
-meffil.plot.beadnum.samples(samplesheet, norm.objects, threshold = 0.05,
+meffil.plot.beadnum.samples(qc.objects, threshold = 0.05,
   colour.code = NULL)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 
 \item{threshold}{Cut off value for proportion of CpGs with low bead numbers. Default 0.05}
 

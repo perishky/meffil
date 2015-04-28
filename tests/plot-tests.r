@@ -31,16 +31,16 @@ norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=10)
 
 
 res <- meffil.pre.processing(
-	samplesheet, 
-	norm.objects, 
-	colour.code = NULL, 
-	control.categories=names(norm.objects[[1]]$controls), 
-	sex.outlier.sd = 3, 
-	meth.unmeth.outlier.sd = 3, 
-	control.means.outlier.sd = 5, 
-	detectionp.samples.threshold = 0.05, 
-	beadnum.samples.threshold = 0.05, 
-	detectionp.cpgs.threshold = 0.05, 
+	samplesheet,
+	norm.objects,
+	colour.code = NULL,
+	control.categories=names(norm.objects[[1]]$controls),
+	sex.outlier.sd = 3,
+	meth.unmeth.outlier.sd = 3,
+	control.means.outlier.sd = 5,
+	detectionp.samples.threshold = 0.05,
+	beadnum.samples.threshold = 0.05,
+	detectionp.cpgs.threshold = 0.05,
 	beadnum.cpgs.threshold = 0.05
 )
 
@@ -58,7 +58,7 @@ design.matrix <- meffil.design.matrix(norm.objects)
 # Potential alternative workflow:
 
 
-# Get sample sheet 
+# Get sample sheet
 # - Sample_Name
 # - Sex
 # - Batch variables (optional)
@@ -74,7 +74,7 @@ qc.objects <- meffil.qc(samplesheet)
 qc.report <- meffil.qc.report(qc.objects)
 
 # Remove individuals (and probes at this stage? Maybe not because bad probes shouldn't have a big effect on normalisation I don't think)
-qc.objects <- meffil.remove.outliers(qc.report$samples, pre.normalization.report$cpgs)
+qc.objects <- meffil.remove.ids(qc.objects, qc.report$bad.ids)
 
 # Normalise
 norm.objects <- meffil.normalize.objects(qc.objects)
@@ -91,12 +91,34 @@ library(meffil)
 options(mc.cores=16)
 
 samplesheet <- meffil.create.samplesheet("~/data/test_meffil")
-qc.objects <- meffil.qc(samplesheet[1:5,], verbose=TRUE)
+# samplesheet$Sex <- 
+# samplesheet$Sample_Name <- 
+qc.objects <- meffil.qc(samplesheet, verbose=TRUE)
+qc.report <- meffil.qc.report(qc.objects)
+qc.objects <- meffil.remove.ids(qc.objects, qc.report$bad.ids)
+qc.quantiles <- meffil.generate.quantiles(qc.objects, number.pcs=2)
+B <- meffil.normalize.samples(qc.quantiles, cpglist.remove=qc.report$bad.cpgs)
 
 
 
-norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
+
+
+
+
+
+
+
+
+
+
+
+B <- meffil.normalize.samples(norm.objects)
+
+qc.objects2 <- meffil.remove.ids(qc.objects, "GSM1338100_6057825094_R01C01")
+
+b <- meffil.normalize.samples(norm.objects, cpglist.remove=c("cg00050873"))
+b1 <- meffil.normalize.samples(norm.objects, cpglist.remove=c("cg00050873", "cg01707559", "dfsf"))
+
 
 B.long <- meffil.normalize.samples(norm.objects)
-
 

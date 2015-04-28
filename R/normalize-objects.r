@@ -64,11 +64,11 @@ meffil.normalize.objects <- function(objects,
         }, simplify=F)
     }, simplify=F)
 
-    lapply(1:length(objects), function(i) {
+    out <- lapply(1:length(objects), function(i) {
         object <- objects[[i]]
         object$reference.intensity <- dye.intensity
 
-        subset.names <- applicable.quantile.probe.subsets(object$sex, has.both.sexes)
+        subset.names <- applicable.quantile.probe.subsets(object$predicted.sex, has.both.sexes)
         object$norm <- sapply(subset.names, function(subset.name) {
             list(M=normalized.quantiles[[subset.name]]$M[,i],
                  U=normalized.quantiles[[subset.name]]$U[,i])
@@ -76,6 +76,8 @@ meffil.normalize.objects <- function(objects,
 
         object
     })
+    names(out) <- sapply(out, function(x) x$Sample_Name)
+    return(out)
 }
 
 #' Infinium HumanMethylation450 BeadChip normalization design matrix

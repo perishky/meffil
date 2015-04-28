@@ -4,12 +4,10 @@
 \alias{meffil.plot.sex}
 \title{Plot predicted sex}
 \usage{
-meffil.plot.sex(samplesheet, norm.objects, outlier.sd = 3)
+meffil.plot.sex(qc.objects, outlier.sd = 3)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
-
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{qc.objects}{From \code{meffil.normalize.objects}}
 }
 \value{
 Data frame of results plus plot
