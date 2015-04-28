@@ -15,12 +15,14 @@ created by \code{\link{meffil.rg.to.mu}}.  If this is not supplied,
 then \code{object} is used to create such an object from the corresponding IDAT files.
 The intensities will have been background corrected and dye bias corrected.}
 
-\item{reference}{Object describing methylation profiles of purified cell populations.}
+\item{reference}{Object describing methylation profiles of purified cell populations
+obtained from \code{\link{meffil.create.cell.type.reference}()}.}
 
 \item{probes}{Probe annotation used to construct the control matrix
 (Default: \code{\link{meffil.probe.info}()}).}
 
-\item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
+\item{verbose}{If \code{TRUE}, then status messages are printed during execution
+(Default: \code{FALSE}).}
 }
 \value{
 A list:

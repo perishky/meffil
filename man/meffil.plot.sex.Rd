@@ -7,9 +7,9 @@
 meffil.plot.sex(samplesheet, norm.objects, outlier.sd = 3)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
+\item{samplesheet}{From \code{\link{read.450k.sheet}()}}
 
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{norm.objects}{From \code{\link{meffil.normalize.objects}()}}
 }
 \value{
 Data frame of results plus plot

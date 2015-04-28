@@ -10,7 +10,10 @@ Depends:  illuminaio,
 	  MASS, 
           limma,
 	  IlluminaHumanMethylation450kmanifest,
-	  IlluminaHumanMethylation450kanno.ilmn12.hg19
+	  IlluminaHumanMethylation450kanno.ilmn12.hg19,
+	  ggplot2,
+	  plyr,
+	  reshape2
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes

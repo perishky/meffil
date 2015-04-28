@@ -5,8 +5,8 @@ library(reshape2)
 
 #' Plot predicted sex
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @export
 #' @return Data frame of results plus plot
 #' @examples \dontrun{
@@ -41,8 +41,8 @@ meffil.plot.sex <- function(samplesheet, norm.objects, outlier.sd=3)
 #'
 #' plot raw control probes and fit linear regression, remove samples that have sd(y - yhat) > mean*3
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  outlier.sd Cut off for declaring outliers. Default = 3
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @export
@@ -79,8 +79,8 @@ meffil.plot.meth.unmeth <- function(samplesheet, norm.objects, outlier.sd=3, col
 
 #' Plot the means of control probes for each sample and for each control probe type
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  control.categories Which control probe categories to plot. Defaults to all available
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @param  outlier.sd Cut off for declaring outliers. Default = 5
@@ -127,8 +127,8 @@ meffil.plot.controlmeans <- function(samplesheet, norm.objects, control.categori
 
 #' Plot detection p values from idat files
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  threshold Cut off value for proportion of CpGs with poor detection p values. Default 0.05
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @export
@@ -164,8 +164,8 @@ meffil.plot.detectionp.samples <- function(samplesheet, norm.objects, threshold 
 
 #' Manhattan plot of detection pval per probe - percentage with pvalue < 0.01
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  threshold Cut off value for proportion of samples with poor detection p values. Default 0.05.
 #' @export
 #' @return Data frame of results plus plot
@@ -197,8 +197,8 @@ meffil.plot.detectionp.cpgs <- function(samplesheet, norm.objects, threshold=0.0
 
 #' Plot number of beads per sample
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  threshold Cut off value for proportion of CpGs with low bead numbers. Default 0.05
 #' @param  colour.code Array of length n samples to colour code points. Defaults to NULL
 #' @export
@@ -234,8 +234,8 @@ meffil.plot.beadnum.samples <- function(samplesheet, norm.objects, threshold = 0
 
 #' Manhattan plot of number of beads by probe - percentage of probes with beads < 3 for each sample
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  threshold Cut off value for proportion of samples with poor detection p values. Default 0.05.
 #' @export
 #' @return Data frame of results plus plot
@@ -274,8 +274,8 @@ meffil.plot.beadnum.cpgs <- function(samplesheet, norm.objects, threshold = 0.05
 
 #' Generate lists of bad probes and bad samples
 #'
-#' @param samplesheet From \code{read.450k.sheet}
-#' @param  norm.objects From \code{meffil.normalize.objects}
+#' @param samplesheet From \code{\link{read.450k.sheet}()}
+#' @param  norm.objects From \code{\link{meffil.normalize.objects}()}
 #' @param  colour.code See above
 #' @param  control.categories See above
 #' @param  sex.outlier.sd See above

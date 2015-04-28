@@ -8,10 +8,12 @@
 #' created by \code{\link{meffil.rg.to.mu}}.  If this is not supplied,
 #' then \code{object} is used to create such an object from the corresponding IDAT files.
 #' The intensities will have been background corrected and dye bias corrected.
-#' @param reference Object describing methylation profiles of purified cell populations.
+#' @param reference Object describing methylation profiles of purified cell populations
+#' obtained from \code{\link{meffil.create.cell.type.reference}()}.
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
-#' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution
+#' (Default: \code{FALSE}).
 #' @return A list:
 #' - \code{counts} Cell count estimates.
 #' - \code{beta} Normalized methylation levels of sites used to differentiate
@@ -33,7 +35,7 @@ meffil.estimate.cell.counts <- function(object, mu=NULL, reference,
     beta <- meffil.get.beta(mu)
     beta <- beta[rownames(reference$beta)]
     counts <- estimate.cell.counts(beta, reference$beta)
-
+    
     list(counts=counts, beta=beta)
 }
 
@@ -81,8 +83,5 @@ estimate.cell.counts <- function(beta, beta.cell.types) {
     names(counts) <- colnames(beta.cell.types)
     counts
 }
-
-
-
 
 

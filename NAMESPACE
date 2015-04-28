@@ -2,6 +2,8 @@
 
 export(meffil.background.correct)
 export(meffil.basenames)
+export(meffil.cell.count.qc.plot)
+export(meffil.cell.type.specific.methylation)
 export(meffil.compute.normalization.object)
 export(meffil.control.matrix)
 export(meffil.create.cell.type.reference)

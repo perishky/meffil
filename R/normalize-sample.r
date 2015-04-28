@@ -1,4 +1,3 @@
-
 #' Normalize Infinium HumanMethylation450 BeadChip
 #'
 #' Normalize sample methylation data using normalized quantiles.

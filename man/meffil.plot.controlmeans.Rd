@@ -9,9 +9,9 @@ meffil.plot.controlmeans(samplesheet, norm.objects,
   colour.code = NULL, outlier.sd = 5)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
+\item{samplesheet}{From \code{\link{read.450k.sheet}()}}
 
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{norm.objects}{From \code{\link{meffil.normalize.objects}()}}
 
 \item{control.categories}{Which control probe categories to plot. Defaults to all available}
 

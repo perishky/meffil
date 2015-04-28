@@ -12,9 +12,9 @@ meffil.pre.processing(samplesheet, norm.objects, colour.code,
   beadnum.cpgs.threshold = 0.05)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
+\item{samplesheet}{From \code{\link{read.450k.sheet}()}}
 
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{norm.objects}{From \code{\link{meffil.normalize.objects}()}}
 
 \item{colour.code}{See above}
 

@@ -4,13 +4,13 @@
 #' estimating cell blood cell counts in methylation profiles.
 #'
 #' @return A list of two objects,
-#' each created by \code{meffil.create.cell.type.reference()}.
+#' each created by \code{\link{meffil.create.cell.type.reference}()}.
 #' The first, named \code{standard}, is a reference based on
 #' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran.
 #' The second, named \code{complete}, is a reference based on 
 #' the same cell types but with Gran replaced by Neu and Eos.
 #' Each of these objects can be passed as the \code{reference}
-#' parameter to the function \code{meffil.estimate.cell.counts()}.
+#' parameter to the function \code{\link{meffil.estimate.cell.counts}()}.
 #'
 #' @export
 meffil.gse35069.references <- function() {

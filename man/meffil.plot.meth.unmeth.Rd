@@ -8,9 +8,9 @@ meffil.plot.meth.unmeth(samplesheet, norm.objects, outlier.sd = 3,
   colour.code = NULL)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
+\item{samplesheet}{From \code{\link{read.450k.sheet}()}}
 
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{norm.objects}{From \code{\link{meffil.normalize.objects}()}}
 
 \item{outlier.sd}{Cut off for declaring outliers. Default = 3}
 

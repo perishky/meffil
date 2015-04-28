@@ -7,9 +7,9 @@
 meffil.plot.beadnum.cpgs(samplesheet, norm.objects, threshold = 0.05)
 }
 \arguments{
-\item{samplesheet}{From \code{read.450k.sheet}}
+\item{samplesheet}{From \code{\link{read.450k.sheet}()}}
 
-\item{norm.objects}{From \code{meffil.normalize.objects}}
+\item{norm.objects}{From \code{\link{meffil.normalize.objects}()}}
 
 \item{threshold}{Cut off value for proportion of samples with poor detection p values. Default 0.05.}
 }

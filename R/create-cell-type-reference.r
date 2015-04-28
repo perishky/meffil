@@ -3,7 +3,7 @@
 #' Create a cell type reference object for estimating cell counts
 #' with the Infinium HumanMethylation450 BeadChip.
 #'
-#' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
+#' @param basename IDAT file basename (see \code{\link{meffil.basenames}()}).
 #' @param cell.types Vector of cell type names corresponding to sample \code{basename}s.
 #' @param probes Probe annotation used to construct the control matrix
 #' (Default: \code{\link{meffil.probe.info}()}).
@@ -15,12 +15,12 @@
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @return A list specifying a cell type reference object that can be used by
-#' \code{meffil.estimate.cell.counts()} can use to estimate cell counts.
+#' \code{\link{meffil.estimate.cell.counts}()} can use to estimate cell counts.
 #' The object is a list containing:
 #' - \code{beta} The normalized methylation values of sites
 #' differentially methylated between cell types.
 #' - \code{norm.objects} The normalization objects used to compute \code{beta}
-#' using \code{meffil.normalize.objects()} corresponding to the IDAT files
+#' using \code{\link{meffil.normalize.objects}()} corresponding to the IDAT files
 #' identified by \code{basenames}.
 #' - \code{quantiles} The average quantiles of methylated and unmethylated signals
 #' of probe sets defined by \code{subsets} (see below).

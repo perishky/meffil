@@ -219,13 +219,11 @@ quantile(sex.minfi[rownames(sex.meffil),"yMed"] - sex.meffil$y.signal)
 ## Cell count estimates
 
 ```{r, results="hide"}
-counts.meffil <- mclapply(norm.objects,
-                          meffil.estimate.cell.counts,
-                          reference=meffil.gse35069.references()$standard,
-                          verbose=T)
-counts.meffil.beta <- sapply(counts.meffil, function(x) x$beta)
-counts.meffil <- t(sapply(counts.meffil, function(x) x$counts))
-colnames(counts.meffil) <- gsub("cell.types", "", colnames(counts.meffil))
+counts.meffil.objects <- mclapply(norm.objects,
+                                  meffil.estimate.cell.counts,
+                                  reference=meffil.gse35069.references()$standard,
+                                  verbose=T)
+counts.meffil <- t(sapply(counts.meffil.objects, function(x) x$counts))
 ```
 
 ```{r, results="hide"}
@@ -234,7 +232,7 @@ counts.minfi <- counts.minfi[rownames(counts.meffil), colnames(counts.meffil)]
 ```
 
 ```{r}
-unname(sapply(rownames(counts.meffil), function(i) cor(counts.meffil[i,], counts.minfi[i,])))
+sapply(rownames(counts.meffil), function(i) cor(counts.meffil[i,], counts.minfi[i,]))
 sapply(colnames(counts.meffil), function(i) cor(counts.meffil[,i], counts.minfi[,i]))
 ```
 
@@ -242,7 +240,7 @@ sapply(colnames(counts.meffil), function(i) cor(counts.meffil[,i], counts.minfi[
 library(Cairo, quietly=TRUE)
 ```
 
-```{r, dev=CairoPNG}
+```{r, dev="CairoPNG"}
 for (cell.type in colnames(counts.meffil)) {
     lim <- range(c(counts.meffil[,cell.type], counts.minfi[,cell.type]))
     plot(counts.meffil[,cell.type], counts.minfi[,cell.type], pch=19,
@@ -253,6 +251,16 @@ for (cell.type in colnames(counts.meffil)) {
 }
 ```
 
+```{r, dev="CairoPNG"}
+meffil.cell.count.qc.plot(counts.meffil.objects, meffil.gse35069.references()$standard)
+```
 
-This file was generated from R markdown
-using `knitr::knit("functional-normalization.rmd")`.
+
+This file was generated from R markdown:
+
+```{r, eval=F}
+library(knitr)
+knit("functional-normalization.rmd")
+library(markdown)
+markdownToHTML("functional-normalization.md","functional-normalization.html")
+```

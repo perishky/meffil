@@ -1,9 +1,21 @@
-meffil.cell.type.specific.methylation <- function(beta, cell.types, num.sites=50, verbose=F) {
+#' Reduce methylation profiles to most cell-type specific sites
+#'
+#' @param beta Numeric matrix (values = 0..1; rows = CpG sites; columns = samples).
+#' @param cell.types Name of cell type for each column of beta.
+#' @param number.sites For each cell type, the number of sites less methylated and the number
+#' more methylated than other cell types to include in the reduced methylation profiles.
+#' @return Numeric matrix (values = 0..1; rows = CpG sites; columns = cell types)
+#' with \code{number.sites} CpG sites per cell type more methylated than other cell types
+#' and the same number less methylated.  Values are the mean CpG site methylation levels
+#' of all original samples of the same cell type.#
+#'
+#' @export
+meffil.cell.type.specific.methylation <- function(beta, cell.types, number.sites=50, verbose=F) {
     msg("cell types", paste(unique(cell.types), collapse=", "), verbose=verbose)
 
     stopifnot(is.matrix(beta))
     stopifnot(ncol(beta) == length(cell.types))
-    stopifnot(num.sites > 0 && num.sites < nrow(beta))
+    stopifnot(number.sites > 0 && number.sites < nrow(beta))
 
     number.cell.types <- length(unique(cell.types))
     design <- model.matrix(~ 0 + cell.types)
@@ -17,8 +29,8 @@ meffil.cell.type.specific.methylation <- function(beta, cell.types, num.sites=50
     fit.eb <- limma::eBayes(contrasts.fit(fit, contrasts))
     
     sites.idx <- apply(fit.eb$t, 2, function(t.statistics) {        
-        c(order(t.statistics, decreasing=F)[1:num.sites],
-          order(t.statistics, decreasing=T)[1:num.sites])
+        c(order(t.statistics, decreasing=F)[1:number.sites],
+          order(t.statistics, decreasing=T)[1:number.sites])
     })
     sites.idx <- unique(as.vector(sites.idx))
 
