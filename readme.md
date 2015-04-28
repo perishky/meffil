@@ -1,95 +1,70 @@
 # meffil
 Efficient algorithms for analyzing DNA methylation data.
 
-## Functional normalization
-The `minfi` version consists of a single function call
-that requires access to all data.
-The `meffil` version splits the method up into several functions
-in order to allow parallelization
-and to reduce the amount of data that needs to be loaded.
 
-### `minfi`
-Code for applying the `minfi` functional normalization algorithm
-to a dataset (source directory unspecified).
-```r
-library(minfi)
-path <- ....
-example <- read.450k.exp(path)
-example.norm <- preprocessFunnorm(example, nPCs=2, sex=NULL,
-                                  bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE)
-```
-### `meffil` (short version)
-Here is the simplest way to apply the `meffil` version.
-```r
-library(meffil)
-options(mc.cores=6)
-B <- meffil.normalize.dataset(path=path, number.pcs=2)
-```
-In this implementation, data for each sample is handled one at a time
-until the final step when normalized beta values are merged into
-a single dataset-wide matrix `B`.
-Consequently memory use is minimized.
+Get some data:
 
-`parallel::mclapply` is used to use multiple processors
-in order to reduce processing time; hence
-`mc.cores` should be set to the number of processors
-available for normalization.
-By default, `mc.cores` is set to 2.
+	dir.create(path <- "~/data/test_meffil", recursive=TRUE)
 
-### `meffil` (long version)
-The long `meffil` version is available in order to
-improve performance using parallel computing.
-The example below uses `mclapply` as in
-`meffil.normalize.dataset` above to
-spread computation across multiple processors.
+	if (length(list.files(path, "*.idat$")) == 0) {
+	  filename <-  file.path(path, "gse55491.tar")
+	  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
+	  cat(date(), "Extracting files from GEO archive.\n")
+	  system(paste("cd", path, ";", "tar xvf", basename(filename)))
+	  unlink(filename)
+	  cat(date(), "Unzipping IDAT files.\n")
+	  system(paste("cd", path, ";", "gunzip *.idat.gz"))
+	}
 
-Load the `meffil` code and raw data file information.
-```r
-library(meffil)
-options(mc.cores=6)
-basenames <- meffil.basenames(path)
-```
+Load up `meffil`
 
-Background and dye correct each sample and the compute probe controls and quantiles
-for each sample.
-```r
-norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
-```
+	library(devtools)
+	github_install("perishky/meffil@restructure1")
+	library(meffil)
+	options(mc.cores=16)
 
-Normalize the resulting quantiles together.
-```r
-norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
-```
+These data don't actually have a samplesheet, so we can generate one from the `.idat` basenames:
 
-Transform the methylation data to fit the normalized quantiles
-and return resulting beta-values.
-```r
-B.long <- do.call(cbind, mclapply(norm.objects, function(object) {
-    meffil.get.beta(meffil.normalize.sample(object))
-}))
-```
+	samplesheet <- meffil.create.samplesheet(path)
 
-We note that if the number of samples is large (i.e. larger than about 500),
-then `mclapply` as used above will fail.
-We provide an alternative that applies `mclapply` to appropriately sized
-subsets of the list of objects.
+The function creates the following necessary columns:
 
-```r
-B.long <- meffil.normalize.samples(norm.objects)
-```
+- Sample_Name
+- Sex
+- Basenames
 
-### Deciding on the number of principal components
+And it also tries to parse the basenames to guess if the Sentrix plate and positions are present. At this point it is worthwhile to manually modify the `samplesheet` data.frame to replace the actual sample IDs in the `Sample_Name` column if necessary, and to add the sex values to the `Sex` column. Don't change these column names though.
 
-The function `meffil.normalize.objects()` has a parameter `number.pcs`
-indicating the number of principal components to
-include in the normalization linear model design matrix.
-The default is 2 but there may be cases that justify using a larger number.
-To decide, it is possible to obtain the design matrix
-that will be used by `meffil.normalize.objects()`.
+Perform the background correction, dye bias correction and sex prediction:
 
-The following returns the design matrix containing two principal components.
-```r
-design.matrix <- meffil.design.matrix(norm.objects, number.pcs=2)
-```
+	qc.objects <- meffil.qc(samplesheet, verbose=TRUE)
 
-If `number.pcs` is left undefined, all principal components will be included.
+We can now summarise the QC analysis of the raw data
+
+	qc.summary <- meffil.qc.summary(qc.objects)
+
+and generate a report:
+	
+	meffil.qc.report(qc.summary)
+
+This creates a html file, by default called `meffil.qc.report.html` in the current work directory. Should open up in your web browser.
+
+You can remove bad samples prior to performing quantile normalization:
+
+	qc.objects <- meffil.remove.ids(qc.objects, qc.summary$bad.ids)
+
+And now perform quantile normalization:
+
+	qc.quantiles <- meffil.normalize.quantiles(qc.objects, number.pcs=10)
+
+Finally, the `beta` values can be generated, whilst removing CpGs that were found to be dodgy in the QC analysis:
+
+	normalized.beta <- meffil.normalize.samples(qc.quantiles, cpglist.remove=qc.report$bad.cpgs$name)
+
+A summary report of the normalization performance can also be generated:
+
+	normalization.summary <- meffil.normalization.summary(normalized.beta, qc.quantiles)
+	meffil.normalization.report(normalization.summary)
+
+By default this will create a file called `meffil.normalization.report.html`.
+
