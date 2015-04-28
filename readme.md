@@ -1,6 +1,43 @@
 # meffil
 Efficient algorithms for analyzing DNA methylation data.
 
+The `minfi` version consists of a single function call that requires access to all data. The `meffil` version splits the method up into several functions in order to allow parallelization and to reduce the amount of data that needs to be loaded.
+
+
+## Overview
+
+	# Load meffil and set how many cores to use for parallelization
+	library(meffil)
+	options(mc.cores=6)
+
+	# Generate samplesheet
+	samplesheet <- meffil.create.samplesheet(path_to_idat_files)
+
+	# Or read in samplesheet
+	samplesheet <- meffil.read.samplesheet(path_to_idat_files)
+
+	# Background and dye bias correction, sexprediction
+	qc.objects <- meffil.qc(samplesheet, verbose=TRUE)
+
+	# Generate QC report
+	qc.summary <- meffil.qc.summary(qc.objects)
+	meffil.qc.report(qc.summary)
+
+	# Remove outlier samples if necessary
+	qc.objects <- meffil.remove.ids(qc.objects, qc.summary$bad.ids)
+
+	# Perform quantile normalization
+	qc.quantiles <- meffil.normalize.quantiles(qc.objects, number.pcs=10)
+
+	# Generate normalized probe values
+	normalized.beta <- meffil.normalize.samples(qc.quantiles, cpglist.remove=qc.report$bad.cpgs$name)
+
+	# Generate normalization report
+	normalization.summary <- meffil.normalization.summary(normalized.beta, qc.quantiles)
+	meffil.normalization.report(normalization.summary)
+
+
+## More info
 
 Get some data:
 
@@ -67,4 +104,6 @@ A summary report of the normalization performance can also be generated:
 	meffil.normalization.report(normalization.summary)
 
 By default this will create a file called `meffil.normalization.report.html`.
+
+
 
