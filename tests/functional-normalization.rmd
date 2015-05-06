@@ -2,6 +2,10 @@
 
 ## Download example data set 
 
+> Prickett AR, Ishida M, Böhm S, Frost JM et al. Genome-wide methylation
+> analysis in Silver-Russell syndrome patients. Hum Genet 2015
+> Mar;134(3):317-32. PMID: 25563730
+
 Retrieve the data from the Gene Expression Omnibus (GEO) website
 (http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
 
@@ -33,7 +37,7 @@ library(minfi, quietly=TRUE)
 ```
 
 Normalize using the minfi package.
-```{r, cache=T}
+```{r functional-normalization-minfi, cache=T}
 raw.minfi <- read.450k.exp(base = path)
 system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
                                             sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE))
@@ -42,48 +46,67 @@ system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
 ## Load and normalize using `meffil`
 
 ```{r}
-options(mc.cores=6)
+options(mc.cores=10)
 ```
 
 Load the code, probe annotation and sample filename information.
-```{r}
+```{r functional-normalization-meffil-long, cache=T}
 library(meffil)
-probes <- meffil.probe.info()
-basenames <- meffil.basenames(path)
+samplesheet <- meffil.create.samplesheet(path)
+meffil.get.cell.type.references()
+meffil.set.current.cell.type.reference("blood gse35069")
+
+qc.file <- "gse55491/qc-report.html"
+author <- "Prickett, et al."
+study <- "Silver-Russell syndrome patients (GEO:GSE55491)"
+number.pcs <- 2
+temp.dir <- "."
+norm.file <- "gse55491/normalization-report.html"
+
+qc.objects <- meffil.qc(samplesheet, verbose=T)
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+if (nrow(qc.summary$bad.samples) > 0)
+    qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+norm.meffil <- meffil.normalize.samples(norm.objects,
+                                        beta=F, 
+                                        cpglist.remove=qc.summary$bad.cpgs$name,
+                                        temp.dir=temp.dir,
+                                        verbose=T)
+beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
+norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, verbose=T)
+meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
 ```
 
-Collect controls, perform background and dye bias correction and then
-compute quantiles for each sample, one at a time.
-```{r}
-norm.objects <- mclapply(basenames, meffil.compute.normalization.object)
-```
- 
-Normalize quantiles from each sample using the control
-matrix to identify batch effects.
-```{r}
-norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2)
-```
-
-Apply quantile normalization to methylation levels of each sample.
-```{r}
-B.meffil <- do.call(cbind, mclapply(norm.objects, function(object) {
-    meffil.get.beta(meffil.normalize.sample(object)) 
-})) 
+```{r functional-normalization-meffil-short, cache=T}
+norm.meffil2 <- meffil.normalize.dataset(samplesheet,
+                                        qc.file=qc.file,
+                                        author=author,
+                                        study=study,
+                                        number.pcs=number.pcs,
+                                        beta=T,
+                                        temp.dir=temp.dir,
+                                        norm.file=norm.file,
+                                        verbose=T)
+beta.meffil.2 <- norm.meffil2$data
 ```
 
-Make sure both methods for normalizing samples produce the same output.
 ```{r}
-B.meffil.2 <- meffil.normalize.samples(norm.objects)
-B.meffil.3 <- meffil.normalize.dataset(path, number.pcs=2)
-quantile(B.meffil - B.meffil.2[rownames(B.meffil),])
-quantile(B.meffil - B.meffil.3[rownames(B.meffil),])
+quantile(beta.meffil - beta.meffil.2[rownames(beta.meffil),])
 ```
 
 ## Compare normalizations
 
 First make sure that the raw data is the same.
 ```{r}
-raw.meffil <- meffil.read.rg(basenames[1])
+raw.meffil <- meffil:::read.rg(samplesheet$Basename[1])
 all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 ```
 
@@ -91,8 +114,8 @@ all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 
 Apply `meffil` background correction.
 ```{r, results='hide'}
-bc.meffil <- meffil.background.correct(raw.meffil)
-M.meffil <- meffil.rg.to.mu(bc.meffil)$M
+bc.meffil <- meffil:::background.correct(raw.meffil)
+M.meffil <- meffil:::rg.to.mu(bc.meffil)$M
 ```
 
 Apply `minfi` background correction.
@@ -109,10 +132,10 @@ quantile(M.meffil - M.minfi)
 ### Dye bias correction
 Apply `meffil` correction.
 ```{r, results='hide'}
-dye.meffil <- meffil.dye.bias.correct(bc.meffil,
-                                      intensity=norm.objects[[1]]$reference.intensity)
-M.meffil <- meffil.rg.to.mu(dye.meffil)$M
-U.meffil <- meffil.rg.to.mu(dye.meffil)$U
+dye.meffil <- meffil:::dye.bias.correct(bc.meffil,
+                                        intensity=norm.objects[[1]]$reference.intensity)
+M.meffil <- meffil:::rg.to.mu(dye.meffil)$M
+U.meffil <- meffil:::rg.to.mu(dye.meffil)$U
 ```
 
 Apply `minfi` background and dye bias correction.
@@ -166,15 +189,16 @@ quantile(control.matrix.meffil - control.matrix.minfi)
 ### Final beta values
 
 ```{r}
-B.minfi <- getBeta(norm.minfi)
-quantile(B.meffil - B.minfi[rownames(B.meffil),])
+beta.minfi <- getBeta(norm.minfi)
+quantile(beta.meffil - beta.minfi[rownames(beta.meffil),])
 ```
 
 On what chromosomes are the biggest differences appearing?
 ```{r}
-probe.chromosome <- probes$chr[match(rownames(B.meffil), probes$name)]
-sex <- sapply(norm.objects, function(object) object$sex)
-is.diff <- abs(B.meffil - B.minfi[rownames(B.meffil),]) > 1e-4
+probes <- meffil.probe.info()
+probe.chromosome <- probes$chr[match(rownames(beta.meffil), probes$name)]
+sex <- sapply(norm.objects, function(object) object$predicted.sex)
+is.diff <- abs(beta.meffil - beta.minfi[rownames(beta.meffil),]) > 1e-4
 table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])
 table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])
 table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])
@@ -185,20 +209,21 @@ and chromosome X is handled just like `minfi` in females but not in males.
 
 ```{r}
 autosomal.cgs <- unique(probes$name[which(probes$chr %in% paste("chr", 1:22, sep=""))])
-quantile(B.meffil[autosomal.cgs,] - B.minfi[autosomal.cgs,])
+autosomal.cgs <- intersect(autosomal.cgs, rownames(beta.meffil))
+quantile(beta.meffil[autosomal.cgs,] - beta.minfi[autosomal.cgs,])
 ```
 
 In spite of the differences, CG correlations between methods are pretty close to 1.
 ```{r}
 male.idx <- which(rowSums(is.diff[,sex=="M"]) >= 5)
 male.cg.r <- unlist(mclapply(male.idx, function(idx) {
-    cor(B.meffil[idx, sex=="M"], B.minfi[rownames(B.meffil)[idx], sex=="M"])
+    cor(beta.meffil[idx, sex=="M"], beta.minfi[rownames(beta.meffil)[idx], sex=="M"])
 }))
 quantile(male.cg.r, probs=c(0.05,0.1,0.25,0.5))
 
 female.idx <- which(rowSums(is.diff[,sex=="F"]) > 0)
 female.cg.r <- sapply(female.idx[1:200], function(idx) {
-    cor(B.meffil[idx, sex=="F"], B.minfi[rownames(B.meffil)[idx], sex=="F"])
+    cor(beta.meffil[idx, sex=="F"], beta.minfi[rownames(beta.meffil)[idx], sex=="F"])
 })
 quantile(female.cg.r, probs=c(0.05,0.1,0.25, 0.5))
 ```
@@ -208,7 +233,7 @@ quantile(female.cg.r, probs=c(0.05,0.1,0.25, 0.5))
 ```{r}
 sex.minfi <- as.data.frame(getSex(norm.minfi))
 names(norm.objects) <- sapply(norm.objects, function(obj) basename(obj$basename))
-sex.meffil <- data.frame(predicted=sapply(norm.objects, function(obj) obj$sex),
+sex.meffil <- data.frame(predicted=sapply(norm.objects, function(obj) obj$predicted.sex),
                          x.signal=sapply(norm.objects, function(obj) obj$x.signal),
                          y.signal=sapply(norm.objects, function(obj) obj$y.signal))
 all(sex.minfi[rownames(sex.meffil),"predictedSex"] == sex.meffil$predicted)
@@ -219,11 +244,7 @@ quantile(sex.minfi[rownames(sex.meffil),"yMed"] - sex.meffil$y.signal)
 ## Cell count estimates
 
 ```{r, results="hide"}
-counts.meffil.objects <- mclapply(norm.objects,
-                                  meffil.estimate.cell.counts,
-                                  reference=meffil.gse35069.references()$standard,
-                                  verbose=T)
-counts.meffil <- t(sapply(counts.meffil.objects, function(x) x$counts))
+counts.meffil <- t(meffil.cell.count.estimates(norm.objects))
 ```
 
 ```{r, results="hide"}
@@ -250,11 +271,6 @@ for (cell.type in colnames(counts.meffil)) {
     abline(a=0,b=1,col="red")
 }
 ```
-
-```{r, dev="CairoPNG"}
-meffil.cell.count.qc.plot(counts.meffil.objects, meffil.gse35069.references()$standard)
-```
-
 
 This file was generated from R markdown:
 

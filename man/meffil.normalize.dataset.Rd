@@ -4,47 +4,60 @@
 \alias{meffil.normalize.dataset}
 \title{Functional normalization}
 \usage{
-meffil.normalize.dataset(path, recursive = F, filenames, number.pcs = 2,
-  sex = NULL, beta = T, pseudo = 100, probes = meffil.probe.info(),
-  verbose = F, temp.dir = NULL, ...)
+meffil.normalize.dataset(samplesheet, number.quantiles = 500,
+  detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
+  qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
+  author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
+  beta = T, pseudo = 100, temp.dir = NULL, norm.parameters = NULL,
+  norm.file = "meffil-normalization-report.md", verbose = FALSE)
 }
 \arguments{
-\item{path}{Directory containing the idat files.  Ignored if \code{filenames} is defined.}
+\item{samplesheet}{Output from \code{\link{meffil.read.samplesheet}()} or
+\code{\link{meffil.create.samplesheet}()}.
 
-\item{recursive}{If \code{TRUE}, any idat file in \code{path} or a subdirectory is included
-in the normalization; otherwise, only those in the immediate directory are included
+Arguments to \code{\link{meffil.qc}()}:}
+
+\item{number.quantiles}{}
+
+\item{detection.threshold}{}
+
+\item{bead.threshold}{}
+
+\item{sex.cutoff}{Argument to \code{\link{meffil.qc.summary}()}:}
+
+\item{qc.parameters}{(parameters)
+
+Arguments to \code{\link{meffil.qc.report}()}:}
+
+\item{qc.file}{(output.file)}
+
+\item{author}{}
+
+\item{study}{Arguments to \code{\link{meffil.normalize.quantiles}()}:}
+
+\item{number.pcs}{Arguments to \code{\link{meffil.normalize.samples}()}:}
+
+\item{beta}{}
+
+\item{pseudo}{}
+
+\item{temp.dir}{Arguments to \code{\link{meffil.normalization.summary}()}:}
+
+\item{norm.parameters}{(parameters)}
+
+\item{norm.file}{(output.file)
+
+Other:}
+
+\item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
-
-\item{filenames}{Optional character vector
-listing the idat files to include in the normalization. Filenames may omit
-the "_Grn.idat"/"_Red.idat" suffix.}
-
-\item{number.pcs}{Number of control matrix principal components to adjust for (Default: 2).}
-
-\item{sex}{Optional character vector assigning a sex label ("M" or "F") to each sample.}
-
-\item{beta}{If \code{TRUE} (default), then the function returns
-the normalized matrix of methylation levels; otherwise, it returns
-the normalized matrices of methylated and unmethylated signals.}
-
-\item{pseudo}{Value to add to the denominator to make the methylation
-estimate more stable when calculating methylation levels (Default: 100).}
-
-\item{probes}{Probe annotation used to construct the control matrix
-(Default: \code{\link{meffil.probe.info}()}).}
-
-\item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
-
-\item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}.}
 }
 \value{
-Matrix of normalized methylation levels if \code{beta} is \code{TRUE};
-otherwise matrices of normalized methylated and unmethylated signals.
-Matrices returned have one column per sample and one row per CpG site.
-Methylation levels are values between 0 and 1
-equal to methylated signal/(methylated + unmethylated signal + pseudo).
-
-Normalized beta matrix (rows = CG sites, columns = samples, values = 0..1).
+A list:
+- qc.summary \code{\link{meffil.qc.summary}()} output.
+- norm \code{\link{meffil.normalize.quantiles}()} output.
+- data \code{\link{meffil.normalize.samples}()} output.
+- norm.summary \code{\link{meffil.normalization.summary}()} output.
 }
 \description{
 Apply functional normalization to a set of Infinium HumanMethylation450 BeadChip IDAT files.

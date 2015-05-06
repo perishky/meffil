@@ -6,14 +6,10 @@
 #' Reads Cy5 and Cy3 files for a given Infinium HumanMethylation450 BeadChip.
 #'
 #' @param basename IDAT file basename (see \code{\link{meffil.basenames}}).
-#' @param probes Probe annotation used to construct the control matrix
-#' (Default: \code{\link{meffil.probe.info}()}).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing raw Cy5 ('R') and Cy3 ('G') data including
 #' the intensity mean, intensity standard deviation and number of contributing beads.
-#'
-#' @export
-meffil.read.rg <- function(basename, probes=meffil.probe.info(), verbose=F) {
+read.rg <- function(basename, verbose=F) {
     rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = ""), verbose=verbose),
                R=read.idat(paste(basename, "_Red.idat", sep=""), verbose=verbose))
 

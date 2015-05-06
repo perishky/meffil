@@ -4,22 +4,17 @@
 \alias{meffil.probe.info}
 \title{Probe type and location annotation}
 \usage{
-meffil.probe.info(array = "IlluminaHumanMethylation450k",
-  annotation = "ilmn12.hg19", verbose = F)
-}
-\arguments{
-\item{array}{Microarray identifier (Default: "IlluminaHumanMethylation450k").}
-
-\item{annotation}{Genomic probe locations annotation (Default: "ilmn12.hg19").}
-
-\item{verbose}{If \code{TRUE}, then status messages printed during execution (Default: \code{FALSE}).}
+meffil.probe.info()
 }
 \value{
-Data frame listing all probes along with annotation information on the micorarray.
+The data frame being used to annotate
+the Infinium HumanMethylation450 BeadChip.
+The default uses \code{\link[minfi]{getProbeInfo}()}
+and \code{\link[IlluminaHumanMethylation450k]{IlluminaHumanMethylation450kmanifest}}
+extensively.  Probe locations are obtained using
+\code{\link[IlluminaHumanMethylation450kanno.ilmn12.hg19]{IlluminaHumanMethylation450kanno.ilmn12.hg19}}.
 }
 \description{
-Constructs an data frame annotating probe types
-for the Infinium HumanMethylation450 BeadChip
-based on \code{\link[minfi]{getProbeInfo}()}.
+Probe type and location annotation
 }
 

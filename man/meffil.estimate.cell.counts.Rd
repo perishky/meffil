@@ -4,22 +4,10 @@
 \alias{meffil.estimate.cell.counts}
 \title{Estimate cell counts from a reference}
 \usage{
-meffil.estimate.cell.counts(object, mu = NULL, reference,
-  probes = meffil.probe.info(), verbose = F)
+meffil.estimate.cell.counts(object, verbose = T)
 }
 \arguments{
-\item{object}{An object created by \code{\link{meffil.compute.normalization.object}()}.}
-
-\item{mu}{(Optional) Methylated and unmethylated intensities for a sample
-created by \code{\link{meffil.rg.to.mu}}.  If this is not supplied,
-then \code{object} is used to create such an object from the corresponding IDAT files.
-The intensities will have been background corrected and dye bias corrected.}
-
-\item{reference}{Object describing methylation profiles of purified cell populations
-obtained from \code{\link{meffil.create.cell.type.reference}()}.}
-
-\item{probes}{Probe annotation used to construct the control matrix
-(Default: \code{\link{meffil.probe.info}()}).}
+\item{object}{An object created by \code{\link{meffil.create.qc.object}()}.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
@@ -28,6 +16,7 @@ obtained from \code{\link{meffil.create.cell.type.reference}()}.}
 A list:
 - \code{counts} Cell count estimates.
 - \code{beta} Normalized methylation levels of sites used to differentiate
+- \code{reference} Name of the cell type reference used.
 between reference cell types.
 
 Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.

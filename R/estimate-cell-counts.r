@@ -3,43 +3,47 @@
 #' Estimate cell type ratios from methylation profiles of purified cell populations
 #' (Infinium HumanMethylation450 BeadChip).
 #'
-#' @param object An object created by \code{\link{meffil.compute.normalization.object}()}.
-#' @param mu (Optional) Methylated and unmethylated intensities for a sample
-#' created by \code{\link{meffil.rg.to.mu}}.  If this is not supplied,
-#' then \code{object} is used to create such an object from the corresponding IDAT files.
-#' The intensities will have been background corrected and dye bias corrected.
-#' @param reference Object describing methylation profiles of purified cell populations
-#' obtained from \code{\link{meffil.create.cell.type.reference}()}.
-#' @param probes Probe annotation used to construct the control matrix
-#' (Default: \code{\link{meffil.probe.info}()}).
+#' @param object An object created by \code{\link{meffil.create.qc.object}()}.
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @return A list:
 #' - \code{counts} Cell count estimates.
 #' - \code{beta} Normalized methylation levels of sites used to differentiate
+#' - \code{reference} Name of the cell type reference used.
 #' between reference cell types.
 #'
 #' Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 #' 
 #' @export
-meffil.estimate.cell.counts <- function(object, mu=NULL, reference,  
-                                        probes=meffil.probe.info(), verbose=F) {
+meffil.estimate.cell.counts <- function(object, verbose=T) {
+    stopifnot(is.qc.object(object))
 
-    stopifnot(is.cell.type.reference(reference))
-    
-    mu <- meffil.quantile.normalize.sample(object, mu=mu,
-                                           subsets=reference$subsets,
-                                           quantiles=reference$quantiles,
-                                           probes=probes, verbose=verbose)
-    
-    beta <- meffil.get.beta(mu)
-    beta <- beta[rownames(reference$beta)]
-    counts <- estimate.cell.counts(beta, reference$beta)
-    
-    list(counts=counts, beta=beta)
+    rg <- read.rg(object$basename, verbose=verbose)
+    rg <- background.correct(rg, verbose=verbose)
+    rg <- dye.bias.correct(rg, object$reference.intensity, verbose=verbose)
+    mu <- rg.to.mu(rg)
+
+    estimate.cell.counts.from.mu(mu, verbose)
 }
 
+estimate.cell.counts.from.mu <- function(mu, verbose=F) {
+    reference.name <- meffil.get.current.cell.type.reference()
+    if (is.null(reference.name))
+        stop("No cell type reference has been selected with meffil.set.current.cell.type.reference().")
 
+    reference.object <- get.cell.type.reference.object(reference.name)
+
+    mu <- quantile.normalize.signals(mu, reference.object$subsets, reference.object$quantiles, verbose=F)
+    beta <- get.beta(mu$M, mu$U)
+    beta <- beta[rownames(reference.object$beta)]
+    counts <- estimate.cell.counts.from.beta(beta, reference.object$beta)
+    
+    list(origin="meffil.estimate.cell.counts", counts=counts, beta=beta, reference=reference.name)
+}    
+
+is.cell.count.object <- function(object) {
+    object$origin == "meffil.estimate.cell.counts"
+}
 
 ## Input:
 ## beta[CpG] = methylation level of the CpG in the sample
@@ -51,7 +55,7 @@ meffil.estimate.cell.counts <- function(object, mu=NULL, reference,
 ## subject to counts >= 0.
 ##
 ## Based on code from PMID 22568884.
-estimate.cell.counts <- function(beta, beta.cell.types) {
+estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
     stopifnot(length(beta) == nrow(beta.cell.types))
     
     ## Let r = counts[cell type],

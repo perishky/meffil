@@ -3,25 +3,38 @@
 
 #' Probe type and location annotation
 #'
-#' Constructs an data frame annotating probe types
-#' for the Infinium HumanMethylation450 BeadChip
-#' based on \code{\link[minfi]{getProbeInfo}()}.
-#'
-#' @param array Microarray identifier (Default: "IlluminaHumanMethylation450k").
-#' @param annotation Genomic probe locations annotation (Default: "ilmn12.hg19").
-#' @param verbose If \code{TRUE}, then status messages printed during execution (Default: \code{FALSE}).
-#' @return Data frame listing all probes along with annotation information on the micorarray.
-#'
+#' @return The data frame being used to annotate
+#' the Infinium HumanMethylation450 BeadChip.
+#' The default uses \code{\link[minfi]{getProbeInfo}()}
+#' and \code{\link[IlluminaHumanMethylation450k]{IlluminaHumanMethylation450kmanifest}}
+#' extensively.  Probe locations are obtained using
+#' \code{\link[IlluminaHumanMethylation450kanno.ilmn12.hg19]{IlluminaHumanMethylation450kanno.ilmn12.hg19}}.
+#' 
 #' @export
-meffil.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
-    msg(verbose=verbose)
-    if (array=="IlluminaHumanMethylation450k" && annotation=="ilmn12.hg19") {
-        return(probe.info) ## precomputed, see code in ../data-raw/
-    }
-    else {
-        collate.probe.info(array, annotation, verbose=verbose)
-    }
+meffil.probe.info <- function() {
+    if (!exists("probe.info", pkg.globals))
+        stop("probe.info object not created, see data-raw/globals.r")
+    get("probe.info", pkg.globals)
 }
+
+#' Change probe type and location annotation
+#'
+#' This function will fail if expected columns are missing.
+#' See the existing annotation by calling \code{\link{meffil.probe.info}()}.
+#' 
+#' @export
+meffil.set.probe.info <- function(probe.info) {
+    stopifnot(is.data.frame(probe.info))
+
+    if (exists("probe.info", pkg.globals)) {
+        columns <- colnames(get("probe.info", pkg.globals))
+        if (length(setdiff(columns, colnames(probe.info))) > 0)
+            stop(paste("Annotation is missing several columns:", paste(columns, collapse=",")))
+    }
+    
+    assign("probe.info", probe.info, pkg.globals)
+}
+
 
 collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
 

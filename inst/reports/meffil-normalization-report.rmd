@@ -1,0 +1,53 @@
+```{r norm-init, echo=FALSE}
+
+library(knitr)
+library(Cairo)
+library(gridExtra)
+opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")
+
+```
+
+# Normalization performance report
+- study: `r study`
+- author: "`r author`"
+- date: "`r format(Sys.time(), '%d %B, %Y')`"
+
+## Parameters used to test normalization
+
+```{r norm-parameters, results="markup"}
+
+normalization.summary$parameters
+
+```
+
+
+## Control probe scree plots
+
+The variance captured by each principal component
+
+```{r scree-plots}
+
+do.call(grid.arrange, normalization.summary$scree.plot$graphs)
+
+```
+
+## Control probe associations with measured batch variables
+
+The PCs calculated from the control probes were associated with batch variables. Horizontal dotted line represents the $-log_{10}p = 0.05$.
+
+```{r control-batch}
+
+normalization.summary$control.batch$graph
+
+```
+
+## Normalized probe associations with measured batch variables
+
+The most variable normalized probes were extracted and decomposed into principal components, which were each regressed against each batch variable. If the normalization has performed well then there will be no associations between normalized probe PCs and batch variables. Horizontal dotted line represents the $-log_{10}p = 0.05$.
+
+```{r probe-batch}
+
+normalization.summary$probe.batch$graph
+
+```
+

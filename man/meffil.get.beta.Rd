@@ -4,16 +4,17 @@
 \alias{meffil.get.beta}
 \title{Infinium HumanMethylation450 BeadChip methylation levels}
 \usage{
-meffil.get.beta(mu, pseudo = 100)
+meffil.get.beta(M, U, pseudo = 100)
 }
 \arguments{
-\item{mu}{Methylated/unmethylated signal from \code{\link{meffil.rg.to.mu}()}
-or \code{\link{meffil.normalize.sample}()}.}
+\item{M}{Methylated signal matrix.}
+
+\item{U}{Unmethylated signal matrix.}
 
 \item{pseudo}{Value to add to the denominator to make the methylation estimate more stable.}
 }
 \value{
-Vector of 0..1 methylation level estimates.
+Matrix of 0..1 methylation level estimates.
 Equal to methylated/(methylated + unmethylated + pseudo).
 }
 \description{

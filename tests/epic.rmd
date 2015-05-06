@@ -5,6 +5,18 @@ tar xvf GSE51032_RAW.tar
 gunzip *.gz
 ```
 
+Possibly related to following studies:
+
+> Demetriou, et al.
+> Methylome analysis and epigenetic changes associated with menarcheal age.
+> PLoS One. 2013 Nov 20;8(11):e79391. doi: 10.1371/journal.pone.0079391. eCollection 2013.
+> PMID: 24278132 
+
+> Stringhini, et al.
+> Life-course socioeconomic status and DNA methylation of genes regulating inflammation.
+> Int J Epidemiol. 2015 Apr 17. pii: dyv060. [Epub ahead of print]
+> PMID: 25889032
+
 Set `path` to be the location of the IDAT files for the dataset.
 ```{r}
 path <- "~/work/data/GSE51032-epic"
@@ -12,16 +24,16 @@ path <- "~/work/data/GSE51032-epic"
 
 ```{r}
 library(meffil)
-basenames <- meffil.basenames(path)
 options(mc.cores=10)
+samplesheet <- meffil.create.samplesheet(path)
 ```
 
 ```{r}
-step1.time <- system.time(norm.objects <- mclapply(basenames, meffil.compute.normalization.object))
+step1.time <- system.time(qc.objects <- meffil.qc(samplesheet))
 step1.mem <- gc(reset=TRUE)
-step2.time <- system.time(norm.objects <- meffil.normalize.objects(norm.objects, number.pcs=2))
+step2.time <- system.time(norm.objects <- meffil.normalize.quantiles(norm.objects, number.pcs=2))
 step2.mem <- gc(reset=TRUE)
-step3.time <- system.time(beta <- meffil.normalize.samples(norm.objects, verbose=T))
+step3.time <- system.time(beta <- meffil.normalize.samples(norm.objects, beta=T))
 step3.mem <- gc(reset=TRUE)
 ```
 Takes about 1 hour.
@@ -69,7 +81,7 @@ raw.minfi <- read.450k.exp(base = path)
 minfi.time <- system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
                                                           sex=NULL, bgCorr=TRUE, dyeCorr=TRUE,
                                                           verbose=TRUE))
-B.minfi <- getBeta(norm.minfi)
+beta.minfi <- getBeta(norm.minfi)
 ```
 
 ```{r}
@@ -84,5 +96,15 @@ gc(reset=TRUE)
 
 
 ```{r}
-quantile(B.minfi[rownames(beta),] - beta, na.rm=T)
+quantile(beta.minfi[rownames(beta),] - beta, na.rm=T)
+```
+
+
+This file was generated from R markdown:
+
+```{r, eval=F}
+library(knitr)
+knit("epic.rmd")
+library(markdown)
+markdownToHTML("epic.md","epic.html")
 ```

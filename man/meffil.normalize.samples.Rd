@@ -4,11 +4,11 @@
 \alias{meffil.normalize.samples}
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
-meffil.normalize.samples(objects, beta = T, pseudo = 100,
-  probes = meffil.probe.info(), verbose = F, temp.dir = NULL, ...)
+meffil.normalize.samples(norm.objects, beta = T, pseudo = 100,
+  verbose = F, temp.dir = tempdir(), cpglist.remove = NULL, ...)
 }
 \arguments{
-\item{objects}{A list or sublist returned by \code{\link{meffil.normalize.objects}()}.}
+\item{norm.objects}{The list or sublist of \code{\link{meffil.normalize.quantiles}()}.}
 
 \item{beta}{If \code{TRUE} (default), then the function returns
 the normalized matrix of methylation levels; otherwise, it returns
@@ -17,10 +17,11 @@ the normalized matrices of methylated and unmethylated signals.}
 \item{pseudo}{Value to add to the denominator to make the methylation
 estimate more stable when calculating methylation levels (Default: 100).}
 
-\item{probes}{Probe annotation used to construct the control matrix
-(Default: \code{\link{meffil.probe.info}()}).}
-
 \item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
+
+\item{temp.dir}{Option to choose alternative temporary directory, otherwise uses result from \code{tempdir()}}
+
+\item{cpglist.remove}{Optional list of CpGs to exclude from final output}
 
 \item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}
 except for \code{ret.bytes}.}
@@ -33,6 +34,6 @@ Methylation levels are values between 0 and 1
 equal to methylated signal/(methylated + unmethylated signal + pseudo).
 }
 \description{
-Normalize a set of samples using their normalization objects.
+Normalize a set of samples using their normalized quality control objects.
 }
 
