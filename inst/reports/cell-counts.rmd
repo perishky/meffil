@@ -1,18 +1,18 @@
-Cell counts were estimated using the `r qc.summary$cell.counts$reference`
-cell type methylation profile references.
+Cell counts were estimated using the `r qc.summary$cell.counts$reference` cell type methylation profile references.
 
-Boxplot shows the distributions of methylation levels for the CpG
-sites used to estimate cell counts
-for each sample and reference methylation profile.
-Distributions of samples should generally overlap with reference profiles
-otherwise estimation will have simply selected the
-cell type reference with the nearest mean methylation level.
+Boxplot shows the distributions of methylation levels for the CpG sites used to estimate cell counts
+for each sample and reference methylation profile. Distributions of samples should generally overlap with reference profiles otherwise estimation will have simply selected the cell type reference with the nearest mean methylation level.
+
 ```{r cell-counts-betas}
+
 qc.summary$cell.counts$betas
+
 ```
 
-Boxplot shows the distributions of estimated cell counts for each
-reference cell type across all samples.
+Boxplot shows the distributions of estimated cell counts for each reference cell type across all samples.
+
 ```{r cell-counts-estimates}
+
 qc.summary$cell.counts$counts
+
 ```

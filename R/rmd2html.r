@@ -1,3 +1,5 @@
+#' Knit report using working environment and convert to HTML
+#'
 #' Warning: It is quite likely that this will be called within an RMD file
 #' implying a recursive call to knit(). this will generate "duplicate label"
 #' errors for unlabelled chunks. To avoid this, all RMD files in this
@@ -5,6 +7,12 @@
 #' Supposedly this error can also be avoided by setting the following option:
 #'      options(knitr.duplicate.label='allow')
 #' I tried this but it didn't seem to help.
+#' 
+#' @param  normalization.summary Output from \code{meffil.normalization.summary}.
+#' @param  output.file Default = "meffil.normalization.report.html"
+#' If specified then a html report will be generated summarising the normalization.
+#' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
+#' @return NULL
 rmd2html <- function(input.filename, output.filename, ...) {
     output.filename <- normalizePath(output.filename)
 

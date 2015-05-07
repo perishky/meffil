@@ -8,7 +8,7 @@
 #' If specified then a html report will be generated summarising the normalization.
 #' @param  author Default = "Analyst". Author name to be specified on report.
 #' @param  study Default = "IlluminaHuman450 data". Study name to be specified on report.
-#' @param  ... Arguments to be passed to \code{\link{rmarkdown::render}}
+#' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
 #' @export
 #' @return NULL
 #' @examples \dontrun{
