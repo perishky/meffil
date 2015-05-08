@@ -86,35 +86,6 @@ meffil.get.cell.type.references <- function() {
     ls(reference.globals)
 }
 
-#' Select cell type reference for cell count estimates
-#'
-#' @param name Name of cell type reference previously created by
-#' \code{\link{meffil.create.cell.type.reference}()}.
-#'
-#' Predefined references include "blood gse35069" and "blood gse35069 complete".
-#' Both use methylation profiles from Reinius et al. 2012 (PMID 25424692)
-#' for purified blood cell types.
-#' The first is based on
-#' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran.
-#' The second is based on 
-#' the same cell types but with Gran replaced by Neu and Eos.
-#' @export
-meffil.set.current.cell.type.reference <- function(name) {
-    if (!is.null(name))
-        check.cell.type.reference.exists(name)
-    assign("current.cell.type.reference", name, pkg.globals)
-}
-
-#' Currently selected cell type reference
-#' 
-#' @export
-meffil.get.current.cell.type.reference <- function() {
-    if (!exists("current.cell.type.reference", pkg.globals))
-        NULL
-    else
-        get("current.cell.type.reference", pkg.globals)
-}
-
 check.cell.type.reference.exists <- function(name) {
     if (!cell.type.reference.exists(name))
         stop(paste("Cell type reference", name,

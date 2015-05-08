@@ -6,6 +6,11 @@
 #' @param object An object created by \code{\link{meffil.create.qc.object}()}.
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
+#' @param cell.type.reference Character string name of the cell type reference
+#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' references.  New references can be created using
+#' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @return A list:
 #' - \code{counts} Cell count estimates.
 #' - \code{beta} Normalized methylation levels of sites used to differentiate
@@ -15,30 +20,29 @@
 #' Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 #' 
 #' @export
-meffil.estimate.cell.counts <- function(object, verbose=T) {
+meffil.estimate.cell.counts <- function(object, cell.type.reference, verbose=T) {
     stopifnot(is.qc.object(object))
-
+    check.cell.type.reference.exists(cell.type.reference)
+    
     rg <- read.rg(object$basename, verbose=verbose)
     rg <- background.correct(rg, verbose=verbose)
     rg <- dye.bias.correct(rg, object$reference.intensity, verbose=verbose)
     mu <- rg.to.mu(rg)
 
-    estimate.cell.counts.from.mu(mu, verbose)
+    estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)
 }
 
-estimate.cell.counts.from.mu <- function(mu, verbose=F) {
-    reference.name <- meffil.get.current.cell.type.reference()
-    if (is.null(reference.name))
-        stop("No cell type reference has been selected with meffil.set.current.cell.type.reference().")
+estimate.cell.counts.from.mu <- function(mu, cell.type.reference, verbose=F) {
+    check.cell.type.reference.exists(cell.type.reference)
 
-    reference.object <- get.cell.type.reference.object(reference.name)
+    reference.object <- get.cell.type.reference.object(cell.type.reference)
 
     mu <- quantile.normalize.signals(mu, reference.object$subsets, reference.object$quantiles, verbose=F)
     beta <- get.beta(mu$M, mu$U)
     beta <- beta[rownames(reference.object$beta)]
     counts <- estimate.cell.counts.from.beta(beta, reference.object$beta)
     
-    list(origin="meffil.estimate.cell.counts", counts=counts, beta=beta, reference=reference.name)
+    list(origin="meffil.estimate.cell.counts", counts=counts, beta=beta, reference=cell.type.reference)
 }    
 
 is.cell.count.object <- function(object) {

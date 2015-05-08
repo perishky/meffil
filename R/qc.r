@@ -13,13 +13,20 @@ library(plyr) ## for dlply()
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
+#' @param cell.type.reference Character string name of the cell type reference
+#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' references.  New references can be created using
+#' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing control probe information, probe summaries
 #' and quantiles.
 #'
 #' @export
 meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
-                      detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2, verbose=F) {
+                      detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2,
+                      cell.type.reference=NULL,
+                      verbose=F) {
     check.samplesheet(samplesheet)
     
     samplesheet.row <- dlply(samplesheet, .(Sample_Name))
@@ -31,7 +38,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         verbose=verbose,
         detection.threshold=detection.threshold,
         bead.threshold=bead.threshold,
-        sex.cutoff=sex.cutoff
+        sex.cutoff=sex.cutoff,
+        cell.type.reference=cell.type.reference
         )
     names(qc.objects) <- samplesheet$Sample_Name
     return(qc.objects)

@@ -11,6 +11,11 @@
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
+#' @param cell.type.reference Character string name of the cell type reference
+#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' references.  New references can be created using
+#' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @return List containing control probe information, probe summaries
 #' and quantiles.  We call this a "QC object".
 #'
@@ -21,7 +26,8 @@ meffil.create.qc.object <- function(samplesheet.row,
                                     verbose=F,
                                     detection.threshold=0.01,
                                     bead.threshold=3,
-                                    sex.cutoff=-2) {
+                                    sex.cutoff=-2,
+                                    cell.type.reference=NULL) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(samplesheet.row$Sex %in% c(NA, "F", "M"))
@@ -62,10 +68,9 @@ meffil.create.qc.object <- function(samplesheet.row,
     xy.diff <- y.signal-x.signal
     predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
 
-    if (!is.null(meffil.get.current.cell.type.reference()))
-        cell.counts <- estimate.cell.counts.from.mu(mu, verbose)
-    else
-        cell.counts <- NULL
+    cell.counts <- NULL
+    if (!is.null(cell.type.reference))
+        cell.counts <- estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)
     
     list(origin="meffil.create.qc.object",
          sample.name=samplesheet.row$Sample_Name,
