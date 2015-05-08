@@ -10,8 +10,9 @@ meffil.qc.report(qc.summary, output.file = "meffil-qc-report.html",
 \arguments{
 \item{qc.summary}{Output from \code{meffil.qc.summary}.}
 
-\item{output.file}{Default = "meffil.qc.report.html"
-If specified then a html report will be generated summarising the QC.}
+\item{output.file}{Default = "meffil-qc-report.html".
+If the file extension is not .htm, .html, .HTM or .HTML then
+output will be in markdown format.}
 
 \item{author}{Default = "Analyst". Author name to be specified on report.}
 

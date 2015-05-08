@@ -3,8 +3,9 @@
 #' Generate HTML file that summarises the QC. 
 #'
 #' @param  qc.summary Output from \code{meffil.qc.summary}.
-#' @param  output.file Default = "meffil.qc.report.html"
-#' If specified then a html report will be generated summarising the QC.
+#' @param  output.file Default = "meffil-qc-report.html".
+#' If the file extension is not .htm, .html, .HTM or .HTML then
+#' output will be in markdown format.
 #' @param  author Default = "Analyst". Author name to be specified on report.
 #' @param  study Default = "IlluminaHuman450 data". Study name to be specified on report.
 #' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
@@ -22,7 +23,7 @@ meffil.qc.report <- function(
 ) {
     msg("Writing report as html file to", output.file)
     path <- system.file("reports", package="meffil")
-    rmd2html(file.path(path, "meffil-qc-report.rmd"), output.file, ...)
+    knit.report(file.path(path, "meffil-qc-report.rmd"), output.file, ...)
 }
 
 

@@ -11,8 +11,9 @@ meffil.normalization.report(normalization.summary,
 \arguments{
 \item{normalization.summary}{Output from \code{meffil.normalization.summary}.}
 
-\item{output.file}{Default = "meffil.normalization.report.html"
-If specified then a html report will be generated summarising the normalization.}
+\item{output.file}{Default = "meffil-normalization-report.html".
+If the file extension is not .htm, .html, .HTM or .HTML then
+output will be in markdown format.}
 
 \item{author}{Default = "Analyst". Author name to be specified on report.}
 
