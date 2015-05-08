@@ -19,11 +19,8 @@ amount of data that needs to be loaded.
 	# Or read in samplesheet
 	samplesheet <- meffil.read.samplesheet(path_to_idat_files)
 
-    # Estimate cell type ratios using the Reinius et al. blood reference profiles.
-	meffil.set.current.cell.type.reference("blood gse35069")
-
-	# Background and dye bias correction, sexprediction
-	qc.objects <- meffil.qc(samplesheet, verbose=TRUE)
+	# Background and dye bias correction, sexprediction, cell counts estimates
+	qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069", verbose=TRUE)
 
 	# Generate QC report
 	qc.summary <- meffil.qc.summary(qc.objects)
@@ -77,14 +74,15 @@ The function creates the following necessary columns:
 
 And it also tries to parse the basenames to guess if the Sentrix plate and positions are present. At this point it is worthwhile to manually modify the `samplesheet` data.frame to replace the actual sample IDs in the `Sample_Name` column if necessary, and to add the sex values to the `Sex` column. Don't change these column names though.
 
-Select the cell type reference to use for estimating cell counts.
-	meffil.set.current.cell.type.reference("blood gse35069")
-A list can be obtained as follows:
-	meffil.get.cell.type.references()    
-
 Perform the background correction, dye bias correction, sex prediction and cell count estimates:
 
-	qc.objects <- meffil.qc(samplesheet, verbose=TRUE)
+	qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069", verbose=TRUE)
+
+A list of available cell type references can be obtained as follows:
+
+	meffil.get.cell.type.references()
+
+New references can be created from a dataset using meffil.create.cell.type.reference().
 
 We can now summarise the QC analysis of the raw data
 
