@@ -54,7 +54,6 @@ Load the code, probe annotation and sample filename information.
 library(meffil)
 samplesheet <- meffil.create.samplesheet(path)
 meffil.get.cell.type.references()
-meffil.set.current.cell.type.reference("blood gse35069")
 
 qc.file <- "gse55491/qc-report.html"
 author <- "Prickett, et al."
@@ -63,7 +62,7 @@ number.pcs <- 2
 temp.dir <- "."
 norm.file <- "gse55491/normalization-report.html"
 
-qc.objects <- meffil.qc(samplesheet, verbose=T)
+qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069", verbose=T)
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,
                  output.file=qc.file,
