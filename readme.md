@@ -36,7 +36,7 @@ amount of data that needs to be loaded.
 	norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=10)
 
 	# Generate normalized probe values
-	norm.beta <- meffil.normalize.samples(norm.objects, cpglist.remove=qc.report$bad.cpgs$name)
+	norm.beta <- meffil.normalize.samples(norm.objects, cpglist.remove=qc.summary$bad.cpgs$name)
 
 	# Generate normalization report
 	norm.summary <- meffil.normalization.summary(norm.beta, norm.objects)

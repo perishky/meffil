@@ -9,8 +9,8 @@ opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.wid
 
 # Normalization performance report
 - study: `r study`
-- author: "`r author`"
-- date: "`r format(Sys.time(), '%d %B, %Y')`"
+- author: `r author`
+- date: `r format(Sys.time(), '%d %B, %Y')`
 
 ## Parameters used to test normalization
 
