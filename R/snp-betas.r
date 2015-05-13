@@ -6,7 +6,7 @@
 #' @export 
 meffil.snp.betas <- function(qc.objects) {
     stopifnot(sapply(qc.objects, is.qc.object))
-    sapply(qc.objects, function(object) object$snp.probe.betas)
+    sapply(qc.objects, function(object) object$snp.betas)
 }
 
 extract.snp.probe.betas <- function(rg, verbose=F) {
@@ -27,5 +27,5 @@ extract.snp.probe.betas <- function(rg, verbose=F) {
     names(M) <- c(probes.M.R$name, probes.M.G$name)
     names(U) <- c(probes.U.R$name, probes.U.G$name)
 
-    get.beta(M,U)
+    get.beta(M,U[names(M)])
 }
