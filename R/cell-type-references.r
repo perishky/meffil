@@ -55,7 +55,7 @@ create.cell.type.reference <- function(M, U, cell.types,
     stopifnot(length(cell.types) == ncol(M))
     stopifnot(number.sites > 0)
     
-    autosomal.sites <- get.autosomal.probes()
+    autosomal.sites <- meffil.get.autosomal.sites()
     beta <- meffil.get.beta(M=M,U=U)
     beta <- beta[which(rownames(beta) %in% autosomal.sites),]
     specific.beta <- meffil.cell.type.specific.methylation(beta, cell.types, number.sites, verbose)

@@ -16,6 +16,7 @@
 #' @param detection.threshold
 #' @param bead.threshold
 #' @param sex.cutoff
+#' @param cell.type.reference
 #'
 #' Argument to \code{\link{meffil.qc.summary}()}:
 #' @param qc.parameters (parameters)
@@ -31,7 +32,6 @@
 #' Arguments to \code{\link{meffil.normalize.samples}()}:
 #' @param beta
 #' @param pseudo
-#' @param temp.dir
 #'
 #' Arguments to \code{\link{meffil.normalization.summary}()}:
 #' @param norm.parameters (parameters)
@@ -44,7 +44,7 @@
 #' @return A list:
 #' - qc.summary \code{\link{meffil.qc.summary}()} output.
 #' - norm \code{\link{meffil.normalize.quantiles}()} output.
-#' - data \code{\link{meffil.normalize.samples}()} output.
+#' - beta Normalized beta matrix (methylation levels) of class \code{\link[bigmemory]{big.matrix}}.
 #' - norm.summary \code{\link{meffil.normalization.summary}()} output.
 #'
 #' @export
@@ -55,6 +55,7 @@ meffil.normalize.dataset <- function(samplesheet,
                                      detection.threshold=0.01,
                                      bead.threshold=3,
                                      sex.cutoff=-2,
+                                     cell.type.reference=NULL,
                                      
                                      ## meffil.qc.summary
                                      qc.parameters=meffil.qc.parameters(),
@@ -68,9 +69,8 @@ meffil.normalize.dataset <- function(samplesheet,
                                      number.pcs=2,
 
                                      ## meffil.normalize.samples
-                                     beta=T,
                                      pseudo=100,
-                                     temp.dir=NULL,
+                                     just.beta=T,
 
                                      ## meffil.normalization.summary
                                      norm.parameters=NULL,
@@ -83,7 +83,8 @@ meffil.normalize.dataset <- function(samplesheet,
                             verbose=verbose,
                             detection.threshold=detection.threshold,
                             bead.threshold=bead.threshold,
-                            sex.cutoff=sex.cutoff)
+                            sex.cutoff=sex.cutoff,
+                            cell.type.reference=cell.type.reference)
     
     qc.summary <- meffil.qc.summary(qc.objects,
                                     parameters=qc.parameters,
@@ -100,22 +101,20 @@ meffil.normalize.dataset <- function(samplesheet,
     
     norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=verbose)
     
-    data <- meffil.normalize.samples(norm.objects,
-                                     beta=beta,
+    norm <- meffil.normalize.samples(norm.objects,
                                      pseudo=pseudo,
+                                     just.beta=just.beta,
                                      cpglist.remove=qc.summary$bad.cpgs$name,
-                                     temp.dir=temp.dir,
                                      verbose=verbose)
-
-    if (beta)
-        norm.beta <- data
+    if (just.beta)
+        beta <- norm
     else
-        norm.beta <- get.beta(data$M, data$U)
-
+        beta <- get.beta(norm$M, norm$U)
+    
     if (is.null(norm.parameters))
         norm.parameters <- meffil.normalization.parameters(norm.objects)
 
-    norm.summary <- meffil.normalization.summary(norm.beta,
+    norm.summary <- meffil.normalization.summary(beta,
                                                  norm.objects=norm.objects,
                                                  parameters=norm.parameters,
                                                  verbose=verbose)
@@ -127,7 +126,9 @@ meffil.normalize.dataset <- function(samplesheet,
 
     list(qc.summary=qc.summary,
          norm.objects=norm.objects,
-         data=data,
+         M=if (just.beta) NULL else norm$M,
+         U=if (just.beta) NULL else norm$U,
+         beta=beta,
          norm.summary=norm.summary)
 }    
 

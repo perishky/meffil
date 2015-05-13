@@ -51,10 +51,10 @@ meffil.create.qc.object <- function(samplesheet.row,
 
     mu <- rg.to.mu(rg)
     
-    probes.x <- get.x.probes()
+    probes.x <- meffil.get.x.sites()
     x.signal <- median(log(mu$M[probes.x] + mu$U[probes.x], 2), na.rm=T)
 
-    probes.y <- get.y.probes()
+    probes.y <- meffil.get.y.sites()
     y.signal <- median(log(mu$M[probes.y] + mu$U[probes.y], 2), na.rm=T)
 
     probs <- seq(0,1,length.out=number.quantiles)

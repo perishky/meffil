@@ -17,26 +17,25 @@ create.gse35069.references <- function(number.pcs=5, temp.dir=NULL, verbose=F) {
     samplesheet <- retrieve.gse35069(temp.dir, verbose)
 
     ds <- meffil.normalize.dataset(samplesheet,
-                                     qc.file="gse35069-qc-report.html",
-                                     author="Reinius, et al.",
-                                     study="Purified blood cell type methylation (GEO:GSE35069)",
-                                     number.pcs=number.pcs,
-                                     beta=F,
-                                     temp.dir=temp.dir,
-                                     norm.file="gse35069-normalization-report.html",
-                                     verbose=verbose)
+                                   just.beta=F,
+                                   qc.file="gse35069-qc-report.html",
+                                   author="Reinius, et al.",
+                                   study="Purified blood cell type methylation (GEO:GSE35069)",
+                                   number.pcs=number.pcs,
+                                   norm.file="gse35069-normalization-report.html",
+                                   verbose=verbose)
 
-    samplesheet <- samplesheet[match(colnames(ds$data$M), samplesheet$Sample_Name),]
+    samplesheet <- samplesheet[match(colnames(ds$M), samplesheet$Sample_Name),]
     
     cell.types <- c("CD4T","CD8T","Mono","Bcell","NK","Neu","Eos")
     selected <- samplesheet$CellType %in% cell.types
-    complete <- create.cell.type.reference(ds$data$M[,selected], ds$data$U[,selected],
+    complete <- create.cell.type.reference(ds$M[,selected], ds$U[,selected],
                                            cell.types=samplesheet$CellType[selected],
                                            verbose=verbose)
     
     cell.types <- c("CD4T","CD8T","Mono","Bcell","NK","Gran")
     selected <- samplesheet$CellType %in% cell.types
-    standard <- create.cell.type.reference(ds$data$M[,selected], ds$data$U[,selected],
+    standard <- create.cell.type.reference(ds$M[,selected], ds$U[,selected],
                                            cell.types=samplesheet$CellType[selected],
                                            verbose=verbose)
 

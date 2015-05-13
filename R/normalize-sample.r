@@ -10,7 +10,7 @@
 meffil.normalize.sample <- function(norm.object, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
-    probe.names <- get.genomic.probes()
+    probe.names <- meffil.get.sites()
 
     rg <- read.rg(norm.object$basename, verbose=verbose)
     rg <- background.correct(rg, verbose=verbose)

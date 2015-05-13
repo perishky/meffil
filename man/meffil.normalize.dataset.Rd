@@ -6,9 +6,10 @@
 \usage{
 meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
-  qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
-  author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
-  beta = T, pseudo = 100, temp.dir = NULL, norm.parameters = NULL,
+  cell.type.reference = NULL, qc.parameters = meffil.qc.parameters(),
+  qc.file = "meffil-qc-report.md", author = "Analyst",
+  study = "IlluminaHuman450 data", number.pcs = 2, pseudo = 100,
+  just.beta = T, norm.parameters = NULL,
   norm.file = "meffil-normalization-report.md", verbose = FALSE)
 }
 \arguments{
@@ -23,7 +24,9 @@ Arguments to \code{\link{meffil.qc}()}:}
 
 \item{bead.threshold}{}
 
-\item{sex.cutoff}{Argument to \code{\link{meffil.qc.summary}()}:}
+\item{sex.cutoff}{}
+
+\item{cell.type.reference}{Argument to \code{\link{meffil.qc.summary}()}:}
 
 \item{qc.parameters}{(parameters)
 
@@ -37,11 +40,7 @@ Arguments to \code{\link{meffil.qc.report}()}:}
 
 \item{number.pcs}{Arguments to \code{\link{meffil.normalize.samples}()}:}
 
-\item{beta}{}
-
-\item{pseudo}{}
-
-\item{temp.dir}{Arguments to \code{\link{meffil.normalization.summary}()}:}
+\item{pseudo}{Arguments to \code{\link{meffil.normalization.summary}()}:}
 
 \item{norm.parameters}{(parameters)}
 
@@ -51,12 +50,14 @@ Other:}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
+
+\item{beta}{}
 }
 \value{
 A list:
 - qc.summary \code{\link{meffil.qc.summary}()} output.
 - norm \code{\link{meffil.normalize.quantiles}()} output.
-- data \code{\link{meffil.normalize.samples}()} output.
+- beta Normalized beta matrix (methylation levels) of class \code{\link[bigmemory]{big.matrix}}.
 - norm.summary \code{\link{meffil.normalization.summary}()} output.
 }
 \description{

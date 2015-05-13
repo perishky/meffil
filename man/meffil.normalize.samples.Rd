@@ -4,34 +4,46 @@
 \alias{meffil.normalize.samples}
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
-meffil.normalize.samples(norm.objects, beta = T, pseudo = 100,
-  verbose = F, temp.dir = tempdir(), cpglist.remove = NULL, ...)
+meffil.normalize.samples(norm.objects, pseudo = 100, cpglist.remove = NULL,
+  just.beta = T, filename = NULL, verbose = F, ...)
 }
 \arguments{
 \item{norm.objects}{The list or sublist of \code{\link{meffil.normalize.quantiles}()}.}
 
-\item{beta}{If \code{TRUE} (default), then the function returns
-the normalized matrix of methylation levels; otherwise, it returns
-the normalized matrices of methylated and unmethylated signals.}
-
 \item{pseudo}{Value to add to the denominator to make the methylation
 estimate more stable when calculating methylation levels (Default: 100).}
 
-\item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
-
-\item{temp.dir}{Option to choose alternative temporary directory, otherwise uses result from \code{tempdir()}}
-
 \item{cpglist.remove}{Optional list of CpGs to exclude from final output}
 
-\item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}
-except for \code{ret.bytes}.}
+\item{just.beta}{Return a normalized methylation levels if TRUE (Default); otherwise return
+normalized methylated and unmethylated signals.}
+
+\item{filename}{Optional filename if the returned \code{\link[bigmemory]{big.matrix}} object(s) should
+be file-backed rather than memory-backed (Default: NULL).}
+
+\item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
+
+\item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}.}
 }
 \value{
-Matrix of normalized methylation levels if \code{beta} is \code{TRUE};
-otherwise matrices of normalized methylated and unmethylated signals.
-Matrices returned have one column per sample and one row per CpG site.
+Either a single (\code{\link[bigmemory]{big.matrix}}) object of normalized methylation levels
+between 0 and 1 if \code{just.beta == TRUE}; otherwise, a list of two (\code{\link[bigmemory]{big.matrix}})
+objects "M" and "U" containing normalized methylated and unmethylated signals.
+
+Any matrices returned have one column per sample and one row per CpG site.
+
 Methylation levels are values between 0 and 1
 equal to methylated signal/(methylated + unmethylated signal + pseudo).
+
+The returned \code{\link[bigmemory]{big.matrix}} object can be converted to an R matrix
+using the sub-matrix operator, e.g. \code{beta[]}.
+
+If \code{filename} is not \code{NULL}, then two files are created for each returned matrix
+with names appended to \code{filename}: 'beta.bin' and 'beta.desc'
+if \code{just.beta == T}, and 'M.bin', 'M.desc', 'U.bin' and 'U.desc' otherwise.
+These matrices can be reloaded into other R sessions
+using \code{\link[bigmemory]{attach.big.matrix}()} with the '.desc' filename as an argument
+(e.g. \code{attach.big.matrix("file.desc", backingpath="path-to-files")}.
 }
 \description{
 Normalize a set of samples using their normalized quality control objects.

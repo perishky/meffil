@@ -36,6 +36,7 @@ meffil.set.probe.info <- function(probe.info) {
 }
 
 
+
 collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
 
     probe.characteristics <- function(type, verbose=F) {

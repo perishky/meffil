@@ -3,22 +3,26 @@ get.typeii.probes <- function() {
     unique(probes$name[which(probes$type == "ii")])
 }
 
-get.autosomal.probes <- function() {
+#' @export
+meffil.get.autosomal.sites <- function() {
     probes <- meffil.probe.info()
     unique(probes$name[which(probes$chr %in% paste0("chr",1:22))])
 }
 
-get.x.probes <- function() {
+#' @export
+meffil.get.x.sites <- function() {
     probes <- meffil.probe.info()
     unique(probes$name[which(probes$chr == "chrX")])
 }
 
-get.y.probes <- function() {
+#' @export
+meffil.get.y.sites <- function() {
     probes <- meffil.probe.info()
     unique(probes$name[which(probes$chr == "chrY")])
 }
 
-get.genomic.probes <- function() {
+#' @export
+meffil.get.sites <- function() {
     probes <- meffil.probe.info()
     unique(probes$name[which(probes$target %in% c("M","U"))])
 }

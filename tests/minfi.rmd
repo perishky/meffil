@@ -2,25 +2,7 @@
 
 ## Download example data set 
 
-> Prickett AR, Ishida M, Böhm S, Frost JM et al. Genome-wide methylation
-> analysis in Silver-Russell syndrome patients. Hum Genet 2015
-> Mar;134(3):317-32. PMID: 25563730
-
-Retrieve the data from the Gene Expression Omnibus (GEO) website
-(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491).
-
-```{r}
-dir.create(path <- "data")
-
-if (length(list.files(path, "*.idat$")) == 0) {
-  filename <-  file.path(path, "gse55491.tar")
-  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
-  cat(date(), "Extracting files from GEO archive.\n")
-  system(paste("cd", path, ";", "tar xvf", basename(filename)))
-  unlink(filename)
-  cat(date(), "Unzipping IDAT files.\n")
-  system(paste("cd", path, ";", "gunzip *.idat.gz"))
-}
+```{r dataset, child = "dataset.rmd"}
 ```
 
 ## Load and normalize using `minfi`
@@ -37,45 +19,95 @@ library(minfi, quietly=TRUE)
 ```
 
 Normalize using the minfi package.
-```{r functional-normalization-minfi, cache=T}
+```{r comparison-minfi, cache=T}
 raw.minfi <- read.450k.exp(base = path)
 system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
                                             sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE))
 ```
 
-## Load and normalize using `meffil`
-
-```{r}
-options(mc.cores=10)
-```
+## Normalize using `meffil`
 
 Load the code, probe annotation and sample filename information.
-```{r functional-normalization-meffil-long, cache=T}
+```{r}
 library(meffil)
 samplesheet <- meffil.create.samplesheet(path)
-meffil.get.cell.type.references()
+```
 
-qc.file <- "gse55491/qc-report.html"
+The package uses `mclapply` to speed up computation.
+Provide the number of processors available.
+```{r}
+options(mc.cores=5)
+```
+
+List the cell type references available.
+```{r}
+meffil.get.cell.type.references()
+```
+
+Set parameters for the analysis.
+```{r}
+qc.file <- "minfi/qc-report.html"
 author <- "Prickett, et al."
 study <- "Silver-Russell syndrome patients (GEO:GSE55491)"
 number.pcs <- 2
-temp.dir <- "."
-norm.file <- "gse55491/normalization-report.html"
+norm.file <- "minfi/normalization-report.html"
+cell.type.reference <- "blood gse35069"
+```
 
-qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069", verbose=T)
+```{r}
+options(bigmemory.typecast.warning=FALSE)
+```
+
+```{r comparison-meffil-short, cache=T}
+norm.meffil.1 <- meffil.normalize.dataset(samplesheet,
+                                          qc.file=qc.file,
+                                          author=author,
+                                          study=study,
+                                          number.pcs=number.pcs,
+                                          norm.file=norm.file,
+                                          cell.type.reference=cell.type.reference,
+                                          verbose=T)
+```
+
+## Normalize using `meffil` step-by-step
+
+It is also possible to break normalization down into single steps.
+
+Create QC objects for QC report and later normalization.
+```{r comparison-meffil-qc, cache=T}
+qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+```
+
+Create the QC report.
+```{r}
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,
                  output.file=qc.file,
                  author=author,
                  study=study)
+````
+
+Remove any samples with too many bad probes.
+```{r}
 if (nrow(qc.summary$bad.samples) > 0)
     qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+```
+
+Normalize sample quantiles in preparation for 
+```{r}
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+```
+
+Normalize the dataset using the normalized quantiles.
+```{r comparison-meffil-samples, cache=T}
 norm.meffil <- meffil.normalize.samples(norm.objects,
-                                        beta=F, 
+                                        just.beta=F, 
                                         cpglist.remove=qc.summary$bad.cpgs$name,
-                                        temp.dir=temp.dir,
                                         verbose=T)
+```
+
+Generate a normalization report.
+```{r}
 beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, verbose=T)
 meffil.normalization.report(norm.summary,
@@ -84,21 +116,10 @@ meffil.normalization.report(norm.summary,
                             study=study)
 ```
 
-```{r functional-normalization-meffil-short, cache=T}
-norm.meffil2 <- meffil.normalize.dataset(samplesheet,
-                                        qc.file=qc.file,
-                                        author=author,
-                                        study=study,
-                                        number.pcs=number.pcs,
-                                        beta=T,
-                                        temp.dir=temp.dir,
-                                        norm.file=norm.file,
-                                        verbose=T)
-beta.meffil.2 <- norm.meffil2$data
-```
+## Both meffil normalizations should be equivalent
 
 ```{r}
-quantile(beta.meffil - beta.meffil.2[rownames(beta.meffil),])
+quantile(beta.meffil - norm.meffil.1$beta[rownames(beta.meffil),])
 ```
 
 ## Compare normalizations
@@ -271,11 +292,19 @@ for (cell.type in colnames(counts.meffil)) {
 }
 ```
 
+## SNP signals
+
+```{r}
+snps.meffil <- meffil.snp.betas(qc.objects)
+snps.minfi <- getSnpBeta(raw.minfi)
+quantile(snps.meffil - snps.minfi[rownames(snps.meffil),])
+```
+
 This file was generated from R markdown:
 
 ```{r, eval=F}
 library(knitr)
-knit("functional-normalization.rmd")
+knit("minfi.rmd")
 library(markdown)
-markdownToHTML("functional-normalization.md","functional-normalization.html")
+markdownToHTML("minfi.md","minfi.html")
 ```

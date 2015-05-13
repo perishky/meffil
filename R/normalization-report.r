@@ -167,7 +167,12 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
 	stopifnot(all(npcs %in% 1:ncol(normalized.beta)) & all(npcs %in% 1:probe.range))
 
 	msg("Calculating variances", verbose=verbose)
-	vars <- apply(normalized.beta, 1, var)
+        
+        if (class(normalized.beta) == "big.matrix") {
+            subset.idx <- sample(1:nrow(normalized.beta), size=floor(nrow(normalized.beta))*0.1)
+            normalized.beta <- normalized.beta[subset.idx,]
+        }
+        vars <- matrixStats::rowVars(normalized.beta, na.rm=T)
 	varids <- order(vars, decreasing=TRUE)[1:probe.range]
 
 	msg("Calculating beta PCs", verbose=verbose)

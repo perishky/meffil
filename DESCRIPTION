@@ -17,7 +17,9 @@ Depends:  illuminaio,
           knitr,
 	  Cairo,
 	  gridExtra,
-	  markdown
+	  markdown,
+          bigmemory,
+	  matrixStats
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes
