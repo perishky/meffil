@@ -89,7 +89,7 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
 
     
     # Sex mismatches
-    sex <- subset(sex.summary$tab, sex.mismatch == "FALSE" | outliers, select=c(sample.name, predicted.sex, declared.sex, xy.diff))
+    sex <- subset(sex.summary$tab, sex.mismatch == "TRUE" | outliers, select=c(sample.name, predicted.sex, declared.sex, xy.diff))
 
 
     # Bad quality samples
@@ -155,12 +155,14 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
         predicted.sex = sapply(qc.objects, function(x) x$predicted.sex),
         declared.sex = sapply(qc.objects, function(x) x$sex)
     )
+    browser()
     dat <- ddply(dat, .(predicted.sex), function(x)
     {
         x <- mutate(x)
         x$outliers <- with(x, xy.diff > mean(xy.diff, na.rm=T) + outlier.sd * sd(xy.diff, na.rm=T) | xy.diff < mean(xy.diff, na.rm=T) - outlier.sd * sd(xy.diff, na.rm=T))
         return(x)
     })
+    browser()
     dat$sex.mismatch <- dat$declared.sex != dat$predicted.sex
     dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Sex not specified"
     p1 <- ggplot(dat, aes(y=1, x=xy.diff)) +

@@ -22,7 +22,7 @@ qc.summary$parameters
 
 ## Sex mismatches
 
-There are `r sum(qc.summary$sex.summary$tab$outliers)` sex detection outliers, and `r sum(qc.summary$sex.summary$tab$sex.mismatch == "FALSE")` sex detection mismatches.
+There are `r sum(qc.summary$sex.summary$tab$outliers)` sex detection outliers, and `r sum(qc.summary$sex.summary$tab$sex.mismatch == "TRUE")` sex detection mismatches.
 
 ```{r sex-summary}
 
