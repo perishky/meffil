@@ -155,14 +155,12 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
         predicted.sex = sapply(qc.objects, function(x) x$predicted.sex),
         declared.sex = sapply(qc.objects, function(x) x$sex)
     )
-    browser()
     dat <- ddply(dat, .(predicted.sex), function(x)
     {
         x <- mutate(x)
         x$outliers <- with(x, xy.diff > mean(xy.diff, na.rm=T) + outlier.sd * sd(xy.diff, na.rm=T) | xy.diff < mean(xy.diff, na.rm=T) - outlier.sd * sd(xy.diff, na.rm=T))
         return(x)
     })
-    browser()
     dat$sex.mismatch <- dat$declared.sex != dat$predicted.sex
     dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Sex not specified"
     p1 <- ggplot(dat, aes(y=1, x=xy.diff)) +
@@ -295,10 +293,20 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
 #'}
 meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
-    nprobe <- length(unique(meffil.probe.info()$name))
+    probes <- meffil.get.sites()
+    y.probes <- meffil.get.y.sites()
+    not.y.probes <- setdiff(probes, y.probes)
+        
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
-        prop.badprobes = sapply(qc.objects, function(x) length(x$bad.probes.detectionp) / nprobe)
+        prop.badprobes = sapply(qc.objects, function(x) {
+            bad.probes <- x$bad.probes.detectionp
+            if (x$predicted.sex == "F") {
+                bad.probes <- setdiff(bad.probes, y.probes)
+                probes <- not.y.probes
+            }
+            length(bad.probes)/length(probes)
+        })
     )
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
@@ -338,12 +346,24 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
 #'}
 meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 {
-    n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.detectionp)))))
+    y.probes <- meffil.get.y.sites()
+    bad.probes <- unlist(sapply(qc.objects, function(x) {
+        bad.probes <- names(x$bad.probes.detectionp)
+        if (x$predicted.sex == "F")
+            bad.probes <- setdiff(bad.probes, y.probes)
+        bad.probes
+    }))
+    n.badprobes <- as.data.frame(table(bad.probes))
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
     probe.info <- merge(probe.info, n.badprobes, by="name")
     probe.info$n[is.na(probe.info$n)] <- 0
-    probe.info$n <- probe.info$n / length(qc.objects)
+    
+    n.males <- sum(sapply(qc.objects, function(x) x$predicted.sex == "M"))
+    probe.info$n.samples <- length(qc.objects)
+    probe.info$n.samples[which(probe.info$name %in% y.probes)] <- n.males
+    
+    probe.info$n <- probe.info$n / probe.info$n.samples
     probe.info$chr <- factor(gsub("chr", "", probe.info$chr), levels=c(1:22, "X", "Y"))
     probe.info$chr.colour <- 0
     probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
