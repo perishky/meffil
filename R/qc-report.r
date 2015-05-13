@@ -89,9 +89,9 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
 
     
     # Sex mismatches
-    sex <- subset(sex.summary$tab, sex.mismatch == "TRUE" | outliers, select=c(sample.name, predicted.sex, declared.sex, xy.diff))
-
-
+    sex <- subset(sex.summary$tab, sex.mismatch == "TRUE" | outliers, select=c(sample.name, predicted.sex, declared.sex, xy.diff, status))
+    sex <- sex[with(sex, order(status,predicted.sex,declared.sex,xy.diff)),]
+  
     # Bad quality samples
     sexo <- subset(sex.summary$tab, outliers, select=c(sample.name))
     if(nrow(sexo) > 0) {
@@ -153,22 +153,33 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         xy.diff = sapply(qc.objects, function(x) x$xy.diff),
         predicted.sex = sapply(qc.objects, function(x) x$predicted.sex),
-        declared.sex = sapply(qc.objects, function(x) x$sex)
+        declared.sex = sapply(qc.objects, function(x) x$sex),
+        stringsAsFactor=FALSE
     )
+    
     dat <- ddply(dat, .(predicted.sex), function(x)
     {
         x <- mutate(x)
-        x$outliers <- with(x, xy.diff > mean(xy.diff, na.rm=T) + outlier.sd * sd(xy.diff, na.rm=T) | xy.diff < mean(xy.diff, na.rm=T) - outlier.sd * sd(xy.diff, na.rm=T))
+        interval.size <- outlier.sd * sd(x$xy.diff, na.rm=T)
+        x$upper <- mean(x$xy.diff, na.rm=T) + interval.size
+        x$lower <- mean(x$xy.diff, na.rm=T) - interval.size
+        x$outliers <- with(x, xy.diff > upper | xy.diff < lower)
         return(x)
     })
-    dat$sex.mismatch <- dat$declared.sex != dat$predicted.sex
+    
+    dat$sex.mismatch <- as.character(dat$declared.sex) != as.character(dat$predicted.sex)
     dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Sex not specified"
     p1 <- ggplot(dat, aes(y=1, x=xy.diff)) +
         geom_jitter(aes(shape=predicted.sex, colour=sex.mismatch), size=3) +
         scale_colour_manual(values=c("black", "red")) +
-        labs(shape="Predicted sex", x="XY diff", y="", colour="Correct\nprediction") +
+        labs(shape="Predicted sex", x="XY diff", y="", colour="Incorrect\nprediction") +
         theme_bw() +
-        theme(axis.ticks.y=element_blank(), axis.text.y=element_blank(), axis.line.y=element_blank())
+        theme(axis.ticks.y=element_blank(), axis.text.y=element_blank(), axis.line.y=element_blank()) +
+        geom_vline(xintercept=unique(c(dat$upper, dat$lower)), linetype="dashed", colour="purple")
+
+    dat$status <- "good"
+    dat$status[which(dat$outliers)] <- "outlier"
+    dat$status[which(dat$sex.mismatch == "TRUE")] <- "mismatched"
     return(list(graph=p1, tab=dat))
 }
 
@@ -208,16 +219,27 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
     } else {
         stop("colour.code unknown")
     }
-    dat$resids <- residuals(lm(methylated ~ unmethylated, dat))
-    dat$outliers <- dat$resids > mean(dat$resids)+outlier.sd*sd(dat$resids) | dat$resids < mean(dat$resids)-outlier.sd*sd(dat$resids)
+    fit <- lm(methylated ~ unmethylated, dat)
+    dat$resids <- residuals(fit)
+    dat$methylated.lm <- predict(fit)
+    interval.size <- outlier.sd*sd(dat$resids)
+  
+    dat$upper.lm <- dat$methylated.lm + interval.size
+    dat$lower.lm <- dat$methylated.lm - interval.size
+
+    dat$outliers <- (dat$resids > mean(dat$resids) + interval.size
+                     | dat$resids < mean(dat$resids) - interval.size)
 
     p1 <- ggplot(dat, aes(y=methylated, x=unmethylated)) +
         geom_point(aes(colour=colour.code)) +
         guides(colour = g) +
         geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
         labs(y = "Median methylated signal", x = "Median unmethylated signal", colour = colour.code) +
-        stat_smooth(method="lm", se=FALSE, colour="red") +
-        geom_smooth()
+        geom_smooth() +
+        geom_line(aes(y=methylated.lm), col="red") +
+        geom_line(aes(y=upper.lm), col="red", linetype="dashed") +
+        geom_line(aes(y=lower.lm), col="red", linetype="dashed")
+    
     return(list(graph=p1, tab=dat))
 }
 

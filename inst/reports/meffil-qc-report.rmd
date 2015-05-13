@@ -43,6 +43,11 @@ qc.summary$sex.summary$graph
 ## Methylated vs unmethylated
 
 There are `r sum(qc.summary$meth.unmeth.summary$tab$outliers)` outliers from the meth vs unmeth comparison.
+Outliers are samples whose predicted median methylated signal is
+more than `r qc.summary$parameters$meth.unmeth.outlier.sd` standard deviations
+from the expected (regression line).
+
+*TODO: color slides with outliers*
 
 ```{r meth-unmeth-summary}
 

@@ -1,5 +1,11 @@
-slide as random effect in normalize.objects
+handle additional technical effects in meffil.normalize.objects()
+ - new arguments: fixed.effects, random.effects, adjust.slide=T/F
+ - if (adjust.slide) add slide to random.effects
+ - regress out fixed and random effects from the design matrix
+ - add fixed and random effects to main regression
 
+snp plot 
+- see SNPconcordance.R from Josine on Slack.com
 
 
 
