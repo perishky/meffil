@@ -524,6 +524,7 @@ meffil.plot.cell.counts <- function(qc.objects) {
         NULL
 }
 
+
 #' Specify parameters for QC
 #'
 #' 
@@ -577,5 +578,6 @@ meffil.remove.samples <- function(qc.objects, sample.ids)
     return(qc.objects)
 }
 
-# Still to do:
-# - Sample mismatches
+
+
+

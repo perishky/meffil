@@ -132,12 +132,13 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     names(dat) <- variables
     
     msg("Testing associations", verbose=verbose)
-    res <- matrix(0, ncol(dat), ncol(pcs))
+    res <- matrix(1, ncol(dat), ncol(pcs))
     for(i in 1:ncol(dat))
 	{
             for(j in 1:ncol(pcs))
 		{
-                    res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4]
+                    try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4],
+                        silent=TRUE)
 		}
 	}
     colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
@@ -198,12 +199,13 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     names(dat) <- variables
     
     msg("Testing associations", verbose=verbose)
-    res <- matrix(0, ncol(dat), ncol(pcs))
+    res <- matrix(1, ncol(dat), ncol(pcs))
     for(i in 1:ncol(dat))
 	{
             for(j in 1:ncol(pcs))
-		{
-                    res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4]
+		{ 
+                    try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4],
+                        silent=TRUE)
 		}
 	}
     colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
