@@ -128,7 +128,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
                {
                    y$samplesheet[[x]]
                })
-    }))
+    }), stringsAsFactors=F)
     names(dat) <- variables
     
     msg("Testing associations", verbose=verbose)
@@ -141,7 +141,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 		}
 	}
     colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
-    res <- data.frame(v=variables, res)
+    res <- data.frame(v=variables, res, stringsAsFactors=F)
     res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
     p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
 	geom_point() +
@@ -194,7 +194,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
                {
                    y$samplesheet[[x]]
                })
-    }))
+    }), stringsAsFactors=F)
     names(dat) <- variables
     
     msg("Testing associations", verbose=verbose)
@@ -207,7 +207,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
 		}
 	}
     colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
-    res <- data.frame(v=variables, res)
+    res <- data.frame(v=variables, res, stringsAsFactors=F)
     res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
     p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
 	geom_point() +

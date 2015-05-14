@@ -392,7 +392,7 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
             bad.probes <- setdiff(bad.probes, y.probes)
         bad.probes
     }))
-    n.badprobes <- as.data.frame(table(bad.probes))
+    n.badprobes <- as.data.frame(table(bad.probes), stringsAsFactors=F)
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
     probe.info <- merge(probe.info, n.badprobes, by="name")
@@ -478,7 +478,7 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
 
-    n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.beadnum)))))
+    n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.beadnum)))), stringsAsFactors=F)
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
     probe.info <- merge(probe.info, n.badprobes, by="name")

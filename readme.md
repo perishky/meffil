@@ -69,8 +69,8 @@ These data don't actually have a samplesheet, so we can generate one from the `.
 The function creates the following necessary columns:
 
 - Sample_Name
-- Sex
-- Basenames
+- Sex (possible values "M"/"F"/NA)
+- Basename
 
 And it also tries to parse the basenames to guess if the Sentrix plate and positions are present. At this point it is worthwhile to manually modify the `samplesheet` data.frame to replace the actual sample IDs in the `Sample_Name` column if necessary, and to add the sex values to the `Sex` column. Don't change these column names though.
 
