@@ -42,25 +42,27 @@ meffil.normalization.report <- function(
 #'}
 meffil.normalization.summary <- function(normalized.beta, norm.objects, parameters = meffil.normalization.parameters(norm.objects), verbose=TRUE)
 {
-	scree.plot <- meffil.plot.control.scree(norm.objects)
-	control.batch <- meffil.plot.control.batch(
-		norm.objects, 
-		npcs=parameters$control.pcs, 
-		variables=parameters$variables, 
-		verbose=verbose
+    stopifnot(sapply(norm.objects, is.normalization.object))
+    
+    scree.plot <- meffil.plot.control.scree(norm.objects)
+    control.batch <- meffil.plot.control.batch(
+        norm.objects, 
+        npcs=parameters$control.pcs, 
+        variables=parameters$variables, 
+        verbose=verbose
 	)
-	probe.batch <- meffil.plot.probe.batch(
-		normalized.beta,
-		norm.objects,
-		npcs=parameters$probe.pcs,
-		variables=parameters$variables,
-		probe.range=parameters$probe.range
+    probe.batch <- meffil.plot.probe.batch(
+        normalized.beta,
+        norm.objects,
+        npcs=parameters$probe.pcs,
+        variables=parameters$variables,
+        probe.range=parameters$probe.range
 	)
-	return(list(
-		scree.plot = scree.plot,
-		control.batch = control.batch,
-		probe.batch = probe.batch,
-		parameters = parameters
+    return(list(
+        scree.plot = scree.plot,
+        control.batch = control.batch,
+        probe.batch = probe.batch,
+        parameters = parameters
 	))
 }
 
@@ -77,6 +79,8 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
 
 meffil.plot.control.scree <- function(norm.objects)
 {
+    stopifnot(sapply(norm.objects, is.normalization.object))
+
     sex <- sapply(norm.objects, function(object) object$predicted.sex)
     pcs <- list(all=meffil.pcs(norm.objects))
     if (max(table(sex)) < length(sex)) {
@@ -110,6 +114,8 @@ meffil.plot.control.scree <- function(norm.objects)
 #'}
 meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), verbose=TRUE)
 {
+    stopifnot(sapply(norm.objects, is.normalization.object))
+
     pcs <- meffil.pcs(norm.objects)$x
     stopifnot(all(npcs %in% 1:ncol(pcs)))
     pcs <- pcs[,npcs,drop=F]
@@ -164,51 +170,52 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 #'}
 meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), probe.range=1000, verbose=T)
 {
-	stopifnot(all(npcs %in% 1:ncol(normalized.beta)) & all(npcs %in% 1:probe.range))
-
-	msg("Calculating variances", verbose=verbose)
-        
-        if (class(normalized.beta) == "big.matrix") {
-            subset.idx <- sample(1:nrow(normalized.beta), size=floor(nrow(normalized.beta))*0.1)
-            normalized.beta <- normalized.beta[subset.idx,]
-        }
-        vars <- matrixStats::rowVars(normalized.beta, na.rm=T)
-	varids <- order(vars, decreasing=TRUE)[1:probe.range]
-
-	msg("Calculating beta PCs", verbose=verbose)
-	pcs <- prcomp(t(normalized.beta[varids,]))$x[,npcs,drop=F]
-
-	msg("Extracting batch variables", verbose=verbose)
-	variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
-
-	dat <- as.data.frame(lapply(variables, function(x) {
-		sapply(norm.objects, function(y)
-		{
-			y$samplesheet[[x]]
-		})
-	}))
-	names(dat) <- variables
-
-	msg("Testing associations", verbose=verbose)
-	res <- matrix(0, ncol(dat), ncol(pcs))
-	for(i in 1:ncol(dat))
+    stopifnot(sapply(norm.objects, is.normalization.object))
+    
+    stopifnot(all(npcs %in% 1:ncol(normalized.beta)) & all(npcs %in% 1:probe.range))
+    
+    msg("Calculating variances", verbose=verbose)
+    
+    if (class(normalized.beta) == "big.matrix") {
+        subset.idx <- sample(1:nrow(normalized.beta), size=floor(nrow(normalized.beta))*0.1)
+        normalized.beta <- normalized.beta[subset.idx,]
+    }
+    vars <- matrixStats::rowVars(normalized.beta, na.rm=T)
+    varids <- order(vars, decreasing=TRUE)[1:probe.range]
+    
+    msg("Calculating beta PCs", verbose=verbose)
+    pcs <- prcomp(t(normalized.beta[varids,]))$x[,npcs,drop=F]
+    
+    msg("Extracting batch variables", verbose=verbose)
+    variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
+    
+    dat <- as.data.frame(lapply(variables, function(x) {
+        sapply(norm.objects, function(y)
+               {
+                   y$samplesheet[[x]]
+               })
+    }))
+    names(dat) <- variables
+    
+    msg("Testing associations", verbose=verbose)
+    res <- matrix(0, ncol(dat), ncol(pcs))
+    for(i in 1:ncol(dat))
 	{
-		for(j in 1:ncol(pcs))
+            for(j in 1:ncol(pcs))
 		{
-			res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4]
+                    res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4]
 		}
 	}
-	colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
-	res <- data.frame(v=variables, res)
-	res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
-	p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
+    colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
+    res <- data.frame(v=variables, res)
+    res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
+    p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
 	geom_point() +
 	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
 	facet_grid(v ~ .) +
 	labs(y="-log10 p", x="PCs") +
 	theme_bw()
-	return(list(tab=res, graph=p1))
-
+    return(list(tab=res, graph=p1))
 }
 
 
@@ -242,13 +249,15 @@ guess.batch.vars <- function(norm.objects)
 #'}
 meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 1000)
 {
-	parameters <- list(
-		variables = variables,
-		control.pcs = control.pcs,
-		probe.pcs = probe.pcs,
-		probe.range = probe.range
+    stopifnot(sapply(norm.objects, is.normalization.object))
+    
+    parameters <- list(
+        variables = variables,
+        control.pcs = control.pcs,
+        probe.pcs = probe.pcs,
+        probe.range = probe.range
 	)
-	return(parameters)
+    return(parameters)
 }
 
 

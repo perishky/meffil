@@ -42,6 +42,8 @@ meffil.qc.report <- function(
 #'
 #'}
 meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), verbose=TRUE) {
+    stopifnot(sapply(qc.objects, is.qc.object))
+    
     msg("Sex summary", verbose)
     sex.summary <- meffil.plot.sex(
         qc.objects,
@@ -89,7 +91,8 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
 
     
     # Sex mismatches
-    sex <- subset(sex.summary$tab, sex.mismatch == "TRUE" | outliers, select=c(sample.name, predicted.sex, declared.sex, xy.diff, status))
+    sex <- subset(sex.summary$tab, as.character(sex.mismatch) == "TRUE" | outliers,
+                  select=c(sample.name, predicted.sex, declared.sex, xy.diff, status))
     sex <- sex[with(sex, order(status,predicted.sex,declared.sex,xy.diff)),]
   
     # Bad quality samples
@@ -149,6 +152,8 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
 #'}
 meffil.plot.sex <- function(qc.objects, outlier.sd=3)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
+     
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         xy.diff = sapply(qc.objects, function(x) x$xy.diff),
@@ -179,7 +184,7 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
 
     dat$status <- "good"
     dat$status[which(dat$outliers)] <- "outlier"
-    dat$status[which(dat$sex.mismatch == "TRUE")] <- "mismatched"
+    dat$status[which(as.character(dat$sex.mismatch) == "TRUE")] <- "mismatched"
     return(list(graph=p1, tab=dat))
 }
 
@@ -198,10 +203,13 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
 #'}
 meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
+
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         methylated = sapply(qc.objects, function(x) x$median.m.signal),
-        unmethylated = sapply(qc.objects, function(x) x$median.u.signal)
+        unmethylated = sapply(qc.objects, function(x) x$median.u.signal),
+        stringsAsFactors=F
     )
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
@@ -257,7 +265,11 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
 #'}
 meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour.code = NULL, outlier.sd=5)
 {
-    dat <- data.frame(sample.name = sapply(qc.objects, function(x) x$sample.name))
+    stopifnot(sapply(qc.objects, is.qc.object))
+
+    dat <- data.frame(sample.name = sapply(qc.objects, function(x) x$sample.name),
+                      stringsAsFactors=F)
+
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
         g <- "legend"
@@ -275,13 +287,13 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
         stop("colour.code unknown")
     }
 
-    d <- data.frame(t(sapply(qc.objects, function(x) x$controls)))
+    d <- data.frame(t(sapply(qc.objects, function(x) x$controls)), stringsAsFactors=F)
     names(d) <- names(qc.objects[[1]]$controls)
 
     if (is.null(control.categories))
         control.categories <- names(qc.objects[[1]]$controls)
     
-    dat <- data.frame(dat, subset(d, select=control.categories))
+    dat <- data.frame(dat, subset(d, select=control.categories),  stringsAsFactors=F)
     names(dat) <- c("sample.name", "colour.code", control.categories)
     dat <- dat[order(dat$colour.code), ]
     dat$colour.code <- as.character(dat$colour.code)
@@ -315,6 +327,8 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
 #'}
 meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
+
     probes <- meffil.get.sites()
     y.probes <- meffil.get.y.sites()
     not.y.probes <- setdiff(probes, y.probes)
@@ -323,12 +337,13 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         prop.badprobes = sapply(qc.objects, function(x) {
             bad.probes <- x$bad.probes.detectionp
-            if (x$predicted.sex == "F") {
+            if (as.character(x$predicted.sex) == "F") {
                 bad.probes <- setdiff(bad.probes, y.probes)
                 probes <- not.y.probes
             }
             length(bad.probes)/length(probes)
-        })
+        }),
+        stringsAsFactors=F
     )
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
@@ -368,10 +383,12 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
 #'}
 meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
+
     y.probes <- meffil.get.y.sites()
     bad.probes <- unlist(sapply(qc.objects, function(x) {
         bad.probes <- names(x$bad.probes.detectionp)
-        if (x$predicted.sex == "F")
+        if (as.character(x$predicted.sex) == "F")
             bad.probes <- setdiff(bad.probes, y.probes)
         bad.probes
     }))
@@ -381,7 +398,7 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
     probe.info <- merge(probe.info, n.badprobes, by="name")
     probe.info$n[is.na(probe.info$n)] <- 0
     
-    n.males <- sum(sapply(qc.objects, function(x) x$predicted.sex == "M"))
+    n.males <- sum(sapply(qc.objects, function(x) as.character(x$predicted.sex) == "M"))
     probe.info$n.samples <- length(qc.objects)
     probe.info$n.samples[which(probe.info$name %in% y.probes)] <- n.males
     
@@ -413,10 +430,13 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 #'}
 meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
+
     nprobe <- length(unique(meffil.probe.info()$name))
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
-        prop.badprobes = sapply(qc.objects, function(x) length(x$bad.probes.beadnum) / nprobe)
+        prop.badprobes = sapply(qc.objects, function(x) length(x$bad.probes.beadnum) / nprobe),
+        stringsAsFactors=F
     )
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
@@ -456,6 +476,8 @@ meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.cod
 #'}
 meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
+
     n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.beadnum)))))
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
@@ -492,6 +514,8 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 #' 
 #' @export
 meffil.plot.cell.counts <- function(qc.objects) {
+    stopifnot(sapply(qc.objects, is.qc.object))
+    
     count.objects <- lapply(qc.objects, function(object) object$cell.counts)
     not.null.idx <- which(sapply(count.objects, function(object) !is.null(object)))
     if (length(not.null.idx) > 0) 
@@ -547,6 +571,7 @@ meffil.qc.parameters <- function(colour.code = NULL, control.categories = NULL, 
 #'}
 meffil.remove.samples <- function(qc.objects, sample.ids)
 {
+    stopifnot(sapply(qc.objects, is.qc.object))
     stopifnot(all(sample.ids %in% names(qc.objects)))
     qc.objects <- qc.objects[!names(qc.objects) %in% sample.ids]
     return(qc.objects)
