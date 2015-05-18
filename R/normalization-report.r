@@ -42,7 +42,7 @@ meffil.normalization.report <- function(
 #'}
 meffil.normalization.summary <- function(normalized.beta, norm.objects, parameters = meffil.normalization.parameters(norm.objects), verbose=TRUE)
 {
-    stopifnot(sapply(norm.objects, is.normalization.object))
+    stopifnot(sapply(norm.objects, is.normalized.object))
     
     scree.plot <- meffil.plot.control.scree(norm.objects)
     control.batch <- meffil.plot.control.batch(
@@ -79,7 +79,7 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
 
 meffil.plot.control.scree <- function(norm.objects)
 {
-    stopifnot(sapply(norm.objects, is.normalization.object))
+    stopifnot(sapply(norm.objects, is.normalized.object))
 
     sex <- sapply(norm.objects, function(object) object$predicted.sex)
     pcs <- list(all=meffil.pcs(norm.objects))
@@ -114,7 +114,7 @@ meffil.plot.control.scree <- function(norm.objects)
 #'}
 meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), verbose=TRUE)
 {
-    stopifnot(sapply(norm.objects, is.normalization.object))
+    stopifnot(sapply(norm.objects, is.normalized.object))
 
     pcs <- meffil.pcs(norm.objects)$x
     stopifnot(all(npcs %in% 1:ncol(pcs)))
@@ -171,7 +171,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 #'}
 meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), probe.range=1000, verbose=T)
 {
-    stopifnot(sapply(norm.objects, is.normalization.object))
+    stopifnot(sapply(norm.objects, is.normalized.object))
     
     stopifnot(all(npcs %in% 1:ncol(normalized.beta)) & all(npcs %in% 1:probe.range))
     
@@ -251,7 +251,7 @@ guess.batch.vars <- function(norm.objects)
 #'}
 meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 1000)
 {
-    stopifnot(sapply(norm.objects, is.normalization.object))
+    stopifnot(sapply(norm.objects, is.normalized.object))
     
     parameters <- list(
         variables = variables,
