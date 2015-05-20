@@ -22,8 +22,11 @@ amount of data that needs to be loaded.
 	# Background and dye bias correction, sexprediction, cell counts estimates
 	qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069", verbose=TRUE)
 
+    # Obtain genotypes for comparison with those measured on the microarray
+	genotypes <- meffil.extract.genotypes(plink.files)
+
 	# Generate QC report
-	qc.summary <- meffil.qc.summary(qc.objects)
+	qc.summary <- meffil.qc.summary(qc.objects, genotypes=genotypes)
 	meffil.qc.report(qc.summary, output.file="qc-report.html")
 
 	# Remove outlier samples if necessary
@@ -84,9 +87,19 @@ A list of available cell type references can be obtained as follows:
 
 New references can be created from a dataset using meffil.create.cell.type.reference().
 
+Obtain the matrix of genotypes for comparison with those measured on the microarray.
+If such a matrix is available (rows = SNPs, columns = samples), then the following steps
+can be omitted.  Otherwise, it is possible to obtain the matrix from a PLINK
+dataset as follows:
+
+    writeLines(meffil.snp.probes(), con="snp-names.txt")
+    command shell > plink -bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
+    filenames <- "genotypes.raw"
+    genotypes <- meffil.extract.genotypes(filenames)
+
 We can now summarise the QC analysis of the raw data
 
-	qc.summary <- meffil.qc.summary(qc.objects)
+	qc.summary <- meffil.qc.summary(qc.objects, genotypes=genotypes)
 
 and generate a report:
 	
