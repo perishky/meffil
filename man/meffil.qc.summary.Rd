@@ -4,11 +4,13 @@
 \alias{meffil.qc.summary}
 \title{Perform QC analysis on idat files}
 \usage{
-meffil.qc.summary(qc.objects, parameters = meffil.qc.parameters(),
-  verbose = TRUE)
+meffil.qc.summary(qc.objects, genotypes = NULL,
+  parameters = meffil.qc.parameters(), verbose = TRUE)
 }
 \arguments{
 \item{qc.objects}{From \code{meffil.qc}}
+
+\item{genotypes}{From \code{meffil.extract.genotypes}}
 
 \item{parameters}{Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}}
 }

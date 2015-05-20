@@ -1,14 +1,26 @@
+meffil.qc() error -- a few hundred failed, see samplesheet in /projects/MRC-IEU/groups/aries
+
 handle additional technical effects in meffil.normalize.objects()
  - new arguments: fixed.effects, random.effects, adjust.slide=T/F
  - if (adjust.slide) add slide to random.effects
  - regress out fixed and random effects from the design matrix
  - add fixed and random effects to main regression
 
-snp plot 
-- see SNPconcordance.R from Josine on Slack.com
+change meffil.normalize.samples() defaults so that a regular matrix is returned
+by default and not a big.matrix unless the user knows what they're asking for.
 
+create a qc plot that just uses hierarchical clustering of the samples?
+ d <- dist(as.matrix(t(norm.beta)))
+ hc<-hclust(d)
+ pdf("dendrogram_pc10.pdf",height=6,width=8)
+ par(cex=0.3, mar=c(5, 8, 4, 1))
+ plot(hc)
+ dev.off()
 
-
-
-
-
+In normalization-reports.r, change batch plots and analysis
+so that each batch is shown for each pc component?  
+Right now we just see how associated the batches are as a group to each pc component.
+This doesn't allow us to identify potentially problematic batches ...
+  options(contrasts=c("contr.sum","contr.poly"))
+  ## set reference as grand mean across all levels rather than a single factor level
+  try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4], silent=TRUE)

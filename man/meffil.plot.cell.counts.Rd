@@ -7,7 +7,7 @@
 meffil.plot.cell.counts(qc.objects)
 }
 \arguments{
-\item{objects}{Output from \code{\link{meffil.qc}()}.}
+\item{qc.objects}{Output from \code{\link{meffil.qc}()}.}
 
 \item{reference}{Object describing methylation profiles of purified cell populations
 obtained from \code{\link{meffil.create.cell.type.reference}()}.}

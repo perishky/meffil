@@ -6,7 +6,7 @@
 \usage{
 meffil.normalization.parameters(norm.objects,
   variables = guess.batch.vars(norm.objects), control.pcs = 1:10,
-  probe.pcs = 1:10, probe.range = 1000)
+  probe.pcs = 1:10, probe.range = 5000)
 }
 \arguments{
 \item{norm.objects}{Output from \link{meffil.normalize.quantiles}}

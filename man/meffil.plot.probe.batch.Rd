@@ -5,7 +5,7 @@
 \title{Test normalized betas for association with known batch variables}
 \usage{
 meffil.plot.probe.batch(normalized.beta, norm.objects, npcs = 1:10,
-  variables = guess.batch.vars(norm.objects), probe.range = 1000,
+  variables = guess.batch.vars(norm.objects), probe.range = 5000,
   verbose = T)
 }
 \arguments{
@@ -25,7 +25,7 @@ meffil.plot.probe.batch(normalized.beta, norm.objects, npcs = 1:10,
 List of table of results and graph
 }
 \description{
-Performs association of each of \code{n} PCs calculated from most variable CpG sites against each of \code{m} measured batch variables
+Performs association of each of \code{n} PCs calculated from most variable CpG sites (after normalization) against each of \code{m} measured batch variables
 }
 \examples{
 \dontrun{

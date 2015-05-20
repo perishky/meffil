@@ -20,7 +20,7 @@ meffil.plot.control.batch(norm.objects, npcs = 1:10,
 Data frame of results plus plot
 }
 \description{
-Performs association of each of \code{n} PCs calculated from most control matrix against each of \code{m} measured batch variables
+Performs association of each of \code{n} PCs calculated from the control matrix against each of \code{m} measured batch variables
 }
 \examples{
 \dontrun{

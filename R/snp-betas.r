@@ -29,3 +29,4 @@ extract.snp.probe.betas <- function(rg, verbose=F) {
 
     get.beta(M,U[names(M)])
 }
+

@@ -150,8 +150,30 @@ qc.summary$cpg.beadnum.summary$graph
 ## Cell count estimates
 
 ```{r cell-counts-option}
-child.filename <- file.path(path, if (!is.null(qc.summary$cell.counts)) 'cell-counts.rmd' else 'missing.rmd')
+child.filename <- file.path(path, "missing.rmd")
+if (!is.null(qc.summary$cell.counts))
+    child.filename <- file.path(path, "cell-counts.rmd")
 ```
 
 ```{r cell-counts-report, child = child.filename}
 ``` 
+
+## SNP probe beta values
+
+Distributions of SNP probe beta values.
+```{r snp-beta-graph}
+
+qc.summary$genotype.summary$graphs$snp.beta
+
+```
+
+## Genotype concordance
+
+```{r genotype-option}
+child.filename <- file.path(path, "missing.rmd")
+if (!is.null(qc.summary$genotype.summary$graphs$snp.concordance))
+    child.filename <- file.path(path, "genotype-concordance.rmd")
+```
+
+```{r genotype-concordance, child=child.filename}
+```

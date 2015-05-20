@@ -35,13 +35,15 @@ meffil.qc.report <- function(
 #' Also returns list of sample IDs and CPGs that are low quality.
 #'
 #' @param  qc.objects From \code{meffil.qc}
+#' @param  genotypes From \code{meffil.extract.genotypes}
 #' @param  parameters Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}
 #' @export
 #' @return List
 #' @examples \dontrun{
 #'
 #'}
-meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), verbose=TRUE) {
+meffil.qc.summary <- function(qc.objects, genotypes = NULL,
+                              parameters = meffil.qc.parameters(), verbose=TRUE) {
     stopifnot(sapply(qc.objects, is.qc.object))
     
     msg("Sex summary", verbose)
@@ -88,7 +90,12 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
     cell.counts.summary <- meffil.plot.cell.counts(
         qc.objects
     )
-
+    msg("Genotype concordance", verbose=verbose)
+    genotype.summary <- meffil.plot.genotypes(
+        qc.objects,
+        genotypes=genotypes,
+        snp.threshold=parameters$snp.concordance.threshold,
+        sample.threshold=parameters$sample.genotype.concordance.threshold)
     
     # Sex mismatches
     sex <- subset(sex.summary$tab, as.character(sex.mismatch) == "TRUE" | outliers,
@@ -137,7 +144,8 @@ meffil.qc.summary <- function(qc.objects, parameters = meffil.qc.parameters(), v
         cpg.detectionp.summary = cpg.detectionp.summary,
         sample.beadnum.summary = sample.beadnum.summary,
         cpg.beadnum.summary = cpg.beadnum.summary,
-        cell.counts.summary = cell.counts.summary
+        cell.counts.summary = cell.counts.summary,
+        genotype.summary = genotype.summary
     ))
 }
 
@@ -502,7 +510,7 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 
 #' Cell count estimate quality plot
 #'
-#' @param objects Output from \code{\link{meffil.qc}()}.
+#' @param qc.objects Output from \code{\link{meffil.qc}()}.
 #' @param reference Object describing methylation profiles of purified cell populations
 #' obtained from \code{\link{meffil.create.cell.type.reference}()}.
 #' @return Two \link{ggplot2} boxplot objects:
@@ -525,6 +533,72 @@ meffil.plot.cell.counts <- function(qc.objects) {
 }
 
 
+#' Plot SNP beta and sample genotype concordances
+#'
+#' @param qc.objects Output from \code{\link{meffil.qc}()}.
+#' @param genotypes Optional output from \code{\link{meffil.extract.genotypes}()}.
+#' @param sample.threshold Concordance threshold below which the Illumina 450K
+#' and genetic profiles for a sample are deemed a mismatch (Default: 0.9).
+#' @param snp.threshold Concordance threshold below which the Illumina 450K
+#' and genetic profiles for a SNP are deemed a mismatch (Default: 0.99).
+#' @return A list consisting of:
+#' - \code{graphs} A list of \link{ggplot2} objects.  The first \code{snp.betas}
+#' plots the beta distributions of each SNP probe in the microarray.
+#' The second and third plots are added only if the \code{genotypes} parameter
+#' is not \code{NULL}. The second plot shows the distribution of SNP concordances,
+#' and the third plot shows the distribution of sample concordances.
+#' - \code{tabs} Contains two data frames if the
+#' \code{genotypes} parameter is not \code{NULL}.  The first \code{samples}
+#' lists the concordances of each sample, the second \code{snps} lists the
+#' concordances of each SNP.
+#' 
+#' @export
+meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
+                                  sample.threshold=0.9, snp.threshold=0.99) {
+    graphs <- list()
+    tabs <- list()
+    
+    snp.betas <- meffil.snp.betas(qc.objects)
+    
+    data <- lapply(rownames(snp.betas), function(snp.name) 
+                   data.frame(snp=snp.name, beta=snp.betas[snp.name,],stringsAsFactors=F))
+    data <- do.call(rbind, data)
+    graphs$snp.beta <- ggplot(data=data, aes(beta)) +
+        geom_histogram() +
+            facet_wrap(~snp)
+    
+
+    if (!is.null(genotypes)) {
+        common.samples <- intersect(colnames(snp.betas), colnames(genotypes))
+        common.snps <- intersect(rownames(snp.betas), rownames(genotypes))
+        
+        stopifnot(length(common.samples) > 0)
+        stopifnot(length(common.snps) > 0)
+        
+        concordance <- meffil.snp.concordance(snp.betas[common.snps, common.samples, drop=F],
+                                              genotypes[common.snps, common.samples, drop=F])
+        
+        graphs$snp.concordance <- ggplot(data=data.frame(concordance=concordance$snp),
+                                         aes(concordance)) +
+                                             geom_histogram()
+        
+        graphs$sample.concordance <- ggplot(data=data.frame(concordance=concordance$sample),
+                                            aes(concordance))+
+                                                geom_histogram()
+
+        tabs$samples <- with(concordance, data.frame(sample.name=names(sample),concordance=sample))
+        tabs$samples$is.concordant <- tabs$samples$concordance > sample.threshold
+        
+        tabs$snps <- with(concordance, data.frame(snp.name=names(snp),concordance=snp))
+        tabs$snps$is.concordant <- tabs$snps$concordance > snp.threshold        
+    }
+    
+    list(graphs=graphs,
+         tabs=tabs)                     
+}
+
+
+
 #' Specify parameters for QC
 #'
 #' 
@@ -537,12 +611,21 @@ meffil.plot.cell.counts <- function(qc.objects) {
 #' @param  beadnum.samples.threshold Default value = 0.05 <what param does>
 #' @param  detectionp.cpgs.threshold Default value = 0.05 <what param does>
 #' @param  beadnum.cpgs.threshold Default value = 0.05 <what param does>
+#' @param  snp.concordance.threshold = 0.99 <what param does>
+#' @param  sample.genotype.concordance.threshold = 0.9 <what param does>
 #' @export
 #' @return List of parameter values
 #' @examples \dontrun{
 #'
 #'}
-meffil.qc.parameters <- function(colour.code = NULL, control.categories = NULL, sex.outlier.sd = 3, meth.unmeth.outlier.sd = 3, control.means.outlier.sd = 5, detectionp.samples.threshold = 0.05, beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05, beadnum.cpgs.threshold = 0.05) {
+meffil.qc.parameters <- function(colour.code = NULL, control.categories = NULL, sex.outlier.sd = 3,
+                                 meth.unmeth.outlier.sd = 3, control.means.outlier.sd = 5,
+                                 detectionp.samples.threshold = 0.05,
+                                 beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05,
+                                 beadnum.cpgs.threshold = 0.05,
+                                 snp.concordance.threshold = 0.99,
+                                 sample.genotype.concordance.threshold = 0.9
+                                 ) {
     parameters <- list(
         colour.code = colour.code, 
         control.categories = control.categories,
@@ -552,7 +635,10 @@ meffil.qc.parameters <- function(colour.code = NULL, control.categories = NULL, 
         detectionp.samples.threshold = detectionp.samples.threshold,
         beadnum.samples.threshold = beadnum.samples.threshold,
         detectionp.cpgs.threshold = detectionp.cpgs.threshold,
-        beadnum.cpgs.threshold = beadnum.cpgs.threshold
+        beadnum.cpgs.threshold = beadnum.cpgs.threshold,        
+        snp.concordance.threshold = snp.concordance.threshold,
+        sample.genotype.concordance.threshold = sample.genotype.concordance.threshold
+
     )
     return(parameters)
 }

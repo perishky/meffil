@@ -27,6 +27,12 @@ meffil.get.sites <- function() {
     unique(probes$name[which(probes$target %in% c("M","U"))])
 }
 
+#' @export
+meffil.get.snp.probes <- function() {
+    probes <- meffil.probe.info()
+    unique(probes$name[which(probes$target %in% c("MG","UG"))])
+}
+
 get.quantile.probe.subsets <- function() {
     probes <- meffil.probe.info()
     

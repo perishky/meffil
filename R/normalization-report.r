@@ -101,7 +101,7 @@ meffil.plot.control.scree <- function(norm.objects)
 
 #' Test for association of control matrix probes with known batch variables
 #'
-#' Performs association of each of \code{n} PCs calculated from most control matrix against each of \code{m} measured batch variables
+#' Performs association of each of \code{n} PCs calculated from the control matrix against each of \code{m} measured batch variables
 #'
 #' @param  norm.objects From \code{meffil.normalize.quantiles}
 #' @param  pcs Which PCs to plot. Default first 10
@@ -133,14 +133,12 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     
     msg("Testing associations", verbose=verbose)
     res <- matrix(1, ncol(dat), ncol(pcs))
-    for(i in 1:ncol(dat))
-	{
-            for(j in 1:ncol(pcs))
-		{
-                    try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4],
-                        silent=TRUE)
-		}
-	}
+    for(i in 1:ncol(dat)) {
+        for(j in 1:ncol(pcs)) {
+            try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4], 
+                silent=TRUE)
+        }
+    }
     colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
     res <- data.frame(v=variables, res, stringsAsFactors=F)
     res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
@@ -156,7 +154,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 
 #' Test normalized betas for association with known batch variables
 #'
-#' Performs association of each of \code{n} PCs calculated from most variable CpG sites against each of \code{m} measured batch variables
+#' Performs association of each of \code{n} PCs calculated from most variable CpG sites (after normalization) against each of \code{m} measured batch variables
 #'
 #' @param  normalized.beta Output from \code{meffil.normalize.samples}
 #' @param  norm.objects Output from \code{meffil.normalize.quantiles}
@@ -169,7 +167,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), probe.range=1000, verbose=T)
+meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), probe.range=5000, verbose=T)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
     
@@ -204,7 +202,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
 	{
             for(j in 1:ncol(pcs))
 		{ 
-                    try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4],
+                    try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4], 
                         silent=TRUE)
 		}
 	}
@@ -249,7 +247,7 @@ guess.batch.vars <- function(norm.objects)
 #' @examples \dontrun{
 #'
 #'}
-meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 1000)
+meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 5000)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
     
