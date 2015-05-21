@@ -4,7 +4,7 @@
 \alias{meffil.extract.genotypes}
 \title{Extract genotype data from PLINK .raw files for Illumina 450K SNPs}
 \usage{
-meffil.extract.genotypes(filenames)
+meffil.extract.genotypes(filenames, verbose = F)
 }
 \arguments{
 \item{filenames}{A vector of filenames of PLINK .raw files from which to extract

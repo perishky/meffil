@@ -30,7 +30,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
     check.samplesheet(samplesheet)
     
     samplesheet.row <- dlply(samplesheet, .(Sample_Name))
-    qc.objects <- mclapply(
+
+    qc.objects <- mclapply.safe(
         samplesheet.row, 
         meffil.create.qc.object,
         number.quantiles=number.quantiles,
@@ -39,7 +40,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         detection.threshold=detection.threshold,
         bead.threshold=bead.threshold,
         sex.cutoff=sex.cutoff,
-        cell.type.reference=cell.type.reference
+        cell.type.reference=cell.type.reference,
+        ret.bytes=4*10^6  ## used object.size(qc.object) for estimate
         )
     names(qc.objects) <- samplesheet$Sample_Name
     return(qc.objects)

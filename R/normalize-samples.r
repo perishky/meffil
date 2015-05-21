@@ -8,8 +8,10 @@
 #' @param cpglist.remove Optional list of CpGs to exclude from final output
 #' @param just.beta Return a normalized methylation levels if TRUE (Default); otherwise return
 #' normalized methylated and unmethylated signals.
-#' @param filename Optional filename if the returned \code{\link[bigmemory]{big.matrix}} object(s) should
-#' be file-backed rather than memory-backed (Default: NULL).  
+#' @param big.matrix If \code{TRUE}, then matrices are returned as
+#' \code{\link[bigmemory]{big.matrix}} object(s) (Default: FALSE).
+#' @param filename Optional filename if the returned \code{\link[bigmemory]{big.matrix}} object(s)
+#' should be file-backed rather than memory-backed (Default: NULL).
 #' @param verbose If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).
 #' @param ... Arguments passed to \code{\link[parallel]{mclapply}()}.
 #' @return Either a single (\code{\link[bigmemory]{big.matrix}}) object of normalized methylation levels
@@ -36,6 +38,7 @@ meffil.normalize.samples <- function(norm.objects,
                                      pseudo=100, 
                                      cpglist.remove=NULL,
                                      just.beta=T,
+                                     big.matrix=F,
                                      filename=NULL,
                                      verbose=F,
                                      ...) {
@@ -74,8 +77,17 @@ meffil.normalize.samples <- function(norm.objects,
     
     errors <- check.for.normalization.errors(status)
     if (!is.null(errors)) return(errors)
-    
+       
     gc()
+    if (!big.matrix && is.null(filename)) {
+        if (just.beta)
+            beta <- beta[]
+        else {
+            M <- M[]
+            U <- U[]
+        }
+    }
+
     if (just.beta)
         beta
     else

@@ -42,7 +42,12 @@ meffil.create.qc.object <- function(samplesheet.row,
 
     controls <- extract.controls(rg, verbose=verbose)
 
-    rg <- background.correct(rg, verbose=verbose)
+    tryCatch({
+        rg <- background.correct(rg, verbose=verbose)
+    }, error = function(e) {
+        save.image(paste(samplesheet.row$Basename, "rda", sep="."))
+        stop(e)
+    })
 
     intensity.R <- calculate.intensity.R(rg)
     intensity.G <- calculate.intensity.G(rg)

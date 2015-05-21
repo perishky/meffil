@@ -79,7 +79,7 @@ qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, ve
 ```
 
 Create the QC report.
-```{r}
+```{r,messages=F}
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,
                  output.file=qc.file,
@@ -107,7 +107,7 @@ norm.meffil <- meffil.normalize.samples(norm.objects,
 ```
 
 Generate a normalization report.
-```{r}
+```{r,messages=F}
 beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, verbose=T)
 meffil.normalization.report(norm.summary,

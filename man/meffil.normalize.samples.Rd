@@ -5,7 +5,7 @@
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
 meffil.normalize.samples(norm.objects, pseudo = 100, cpglist.remove = NULL,
-  just.beta = T, filename = NULL, verbose = F, ...)
+  just.beta = T, big.matrix = F, filename = NULL, verbose = F, ...)
 }
 \arguments{
 \item{norm.objects}{The list or sublist of \code{\link{meffil.normalize.quantiles}()}.}
@@ -18,8 +18,11 @@ estimate more stable when calculating methylation levels (Default: 100).}
 \item{just.beta}{Return a normalized methylation levels if TRUE (Default); otherwise return
 normalized methylated and unmethylated signals.}
 
-\item{filename}{Optional filename if the returned \code{\link[bigmemory]{big.matrix}} object(s) should
-be file-backed rather than memory-backed (Default: NULL).}
+\item{big.matrix}{If \code{TRUE}, then matrices are returned as
+\code{\link[bigmemory]{big.matrix}} object(s) (Default: FALSE).}
+
+\item{filename}{Optional filename if the returned \code{\link[bigmemory]{big.matrix}} object(s)
+should be file-backed rather than memory-backed (Default: NULL).}
 
 \item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
 
