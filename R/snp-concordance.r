@@ -9,7 +9,7 @@
 #' a second providing concordances between genotypes and SNP betas for matched SNPs.
 #' 
 #' @export
-meffil.snp.concordance <- function(snp.betas, genotypes) {
+meffil.snp.concordance <- function(snp.betas, genotypes, snp.threshold=0.99) {
     stopifnot(length(colnames(snp.betas)) == ncol(snp.betas))
     stopifnot(length(rownames(snp.betas)) == nrow(snp.betas))
     stopifnot(all(colnames(snp.betas) == colnames(genotypes)))
@@ -30,8 +30,12 @@ meffil.snp.concordance <- function(snp.betas, genotypes) {
         else
             diag1/sum(counts)
     })
+    snp.idx <- which(snp.concordance > snp.threshold)
 
-    sample.concordance <- colSums(beta.genotypes == genotypes, na.rm=T)/nrow(genotypes)
+    if (length(snp.idx) > 0)
+        sample.concordance <- colSums(beta.genotypes[snp.idx,,drop=F] == genotypes[snp.idx,,drop=F], na.rm=T)/length(snp.idx)
+    else
+        sample.concordance <- rep(NA, ncol(genotypes))
 
     list(sample=sample.concordance,
          snp=snp.concordance)

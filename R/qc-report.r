@@ -105,7 +105,6 @@ meffil.qc.summary <- function(qc.objects, genotypes = NULL,
     # Bad quality samples
     sexo <- subset(sex.summary$tab, outliers, select=c(sample.name))
     if(nrow(sexo) > 0) {
-        print("yes")
         sexo$issue <- "X-Y ratio outlier"
     }
     methunmeth <- subset(meth.unmeth.summary$tab, outliers, select=c(sample.name))
@@ -569,6 +568,9 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
     
 
     if (!is.null(genotypes)) {
+        genotypes <- genotypes[,which(colSums(is.na(genotypes)) < nrow(genotypes)), drop=F]
+        genotypes <- genotypes[which(rowSums(is.na(genotypes)) < ncol(genotypes)),, drop=F]
+        
         common.samples <- intersect(colnames(snp.betas), colnames(genotypes))
         common.snps <- intersect(rownames(snp.betas), rownames(genotypes))
         
@@ -576,7 +578,8 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
         stopifnot(length(common.snps) > 0)
         
         concordance <- meffil.snp.concordance(snp.betas[common.snps, common.samples, drop=F],
-                                              genotypes[common.snps, common.samples, drop=F])
+                                              genotypes[common.snps, common.samples, drop=F],
+                                              snp.threshold=snp.threshold)
         
         graphs$snp.concordance <- ggplot(data=data.frame(concordance=concordance$snp),
                                          aes(concordance)) +
