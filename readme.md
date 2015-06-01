@@ -61,7 +61,7 @@ Get some data:
 Load up `meffil`
 
 	library(devtools)
-	install_github("perishky/meffil@restructure1")
+	install_github("perishky/meffil")
 	library(meffil)
 	options(mc.cores=16)
 
