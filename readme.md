@@ -92,7 +92,7 @@ If such a matrix is available (rows = SNPs, columns = samples), then the followi
 can be omitted.  Otherwise, it is possible to obtain the matrix from a PLINK
 dataset as follows:
 
-    writeLines(meffil.snp.probes(), con="snp-names.txt")
+    writeLines(meffil.get.snp.probes(), con="snp-names.txt")
     command shell > plink -bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
     filenames <- "genotypes.raw"
     genotypes <- meffil.extract.genotypes(filenames)
