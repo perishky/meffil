@@ -6,6 +6,9 @@ Authors@R: c(person("Matthew", "Suderman", role = c("cre", "aut"),
                     email = "matthewsuderman@hotmail.com"),              
              person("Gibran", "Hemani", role = c("cre", "aut")),
              person("Josine", "Min", role = c("cre", "aut")))
+Author: Matthew Suderman <matthewsuderman@hotmail.com> [cre, aut],
+  Gibran Hemani [cre, aut],
+  Josine Min [cre, aut]
 Maintainer: Matthew Suderman <matthewsuderman@hotmail.com>
 Depends:  illuminaio, 
 	  MASS, 
