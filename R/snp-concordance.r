@@ -33,7 +33,8 @@ meffil.snp.concordance <- function(snp.betas, genotypes, snp.threshold=0.99) {
     snp.idx <- which(snp.concordance > snp.threshold)
 
     if (length(snp.idx) > 0)
-        sample.concordance <- colSums(beta.genotypes[snp.idx,,drop=F] == genotypes[snp.idx,,drop=F], na.rm=T)/length(snp.idx)
+        sample.concordance <- colSums(beta.genotypes[snp.idx,,drop=F] == genotypes[snp.idx,,drop=F],
+                                      na.rm=T)/length(snp.idx)
     else
         sample.concordance <- rep(NA, ncol(genotypes))
 
@@ -41,13 +42,8 @@ meffil.snp.concordance <- function(snp.betas, genotypes, snp.threshold=0.99) {
          snp=snp.concordance)
 }
 
-calculate.beta.genotypes <- function(snp.betas, breaks=c(-Inf,0.25,0.75,Inf)) {
-    genotypes <- matrix(NA,ncol=ncol(snp.betas),nrow=nrow(snp.betas),dimnames=dimnames(snp.betas))
-    for (i in 2:length(breaks)) {
-        idx <- which(snp.betas >= breaks[i-1] & snp.betas < breaks[i])
-        genotypes[idx] <- i
-    }
-    genotypes-2
+calculate.beta.genotypes <- function(snp.betas, centers=c(0.2,0.5,0.8)) {
+    t(apply(snp.betas,1,function(x) kmeans(x, centers=centers)$cluster))
 }
 
 
