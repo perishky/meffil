@@ -43,7 +43,7 @@ meffil.snp.concordance <- function(snp.betas, genotypes, snp.threshold=0.99) {
 }
 
 calculate.beta.genotypes <- function(snp.betas, centers=c(0.2,0.5,0.8)) {
-    t(apply(snp.betas,1,function(x) kmeans(x, centers=centers)$cluster))
+    t(apply(snp.betas,1,function(x) kmeans(x, centers=centers)$cluster - 1))
 }
 
 
