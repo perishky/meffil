@@ -10,7 +10,7 @@ meffil.control.matrix(qc.objects)
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}
 }
 \value{
-Matrix with one column per object consisting of control probe intensities and summaries.
+Matrix with one row per object consisting of control probe intensities and summaries.
 }
 \description{
 Matrix containing control probe intensities from the Infinium HumanMethylation450 BeadChip.

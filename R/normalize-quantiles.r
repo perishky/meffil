@@ -7,14 +7,20 @@
 #'
 #' @param qc.objects A list of outputs from \code{\link{meffil.create.qc.object}()}.
 #' @param number.pcs Number of control matrix principal components to adjust for (Default: 2).
+#' @param fixed.effects Names of columns in samplesheet that should be included as fixed effects
+#' along with control matrix principal components (Default: NULL).
+#' @param random.effects Names of columns in samplesheet that should be included as random effects
+#' (Default: NULL).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return Same list as input with additional elements added for each sample
 #' including normalized quantiles needed for normalizing each sample.
 #'
 #' @export
 meffil.normalize.quantiles <- function(qc.objects,
-                                    number.pcs=2, 
-                                    verbose=F) {
+                                       number.pcs=2,
+                                       fixed.effects=NULL,
+                                       random.effects=NULL,
+                                       verbose=F) {
 
     stopifnot(length(qc.objects) >= 2)
     stopifnot(all(sapply(qc.objects, is.qc.object)))
@@ -34,10 +40,16 @@ meffil.normalize.quantiles <- function(qc.objects,
     female.idx <- which(sex == "F")
 
     msg("creating control matrix", verbose=verbose)
-    design.matrix <- meffil.design.matrix(qc.objects, number.pcs)
+    design.matrix <- meffil.design.matrix(qc.objects, number.pcs,
+                                          fixed.effects=fixed.effects,
+                                          random.effects=random.effects)
     if (has.both.sexes) {
-        design.male <- meffil.design.matrix(qc.objects[male.idx])
-        design.female <- meffil.design.matrix(qc.objects[female.idx])
+        design.male <- meffil.design.matrix(qc.objects[male.idx], number.pcs,
+                                            fixed.effects=fixed.effects,
+                                            random.effects=random.effects)
+        design.female <- meffil.design.matrix(qc.objects[female.idx], number.pcs,
+                                              fixed.effects=fixed.effects,
+                                              random.effects=random.effects)
     }
 
     msg("normalizing quantiles", verbose=verbose)
@@ -83,17 +95,21 @@ is.normalized.object <- function(object) {
 
 normalize.quantiles <- function(quantiles, design.matrix) {
     stopifnot(is.matrix(quantiles))
-    stopifnot(is.matrix(design.matrix))
-    stopifnot(ncol(quantiles) == nrow(design.matrix))
+    stopifnot(is.matrix(design.matrix$fixed) && ncol(quantiles) == nrow(design.matrix$fixed))
+    stopifnot(is.null(design.matrix$random) || ncol(quantiles) == nrow(design.matrix$random))
 
+    ## make sure lowest and highest quantiles extreme
     quantiles[1,] <- 0
     safe.increment <- 1000
     quantiles[nrow(quantiles),] <- quantiles[nrow(quantiles)-1,] + safe.increment
+
+    ## adjust mean centered quantiles with fixed and random effects
     mean.quantiles <- rowMeans(quantiles)
-    fit <- lm.fit(x=design.matrix, y=t(quantiles - mean.quantiles))
-    norm.quantiles <- mean.quantiles + t(residuals(fit))
+    quantiles <- quantiles - mean.quantiles
+    norm.quantiles <- adjust.columns(t(quantiles), design.matrix$fixed, design.matrix$random)
+    norm.quantiles <- mean.quantiles + t(norm.quantiles)
     
-    ## make sure that the quantiles in monotonically increasing, not usually a problem but ...
+    ## make sure that the quantiles are monotonically increasing, not usually a problem but ...
     for (i in 2:nrow(norm.quantiles))
         norm.quantiles[i,] <- apply(norm.quantiles[(i-1):i,], 2, max, na.rm=T)
     norm.quantiles

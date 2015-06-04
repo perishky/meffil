@@ -93,7 +93,7 @@ can be omitted.  Otherwise, it is possible to obtain the matrix from a PLINK
 dataset as follows:
 
     writeLines(meffil.get.snp.probes(), con="snp-names.txt")
-    command shell > plink -bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
+    command shell > plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
     filenames <- "genotypes.raw"
     genotypes <- meffil.extract.genotypes(filenames)
 
@@ -116,7 +116,16 @@ And now perform quantile normalization:
 
 	norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=10)
 
-Finally, the `beta` values can be generated, whilst removing CpGs that were found to be dodgy in the QC analysis:
+Additional fixed and random effects can be included in the normalization
+by providing their corresponding column names in the samplesheet.
+For example, slide effects can be included as follows:
+
+    norm.objects <- meffil.normalize.quantiles(qc.objects, random.effects="Slide", number.pcs=10)
+
+Note however that including random effects will greatly increase running time.
+
+Finally, the `beta` values can be generated, whilst removing CpGs
+that were found to be dodgy in the QC analysis:
 
 	norm.beta <- meffil.normalize.samples(norm.objects, cpglist.remove=qc.report$bad.cpgs$name)
 

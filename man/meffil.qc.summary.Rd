@@ -10,7 +10,9 @@ meffil.qc.summary(qc.objects, genotypes = NULL,
 \arguments{
 \item{qc.objects}{From \code{meffil.qc}}
 
-\item{genotypes}{From \code{meffil.extract.genotypes}}
+\item{genotypes}{Optional output from \code{\link{meffil.extract.genotypes}()}.
+Sample genotypes are matched to sample qc.objects using
+\code{colnames(genotypes)} and \code{names(qc.objects)}.}
 
 \item{parameters}{Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}}
 }

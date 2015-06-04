@@ -19,7 +19,7 @@ Extract genotype data from PLINK .raw files for Illumina 450K SNPs
 }
 \examples{
 R> writeLines(meffil.snp.probes(), con="snp-names.txt")
-shell> plink -bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
+shell> plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
 R> filenames <- "genotypes.raw"
 R> genotypes <- meffil.extract.genotypes(filenames)
 }

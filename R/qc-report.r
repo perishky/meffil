@@ -35,7 +35,9 @@ meffil.qc.report <- function(
 #' Also returns list of sample IDs and CPGs that are low quality.
 #'
 #' @param  qc.objects From \code{meffil.qc}
-#' @param  genotypes From \code{meffil.extract.genotypes}
+#' @param genotypes Optional output from \code{\link{meffil.extract.genotypes}()}.
+#' Sample genotypes are matched to sample qc.objects using
+#' \code{colnames(genotypes)} and \code{names(qc.objects)}.
 #' @param  parameters Default = meffil.qc.parameters(). List of parameter values. See \code{\link{meffil.qc.parameters}}
 #' @export
 #' @return List
@@ -536,6 +538,8 @@ meffil.plot.cell.counts <- function(qc.objects) {
 #'
 #' @param qc.objects Output from \code{\link{meffil.qc}()}.
 #' @param genotypes Optional output from \code{\link{meffil.extract.genotypes}()}.
+#' Sample genotypes are matched to sample qc.objects using
+#' \code{colnames(genotypes)} and \code{names(qc.objects)}.
 #' @param sample.threshold Concordance threshold below which the Illumina 450K
 #' and genetic profiles for a sample are deemed a mismatch (Default: 0.9).
 #' @param snp.threshold Concordance threshold below which the Illumina 450K

@@ -4,7 +4,8 @@
 \alias{meffil.design.matrix}
 \title{Infinium HumanMethylation450 BeadChip normalization design matrix}
 \usage{
-meffil.design.matrix(qc.objects, number.pcs)
+meffil.design.matrix(qc.objects, number.pcs, fixed.effects = NULL,
+  random.effects = NULL)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}

@@ -4,7 +4,7 @@
 \alias{meffil.pcs}
 \title{Calculate control probe PCs}
 \usage{
-meffil.pcs(qc.objects)
+meffil.pcs(qc.objects, fixed.effects = NULL, random.effects = NULL)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}

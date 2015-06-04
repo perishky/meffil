@@ -8,9 +8,10 @@ meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
   cell.type.reference = NULL, qc.parameters = meffil.qc.parameters(),
   qc.file = "meffil-qc-report.md", author = "Analyst",
-  study = "IlluminaHuman450 data", number.pcs = 2, pseudo = 100,
-  just.beta = T, norm.parameters = NULL,
-  norm.file = "meffil-normalization-report.md", verbose = FALSE)
+  study = "IlluminaHuman450 data", number.pcs = 2, fixed.effects = NULL,
+  random.effects = NULL, pseudo = 100, just.beta = T,
+  norm.parameters = NULL, norm.file = "meffil-normalization-report.md",
+  verbose = FALSE)
 }
 \arguments{
 \item{samplesheet}{Output from \code{\link{meffil.read.samplesheet}()} or
@@ -38,7 +39,15 @@ Arguments to \code{\link{meffil.qc.report}()}:}
 
 \item{study}{Arguments to \code{\link{meffil.normalize.quantiles}()}:}
 
-\item{number.pcs}{Arguments to \code{\link{meffil.normalize.samples}()}:}
+\item{number.pcs}{}
+
+\item{fixed.effects}{Names of columns in samplesheet that should be included as fixed effects
+along with control matrix principal components (Default: NULL).}
+
+\item{random.effects}{Names of columns in samplesheet that should be included as random effects
+(Default: NULL).
+
+Arguments to \code{\link{meffil.normalize.samples}()}:}
 
 \item{pseudo}{Arguments to \code{\link{meffil.normalization.summary}()}:}
 

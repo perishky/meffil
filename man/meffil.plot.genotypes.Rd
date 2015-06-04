@@ -10,7 +10,9 @@ meffil.plot.genotypes(qc.objects, genotypes = NULL, sample.threshold = 0.9,
 \arguments{
 \item{qc.objects}{Output from \code{\link{meffil.qc}()}.}
 
-\item{genotypes}{Optional output from \code{\link{meffil.extract.genotypes}()}.}
+\item{genotypes}{Optional output from \code{\link{meffil.extract.genotypes}()}.
+Sample genotypes are matched to sample qc.objects using
+\code{colnames(genotypes)} and \code{names(qc.objects)}.}
 
 \item{sample.threshold}{Concordance threshold below which the Illumina 450K
 and genetic profiles for a sample are deemed a mismatch (Default: 0.9).}

@@ -28,6 +28,10 @@
 #'
 #' Arguments to \code{\link{meffil.normalize.quantiles}()}:
 #' @param number.pcs
+#' @param fixed.effects Names of columns in samplesheet that should be included as fixed effects
+#' along with control matrix principal components (Default: NULL).
+#' @param random.effects Names of columns in samplesheet that should be included as random effects
+#' (Default: NULL).
 #'
 #' Arguments to \code{\link{meffil.normalize.samples}()}:
 #' @param beta
@@ -67,6 +71,8 @@ meffil.normalize.dataset <- function(samplesheet,
 
                                      ## meffil.normalize.quantiles
                                      number.pcs=2,
+                                     fixed.effects=NULL,
+                                     random.effects=NULL,
 
                                      ## meffil.normalize.samples
                                      pseudo=100,
@@ -99,7 +105,11 @@ meffil.normalize.dataset <- function(samplesheet,
     if (nrow(qc.summary$bad.samples) > 0)
         qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
     
-    norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=verbose)
+    norm.objects <- meffil.normalize.quantiles(qc.objects,
+                                               fixed.effects=fixed.effects,
+                                               random.effects=random.effects,
+                                               number.pcs=number.pcs,
+                                               verbose=verbose)
     
     norm <- meffil.normalize.samples(norm.objects,
                                      pseudo=pseudo,

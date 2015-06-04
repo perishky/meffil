@@ -79,7 +79,7 @@ qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, ve
 ```
 
 Create the QC report.
-```{r,messages=F}
+```{r,message=F,result="hide"}
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,
                  output.file=qc.file,
@@ -107,7 +107,7 @@ norm.meffil <- meffil.normalize.samples(norm.objects,
 ```
 
 Generate a normalization report.
-```{r,messages=F}
+```{r,message=F,results="hide"}
 beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, verbose=T)
 meffil.normalization.report(norm.summary,
@@ -184,7 +184,7 @@ Control matrix for `meffil` was extracted earlier.
 Preprocess the matrix using the same procedure used by `minfi`.
 ```{r, results='hide'}
 control.matrix.meffil <- meffil.control.matrix(norm.objects)
-control.matrix.meffil <- scale(t(control.matrix.meffil))
+control.matrix.meffil <- scale(control.matrix.meffil)
 control.matrix.meffil[control.matrix.meffil > 3] <- 3
 control.matrix.meffil[control.matrix.meffil < -3] <- -3
 control.matrix.meffil <- scale(control.matrix.meffil)
@@ -299,6 +299,28 @@ snps.meffil <- meffil.snp.betas(qc.objects)
 snps.minfi <- getSnpBeta(raw.minfi)
 quantile(snps.meffil - snps.minfi[rownames(snps.meffil),])
 ```
+
+
+## Adjusting for other effects
+
+```{r comparison-meffil-slide, cache=T}
+norm.meffil.2 <- meffil.normalize.dataset(samplesheet,
+                                          qc.file="minfi-slide/qc-report.html",
+                                          author=author,
+                                          study=study,
+                                          number.pcs=number.pcs,
+                                          random.effects="Slide",
+                                          norm.file="minfi-slide/normalization-report.html",
+                                          cell.type.reference=cell.type.reference,
+                                          verbose=T)
+```
+
+These should be somewhat different due to slide adjustments.
+The normalization report gives more details.
+```{r}
+quantile(beta.meffil - norm.meffil.2$beta[rownames(beta.meffil),])
+```
+
 
 This file was generated from R markdown:
 

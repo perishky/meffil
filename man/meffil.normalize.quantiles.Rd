@@ -4,12 +4,19 @@
 \alias{meffil.normalize.quantiles}
 \title{Normalize microarray quantiles}
 \usage{
-meffil.normalize.quantiles(qc.objects, number.pcs = 2, verbose = F)
+meffil.normalize.quantiles(qc.objects, number.pcs = 2, fixed.effects = NULL,
+  random.effects = NULL, verbose = F)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}
 
 \item{number.pcs}{Number of control matrix principal components to adjust for (Default: 2).}
+
+\item{fixed.effects}{Names of columns in samplesheet that should be included as fixed effects
+along with control matrix principal components (Default: NULL).}
+
+\item{random.effects}{Names of columns in samplesheet that should be included as random effects
+(Default: NULL).}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }
