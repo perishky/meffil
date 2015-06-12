@@ -1,3 +1,20 @@
+To do list Josine: 09/06/2015:
+
+QC report
+1) add threshold line to discriminate sexes to sex graph based on qc parameters
+2) add slide colors to meth/unmeth plot
+3) cell count plot is not appropriate for 5000 samples
+4) control probe means plots are too small and should be colored by slide
+5) sex mismatches and genotype discordant samples are missing in summary report
+6) rename figure dir to same prefix as .html files
+
+Normalization report 
+1) association between PCs and batch variables. Batch variables should be factors. Boxplots of pvalues rather than betas.
+2) PCA plot of normalized data to detect outliers.
+
+
+
+
 handle additional technical effects in meffil.normalize.objects()
  - new arguments: fixed.effects, random.effects, adjust.slide=T/F
  - if (adjust.slide) add slide to random.effects
