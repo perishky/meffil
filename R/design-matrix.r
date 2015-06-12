@@ -17,11 +17,15 @@ meffil.design.matrix <- function(qc.objects, number.pcs, fixed.effects=NULL, ran
         fixed.effects <- do.call(rbind, lapply(qc.objects, function(object) {
             object$samplesheet[,unique(fixed.effects),drop=F]
         }))
+        for (name in colnames(fixed.effects))
+            stopifnot(length(unique(na.omit(fixed.effects[,name]))) > 1)
     }
     if (!is.null(random.effects)) {
         random.effects <- do.call(rbind, lapply(qc.objects, function(object) {
             object$samplesheet[,unique(random.effects),drop=F]
         }))
+        for (name in colnames(random.effects))
+            stopifnot(length(unique(na.omit(random.effects[,name]))) > 1)
     }
     
     control.pca <- meffil.pcs(qc.objects,fixed.effects,random.effects)
