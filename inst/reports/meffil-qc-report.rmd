@@ -31,7 +31,10 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
-This is a plot of the `xy.diff` values estimated from the methylation data.
+This is a plot of the difference between median 
+chromosome Y and chromosome X probe intensities ("XY diff").
+Cutoff for sex detection was
+XY diff = `r qc.summary$parameters$sex.cutoff`.
 
 ```{r sex-graph}
 
@@ -46,8 +49,6 @@ There are `r sum(qc.summary$meth.unmeth.summary$tab$outliers)` outliers from the
 Outliers are samples whose predicted median methylated signal is
 more than `r qc.summary$parameters$meth.unmeth.outlier.sd` standard deviations
 from the expected (regression line).
-
-*TODO: color slides with outliers*
 
 ```{r meth-unmeth-summary}
 
@@ -87,7 +88,11 @@ qc.summary$controlmeans.summary$graph
 
 ## Sample detection p-values
 
-There were `r sum(qc.summary$sample.detectionp.summary$tab$outliers)` outliers detected based on having high detection p-values
+There were `r sum(qc.summary$sample.detectionp.summary$tab$outliers)` samples
+with a high proportion of undetected probes
+(proportion of probes with
+detection p-value > `r qc.summary$parameters$detection.threshold`
+is > `r qc.summary$parameters$detectionp.samples.threshold`).
 
 ```{r sample-detectionp-summary}
 
@@ -107,7 +112,11 @@ qc.summary$sample.detectionp.summary$graph
 
 ## Sample bead numbers
 
-There were `r sum(qc.summary$sample.beadnum.summary$tab$outliers)` outliers detected based on having low average bead numbers
+There were `r sum(qc.summary$sample.beadnum.summary$tab$outliers)` samples
+with a high proportion of probes with low bead number
+(proportion of probes with
+bead number < `r qc.summary$parameters$bead.threshold`
+is > `r qc.summary$parameters$beadnum.samples.threshold`).
 
 ```{r sample-beadnum-summary}
 
@@ -127,8 +136,11 @@ qc.summary$sample.beadnum.summary$graph
 
 ## CpG detection p-values
 
-There were `r sum(qc.summary$cpg.detectionp.summary$tab$outliers)` CpGs with high proportion of high detection p-values.
-Manhattan plot of proportion of samples with detection p-value > 0.01 for CpGs shown below. Black horizontal line represents threshold of `r qc.summary$parameters$detectionp.cpgs.threshold`.
+There were `r sum(qc.summary$cpg.detectionp.summary$tab$outliers)`
+probes with only background signal in a high proportion of samples
+(proportion of samples with detection p-value > `r qc.summary$parameters$detection.threshold`
+is > `r qc.summary$parameters$detectionp.cpgs.threshold`).
+Manhattan plot shows the proportion of samples.
 
 ```{r cpg-detectionp-graph}
 
@@ -136,10 +148,13 @@ qc.summary$cpg.detectionp.summary$graph
 
 ```
 
-## CpG low bead numbers
+## Low number of beads per CpG
 
-There were `r sum(qc.summary$cpg.beadnum.summary$tab$outliers)` CpGs with high proportion of samples with low bead numbers.
-Manhattan plot of proportion of samples with bead number less than 3 for CpGs shown below. Black horizontal line represents threshold of `r qc.summary$parameters$beadnum.cpgs.threshold`.
+There were `r sum(qc.summary$cpg.beadnum.summary$tab$outliers)` CpGs
+with low bead numbers in a high proportion of samples
+(proportion of samples with bead number < `r qc.summary$parameters$bead.threshold`
+is > `r qc.summary$parameters$beadnum.cpgs.threshold`).
+Manhattan plot of proportion of samples.
 
 ```{r cpg-beadnum-graph}
 
