@@ -9,7 +9,9 @@
 #' a second providing concordances between genotypes and SNP betas for matched SNPs.
 #' 
 #' @export
-meffil.snp.concordance <- function(snp.betas, genotypes, snp.threshold=0.99) {
+meffil.snp.concordance <- function(snp.betas, genotypes,
+                                   snp.threshold=0.99,
+                                   sample.threshold=0.9) {
     stopifnot(length(colnames(snp.betas)) == ncol(snp.betas))
     stopifnot(length(rownames(snp.betas)) == nrow(snp.betas))
     stopifnot(all(colnames(snp.betas) == colnames(genotypes)))
@@ -30,20 +32,35 @@ meffil.snp.concordance <- function(snp.betas, genotypes, snp.threshold=0.99) {
         else
             diag1/sum(counts)
     })
+
     snp.idx <- which(snp.concordance > snp.threshold)
+    if (length(snp.idx) == 0)
+        snp.idx <- 1:length(snp.concordance)
+    sample.concordance <- colSums(beta.genotypes[snp.idx,,drop=F] == genotypes[snp.idx,,drop=F],
+                                  na.rm=T)/length(snp.idx)
+    names(sample.concordance) <- colnames(genotypes)
 
-    if (length(snp.idx) > 0)
-        sample.concordance <- colSums(beta.genotypes[snp.idx,,drop=F] == genotypes[snp.idx,,drop=F],
-                                      na.rm=T)/length(snp.idx)
-    else
-        sample.concordance <- rep(NA, ncol(genotypes))
-
+    sample.idx <- which(sample.concordance > sample.threshold)
+    if (length(sample.idx) == 0)
+        sample.idx <- 1:length(sample.concordance)
+    snp.concordance <- rowSums(beta.genotypes[,sample.idx,drop=F] == genotypes[,sample.idx,drop=F],
+                               na.rm=T)/length(sample.idx)
+    names(snp.concordance) <- rowname(genotypes)
+    
     list(sample=sample.concordance,
          snp=snp.concordance)
 }
 
 calculate.beta.genotypes <- function(snp.betas, centers=c(0.2,0.5,0.8)) {
-    t(apply(snp.betas,1,function(x) kmeans(x, centers=centers)$cluster - 1))
+    t(apply(snp.betas,1,function(x) {
+        tryCatch(kmeans(x, centers=centers)$cluster - 1,
+                 error=function(e) {
+                     cluster <- rep(1,ncol(snp.betas))
+                     cluster[which(x < min(centers))] <- 0
+                     cluster[which(x > max(centers))] <- 2
+                     cluster
+                 })
+    }))
 }
 
 

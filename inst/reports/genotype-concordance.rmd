@@ -1,5 +1,5 @@
 There are
-`r sum(!qc.summary$genotype.summary$tabs$samples$is.concordant)`
+`r sum(!qc.summary$genotype.summary$tabs$samples$is.concordant, na.rm=T)`
 samples whose genotypes do not match the SNP probes on the microarray
 (concordance threshold = `r qc.summary$parameters$sample.genotype.concordance.threshold`).
 
@@ -7,7 +7,7 @@ samples whose genotypes do not match the SNP probes on the microarray
 
 tab <- qc.summary$genotype.summary$tabs$samples
 tab <- tab[which(!tab$is.concordant),]
-if (nrow(tab) > 0) kable(tab)
+if (nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
@@ -19,7 +19,7 @@ qc.summary$genotype.summary$graphs$sample.concordance
 ```
 
 There are
-`r sum(!qc.summary$genotype.summary$tabs$snp$is.concordant)`
+`r sum(!qc.summary$genotype.summary$tabs$snp$is.concordant, na.rm=T)`
 SNP probes whose genotypes do not match their values on the microarray
 (concordance threshold = `r qc.summary$parameters$snp.concordance.threshold`).
 
@@ -27,7 +27,7 @@ SNP probes whose genotypes do not match their values on the microarray
 
 tab <- qc.summary$genotype.summary$tabs$snps
 tab <- tab[which(!tab$is.concordant),]
-if (nrow(tab) > 0) kable(tab)
+if (nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 

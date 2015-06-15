@@ -100,28 +100,42 @@ meffil.qc.summary <- function(qc.objects, genotypes = NULL,
         sample.threshold=parameters$sample.genotype.concordance.threshold)
     
     # Sex mismatches
-    sex <- subset(sex.summary$tab, as.character(sex.mismatch) == "TRUE" | outliers,
+    sex.check <- subset(sex.summary$tab, as.character(sex.mismatch) == "TRUE" | outliers,
                   select=c(sample.name, predicted.sex, declared.sex, xy.diff, status))
-    sex <- sex[with(sex, order(status,predicted.sex,declared.sex,xy.diff)),]
+    sex.check <- sex.check[with(sex.check, order(status,predicted.sex,declared.sex,xy.diff)),]
   
     # Bad quality samples
+    ## 1a. X-Y ratio outliers
     sexo <- subset(sex.summary$tab, outliers, select=c(sample.name))
-    if(nrow(sexo) > 0) {
+    if(nrow(sexo) > 0) 
         sexo$issue <- "X-Y ratio outlier"
-    }
+    ## 1b. sex mismatches
+    sexm <- subset(sex.summary$tab, as.character(sex.mismatch) == "TRUE", select=c(sample.name))
+    if (nrow(sexm) > 0)
+        sexm$issue <- "Sex mismatch"
+    ## 2. meth/unmeth outliers
     methunmeth <- subset(meth.unmeth.summary$tab, outliers, select=c(sample.name))
     if(nrow(methunmeth) > 0) methunmeth$issue <- "Methylated vs Unmethylated"
+    ## 3. control means outliers
     controlmeans <- subset(controlmeans.summary$tab, outliers, select=c(sample.name, variable))
     names(controlmeans) <- c("sample.name", "issue")
     if(nrow(controlmeans) > 0) controlmeans$issue <- paste("Control probe (", controlmeans$issue, ")", sep="")
+    ## 4. too many undetected probes
     detectionp <- subset(sample.detectionp.summary$tab, outliers, select=c(sample.name))
     if(nrow(detectionp) > 0) detectionp$issue <- "Detection p-value"
+    ## 5. too many low bead number probes
     beadnum <- subset(sample.beadnum.summary$tab, outliers, select=c(sample.name))
     if(nrow(beadnum) > 0) beadnum$issue <- "Low bead numbers"
-
-    bad.samples <- rbind(methunmeth, controlmeans, detectionp, beadnum, sexo)
+    ## 6. genotype mismatches
+    geno <- NULL
+    if (!is.null(genotype.summary$graphs$snp.concordance)) {
+        geno <- subset(genotype.summary$tabs$samples, !is.concordant, select=c(sample.name))
+        if (nrow(geno) > 0)
+            geno$issue <- "Genotype mismatch"
+    }
+    
+    bad.samples <- rbind(methunmeth, controlmeans, detectionp, beadnum, sexo, sexm, geno)
     bad.samples <- bad.samples[order(bad.samples$sample.name),,drop=F]
-
 
     # Bad quality probes
     detectionp.cpg <- subset(cpg.detectionp.summary$tab, outliers, select=c(name))
@@ -134,7 +148,7 @@ meffil.qc.summary <- function(qc.objects, genotypes = NULL,
 
 
     return(list(
-        sex.check = sex,
+        sex.check = sex.check,
         bad.samples = bad.samples,
         bad.cpgs = bad.cpgs,
         parameters = parameters,
@@ -583,7 +597,8 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
         
         concordance <- meffil.snp.concordance(snp.betas[common.snps, common.samples, drop=F],
                                               genotypes[common.snps, common.samples, drop=F],
-                                              snp.threshold=snp.threshold)
+                                              snp.threshold=snp.threshold,
+                                              sample.threshold=sample.threshold)
         
         graphs$snp.concordance <- ggplot(data=data.frame(concordance=concordance$snp),
                                          aes(concordance)) +
@@ -630,7 +645,7 @@ meffil.qc.parameters <- function(colour.code = NULL, control.categories = NULL, 
                                  detectionp.samples.threshold = 0.05,
                                  beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05,
                                  beadnum.cpgs.threshold = 0.05,
-                                 snp.concordance.threshold = 0.99,
+                                 snp.concordance.threshold = 0.9,
                                  sample.genotype.concordance.threshold = 0.9
                                  ) {
     parameters <- list(
