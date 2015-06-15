@@ -27,7 +27,7 @@ There are `r sum(qc.summary$sex.summary$tab$outliers)` sex detection outliers, a
 ```{r sex-summary}
 
 tab <- qc.summary$sex.check
-if(nrow(tab) > 0) kable(tab)
+if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
@@ -52,7 +52,7 @@ from the expected (regression line).
 ```{r meth-unmeth-summary}
 
 tab <- subset(qc.summary$meth.unmeth.summary$tab, outliers)
-if(nrow(tab) > 0) kable(tab)
+if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
@@ -72,7 +72,7 @@ There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detect
 ```{r controlmeans-summary}
 
 tab <- subset(qc.summary$controlmeans.summary$tab, outliers)
-if(nrow(tab) > 0) kable(tab)
+if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
@@ -92,7 +92,7 @@ There were `r sum(qc.summary$sample.detectionp.summary$tab$outliers)` outliers d
 ```{r sample-detectionp-summary}
 
 tab <- subset(qc.summary$sample.detectionp.summary$tab, outliers)
-if(nrow(tab) > 0) kable(tab)
+if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
@@ -112,7 +112,7 @@ There were `r sum(qc.summary$sample.beadnum.summary$tab$outliers)` outliers dete
 ```{r sample-beadnum-summary}
 
 tab <- subset(qc.summary$sample.beadnum.summary$tab, outliers)
-if(nrow(tab) > 0) kable(tab)
+if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
@@ -163,7 +163,7 @@ if (!is.null(qc.summary$cell.counts))
 Distributions of SNP probe beta values.
 ```{r snp-beta-graph}
 
-qc.summary$genotype.summary$graphs$snp.beta
+suppressMessages(qc.summary$genotype.summary$graphs$snp.beta)
 
 ```
 
