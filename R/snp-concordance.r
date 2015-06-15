@@ -45,7 +45,7 @@ meffil.snp.concordance <- function(snp.betas, genotypes,
         sample.idx <- 1:length(sample.concordance)
     snp.concordance <- rowSums(beta.genotypes[,sample.idx,drop=F] == genotypes[,sample.idx,drop=F],
                                na.rm=T)/length(sample.idx)
-    names(snp.concordance) <- rowname(genotypes)
+    names(snp.concordance) <- rownames(genotypes)
     
     list(sample=sample.concordance,
          snp=snp.concordance)
