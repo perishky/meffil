@@ -19,18 +19,35 @@ meffil.cell.count.qc.plots <- function(count.objects) {
     
     beta <- cbind(reference.object$beta, sapply(count.objects, function(object) object$beta))
 
-    dat <- sapply(colnames(beta), function(sample)
-                  data.frame(sample=sample, beta=beta[,sample]), simplify=F)
-    dat <- dat[order(sapply(dat, function(x) mean(x$beta)))]
-    dat <- do.call(rbind, dat)
-    dat$col <- dat$sample %in% colnames(reference.object$beta)
-    
-    beta.plot <- (ggplot(dat, aes(x=sample, y=beta, fill=col)) +
-                  geom_boxplot() +
-                  guides(fill=FALSE) +
-                  stat_summary(fun.y=mean, geom="point", shape=5, size=3) +
-                  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-                  ggtitle("Distribution of beta values per sample"))
+    if (ncol(beta) <= 200) {
+        dat <- sapply(colnames(beta), function(sample)
+                      data.frame(sample=sample, beta=beta[,sample]), simplify=F)
+        dat <- dat[order(sapply(dat, function(x) mean(x$beta)))]
+        dat <- do.call(rbind, dat)
+        dat$is.reference <- dat$sample %in% colnames(reference.object$beta)        
+        beta.plot <- (ggplot(dat, aes(x=sample, y=beta, fill=is.reference)) +
+                      geom_boxplot() +
+                      guides(fill=FALSE) +
+                      stat_summary(fun.y=mean, geom="point", shape=5, size=3) +
+                      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+                      ggtitle("Distribution of beta values per sample"))
+    }
+    else {
+        dat <- data.frame(sample=colnames(beta), beta=colMeans(beta), na.rm=T)
+        dat <- dat[order(dat$beta, decreasing=F),]
+        dat$x <- 1:nrow(dat)
+        dat$is.reference <- dat$sample %in% colnames(reference.object$beta)
+        beta.plot <- (ggplot(dat, aes(x=x, y=beta)) +
+                      geom_point(size=3, colour="skyblue3") +
+                      geom_text(data=dat[dat$is.reference,],
+                                aes(x=x, y=beta, label=sample),
+                                vjust=0.5, hjust=0.5,
+                                angle=0, fontface="bold") +
+                      labs(y="Mean methylation level",
+                           x="Samples (sorted by mean methylation level)") +
+                      ggtitle("Mean beta values per sample") +
+                      theme(axis.text.x = element_blank()))
+    }
 
     counts <- t(sapply(count.objects, function(object) object$counts))
     dat <- sapply(colnames(counts), function(cell.type)
