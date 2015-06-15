@@ -48,6 +48,10 @@ meffil.qc.summary <- function(qc.objects, genotypes = NULL,
                               parameters = meffil.qc.parameters(), verbose=TRUE) {
     stopifnot(sapply(qc.objects, is.qc.object))
     
+    parameters$detection.threshold <- qc.objects[[1]]$bad.probes.detectionp.threshold
+    parameters$bead.threshold <- qc.objects[[1]]$bad.probes.beadnum.threshold
+    parameters$sex.cutoff <- qc.objects[[1]]$sex.cutoff
+    
     msg("Sex summary", verbose)
     sex.summary <- meffil.plot.sex(
         qc.objects,
@@ -234,22 +238,7 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
         unmethylated = sapply(qc.objects, function(x) x$median.u.signal),
         stringsAsFactors=F
     )
-    if(length(colour.code) == nrow(dat)) {
-        dat$colour.code <- colour.code
-        g <- "legend"
-    } else if(length(colour.code) == 1) {
-        if(colour.code %in% names(qc.objects[[1]]$samplesheet)) {
-            dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
-            g <- "legend"
-        } else {
-            stop("colour.code unknown")
-        }
-    } else if(is.null(colour.code)) {
-        dat$colour.code <- 1
-        g <- FALSE
-    } else {
-        stop("colour.code unknown")
-    }
+
     fit <- lm(methylated ~ unmethylated, dat)
     dat$resids <- residuals(fit)
     dat$methylated.lm <- predict(fit)
@@ -261,16 +250,53 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
     dat$outliers <- (dat$resids > mean(dat$resids) + interval.size
                      | dat$resids < mean(dat$resids) - interval.size)
 
-    p1 <- ggplot(dat, aes(y=methylated, x=unmethylated)) +
-        geom_point(aes(colour=colour.code)) +
-        guides(colour = g) +
-        geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
-        labs(y = "Median methylated signal", x = "Median unmethylated signal", colour = colour.code) +
-        geom_smooth() +
-        geom_line(aes(y=methylated.lm), col="red") +
-        geom_line(aes(y=upper.lm), col="red", linetype="dashed") +
-        geom_line(aes(y=lower.lm), col="red", linetype="dashed")
-    
+    if (!is.null(colour.code)) {
+        if(length(colour.code) == nrow(dat)) {
+            dat$colour.code <- colour.code
+            g <- "legend"
+        } else {
+            if(colour.code %in% names(qc.objects[[1]]$samplesheet)) {
+                dat$colour.code <- sapply(qc.objects, function(x) x$samplesheet[[colour.code]])
+                g <- "legend"
+            } else {
+                stop("colour.code unknown")
+            }
+        }
+
+        p1 <- (ggplot(dat, aes(y=methylated, x=unmethylated)) +
+               geom_point(aes(colour=colour.code)) +
+               guides(colour = g) +
+               geom_point(data=subset(dat, outliers), aes(colour=colour.code), size=3.5))
+    } else {
+        dat$slide <- as.character(sapply(qc.objects, function(object) object$samplesheet$Slide))
+        outlier.counts <- table(factor(dat$slide)[dat$outliers])
+        dat$slide.outlier.count <- outlier.counts[dat$slide]
+        dat$outlier.slide <- "no outlier"
+        outlier.slide.idx <- which(dat$slide.outlier.count > 0)
+        dat$outlier.slide[outlier.slide.idx] <- dat$slide[outlier.slide.idx]
+        dat$outlier.slide <- paste(dat$outlier.slide,
+                                   dat$slide.outlier.count,
+                                   c("array","arrays")[sign(dat$slide.outlier.count > 1) + 1])
+        
+        if (length(unique(dat$outlier.slide)) > 1) 
+            g <- "legend"
+        else
+            g <- FALSE
+
+        p1 <- (ggplot(dat, aes(y=methylated, x=unmethylated)) +
+               geom_point(colour="black") +
+               guides(colour=g) +
+               geom_point(data=subset(dat, outliers), aes(colour=outlier.slide), size=3.5))
+        dat$slide <- dat$slide.outlier.count <- dat$outlier.slide <- NULL
+    }
+
+    p1 <- (p1 +
+           labs(y = "Median methylated signal", x = "Median unmethylated signal") + 
+           geom_smooth() +
+           geom_line(aes(y=methylated.lm), col="red") +
+           geom_line(aes(y=upper.lm), col="red", linetype="dashed") +
+           geom_line(aes(y=lower.lm), col="red", linetype="dashed"))
+
     return(list(graph=p1, tab=dat))
 }
 
@@ -642,9 +668,9 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
 #'}
 meffil.qc.parameters <- function(colour.code = NULL, control.categories = NULL, sex.outlier.sd = 3,
                                  meth.unmeth.outlier.sd = 3, control.means.outlier.sd = 5,
-                                 detectionp.samples.threshold = 0.05,
-                                 beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05,
-                                 beadnum.cpgs.threshold = 0.05,
+                                 detectionp.samples.threshold = 0.2,
+                                 beadnum.samples.threshold = 0.2, detectionp.cpgs.threshold = 0.2,
+                                 beadnum.cpgs.threshold = 0.2,
                                  snp.concordance.threshold = 0.9,
                                  sample.genotype.concordance.threshold = 0.9
                                  ) {
