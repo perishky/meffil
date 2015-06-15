@@ -2,15 +2,17 @@ To do list Josine: 09/06/2015:
 
 QC report
 1) add threshold line to discriminate sexes to sex graph based on qc parameters
-  -- not necessary because the threshold line will be among the outliers 
+  -- added as a note above the plot
 2) add slide colors to meth/unmeth plot
+  -- done
 3) cell count plot is not appropriate for 5000 samples
   -- done
 4) control probe means plots are too small and should be colored by slide
 5) sex mismatches and genotype discordant samples are missing in summary report
   -- done
 6) rename figure dir to same prefix as .html files
-  -- this is painful, just set the output filename in a special output directory
+  -- this is painful in knitr, just set the output filename in a special output directory, 
+     e.g. report_20150615/qc.html
 
 Normalization report 
 1) association between PCs and batch variables. Batch variables should be factors. Boxplots of pvalues rather than betas.
@@ -137,19 +139,28 @@ Josine comments on the qc reports (May 11, 2015):
 
 General:
 i) Could you rename the folder "figure" to "meffil_qc_plots_yy_mm_dd"
+-- done (just give the output file name a dated folder, e.g. reports-20150615/qc.html
 ii) Could the default detection score p be set to 0.01?
+-- done
 iii) Could the default sample failure rate set to be 0.20?
+-- done
 
 Sex graph: 
 Could we change this plot to the shinymethyl version which is much more clear?
+-- done
 i) Report says there are 3 sex detection outliers but plot doesn't show which samples are outliers
+-- done
 ii)"Sex not specified" has same symbol as females. I also don't understand what correct prediction means
-iii) It would be great if we could add a dashed vertical line for the "sex.cutoff" used for the prediction to discriminate males and females. 
+-- done
+iii) It would be great if we could add a dashed vertical line for the "sex.cutoff" used for the prediction to discriminate males and females.
+-- done (text provides cutoff) 
 iv) Could we color males and females?
+-- done (males and females different shapes)
 
 Meth-unmeth graph
 i) what does the red and blue line mean? Could you add legend?
 ii) Can we color samples by slide or plate so we can identify possible dyebias?
+-- done (color by slide)
 
 Controlmeans:
 i) These plots are not readable if you have a lot of samples. There are too many plots on one page.
@@ -157,36 +168,51 @@ ii) It is really important here to order and color by plate/slide as it is a way
 
 cpg-detectionp-graph:
 i) ChrY needs fixing. For females, chrY should be ignored.
+-- done
 ii) Could you make the plot wider, so you can see possible spikes of poor detected regions better?
 ii) Could you add chromosome number to the x-axis rather than on top?
 iii) Could you add a horizontal dashed line with the failure threshold?
+-- done
 
 cpg-beadnum-graph:
 i) Could you set default threshold to 0.2? 
+-- done
 ii) Could you make the plot wider, so you can see possible spikes of poor detected regions better?
 ii) Could you add chromosome number to the x-axis rather than on top?
 
 cell-counts-beta
 i) x-axis labels are unreadable, maybe use a darker color. Could you give a different color for each reference bar?
+-- done (new plot just shows sorted average beta values)
 ii) what is the horizontal line?
+-- done
 
 cell-counts-estimate:
 i) x-axis labels are unreadable, could you use a darker color.
+-- done
 
 In the report:
 
 i) Sex mismatches: " There are 3 sex detection outliers, and 0 sex detection mismatches." What are sex detection mismatches?? Could we add column with outlier FALSE/TRUE here?
  "This is a plot of the xy.diff values estimated from the methylation data." Could you change it to median differences between Y and X intensities.
+-- done
 
 ii) Methylated vs unmethylated: What does colour.code mean? Can you remove this?
-
+-- done
 
 iii) Control probe means: What does colour code and id mean? Plate might be good to add. "There were 18 outliers detected based on deviations from mean values for control probes." How many deviations? I wouldn't remove all these outliers. I would only look at dyebias outliers here. So only include oob.ratio/dyebias outliers. So change outliers TRUE/FALSE column.
 
+
 iv)Sample detection p-values: There were 7 outliers detected based on having high detection p-values. Could you add failure rate here? What does colour code and id mean? Plate might be good to add. Could the default be set to 20%.
+-- done
 
 v) Sample bead numbers. There were 0 outliers detected based on having low average bead numbers. Could you change it to There were 0 outliers detected based on having low average bead numbers (<3)
+-- done
 
 vi) CpG detection p-values: Black horizontal line represents threshold of 0.05. Could you change it to 0.2?
+-- done
 
 v) CpG low bead numbers. Could you change title to "Low number of beads per CpG". 
+-- done
+
+
+
