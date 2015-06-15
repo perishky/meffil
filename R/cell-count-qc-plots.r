@@ -29,7 +29,8 @@ meffil.cell.count.qc.plots <- function(count.objects) {
                       geom_boxplot() +
                       guides(fill=FALSE) +
                       stat_summary(fun.y=mean, geom="point", shape=5, size=3) +
-                      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+                      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1,
+                                                       face="bold", size=rel(2))) +
                       ggtitle("Distribution of beta values per sample"))
     }
     else {
@@ -59,7 +60,8 @@ meffil.cell.count.qc.plots <- function(count.objects) {
                    geom_boxplot() +
                    guides(fill=FALSE) +
                    stat_summary(fun.y=mean, geom="point", shape=5, size=3) +
-                   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+                   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1,
+                                                    face="bold", size=rel(2))) +
                    ggtitle("Distribution of cell count estimates per cell type"))
     
     list(betas=beta.plot, counts=count.plot, reference=reference)
