@@ -49,6 +49,16 @@ meffil.normalize.samples <- function(norm.objects,
     if(!is.null(cpglist.remove)) 
         sites <- setdiff(sites, cpglist.remove)
 
+    if (!big.matrix && length(sites) * length(norm.objects) >= 2^31) {
+        if (packageVersion("bigmemory") < "4.5") {
+            stop(paste("You need a more recent version of the\n",
+                       "'bigmemory' library for this operation.\n",
+                       "Please install the latest version from\n",
+                       "'https://github.com/kaneplusplus/bigmemory'\n",
+                       "before continuing.\n"))            
+        }
+    }
+    
     if (just.beta) {
         if (!is.null(filename)) filename <- paste0(filename, "beta")
         beta <- create.big.matrix(norm.objects, sites, "double", filename=filename)
