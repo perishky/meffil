@@ -55,7 +55,9 @@ meffil.normalize.samples <- function(norm.objects,
                        "'bigmemory' library for this operation.\n",
                        "Please install the latest version from\n",
                        "'https://github.com/kaneplusplus/bigmemory'\n",
-                       "before continuing.\n"))            
+                       "before continuing, e.g.\n",
+                       "  library(devtools)\n",
+                       "  devtools::install_github('kaneplusplus/bigmemory')\n"))
         }
     }
     
