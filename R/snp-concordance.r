@@ -1,6 +1,6 @@
 #' Concordance between genotypes and SNP betas
 #'
-#' genotypes <- meffil.extract.genotypes(dataset.prefix)
+#' genotypes <- meffil.extract.genotypes(raw.filenames)
 #' snp.betas <- meffil.snp.betas(qc.objects)
 #' meffil.snp.concordance(snp.betas, genotypes[rownames(snp.betas),colnames(snp.betas)])
 #'
@@ -19,6 +19,7 @@ meffil.snp.concordance <- function(snp.betas, genotypes,
  
     beta.genotypes <- calculate.beta.genotypes(snp.betas)
 
+    ## calculate snp concordances
     snp.concordance <- sapply(rownames(genotypes), function(snp) {
         beta.factor <- factor(beta.genotypes[snp,],levels=0:2)
         geno.factor <- factor(genotypes[snp,],levels=0:2)
@@ -33,19 +34,38 @@ meffil.snp.concordance <- function(snp.betas, genotypes,
             diag1/sum(counts)
     })
 
-    snp.idx <- which(snp.concordance > snp.threshold)
-    if (length(snp.idx) == 0)
-        snp.idx <- 1:length(snp.concordance)
-    sample.concordance <- colSums(beta.genotypes[snp.idx,,drop=F] == genotypes[snp.idx,,drop=F],
-                                  na.rm=T)/length(snp.idx)
-    names(sample.concordance) <- colnames(genotypes)
+    col.concordance <- function(x,y,rows=rep(T,nrow(x)))
+        colMeans((x==y)[which(rows),,drop=F], na.rm=T)
+    row.concordance <- function(x,y,cols=rep(T,ncol(x)))
+        rowMeans((x==y)[,which(cols),drop=F], na.rm=T)
+    n.true <- function(x) sum(x, na.rm=T)
+    
+    ## calc sample concordances
+    sample.concordance <- col.concordance(beta.genotypes, genotypes)
 
-    sample.idx <- which(sample.concordance > sample.threshold)
-    if (length(sample.idx) == 0)
-        sample.idx <- 1:length(sample.concordance)
-    snp.concordance <- rowSums(beta.genotypes[,sample.idx,drop=F] == genotypes[,sample.idx,drop=F],
-                               na.rm=T)/length(sample.idx)
-    names(snp.concordance) <- rownames(genotypes)
+    if (ncol(genotypes) >= 20) {
+        ## assume that the top 50% of samples are not mismatched
+        good.smp <- sample.concordance >= median(sample.concordance,na.rm=T)
+        old.smp <- good.smp
+                
+        for (i in 1:20) {
+            snp.concordance <- row.concordance(beta.genotypes, genotypes, good.smp)
+            good.snp <- snp.concordance >= snp.threshold
+            sample.concordance <- col.concordance(beta.genotypes, genotypes, good.snp)
+            good.smp <- sample.concordance >= sample.threshold
+
+            if (n.true(good.snp) < 2 || n.true(good.smp) < 2) {
+                snp.concordance <- row.concordance(beta.genotypes, genotypes)
+                sample.concordance <- col.concordance(beta.genotypes, genotypes)
+                break
+            }
+
+            if (all(good.smp == old.smp, na.rm=T))
+                break
+
+            old.smp <- good.smp
+        }
+    }
     
     list(sample=sample.concordance,
          snp=snp.concordance)
