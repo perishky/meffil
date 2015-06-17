@@ -127,7 +127,7 @@ Note however that including random effects will greatly increase running time.
 Finally, the `beta` values can be generated, whilst removing CpGs
 that were found to be dodgy in the QC analysis:
 
-	norm.beta <- meffil.normalize.samples(norm.objects, cpglist.remove=qc.report$bad.cpgs$name)
+	norm.beta <- meffil.normalize.samples(norm.objects, cpglist.remove=qc.summary$bad.cpgs$name)
 
 A summary report of the normalization performance can also be generated:
 
