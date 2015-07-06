@@ -49,7 +49,7 @@ meffil.normalize.samples <- function(norm.objects,
     if(!is.null(cpglist.remove)) 
         sites <- setdiff(sites, cpglist.remove)
 
-    if (!big.matrix && length(sites) * length(norm.objects) >= 2^31) {
+    if (!big.matrix && as.numeric(length(sites)) * length(norm.objects) >= 2.0^31) {
         if (packageVersion("bigmemory") < "4.5") {
             stop(paste("You need a more recent version of the\n",
                        "'bigmemory' library for this operation.\n",
