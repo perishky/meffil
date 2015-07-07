@@ -183,7 +183,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     varids <- order(vars, decreasing=TRUE)[1:probe.range]
     
     msg("Calculating beta PCs", verbose=verbose)
-    pcs <- prcomp(t(normalized.beta[varids,]))$x[,npcs,drop=F]
+    pcs <- prcomp(t(impute.matrix(normalized.beta[varids,], margin=1)))$x[,npcs,drop=F]
     
     msg("Extracting batch variables", verbose=verbose)
     variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
