@@ -17,7 +17,7 @@ adjust.columns <- function(y, fixed.effects=NULL, random.effects=NULL) {
         else
             data <- data.frame(fixed.effects, random.effects, stringsAsFactors=F)
         
-        ret <- do.call(cbind, mclapply(1:ncol(y), function(i) {
+        ret <- sapply(1:ncol(y), function(i) {
             data$y <- y[,i]
             tryCatch({
                 residuals(lme4::lmer(formula, data=data))
@@ -33,7 +33,7 @@ adjust.columns <- function(y, fixed.effects=NULL, random.effects=NULL) {
                     rep(NA, nrow(data))
                 })
             })
-        }))
+        })
         dimnames(ret) <- dimnames(y)
     }
     ret
