@@ -179,7 +179,8 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
         subset.idx <- sample(1:nrow(normalized.beta), size=floor(nrow(normalized.beta))*0.1)
         normalized.beta <- normalized.beta[subset.idx,]
     }
-    vars <- matrixStats::rowVars(normalized.beta, na.rm=T)
+    autosomal.idx <- which(rownames(normalized.beta) %in% meffil.get.autosomal.sites())
+    vars <- matrixStats::rowVars(normalized.beta[autosomal.idx,], na.rm=T)
     varids <- order(vars, decreasing=TRUE)[1:probe.range]
     
     msg("Calculating beta PCs", verbose=verbose)
