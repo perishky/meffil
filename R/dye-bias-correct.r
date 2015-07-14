@@ -9,7 +9,7 @@
 dye.bias.correct <- function(rg, intensity=5000, verbose=F) {
     msg(verbose=verbose)
     stopifnot(is.rg(rg))
-    stopifnot(intensity >= 100)
+    stopifnot(intensity > 100)
 
     rg$R[,"Mean"] <- rg$R[,"Mean"] * intensity/calculate.intensity.R(rg)
     rg$G[,"Mean"] <- rg$G[,"Mean"] * intensity/calculate.intensity.G(rg)

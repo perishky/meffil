@@ -29,7 +29,9 @@ meffil.normalize.quantiles <- function(qc.objects,
     msg("selecting dye correction reference", verbose=verbose)
     intensity.R <- sapply(qc.objects, function(object) object$intensity.R)
     intensity.G <- sapply(qc.objects, function(object) object$intensity.G)
-    reference.idx <- which.min(abs(intensity.R/intensity.G-1))
+    valid.idx <- which(intensity.R + intensity.G > 200)
+    stopifnot(length(valid.idx) > 0)
+    reference.idx <- valid.idx[which.min(abs(intensity.R/intensity.G-1)[valid.idx])]
     dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
 
     sex <- sapply(qc.objects, function(obj) obj$predicted.sex)

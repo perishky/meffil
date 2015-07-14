@@ -7,31 +7,91 @@
 #' @param FUN Same as \code{\link[parallel]{mclapply}()}:
 #' The function to be applied to each element of 'X'.
 #' @param ... Optional arguments to \code{FUN} and \code{\link[parallel]{mclapply}()}.
-#' @param ret.bytes Number of bytes needed to store
-#' each object returned by \code{FUN}, i.e. \code{FUN(X[[i]])}.
-#' Number of bytes can be computed using the function \code{\link{object.size}()}.
-#' If this value underestimates the actual memory requirements
-#' and the returned list requires more than 2Gb of storage space,
-#' then the function will fail with the following error message:
-#'    Error in sendMaster(try(lapply(X = S, FUN = FUN, ...), silent = TRUE)) :
-#'    long vectors not supported ...
 #' @param max.bytes The size in memory of the largest object that can
 #' be returned by \code{\link[parallel]{mclapply}} (Default: 2Gb-1).
 #' @return Same as \code{\link[parallel]{mclapply}()},
 #' a list of the same length as 'X' and named by 'X'.
 #' Element i is equal to \code{FUN(X[[i]])}.
 #'
-mclapply.safe <- function (X, FUN, ..., ret.bytes=NA, max.bytes=2^30-1) {
-    stopifnot(!is.na(ret.bytes) & ret.bytes <= max.bytes)
+#' mclapply() has another problem besides an output memory limit.
+#' If some magical process in linux called OOM (out of memory) decides
+#' that a fork is using too much memory, then it simply kills it without
+#' any warning or message.  In such cases, mclapply() will simply return NULL.
+#' 
+#' http://stackoverflow.com/questions/20674538/mclapply-returns-null-randomly
+#'
+#' In these functions, the output is tested for NULL return values.
+#' They are assumed to be due to memory errors so the FUN argument
+#' should not return NULL.
+#' 
+mclapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
+    stopifnot(length(X) > 0)
+
+    first <- mclapply(X[1], FUN, ...)
+    ret.bytes <- as.numeric(object.size(first))
+    
+    if (length(X) == 1) return(first)
+
+    X <- X[-1]
+    
+    max.bytes <- min(max.bytes, ret.bytes * length(X))
     n.fun <- floor(max.bytes/ret.bytes)
+    if (n.fun < 1)
+        stop(paste("The max.bytes parameter is too small.  Try setting it > ", ret.bytes, ".", sep=""))
+    
     n.mclapply <- ceiling(length(X)/n.fun)
-    
-    if (n.mclapply <= 1) return(mclapply(X, FUN, ...))
-    
+
     partitions <- partition.integer.subsequence(1,length(X),n.mclapply)
-    do.call(c, lapply(1:nrow(partitions), function(i) {
-        mclapply(X[partitions[i,"start"]:partitions[i,"end"]], FUN, ...)
-    }))
+    c(first, do.call(c, lapply(1:nrow(partitions), function(i) {
+        idx <- partitions[i,"start"]:partitions[i,"end"]
+        ret <- mclapply(X[idx], FUN, ...)
+        if (length(idx) != length(ret) || any(sapply(ret, is.null)))
+            stop(paste("The operating system has decided that some forks of mclapply are using too much memory.\n",
+                       "Try reducing the max.bytes parameter or the R option 'mc.cores'."))
+        ret
+    })))
+}
+
+#' yes, could be done with mclapply.safe but then
+#' when the list of vectors is merged into a matrix
+#' the same data would be using twice as much memory.
+mcsapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
+    stopifnot(length(X) > 0)
+
+    first <- mclapply(X[1], FUN, ...)
+    ret.bytes <- as.numeric(object.size(first))
+
+    if (length(X) == 1) return(first[[1]])
+
+    X <- X[-1]
+    
+    max.bytes <- min(max.bytes, ret.bytes * length(X))
+    n.fun <- floor(max.bytes/ret.bytes)
+    if (n.fun < 1)
+        stop(paste("The max.bytes parameter is too small.  Try setting it > ", ret.bytes, ".", sep=""))
+
+    n.mclapply <- ceiling(length(X)/n.fun)
+
+    ret <- matrix(NA, ncol=length(X)+1, nrow=length(first[[1]]))
+    rownames(ret) <- names(first[[1]])
+    colnames(ret) <- c(names(first), names(X))
+    ret[,1] <- first[[1]]
+   
+    partitions <- partition.integer.subsequence(1,length(X),n.mclapply)
+    
+    lapply(1:nrow(partitions), function(i) {
+        idx <- partitions[i,"start"]:partitions[i,"end"]
+        mc.ret <- mclapply(X[idx], FUN, ...)
+        is.error <- sapply(mc.ret, class) == "try-error"
+        if (any(is.error))
+            stop(mc.ret[which(is.error)[1]])
+        if (length(idx) != length(mc.ret) || any(sapply(mc.ret, is.null)))
+            stop(paste("The operating system has decided that some forks of mclapply are using too much memory.\n",
+                       "Try reducing the max.bytes parameter or the R option 'mc.cores'."))
+        ret[,idx+1] <<- do.call(cbind, mc.ret)
+        TRUE
+    })
+    ret
 }
 
 

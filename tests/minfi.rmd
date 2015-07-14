@@ -36,7 +36,7 @@ samplesheet <- meffil.create.samplesheet(path)
 The package uses `mclapply` to speed up computation.
 Provide the number of processors available.
 ```{r}
-options(mc.cores=5)
+options(mc.cores=3)
 ```
 
 List the cell type references available.
@@ -54,9 +54,6 @@ norm.file <- "minfi/normalization-report.html"
 cell.type.reference <- "blood gse35069"
 ```
 
-```{r}
-options(bigmemory.typecast.warning=FALSE)
-```
 
 ```{r comparison-meffil-short, cache=T}
 norm.meffil.1 <- meffil.normalize.dataset(samplesheet,

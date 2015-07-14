@@ -22,7 +22,6 @@ Depends:  illuminaio,
 	  Cairo,
 	  gridExtra,
 	  markdown,
-          bigmemory,
 	  matrixStats,
 	  lme4
 License: Artistic-2.0

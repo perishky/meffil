@@ -26,7 +26,8 @@ library(plyr) ## for dlply()
 meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
                       detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2,
                       cell.type.reference=NULL,
-                      verbose=F) {
+                      max.bytes=2^30-1, ## maximum number of bytes that can be returned by mclapply
+                      verbose=F, ...) {
     check.samplesheet(samplesheet)
     
     samplesheet.row <- dlply(samplesheet, .(Sample_Name))
@@ -41,8 +42,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         bead.threshold=bead.threshold,
         sex.cutoff=sex.cutoff,
         cell.type.reference=cell.type.reference,
-        ret.bytes=4*10^6  ## used object.size(qc.object) for estimate
-        )
+        ...,
+        max.bytes=max.bytes)
     names(qc.objects) <- samplesheet$Sample_Name
     return(qc.objects)
 }

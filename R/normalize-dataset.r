@@ -34,7 +34,7 @@
 #' (Default: NULL).
 #'
 #' Arguments to \code{\link{meffil.normalize.samples}()}:
-#' @param beta
+#' @param just.beta
 #' @param pseudo
 #'
 #' Arguments to \code{\link{meffil.normalization.summary}()}:

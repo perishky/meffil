@@ -22,4 +22,3 @@ index c7f3ae0..9dcba4d 100644
      bisulfite1 <- colMeans(redControls.current + greenControls.current, na.rm = TRUE)
 -- 
 1.7.3
-
