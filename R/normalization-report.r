@@ -48,7 +48,8 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
     control.batch <- meffil.plot.control.batch(
         norm.objects, 
         npcs=parameters$control.pcs, 
-        variables=parameters$variables, 
+        variables=parameters$variables,
+        batch.threshold=parameters$batch.threshold,
         verbose=verbose
 	)
     probe.batch <- meffil.plot.probe.batch(
@@ -56,7 +57,9 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
         norm.objects,
         npcs=parameters$probe.pcs,
         variables=parameters$variables,
-        probe.range=parameters$probe.range
+        probe.range=parameters$probe.range,
+        batch.threshold=parameters$batch.threshold,
+        verbose=verbose
 	)
     return(list(
         scree.plot = scree.plot,
@@ -99,6 +102,7 @@ meffil.plot.control.scree <- function(norm.objects)
 }
 
 
+
 #' Test for association of control matrix probes with known batch variables
 #'
 #' Performs association of each of \code{n} PCs calculated from the control matrix against each of \code{m} measured batch variables
@@ -112,7 +116,7 @@ meffil.plot.control.scree <- function(norm.objects)
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), verbose=TRUE)
+meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, verbose=TRUE)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
 
@@ -132,16 +136,10 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     names(dat) <- variables
     
     msg("Testing associations", verbose=verbose)
-    res <- matrix(1, ncol(dat), ncol(pcs))
-    for(i in 1:ncol(dat)) {
-        for(j in 1:ncol(pcs)) {
-            try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4], 
-                silent=TRUE)
-        }
-    }
-    colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
-    res <- data.frame(v=variables, res, stringsAsFactors=F)
-    res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
+    res <- test.pairwise.associations(pcs, dat)
+    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
+    res <- res[order(res$test, res$p.value, decreasing=F),]
+    
     p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
 	geom_point() +
         geom_hline(yintercept=-log10(0.05), linetype="dotted") +
@@ -167,7 +165,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), probe.range=5000, verbose=T)
+meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, probe.range=5000, verbose=T)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
     
@@ -198,18 +196,11 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     names(dat) <- variables
     
     msg("Testing associations", verbose=verbose)
-    res <- matrix(1, ncol(dat), ncol(pcs))
-    for(i in 1:ncol(dat))
-	{
-            for(j in 1:ncol(pcs))
-		{ 
-                    try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4], 
-                        silent=TRUE)
-		}
-	}
-    colnames(res) <- paste("PC", 1:ncol(pcs), sep="")
-    res <- data.frame(v=variables, res, stringsAsFactors=F)
-    res <- reshape2::melt(res, id.vars="v", measure.vars=paste("PC", 1:ncol(pcs), sep=""))
+    res <- test.pairwise.associations(pcs, dat)
+    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
+    res <- res[order(res$test),]
+    res <- res[order(res$test, res$p.value, decreasing=F),]
+
     p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
 	geom_point() +
 	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
@@ -217,6 +208,58 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
 	labs(y="-log10 p", x="PCs") +
 	theme_bw()
     return(list(tab=res, graph=p1))
+}
+
+#' Tests associations between 
+#' between each column of y and each column of x.
+#' Each column of y must be numeric.
+#' In cases where a column of x contains factors,
+#' the y-values for each factor level is compared
+#' to the set of all y-values that are not outliers.
+#' Outliers are identified as those below 1.5
+#' times the inter-quartile range below the first quartile
+#' or 1.5 times the inter-quartile range above the third quartile.
+test.pairwise.associations <- function(y,x) {
+    stopifnot(nrow(x) == nrow(y))
+    ret <- do.call(rbind, lapply(1:ncol(y), function(i) {
+        y.name <- colnames(y)[i]
+        y <- y[,i]
+        stopifnot(is.numeric(y))
+        do.call(rbind, lapply(1:ncol(x), function(j) {
+            x.name <- colnames(x)[j]
+            x <- x[,j]
+            if (!is.numeric(x)) x <- as.factor(x)            
+            pval <- 1
+            try({
+                fstat <- summary(lm(y ~ x))$fstatistic
+                pval <- pf(fstat["value"], df1=fstat["numdf"], df2=fstat["dendf"], lower.tail=F)#
+            }, silent=TRUE)
+
+            ret <- data.frame(batch=x.name, PC=y.name, test="F-test", p.value=pval)
+            if (is.factor(x) && length(levels(x)) > 2) {
+                q1 <- quantile(y, probs=0.25)
+                q3 <- quantile(y, probs=0.75)
+                is.outlier <- y < q1 - 1.5*(q3-q1) | y > q3 + 1.5*(q3-q1)
+                pvals <- sapply(levels(x), function(level) {
+                    pval <- 1
+                    try({
+                        idx <- which(!is.outlier | x == level)
+                        fit <- lm(y ~ l, data=data.frame(y=y,l=sign(x==level))[idx,])
+                        pval <- coefficients(summary(fit))["l","Pr(>|t|)"]
+                    }, silent=TRUE)
+                    pval
+                })
+                ret <- rbind(ret,
+                             data.frame(batch=paste(x.name, levels(x), sep="."),
+                                        PC=y.name,
+                                        test="t-test",
+                                        p.value=pvals))
+            }                
+            ret            
+        }))
+    }))
+    rownames(ret) <- NULL
+    ret
 }
 
 
@@ -248,7 +291,7 @@ guess.batch.vars <- function(norm.objects)
 #' @examples \dontrun{
 #'
 #'}
-meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 5000)
+meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 5000, batch.threshold=1e-50)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
     
@@ -256,7 +299,8 @@ meffil.normalization.parameters <- function(norm.objects, variables = guess.batc
         variables = variables,
         control.pcs = control.pcs,
         probe.pcs = probe.pcs,
-        probe.range = probe.range
+        probe.range = probe.range,
+        batch.threshold=batch.threshold
 	)
     return(parameters)
 }

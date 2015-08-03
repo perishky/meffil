@@ -4,7 +4,7 @@
 \alias{mclapply.safe}
 \title{mclapply without the 2Gb output memory bound.}
 \usage{
-mclapply.safe(X, FUN, ..., ret.bytes = NA, max.bytes = 2^30 - 1)
+mclapply.safe(X, FUN, ..., max.bytes = 2^30 - 1)
 }
 \arguments{
 \item{X}{Same as \code{\link[parallel]{mclapply}()}:
@@ -16,15 +16,6 @@ Other objects (including classed objects) will be coerced by
 The function to be applied to each element of 'X'.}
 
 \item{...}{Optional arguments to \code{FUN} and \code{\link[parallel]{mclapply}()}.}
-
-\item{ret.bytes}{Number of bytes needed to store
-each object returned by \code{FUN}, i.e. \code{FUN(X[[i]])}.
-Number of bytes can be computed using the function \code{\link{object.size}()}.
-If this value underestimates the actual memory requirements
-and the returned list requires more than 2Gb of storage space,
-then the function will fail with the following error message:
-   Error in sendMaster(try(lapply(X = S, FUN = FUN, ...), silent = TRUE)) :
-   long vectors not supported ...}
 
 \item{max.bytes}{The size in memory of the largest object that can
 be returned by \code{\link[parallel]{mclapply}} (Default: 2Gb-1).}
