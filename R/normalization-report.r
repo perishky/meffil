@@ -131,6 +131,25 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     }), stringsAsFactors=F)
     names(dat) <- variables
     
+    msg("Plotting PCs", verbose=verbose)
+    scores<-data.frame() 
+    for (i in 1:ncol(dat)){
+    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
+    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
+    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
+    d<-rbind(d,d2)
+    d<-rbind(d,d3)
+    scores <-rbind(scores,d)
+    }
+          
+    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(scores$var))) +
+    geom_point() +
+    scale_colour_discrete(name = "Batch") +
+    labs(y="PC.scores",x="PC.scores") +
+    facet_grid(v ~ PC) +
+    theme_bw()
+    return(list(tab=res, graph=pcaplot))
+   
     msg("Testing associations", verbose=verbose)
     res <- matrix(1, ncol(dat), ncol(pcs))
     for(i in 1:ncol(dat)) {
@@ -197,6 +216,25 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     }), stringsAsFactors=F)
     names(dat) <- variables
     
+    msg("Plotting PCs", verbose=verbose)
+    scores<-data.frame() 
+    for (i in 1:ncol(dat)){
+    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
+    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
+    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
+    d<-rbind(d,d2)
+    d<-rbind(d,d3)
+    scores <-rbind(scores,d)
+    }
+          
+    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(scores$var))) +
+    geom_point() +
+    scale_colour_discrete(name = "Batch") +
+    labs(y="PC.scores",x="PC.scores") +
+    facet_grid(v ~ PC) +
+    theme_bw()
+    return(list(tab=res, graph=pcaplot))
+  
     msg("Testing associations", verbose=verbose)
     res <- matrix(1, ncol(dat), ncol(pcs))
     for(i in 1:ncol(dat))
