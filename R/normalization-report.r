@@ -139,13 +139,16 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     res <- test.pairwise.associations(pcs, dat)
     res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
     res <- res[order(res$test, res$p.value, decreasing=F),]
-    
-    p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "y")] <- "PC"
+
+    p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
 	geom_point() +
         geom_hline(yintercept=-log10(0.05), linetype="dotted") +
-        facet_grid(v ~ .) +
+        facet_grid(batch.variable ~ .) +
         labs(y="-log10 p", x="PCs") +
         theme_bw()
+    
     return(list(tab=res, graph=p1))
 }
 
@@ -198,13 +201,14 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
     res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
-    res <- res[order(res$test),]
     res <- res[order(res$test, res$p.value, decreasing=F),]
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "y")] <- "PC"
 
-    p1 <- ggplot(res, aes(x=variable, y=-log10(value))) +
+    p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
 	geom_point() +
 	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
-	facet_grid(v ~ .) +
+	facet_grid(batch.variable ~ .) +
 	labs(y="-log10 p", x="PCs") +
 	theme_bw()
     return(list(tab=res, graph=p1))
@@ -235,7 +239,7 @@ test.pairwise.associations <- function(y,x) {
                 pval <- pf(fstat["value"], df1=fstat["numdf"], df2=fstat["dendf"], lower.tail=F)#
             }, silent=TRUE)
 
-            ret <- data.frame(batch=x.name, PC=y.name, test="F-test", p.value=pval)
+            ret <- data.frame(x=x.name, y=y.name, test="F-test", p.value=pval)
             if (is.factor(x) && length(levels(x)) > 2) {
                 q1 <- quantile(y, probs=0.25)
                 q3 <- quantile(y, probs=0.75)
@@ -250,8 +254,8 @@ test.pairwise.associations <- function(y,x) {
                     pval
                 })
                 ret <- rbind(ret,
-                             data.frame(batch=paste(x.name, levels(x), sep="."),
-                                        PC=y.name,
+                             data.frame(x=paste(x.name, levels(x), sep="."),
+                                        y=y.name,
                                         test="t-test",
                                         p.value=pvals))
             }                
