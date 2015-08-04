@@ -6,9 +6,9 @@
 \usage{
 meffil.qc.parameters(colour.code = NULL, control.categories = NULL,
   sex.outlier.sd = 3, meth.unmeth.outlier.sd = 3,
-  control.means.outlier.sd = 5, detectionp.samples.threshold = 0.05,
-  beadnum.samples.threshold = 0.05, detectionp.cpgs.threshold = 0.05,
-  beadnum.cpgs.threshold = 0.05, snp.concordance.threshold = 0.99,
+  control.means.outlier.sd = 5, detectionp.samples.threshold = 0.2,
+  beadnum.samples.threshold = 0.2, detectionp.cpgs.threshold = 0.2,
+  beadnum.cpgs.threshold = 0.2, snp.concordance.threshold = 0.9,
   sample.genotype.concordance.threshold = 0.9)
 }
 \arguments{

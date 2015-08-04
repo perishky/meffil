@@ -3,16 +3,7 @@ To do list Josine: 09/06/2015:
 QC report
 1) add threshold line to discriminate sexes to sex graph based on qc parameters
   -- added as a note above the plot
-2) add slide colors to meth/unmeth plot
-  -- done
-3) cell count plot is not appropriate for 5000 samples
-  -- done
 4) control probe means plots are too small and should be colored by slide
-5) sex mismatches and genotype discordant samples are missing in summary report
-  -- done
-6) rename figure dir to same prefix as .html files
-  -- this is painful in knitr, just set the output filename in a special output directory, 
-     e.g. report_20150615/qc.html
 
 Normalization report 
 1) association between PCs and batch variables. Batch variables should be factors. Boxplots of pvalues rather than betas.
@@ -26,16 +17,6 @@ create a qc plot that just uses hierarchical clustering of the samples?
  par(cex=0.3, mar=c(5, 8, 4, 1))
  plot(hc)
  dev.off()
-
-
-
-In normalization-reports.r, change batch plots and analysis
-so that each batch is shown for each pc component?  
-Right now we just see how associated the batches are as a group to each pc component.
-This doesn't allow us to identify potentially problematic batches ...
-  options(contrasts=c("contr.sum","contr.poly"))
-  ## set reference as grand mean across all levels rather than a single factor level
-  try(res[i,j] <- coefficients(summary(lm(pcs[,j] ~ dat[,i])))[2,4], silent=TRUE)
 
 
 

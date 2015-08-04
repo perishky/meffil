@@ -51,6 +51,8 @@ Arguments to \code{\link{meffil.normalize.samples}()}:}
 
 \item{pseudo}{Arguments to \code{\link{meffil.normalization.summary}()}:}
 
+\item{just.beta}{}
+
 \item{norm.parameters}{(parameters)}
 
 \item{norm.file}{(output.file)
@@ -59,8 +61,6 @@ Other:}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
-
-\item{beta}{}
 }
 \value{
 A list:

@@ -4,7 +4,8 @@
 \alias{meffil.snp.concordance}
 \title{Concordance between genotypes and SNP betas}
 \usage{
-meffil.snp.concordance(snp.betas, genotypes, snp.threshold = 0.99)
+meffil.snp.concordance(snp.betas, genotypes, snp.threshold = 0.99,
+  sample.threshold = 0.9)
 }
 \value{
 Returns a list of two vectors:
@@ -12,7 +13,7 @@ one providing concordances between genotypes and SNP betas for matched samples,
 a second providing concordances between genotypes and SNP betas for matched SNPs.
 }
 \description{
-genotypes <- meffil.extract.genotypes(dataset.prefix)
+genotypes <- meffil.extract.genotypes(raw.filenames)
 snp.betas <- meffil.snp.betas(qc.objects)
 meffil.snp.concordance(snp.betas, genotypes[rownames(snp.betas),colnames(snp.betas)])
 }

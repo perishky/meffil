@@ -27,6 +27,9 @@
 mclapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     stopifnot(length(X) > 0)
 
+    cores <- options()$mc.cores
+    if (is.null(cores) || cores == 1) return(mclapply(X, FUN, ...))
+    
     first <- mclapply(X[1], FUN, ...)
     ret.bytes <- as.numeric(object.size(first))
     
@@ -58,6 +61,14 @@ mclapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
 mcsapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     stopifnot(length(X) > 0)
 
+    cores <- options()$mc.cores
+    if (is.null(cores) || cores == 1) {
+        ret <- mclapply(X, FUN, ...)
+        ret <- do.call(cbind, ret)
+        colnames(ret) <- names(X)
+        return(ret)
+    }
+    
     first <- mclapply(X[1], FUN, ...)
     ret.bytes <- as.numeric(object.size(first))
 

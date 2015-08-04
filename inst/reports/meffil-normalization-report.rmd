@@ -35,11 +35,25 @@ do.call(grid.arrange, normalization.summary$scree.plot$graphs)
 
 The PCs calculated from the control probes were associated with batch variables. Horizontal dotted line represents the $-log_{10}p = 0.05$.
 
+
 ```{r control-batch}
 
 normalization.summary$control.batch$graph
 
 ```
+
+The following table provides the actual p-values from the associations (F-tests)
+as well as cases where associations with specific
+batch variable levels are significantly associated with principal components
+(p < `r normalization.summary$parameters$batch.threshold`, t-test).
+
+```{r control-batch-summary}
+
+tab <- normalization.summary$control.batch$tab
+if(nrow(tab) > 0) kable(tab,row.names=F)
+
+```
+
 
 ## Normalized probe associations with measured batch variables
 
@@ -48,6 +62,18 @@ The most variable normalized probes were extracted and decomposed into principal
 ```{r probe-batch}
 
 normalization.summary$probe.batch$graph
+
+```
+
+The following table provides the actual p-values from the associations (F-tests)
+as well as cases where associations with specific
+batch variable levels are significantly associated with principal components
+(p < `r normalization.summary$parameters$batch.threshold`, t-test).
+
+```{r probe-batch-summary}
+
+tab <- normalization.summary$probe.batch$tab
+if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 

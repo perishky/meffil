@@ -106,7 +106,9 @@ norm.meffil <- meffil.normalize.samples(norm.objects,
 Generate a normalization report.
 ```{r,message=F,results="hide"}
 beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
-norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, verbose=T)
+parameters <- meffil.normalization.parameters(norm.objects)
+parameters$batch.threshold <- 0.01
+norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, parameters=parameters, verbose=T)
 meffil.normalization.report(norm.summary,
                             output.file=norm.file,
                             author=author,

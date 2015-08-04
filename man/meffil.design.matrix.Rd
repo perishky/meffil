@@ -11,6 +11,12 @@ meffil.design.matrix(qc.objects, number.pcs, fixed.effects = NULL,
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}
 
 \item{number.pcs}{Number of principal components to include in the design matrix (Default: all).}
+
+\item{fixed.effects}{Names of columns in samplesheet that should be included as fixed effects
+along with control matrix principal components (Default: NULL).}
+
+\item{random.effects}{Names of columns in samplesheet that should be included as random effects
+(Default: NULL).}
 }
 \value{
 Design matrix with one column for each of the first \code{number.pcs} prinicipal
