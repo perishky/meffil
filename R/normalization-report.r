@@ -30,7 +30,7 @@ meffil.normalization.report <- function(
 
 #' Perform tests to check normalization performance
 #'
-#' Creates scree plot of PCs of control probes, tests for association of control probe PCs with batch variables, tests for association of normalized probes with batch variables
+#' Creates scree plot of PCs of control probes, tests for association of control probe PCs with batch variables, tests for association of normalized probes with batch variables, creates PCA plots
 #' @param  normalized.beta Output from \code{meffil.normalize.samples}
 #' @param  norm Output from \link{meffil.normalize.quantiles}
 #' @param  parameters Default = meffil.post.parameters(norm) List of parameters.
@@ -135,8 +135,15 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     }), stringsAsFactors=F)
     names(dat) <- variables
     
+    msg("Testing associations", verbose=verbose)
+    res <- test.pairwise.associations(pcs, dat)
+    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
+    res <- res[order(res$test, res$p.value, decreasing=F),]
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "y")] <- "PC"
+
     msg("Plotting PCs", verbose=verbose)
-    scores<-data.frame() 
+    scores<-data.frame()
     for (i in 1:ncol(dat)){
     d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
     d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
@@ -145,21 +152,13 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     d<-rbind(d,d3)
     scores <-rbind(scores,d)
     }
-          
+
     pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(scores$var))) +
     geom_point() +
     scale_colour_discrete(name = "Batch") +
     labs(y="PC.scores",x="PC.scores") +
     facet_grid(v ~ PC) +
     theme_bw()
-    return(list(tab=res, graph=pcaplot))
-   
-    msg("Testing associations", verbose=verbose)
-    res <- test.pairwise.associations(pcs, dat)
-    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
-    res <- res[order(res$test, res$p.value, decreasing=F),]
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "y")] <- "PC"
 
     p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
 	geom_point() +
@@ -168,7 +167,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
         labs(y="-log10 p", x="PCs") +
         theme_bw()
     
-    return(list(tab=res, graph=p1))
+    return(list(tab=res, graph=p1,pcaplot=pcaplot))
 }
 
 
@@ -216,9 +215,16 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
                })
     }), stringsAsFactors=F)
     names(dat) <- variables
-    
-    msg("Plotting PCs", verbose=verbose)
-    scores<-data.frame() 
+      
+    msg("Testing associations", verbose=verbose)
+    res <- test.pairwise.associations(pcs, dat)
+    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
+    res <- res[order(res$test, res$p.value, decreasing=F),]
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "y")] <- "PC"
+
+   msg("Plotting PCs", verbose=verbose)
+    scores<-data.frame()
     for (i in 1:ncol(dat)){
     d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
     d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
@@ -227,7 +233,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     d<-rbind(d,d3)
     scores <-rbind(scores,d)
     }
-          
+
     pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(scores$var))) +
     geom_point() +
     scale_colour_discrete(name = "Batch") +
@@ -235,13 +241,6 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     facet_grid(v ~ PC) +
     theme_bw()
     return(list(tab=res, graph=pcaplot))
-  
-    msg("Testing associations", verbose=verbose)
-    res <- test.pairwise.associations(pcs, dat)
-    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
-    res <- res[order(res$test, res$p.value, decreasing=F),]
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "y")] <- "PC"
 
     p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
 	geom_point() +
