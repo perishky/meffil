@@ -30,6 +30,16 @@ The variance captured by each principal component
 do.call(grid.arrange, normalization.summary$scree.plot$graphs)
 
 ```
+## PCA plot of control probes
+
+PCA plot of first 3 components derived from control matrix colored by batch
+
+```{r control-batch-pca}
+
+normalization.summary$control.batch$pcaplot
+   
+```
+
 
 ## Control probe associations with measured batch variables
 
@@ -56,6 +66,16 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 
 ## Normalized probe associations with measured batch variables
+
+PCA plot of normalized betas
+
+PCA plot of first 3 components derived from `r normalization.summary$parameters$probe.range` most variable probes colored by batch
+
+```{r probe-batch-pca}
+
+normalization.summary$probe.batch$pcaplot
+
+```
 
 The most variable normalized probes were extracted and decomposed into principal components, which were each regressed against each batch variable. If the normalization has performed well then there will be no associations between normalized probe PCs and batch variables. Horizontal dotted line represents the $-log_{10}p = 0.05$.
 
