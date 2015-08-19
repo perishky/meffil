@@ -145,15 +145,18 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     msg("Plotting PCs", verbose=verbose)
     scores<-data.frame()
     for (i in 1:ncol(dat)){
-    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
-    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
-    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
+    dat2<-dat[,i]    
+    if(length(unique(dat2))>10) {dat2<-NA}
+
+    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
+    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
+    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
     d<-rbind(d,d2)
     d<-rbind(d,d3)
     scores <-rbind(scores,d)
     }
 
-    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(scores$var))) +
+    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(var))) +
     geom_point() +
     scale_colour_discrete(name = "Batch") +
     labs(y="PC.scores",x="PC.scores") +
@@ -203,8 +206,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     varids <- order(vars, decreasing=TRUE)[1:probe.range]
     
     msg("Calculating beta PCs", verbose=verbose)
-    pcs <- prcomp(t(impute.matrix(normalized.beta[varids,], margin=1)))$x[,npcs,drop=F]
-    
+    pcs <- prcomp(t(meffil:::impute.matrix(normalized.beta[autosomal.idx[varids],], margin=1)))$x[,npcs,drop=F]
     msg("Extracting batch variables", verbose=verbose)
     variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
     
@@ -223,32 +225,34 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
     colnames(res)[which(colnames(res) == "y")] <- "PC"
 
-   msg("Plotting PCs", verbose=verbose)
+    msg("Plotting PCs", verbose=verbose)
     scores<-data.frame()
     for (i in 1:ncol(dat)){
-    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
-    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
-    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat[,i], PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
+    dat2<-dat[,i]    
+    if(length(unique(dat2))>10){dat2<-NA}
+    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
+    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
+    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
     d<-rbind(d,d2)
     d<-rbind(d,d3)
     scores <-rbind(scores,d)
     }
 
-    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(scores$var))) +
+    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(var))) +
     geom_point() +
     scale_colour_discrete(name = "Batch") +
     labs(y="PC.scores",x="PC.scores") +
     facet_grid(v ~ PC) +
     theme_bw()
-    return(list(tab=res, graph=pcaplot))
 
     p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
-	geom_point() +
-	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
-	facet_grid(batch.variable ~ .) +
-	labs(y="-log10 p", x="PCs") +
-	theme_bw()
-    return(list(tab=res, graph=p1))
+        geom_point() +
+        geom_hline(yintercept=-log10(0.05), linetype="dotted") +
+        facet_grid(batch.variable ~ .) +
+        labs(y="-log10 p", x="PCs") +
+        theme_bw()
+
+    return(list(tab=res, graph=p1,pcaplot=pcaplot))   
 }
 
 #' Tests associations between 
