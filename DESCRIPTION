@@ -24,6 +24,9 @@ Depends:  illuminaio,
 	  markdown,
 	  matrixStats,
 	  lme4
+Suggests: CopyNumber450kData,
+      splitstackshape,
+      DNAcopy
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes
