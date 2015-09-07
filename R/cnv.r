@@ -31,6 +31,10 @@ cnv.predict.sex <- function(cn, sex.cutoff=-2) {
 }
   
 
+#' Create controls for calculating CNVs
+#' @param verbose Default = FALSE>
+#' @export
+#' @return List with pre-calculated CNV data
 meffil.cnv.controls <- function(verbose=FALSE)
 {
 	require(CopyNumber450kData)
@@ -135,6 +139,25 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 	return(out)
 }
 
+#' Calculate CNVs from IDAT files
+#'
+#' Based on the algorithm developed in \code{R/CopyNumber450k} bioconductor package
+#' 
+#' @param samplesheet Output from \code{meffil.create.samplesheet}
+#' @param verbose Default = FALSE
+#' @param ... Extra parameters to be passed to \code{CNAcopy} for segmentation. See details.
+#' 
+#' @details
+#' The following default values are being used:
+#' - trim = 0.1
+#' - min.width = 5
+#' - nperm = 10000
+#' - alpha = 0.01
+#' - undo.splits = "sdundo"
+#' - undo.SD = 2
+#'
+#' @export
+#' @return Dataframe of segmented results
 meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
 {
 	controls <- meffil.cnv.controls(TRUE)
@@ -146,6 +169,11 @@ meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
 	return(l)
 }
 
+#' Create matrix of CNV values
+#'
+#' @param cnv Output from \code{meffil.calculate.cnv}
+#' @export
+#' @return Matrix of ncpg x nsample
 meffil.cnv.matrix <- function(cnv)
 {
 	probenames <- meffil.get.sites()
@@ -160,12 +188,14 @@ meffil.cnv.matrix <- function(cnv)
 		message(X, " of ", length(cnv))
 		res <- lapply(1:nrow(x), function(i)
 		{
-			p <- with(probeinfo, sum(chr == x$chrom[i] & pos >= x$loc.start[i] & pos <= x$loc.end[i]))
-			return(rep(x$seg.mean[i], p))
+			index <- with(probeinfo, chr == x$chrom[i] & pos >= x$loc.start[i] & pos <= x$loc.end[i])
+			p <- rep(x$seg.mean[i], sum(index))
+			names(p) <- probeinfo$name[index]
+			return(p)
 		})
 		res <- unlist(res)
-		names(res) <- probeinfo$name
-		return(unlist(res))
+		return(res)
 	})
+	colnames(res) <- names(cnv)
 	return(res)
 }
