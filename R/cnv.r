@@ -5,31 +5,6 @@
 # library(splitstackshape)
 
 
-map_cnvs <- function(segments)
-{
-	probenames <- meffil.get.sites()
-	probeinfo <- subset(meffil.probe.info(), name %in% probenames & target == "M", select=c(name, chr, pos))
-	segments$loc.start <- as.numeric(segments$loc.start)
-	segments$loc.end <- as.numeric(segments$loc.end)
-	segments$seg.mean <- as.numeric(segments$seg.mean)
-	segments$num.mark <- as.numeric(segments$num.mark)
-	segments$adjusted.pvalue <- as.numeric(segments$adjusted.pvalue)
-	gene <- cSplit(indt=segments, splitCols="genes", sep=";", direction="long")
-	gene <- gene[order(gene$genes, gene$adjusted.pvalue), ]
-	gene <- subset(gene[order(gene$genes, gene$adjusted.pvalue), ], !duplicated(genes), select=c(genes, seg.mean, num.mark, adjusted.pvalue))
-	res <- ddply(segments, .(chrom, loc.start), function(x)
-	{
-		p <- subset(probeinfo, chr == x$chrom[1] & pos >= x$loc.start[1] & pos <= x$loc.end[1])
-		p$seg.mean <- x$seg.mean[1]
-		p$num.mark <- x$num.mark[1]
-		p$adjusted.pvalue <- x$adjusted.pvalue[1]
-		return(p)
-	})
-	p <- subset(probeinfo, select=c(name))
-	p <- merge(p, subset(res, select=c(name, seg.mean, num.mark, adjusted.pvalue)), by="name", all.x=TRUE)
-	return(list(cpg=p, gene=gene))
-}
-
 
 read.mu <- function(basename, verbose=F) {
   rg <- read.rg(basename, verbose=verbose)
@@ -45,7 +20,7 @@ read.cn <- function(basename, verbose=F) {
   mu.to.cn(mu)
 }
 
-predict.sex <- function(cn, sex.cutoff=-2) {
+cnv.predict.sex <- function(cn, sex.cutoff=-2) {
     probes <- meffil.probe.info()
   probes.x <- meffil.get.x.sites()
   x.signal <- median(cn[probes.x], na.rm=T)
@@ -56,7 +31,7 @@ predict.sex <- function(cn, sex.cutoff=-2) {
 }
   
 
-get_cnv_controls <- function(verbose=FALSE)
+meffil.cnv.controls <- function(verbose=FALSE)
 {
 	require(CopyNumber450kData)
 	data(RGcontrolSetEx)
@@ -64,7 +39,7 @@ get_cnv_controls <- function(verbose=FALSE)
 	x <- getMeth(x) + getUnmeth(x)
 
 	msg("Predicting sex", verbose=verbose)
-	s <- apply(log2(x), 2, predict.sex)
+	s <- apply(log2(x), 2, cnv.predict.sex)
 
 	# Quantile normalize controls
 
@@ -108,7 +83,7 @@ get_cnv_controls <- function(verbose=FALSE)
 }
 
 
-quantile_normalize_from_reference <- function(x, ref)
+quantile.normalize.from.reference <- function(x, ref)
 {
 	quan <- sort(ref[,1])
 	ord <- order(x)
@@ -117,39 +92,80 @@ quantile_normalize_from_reference <- function(x, ref)
 }
 
 
-meffil_calculate_cnv <- function(bname, samplename=basename(bname), controls, trim=0.1, min.width = 5, nperm = 10000, alpha = 0.01, undo.splits = "sdundo", undo.SD = 2, verbose = TRUE)
+calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1, min.width = 5, nperm = 10000, alpha = 0.01, undo.splits = "sdundo", undo.SD = 2, verbose = TRUE, smoothing=TRUE)
 {
 	require(DNAcopy)
 	msg("Reading idat file for", bname, verbose=verbose)
 	case <- read.cn(bname)
 	msg("Predicting sex", verbose=verbose)
-	sex <- predict.sex(log2(case))
+	sex <- cnv.predict.sex(log2(case))
 
 	msg("Normalisting against controls", verbose=verbose)
 	probes.sex <- c(meffil.get.x.sites(), meffil.get.y.sites())
 	probes.aut <- meffil.get.autosomal.sites()
 
-	int_sex <- quantile_normalize_from_reference(case[probes.sex], controls$intensity_sex[[sex]])
-	int_aut <- quantile_normalize_from_reference(case[probes.aut], controls$intensity_aut)
+	int_sex <- quantile.normalize.from.reference(case[probes.sex], controls$intensity_sex[[sex]])
+	int_aut <- quantile.normalize.from.reference(case[probes.aut], controls$intensity_aut)
 
 	msg("Estimating CNVs", verbose=verbose)
 	int_sex <- log2(int_sex / controls$control_medians_sex[[sex]])
 	int_aut <- log2(int_aut / controls$control_medians_aut)
 
 	probes <- meffil.probe.info()
+	int_sex <- int_sex[names(int_sex) %in% probes$name[!probes$snp_exclude]]
+	int_aut <- int_aut[names(int_aut) %in% probes$name[!probes$snp_exclude]]
 	probes$chr <- ordered(probes$chr, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
 	p_sex <- probes[match(names(int_sex), probes$name), c("name", "chr","pos")]
 	p_aut <- probes[match(names(int_aut), probes$name), c("name", "chr","pos")]
 
+
 	cna_sex <- CNA(int_sex, chrom=p_sex$chr, maploc=p_sex$pos, data.type="logratio", sampleid=samplename)
 	cna_aut <- CNA(int_aut, chrom=p_aut$chr, maploc=p_aut$pos, data.type="logratio", sampleid=samplename)
 
-	smoothed_cna_sex <- smooth.CNA(cna_sex, trim)
-	smoothed_cna_aut <- smooth.CNA(cna_aut, trim)
+	if(smoothing)
+	{
+		cna_sex <- smooth.CNA(cna_sex, trim=trim)
+		cna_aut <- smooth.CNA(cna_aut, trim=trim)
+	}
 
-	segment_smoothed_cna_sex <- segment(cna_sex, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
-	segment_smoothed_cna_aut <- segment(cna_aut, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
-	out <- rbind(segment_smoothed_cna_aut$output, segment_smoothed_cna_sex$output)
+	segment_cna_sex <- segment(cna_sex, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
+	segment_cna_aut <- segment(cna_aut, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
+	out <- rbind(segment_cna_aut$output, segment_cna_sex$output)
+	out$chrom <- ordered(out$chrom, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
 	return(out)
 }
 
+meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
+{
+	controls <- meffil.cnv.controls(TRUE)
+	l <- mclapply(1:nrow(samplesheet), function(i)
+	{
+		calculate.cnv(samplesheet$Basename[i], samplesheet$Sample_Name[i], controls, verbose=verbose, ...)
+	})
+	names(l) <- samplesheet$Sample_Name
+	return(l)
+}
+
+meffil.cnv.matrix <- function(cnv)
+{
+	probenames <- meffil.get.sites()
+	probeinfo <- subset(meffil.probe.info(), name %in% probenames & target == "M", select=c(name, chr, pos))
+	probeinfo$chr <- ordered(probeinfo$chr, levels=paste("chr", c(1:22, "X", "Y"), sep=""))
+	probeinfo <- probeinfo[order(probeinfo$chr, probeinfo$pos), ]
+	probeinfo$chr <- as.character(probeinfo$chr)
+
+	res <- mcsapply.safe(seq_along(cnv), function(X)
+	{
+		x <- cnv[[X]]
+		message(X, " of ", length(cnv))
+		res <- lapply(1:nrow(x), function(i)
+		{
+			p <- with(probeinfo, sum(chr == x$chrom[i] & pos >= x$loc.start[i] & pos <= x$loc.end[i]))
+			return(rep(x$seg.mean[i], p))
+		})
+		res <- unlist(res)
+		names(res) <- probeinfo$name
+		return(unlist(res))
+	})
+	return(res)
+}
