@@ -96,7 +96,7 @@ quantile.normalize.from.reference <- function(x, ref)
 }
 
 
-calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1, min.width = 5, nperm = 10000, alpha = 0.01, undo.splits = "sdundo", undo.SD = 2, verbose = TRUE, smoothing=TRUE)
+calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1, min.width = 5, nperm = 10000, alpha = 0.001, undo.splits = "sdundo", undo.SD = 2, verbose = TRUE, smoothing=TRUE)
 {
 	require(DNAcopy)
 	msg("Reading idat file for", bname, verbose=verbose)
@@ -152,7 +152,7 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 #' - trim = 0.1
 #' - min.width = 5
 #' - nperm = 10000
-#' - alpha = 0.01
+#' - alpha = 0.001
 #' - undo.splits = "sdundo"
 #' - undo.SD = 2
 #'
@@ -177,7 +177,7 @@ meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
 meffil.cnv.matrix <- function(cnv)
 {
 	probenames <- meffil.get.sites()
-	probeinfo <- subset(meffil.probe.info(), name %in% probenames & target == "M", select=c(name, chr, pos))
+	probeinfo <- subset(meffil.probe.info(), name %in% probenames & target == "M" & ! snp_exclude, select=c(name, chr, pos))
 	probeinfo$chr <- ordered(probeinfo$chr, levels=paste("chr", c(1:22, "X", "Y"), sep=""))
 	probeinfo <- probeinfo[order(probeinfo$chr, probeinfo$pos), ]
 	probeinfo$chr <- as.character(probeinfo$chr)
