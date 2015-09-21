@@ -385,7 +385,7 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         prop.badprobes = sapply(qc.objects, function(x) {
-            bad.probes <- x$bad.probes.detectionp
+            bad.probes <- names(x$bad.probes.detectionp)
             if (as.character(x$predicted.sex) == "F") {
                 bad.probes <- setdiff(bad.probes, y.probes)
                 probes <- not.y.probes
@@ -480,12 +480,21 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
+    probes <- meffil.get.sites()
+    y.probes <- meffil.get.y.sites()
+    not.y.probes <- setdiff(probes, y.probes)
 
-    nprobe <- length(unique(meffil.probe.info()$name))
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
-        prop.badprobes = sapply(qc.objects, function(x) length(x$bad.probes.beadnum) / nprobe),
-        stringsAsFactors=F
+        prop.badprobes = sapply(qc.objects, function(x) {
+            bad.probes.beadnum <- names(x$bad.probes.beadnum)
+            if (as.character(x$predicted.sex) == "F") {
+                bad.probes.beadnum <- setdiff(bad.probes.beadnum, y.probes)
+                probes <- not.y.probes
+            }
+            length(bad.probes.beadnum)/length(probes)
+        }),
+	stringsAsFactors=F
     )
     if(length(colour.code) == nrow(dat)) {
         dat$colour.code <- colour.code
@@ -527,7 +536,14 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
 
-    n.badprobes = as.data.frame(table(unlist(sapply(qc.objects, function(x) names(x$bad.probes.beadnum)))), stringsAsFactors=F)
+    y.probes <- meffil.get.y.sites()
+    bad.probes.beadnum <- unlist(sapply(qc.objects, function(x) {
+        bad.probes.beadnum <- names(x$bad.probes.beadnum)
+        if (as.character(x$predicted.sex) == "F")
+            bad.probes.beadnum <- setdiff(bad.probes.beadnum, y.probes)
+        bad.probes.beadnum
+    }))
+    n.badprobes <- as.data.frame(table(bad.probes.beadnum), stringsAsFactors=F)
     names(n.badprobes) <- c("name", "n")
     probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
     probe.info <- merge(probe.info, n.badprobes, by="name")
@@ -659,8 +675,8 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
 #' @param  beadnum.samples.threshold Default value = 0.05 <what param does>
 #' @param  detectionp.cpgs.threshold Default value = 0.05 <what param does>
 #' @param  beadnum.cpgs.threshold Default value = 0.05 <what param does>
-#' @param  snp.concordance.threshold = 0.99 <what param does>
-#' @param  sample.genotype.concordance.threshold = 0.9 <what param does>
+#' @param  snp.concordance.threshold Default value = 0.99 <what param does>
+#' @param  sample.genotype.concordance.threshold Default value = 0.9 <what param does>
 #' @export
 #' @return List of parameter values
 #' @examples \dontrun{
