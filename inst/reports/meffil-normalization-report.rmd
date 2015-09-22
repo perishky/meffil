@@ -48,7 +48,16 @@ The PCs calculated from the control probes were associated with batch variables.
 
 ```{r control-batch}
 
-normalization.summary$control.batch$graph
+normalization.summary$control.batch$fplot
+
+```
+
+The following plots show t-test association estimates between each principal component
+with each batch variable level along with 95% confidence intervals.
+
+```{r control-batch-detail}
+
+normalization.summary$control.batch$cplots
 
 ```
 
@@ -67,6 +76,13 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ## Normalized probe associations with measured batch variables
 
+<<<<<<< HEAD
+The most variable normalized probes were extracted and decomposed into
+principal components, which were each regressed against each batch
+variable. If the normalization has performed well then there will be
+no associations between normalized probe PCs and batch
+variables. Horizontal dotted line represents the $-log_{10}p = 0.05$.
+=======
 PCA plot of normalized betas
 
 PCA plot of first 3 components derived from `r normalization.summary$parameters$probe.range` most variable probes colored by batch
@@ -78,12 +94,23 @@ normalization.summary$probe.batch$pcaplot
 ```
 
 The most variable normalized probes were extracted and decomposed into principal components, which were each regressed against each batch variable. If the normalization has performed well then there will be no associations between normalized probe PCs and batch variables. Horizontal dotted line represents the $-log_{10}p = 0.05$.
+>>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 
 ```{r probe-batch}
 
-normalization.summary$probe.batch$graph
+normalization.summary$probe.batch$fplot
 
 ```
+
+The following plots show t-test association estimates between each principal component
+with each batch variable level along with 95% confidence intervals.
+
+```{r probe-batch-detail}
+
+normalization.summary$probe.batch$cplots
+
+```
+
 
 The following table provides the actual p-values from the associations (F-tests)
 as well as cases where associations with specific

@@ -137,11 +137,25 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "l")] <- "batch.level"
+    colnames(res)[which(colnames(res) == "y")] <- "pc"
+
+    cp <- sapply(unique(res$pc), function(pc) {
+        idx <- which(res$pc == pc)
+        ggplot(res[idx,], aes(x=paste(batch.variable, batch.level, sep="."),
+                              y=estimate,
+                              ymin=lower,
+                              ymax=upper) + geom_errorbar() + geom_point() + coord_flip() +
+               theme(axis.text=element_text(size=2)))
+    })
+           
     res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
     res <- res[order(res$test, res$p.value, decreasing=F),]
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "y")] <- "PC"
 
+<<<<<<< HEAD
+    fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
+=======
     msg("Plotting PCs", verbose=verbose)
     scores<-data.frame()
     for (i in 1:ncol(dat)){
@@ -164,13 +178,18 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     theme_bw()
 
     p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
+>>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 	geom_point() +
         geom_hline(yintercept=-log10(0.05), linetype="dotted") +
         facet_grid(batch.variable ~ .) +
         labs(y="-log10 p", x="PCs") +
         theme_bw()
     
+<<<<<<< HEAD
+    return(list(tab=res, fplot=fp, cplots=cp))
+=======
     return(list(tab=res, graph=p1,pcaplot=pcaplot))
+>>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 }
 
 
@@ -220,11 +239,31 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
       
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "l")] <- "batch.level"
+    colnames(res)[which(colnames(res) == "y")] <- "pc"
+
+    cp <- sapply(unique(res$pc), function(pc) {
+        idx <- which(res$pc == pc)
+        ggplot(res[idx,], aes(x=paste(batch.variable, batch.level, sep="."),
+                              y=estimate,
+                              ymin=lower,
+                              ymax=upper) + geom_errorbar() + geom_point() + coord_flip() +
+               theme(axis.text=element_text(size=2)))
+    })
+           
     res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
     res <- res[order(res$test, res$p.value, decreasing=F),]
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "y")] <- "PC"
 
+<<<<<<< HEAD
+    fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
+	geom_point() +
+	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
+	facet_grid(batch.variable ~ .) +
+	labs(y="-log10 p", x="PCs") +
+	theme_bw()
+    return(list(tab=res, fplot=fp, cplots=cp))
+=======
     msg("Plotting PCs", verbose=verbose)
     scores<-data.frame()
     for (i in 1:ncol(dat)){
@@ -253,6 +292,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
         theme_bw()
 
     return(list(tab=res, graph=p1,pcaplot=pcaplot))   
+>>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 }
 
 #' Tests associations between 
@@ -284,21 +324,29 @@ test.pairwise.associations <- function(y,x) {
             if (is.factor(x) && length(levels(x)) > 2) {
                 q1 <- quantile(y, probs=0.25)
                 q3 <- quantile(y, probs=0.75)
-                is.outlier <- y < q1 - 1.5*(q3-q1) | y > q3 + 1.5*(q3-q1)
-                pvals <- sapply(levels(x), function(level) {
-                    pval <- 1
+                is.outlier <- y < q1 - 1.5*(q3-q1) | y > q3 + 1.5*(q3-q1)               
+                fits <- sapply(levels(x), function(level) {
+                    fit <- NA
                     try({
                         idx <- which(!is.outlier | x == level)
-                        fit <- lm(y ~ l, data=data.frame(y=y,l=sign(x==level))[idx,])
-                        pval <- coefficients(summary(fit))["l","Pr(>|t|)"]
+                        lm(y ~ level, data=data.frame(y=y,level=sign(x==level))[idx,])
                     }, silent=TRUE)
-                    pval
-                })
+                    fit
+                }, simplify=F)
+                pvals <- sapply(fits, function(fit)
+                                if (!is.na(fit)) coefficients(summary(fit))["l","Pr(>|t|)"]
+                                else NA)
+                confint <- t(sapply(fits, function(fit)
+                                  if (!is.na(fit)) confint(glht(fit))$confint["level",c("Estimate","lwr","upr")]
+                                  else c(Estimate=NA,lwr=NA,upr=NA)))
+                colnames(confint) <- c("estimate","lower","upper")
                 ret <- rbind(ret,
-                             data.frame(x=paste(x.name, levels(x), sep="."),
+                             data.frame(x=x.name,
+                                        l=levels(x),
                                         y=y.name,
                                         test="t-test",
-                                        p.value=pvals))
+                                        p.value=pvals,
+                                        confint))
             }                
             ret            
         }))
@@ -306,6 +354,7 @@ test.pairwise.associations <- function(y,x) {
     rownames(ret) <- NULL
     ret
 }
+
 
 
 #' Guess which columns in sample sheet are batch variables
