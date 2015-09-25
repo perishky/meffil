@@ -23,14 +23,11 @@ Depends:  illuminaio,
 	  gridExtra,
 	  markdown,
 	  matrixStats,
-<<<<<<< HEAD
 	  lme4,
 	  multcomp
-=======
 	  lme4
 Suggests: CopyNumber450kData,
-      DNAcopy
->>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
+          DNAcopy
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes
