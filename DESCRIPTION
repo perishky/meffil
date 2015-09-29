@@ -24,7 +24,7 @@ Depends:  illuminaio,
 	  markdown,
 	  matrixStats,
 	  lme4,
-	  multcomp
+	  multcomp,
 	  lme4
 Suggests: CopyNumber450kData,
           DNAcopy

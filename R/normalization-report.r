@@ -153,43 +153,14 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
     res <- res[order(res$test, res$p.value, decreasing=F),]
 
-<<<<<<< HEAD
     fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
-=======
-    msg("Plotting PCs", verbose=verbose)
-    scores<-data.frame()
-    for (i in 1:ncol(dat)){
-    dat2<-dat[,i]    
-    if(length(unique(dat2))>10) {dat2<-NA}
-
-    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
-    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
-    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
-    d<-rbind(d,d2)
-    d<-rbind(d,d3)
-    scores <-rbind(scores,d)
-    }
-
-    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(var))) +
-    geom_point() +
-    scale_colour_discrete(name = "Batch") +
-    labs(y="PC.scores",x="PC.scores") +
-    facet_grid(v ~ PC) +
-    theme_bw()
-
-    p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
->>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 	geom_point() +
         geom_hline(yintercept=-log10(0.05), linetype="dotted") +
         facet_grid(batch.variable ~ .) +
         labs(y="-log10 p", x="PCs") +
         theme_bw()
     
-<<<<<<< HEAD
     return(list(tab=res, fplot=fp, cplots=cp))
-=======
-    return(list(tab=res, graph=p1,pcaplot=pcaplot))
->>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 }
 
 
@@ -255,7 +226,6 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
     res <- res[order(res$test, res$p.value, decreasing=F),]
 
-<<<<<<< HEAD
     fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
 	geom_point() +
 	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
@@ -263,36 +233,6 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
 	labs(y="-log10 p", x="PCs") +
 	theme_bw()
     return(list(tab=res, fplot=fp, cplots=cp))
-=======
-    msg("Plotting PCs", verbose=verbose)
-    scores<-data.frame()
-    for (i in 1:ncol(dat)){
-    dat2<-dat[,i]    
-    if(length(unique(dat2))>10){dat2<-NA}
-    d <- data.frame(PC="PC1vsPC2",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,2])
-    d2<- data.frame(PC="PC1vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,1],PC.scores.y=pcs[,3])
-    d3<-data.frame(PC="PC2vsPC3",v=variables[i],var=dat2, PC.scores.x=pcs[,2],PC.scores.y=pcs[,3])
-    d<-rbind(d,d2)
-    d<-rbind(d,d3)
-    scores <-rbind(scores,d)
-    }
-
-    pcaplot <- ggplot(scores,aes(x=PC.scores.x, y=PC.scores.y,colour=factor(var))) +
-    geom_point() +
-    scale_colour_discrete(name = "Batch") +
-    labs(y="PC.scores",x="PC.scores") +
-    facet_grid(v ~ PC) +
-    theme_bw()
-
-    p1 <- ggplot(res[which(res$test == "F-test"),], aes(x=PC, y=-log10(p.value))) +
-        geom_point() +
-        geom_hline(yintercept=-log10(0.05), linetype="dotted") +
-        facet_grid(batch.variable ~ .) +
-        labs(y="-log10 p", x="PCs") +
-        theme_bw()
-
-    return(list(tab=res, graph=p1,pcaplot=pcaplot))   
->>>>>>> 9be860ccca34385702d980b501a8791ed43fb4c9
 }
 
 #' Tests associations between 
