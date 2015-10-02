@@ -64,6 +64,21 @@ get.quantile.probe.subsets <- function() {
          chrx = get.probe.subset(is.x))
 }
 
+is.valid.probe.subset <- function(name) {
+    name %in% c("genomic.iG", 
+                "genomic.iR",
+                "genomic.ii",
+                "autosomal.iG", 
+                "autosomal.iR", 
+                "autosomal.ii", 
+                "not.y.iG", 
+                "not.y.iR", 
+                "not.y.ii", 
+                "sex", 
+                "chry", 
+                "chrx") 
+}
+    
 get.island.probe.subsets <- function() {
     probes <- meffil.probe.info()
     

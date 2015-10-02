@@ -137,30 +137,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "l")] <- "batch.level"
-    colnames(res)[which(colnames(res) == "y")] <- "pc"
-
-    cp <- sapply(unique(res$pc), function(pc) {
-        idx <- which(res$pc == pc)
-        ggplot(res[idx,], aes(x=paste(batch.variable, batch.level, sep="."),
-                              y=estimate,
-                              ymin=lower,
-                              ymax=upper) + geom_errorbar() + geom_point() + coord_flip() +
-               theme(axis.text=element_text(size=2)))
-    })
-           
-    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
-    res <- res[order(res$test, res$p.value, decreasing=F),]
-
-    fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
-	geom_point() +
-        geom_hline(yintercept=-log10(0.05), linetype="dotted") +
-        facet_grid(batch.variable ~ .) +
-        labs(y="-log10 p", x="PCs") +
-        theme_bw()
-    
-    return(list(tab=res, fplot=fp, cplots=cp))
+    plot.pairwise.associations(res, batch.threshold)
 }
 
 
@@ -191,12 +168,12 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
         subset.idx <- sample(1:nrow(normalized.beta), size=floor(nrow(normalized.beta))*0.1)
         normalized.beta <- normalized.beta[subset.idx,]
     }
-    autosomal.idx <- which(rownames(normalized.beta) %in% meffil.get.autosomal.sites())
-    vars <- matrixStats::rowVars(normalized.beta[autosomal.idx,], na.rm=T)
-    varids <- order(vars, decreasing=TRUE)[1:probe.range]
+
+    var.sites <- meffil.most.variable.cpgs(normalized.beta,n=probe.range)
+    var.idx <- match(var.sites, rownames(normalized.beta))
     
     msg("Calculating beta PCs", verbose=verbose)
-    pcs <- prcomp(t(meffil:::impute.matrix(normalized.beta[autosomal.idx[varids],], margin=1)))$x[,npcs,drop=F]
+    pcs <- prcomp(t(meffil:::impute.matrix(normalized.beta[var.idx,], margin=1)))$x[,npcs,drop=F]
     msg("Extracting batch variables", verbose=verbose)
     variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
     
@@ -210,29 +187,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
       
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "l")] <- "batch.level"
-    colnames(res)[which(colnames(res) == "y")] <- "pc"
-
-    cp <- sapply(unique(res$pc), function(pc) {
-        idx <- which(res$pc == pc)
-        ggplot(res[idx,], aes(x=paste(batch.variable, batch.level, sep="."),
-                              y=estimate,
-                              ymin=lower,
-                              ymax=upper) + geom_errorbar() + geom_point() + coord_flip() +
-               theme(axis.text=element_text(size=2)))
-    })
-           
-    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
-    res <- res[order(res$test, res$p.value, decreasing=F),]
-
-    fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
-	geom_point() +
-	geom_hline(yintercept=-log10(0.05), linetype="dotted") +
-	facet_grid(batch.variable ~ .) +
-	labs(y="-log10 p", x="PCs") +
-	theme_bw()
-    return(list(tab=res, fplot=fp, cplots=cp))
+    plot.pairwise.associations(res, batch.threshold)
 }
 
 #' Tests associations between 
@@ -254,14 +209,15 @@ test.pairwise.associations <- function(y,x) {
             x.name <- colnames(x)[j]
             x <- x[,j]
             if (!is.numeric(x)) x <- as.factor(x)            
-            pval <- 1
+            pval <- NA
+            fstat <- NA
             try({
                 fstat <- summary(lm(y ~ x))$fstatistic
                 pval <- pf(fstat["value"], df1=fstat["numdf"], df2=fstat["dendf"], lower.tail=F)#
             }, silent=TRUE)
 
-            ret <- data.frame(x=x.name, y=y.name, test="F-test", p.value=pval)
-            if (is.factor(x) && length(levels(x)) > 2) {
+            ret <- data.frame(x=x.name, l=NA, y=y.name, test="F-test", p.value=pval, estimate=fstat, lower=NA, upper=NA)
+            if (is.factor(x) && length(levels(x)) > 1) {
                 q1 <- quantile(y, probs=0.25)
                 q3 <- quantile(y, probs=0.75)
                 is.outlier <- y < q1 - 1.5*(q3-q1) | y > q3 + 1.5*(q3-q1)               
@@ -269,12 +225,12 @@ test.pairwise.associations <- function(y,x) {
                     fit <- NA
                     try({
                         idx <- which(!is.outlier | x == level)
-                        lm(y ~ level, data=data.frame(y=y,level=sign(x==level))[idx,])
+                        fit <- lm(y ~ level, data=data.frame(y=y,level=sign(x==level))[idx,])
                     }, silent=TRUE)
                     fit
-                }, simplify=F)
+                }, simplify=F)                
                 pvals <- sapply(fits, function(fit)
-                                if (!is.na(fit)) coefficients(summary(fit))["l","Pr(>|t|)"]
+                                if (!is.na(fit)) coefficients(summary(fit))["level","Pr(>|t|)"]
                                 else NA)
                 confint <- t(sapply(fits, function(fit)
                                   if (!is.na(fit)) confint(glht(fit))$confint["level",c("Estimate","lwr","upr")]
@@ -295,6 +251,38 @@ test.pairwise.associations <- function(y,x) {
     ret
 }
 
+plot.pairwise.associations <- function(res, batch.threshold) {    
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "l")] <- "batch.level"
+    colnames(res)[which(colnames(res) == "y")] <- "pc"
+    
+    cp <- sapply(unique(res$pc), function(pc) {
+        idx <- which(res$pc == pc & res$test == "t-test")
+        col <- with(res[idx,], c("black","red")[sign(p.value < 0.05) + 1])
+        ggplot(res[idx,], aes(x=paste(batch.variable, batch.level, sep="."),
+                              y=estimate,
+                              ymin=lower,
+                              ymax=upper)) +
+                   geom_errorbar(width=0.5, colour=col) +
+                   geom_point(colour=col) +
+                   geom_hline(yintercept=0, colour="blue", linetype="dashed") +
+                   ylab("coefficient") +
+                   xlab("") +
+                   ggtitle(pc) +
+                   coord_flip() 
+    }, simplify=F)
+
+    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
+    res <- res[order(res$test, res$p.value, decreasing=F),]
+
+    fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
+	geom_point() +
+	geom_hline(yintercept=-log10(0.05), colour="blue", linetype="dashed") +
+	facet_grid(batch.variable ~ .) +
+	labs(y="-log10 p", x="PCs") +
+	theme_bw()
+    return(list(tab=res, fplot=fp, cplots=cp))
+}
 
 
 #' Guess which columns in sample sheet are batch variables

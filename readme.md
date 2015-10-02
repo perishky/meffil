@@ -32,6 +32,10 @@ amount of data that needs to be loaded.
 	# Remove outlier samples if necessary
 	qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
 
+    # Plot residuals remaining after fitting control matrix to decide on the number PCs
+	# to include in the normalization below.
+	print(meffil.plot.pc.fit(qc.objects)$plot)
+
 	# Perform quantile normalization
 	norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=10)
 
@@ -111,6 +115,13 @@ Should open up in your web browser.
 You can remove bad samples prior to performing quantile normalization:
 
 	qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+
+Next we determine the number of principal components of the control matrix
+to include in the quantile normalization.
+The following function plots the quantile residuals remaining
+after fitting different numbers of control matrix principal components.
+
+    print(meffil.plot.pc.fit(qc.objects)$plot)
 
 And now perform quantile normalization:
 

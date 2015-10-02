@@ -1,3 +1,11 @@
+```{r comparison-init, echo=FALSE}
+
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+
+```
+
 # Comparison of functional normalization implementations
 
 ## Download example data set 
@@ -88,6 +96,11 @@ Remove any samples with too many bad probes.
 ```{r}
 if (nrow(qc.summary$bad.samples) > 0)
     qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+```
+
+Check how many principal components to include.
+```{r, dev="CairoPNG"}
+print(meffil.plot.pc.fit(qc.objects)$plot)
 ```
 
 Normalize sample quantiles in preparation for 
@@ -274,10 +287,6 @@ counts.minfi <- counts.minfi[rownames(counts.meffil), colnames(counts.meffil)]
 ```{r}
 sapply(rownames(counts.meffil), function(i) cor(counts.meffil[i,], counts.minfi[i,]))
 sapply(colnames(counts.meffil), function(i) cor(counts.meffil[,i], counts.minfi[,i]))
-```
-
-```{r}
-library(Cairo, quietly=TRUE)
 ```
 
 ```{r, dev="CairoPNG"}
