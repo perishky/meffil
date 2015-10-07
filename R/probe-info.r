@@ -40,7 +40,7 @@ meffil.set.probe.info <- function(probe.info) {
 collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
 
     probe.characteristics <- function(type, verbose=F) {
-        msg("extracting", type, verbose=verbose)
+        # msg("extracting", type, verbose=verbose)
         minfi::getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
     }
     
@@ -84,10 +84,16 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
     data(list=annotation)
     locations <- as.data.frame(get(annotation)@data$Locations)
     islands <- as.data.frame(get(annotation)@data$Islands.UCSC)
+    snpinfo <- as.data.frame(get(annotation)@data$SNPs.137CommonSingle)
+    snpinfo$snp_exclude <- with(snpinfo, (CpG_maf > 0.01 | Probe_maf > 0.01))
+    snpinfo$snp_exclude[is.na(snpinfo$snp_exclude)] <- FALSE
+    snpinfo <- subset(snpinfo, select=c(snp_exclude))
     
     ret <- cbind(ret,
                  locations[match(ret$name, rownames(locations)),],
-                 islands[match(ret$name, rownames(islands)),])
+                 islands[match(ret$name, rownames(islands)),],
+                 snpinfo[match(ret$name, rownames(snpinfo)),]
+            )
     ret
 }
 
