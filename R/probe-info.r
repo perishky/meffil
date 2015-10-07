@@ -89,11 +89,11 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
     snpinfo$snp.exclude <- with(snpinfo, (CpG_maf > 0.01 | Probe_maf > 0.01))
     snpinfo$snp.exclude[is.na(snpinfo$snp.exclude)] <- FALSE
     snpinfo <- subset(snpinfo, select=c(snp.exclude))
-    
+
     ret <- cbind(ret,
-                 locations[match(ret$name, rownames(locations)),],
-                 islands[match(ret$name, rownames(islands)),],
-                 snpinfo[match(ret$name, rownames(snpinfo)),]
+                 locations[match(ret$name, rownames(locations)),,drop=F],
+                 islands[match(ret$name, rownames(islands)),,drop=F],
+                 snpinfo[match(ret$name, rownames(snpinfo)),,drop=F]
             )
     ret
 }
