@@ -13,8 +13,6 @@ Maintainer: Matthew Suderman <matthewsuderman@hotmail.com>
 Depends:  illuminaio, 
 	  MASS, 
           limma,
-	  IlluminaHumanMethylation450kmanifest,
-	  IlluminaHumanMethylation450kanno.ilmn12.hg19,
 	  ggplot2,
 	  plyr,
 	  reshape2,
@@ -23,11 +21,12 @@ Depends:  illuminaio,
 	  gridExtra,
 	  markdown,
 	  matrixStats,
-	  lme4,
 	  multcomp,
 	  lme4
 Suggests: CopyNumber450kData,
-          DNAcopy
+          DNAcopy,
+	  IlluminaHumanMethylation450kmanifest,
+	  IlluminaHumanMethylation450kanno.ilmn12.hg19
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes

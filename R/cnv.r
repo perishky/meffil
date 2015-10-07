@@ -116,8 +116,8 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 	int_aut <- log2(int_aut / controls$control_medians_aut)
 
 	probes <- meffil.probe.info()
-	int_sex <- int_sex[names(int_sex) %in% probes$name[!probes$snp_exclude]]
-	int_aut <- int_aut[names(int_aut) %in% probes$name[!probes$snp_exclude]]
+	int_sex <- int_sex[names(int_sex) %in% probes$name[!probes$snp.exclude]]
+	int_aut <- int_aut[names(int_aut) %in% probes$name[!probes$snp.exclude]]
 	probes$chr <- ordered(probes$chr, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
 	p_sex <- probes[match(names(int_sex), probes$name), c("name", "chr","pos")]
 	p_aut <- probes[match(names(int_aut), probes$name), c("name", "chr","pos")]
@@ -177,7 +177,7 @@ meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
 meffil.cnv.matrix <- function(cnv)
 {
 	probenames <- meffil.get.sites()
-	probeinfo <- subset(meffil.probe.info(), name %in% probenames & target == "M" & ! snp_exclude, select=c(name, chr, pos))
+	probeinfo <- subset(meffil.probe.info(), name %in% probenames & target == "M" & ! snp.exclude, select=c(name, chr, pos))
 	probeinfo$chr <- ordered(probeinfo$chr, levels=paste("chr", c(1:22, "X", "Y"), sep=""))
 	probeinfo <- probeinfo[order(probeinfo$chr, probeinfo$pos), ]
 	probeinfo$chr <- as.character(probeinfo$chr)

@@ -5,8 +5,8 @@
 #'
 #' @return The data frame being used to annotate
 #' the Infinium HumanMethylation450 BeadChip.
-#' The default uses \code{\link[minfi]{getProbeInfo}()}
-#' and \code{\link[IlluminaHumanMethylation450k]{IlluminaHumanMethylation450kmanifest}}
+#' The default uses
+#' \code{\link[IlluminaHumanMethylation450k]{IlluminaHumanMethylation450kmanifest}}
 #' extensively.  Probe locations are obtained using
 #' \code{\link[IlluminaHumanMethylation450kanno.ilmn12.hg19]{IlluminaHumanMethylation450kanno.ilmn12.hg19}}.
 #' 
@@ -29,7 +29,8 @@ meffil.set.probe.info <- function(probe.info) {
     if (exists("probe.info", pkg.globals)) {
         columns <- colnames(get("probe.info", pkg.globals))
         if (length(setdiff(columns, colnames(probe.info))) > 0)
-            stop(paste("Annotation is missing several columns:", paste(columns, collapse=",")))
+            stop(paste("Annotation is missing columns:",
+                       paste(setdiff(columns, colnames(probe.info)), collapse=",")))
     }
     
     assign("probe.info", probe.info, pkg.globals)
@@ -39,19 +40,19 @@ meffil.set.probe.info <- function(probe.info) {
 
 collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="ilmn12.hg19", verbose=F) {
 
-    probe.characteristics <- function(type, verbose=F) {
-        # msg("extracting", type, verbose=verbose)
-        minfi::getProbeInfo(IlluminaHumanMethylation450kmanifest, type=type)
-    }
-    
-    type1.R <- probe.characteristics("I-Red", verbose)
-    type1.G <- probe.characteristics("I-Green", verbose)
-    type2 <- probe.characteristics("II", verbose)
-    controls <- probe.characteristics("Control", verbose)
-    snps1 <- probe.characteristics("SnpI", verbose)
+    manifest <- paste(array, "manifest", sep="")
+    require(manifest,character.only=T)
+    manifest <- get(manifest)
+
+    type1 <- manifest@data[["TypeI"]]
+    type1.R <- type1[which(type1$Color == "Red"),]
+    type1.G <- type1[which(type1$Color == "Grn"),]
+    type2 <- manifest@data[["TypeII"]]
+    controls <- manifest@data[["TypeControl"]]
+    snps1 <- manifest@data[["TypeSnpI"]]
+    snps2 <- manifest@data[["TypeSnpII"]]
     snps1.R <- snps1[which(snps1$Color == "Red"),]
     snps1.G <- snps1[which(snps1$Color == "Grn"),]
-    snps2 <- probe.characteristics("SnpII", verbose)
 
     msg("reorganizing type information", verbose=verbose)
     ret <- rbind(data.frame(type="i",target="M", dye="R", address=type1.R$AddressB, name=type1.R$Name,ext=NA,stringsAsFactors=F),
@@ -85,9 +86,9 @@ collate.probe.info <- function(array="IlluminaHumanMethylation450k",annotation="
     locations <- as.data.frame(get(annotation)@data$Locations)
     islands <- as.data.frame(get(annotation)@data$Islands.UCSC)
     snpinfo <- as.data.frame(get(annotation)@data$SNPs.137CommonSingle)
-    snpinfo$snp_exclude <- with(snpinfo, (CpG_maf > 0.01 | Probe_maf > 0.01))
-    snpinfo$snp_exclude[is.na(snpinfo$snp_exclude)] <- FALSE
-    snpinfo <- subset(snpinfo, select=c(snp_exclude))
+    snpinfo$snp.exclude <- with(snpinfo, (CpG_maf > 0.01 | Probe_maf > 0.01))
+    snpinfo$snp.exclude[is.na(snpinfo$snp.exclude)] <- FALSE
+    snpinfo <- subset(snpinfo, select=c(snp.exclude))
     
     ret <- cbind(ret,
                  locations[match(ret$name, rownames(locations)),],
