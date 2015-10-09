@@ -208,48 +208,59 @@ test.pairwise.associations <- function(y,x) {
         do.call(rbind, lapply(1:ncol(x), function(j) {
             x.name <- colnames(x)[j]
             x <- x[,j]
-            if (!is.numeric(x)) x <- as.factor(x)            
+            if (!is.numeric(x)) x <- as.factor(x)
             pval <- NA
             fstat <- NA
             try({
                 fstat <- summary(lm(y ~ x))$fstatistic
                 pval <- pf(fstat["value"], df1=fstat["numdf"], df2=fstat["dendf"], lower.tail=F)#
             }, silent=TRUE)
-
-            ret <- data.frame(x=x.name, l=NA, y=y.name, test="F-test", p.value=pval, estimate=fstat, lower=NA, upper=NA)
+            
+            ret <- data.frame(x=x.name, l=NA, y=y.name, test="F-test",
+                              p.value=pval, estimate=fstat, lower=NA, upper=NA)
             if (is.factor(x) && length(levels(x)) > 1) {
                 q1 <- quantile(y, probs=0.25)
                 q3 <- quantile(y, probs=0.75)
-                is.outlier <- y < q1 - 1.5*(q3-q1) | y > q3 + 1.5*(q3-q1)               
-                fits <- sapply(levels(x), function(level) {
+                is.outlier <- y < q1 - 1.5*(q3-q1) | y > q3 + 1.5*(q3-q1)
+                x.levels <- names(which(table(x) > 0))
+                fits <- sapply(x.levels, function(level) {
                     fit <- NA
                     try({
                         idx <- which(!is.outlier | x == level)
                         fit <- lm(y ~ level, data=data.frame(y=y,level=sign(x==level))[idx,])
                     }, silent=TRUE)
                     fit
-                }, simplify=F)                
-                pvals <- sapply(fits, function(fit)
-                                if (!is.na(fit)) coefficients(summary(fit))["level","Pr(>|t|)"]
-                                else NA)
-                confint <- t(sapply(fits, function(fit)
-                                  if (!is.na(fit)) confint(glht(fit))$confint["level",c("Estimate","lwr","upr")]
-                                  else c(Estimate=NA,lwr=NA,upr=NA)))
+                }, simplify=F)
+                
+                pvals <- sapply(fits, function(fit) {
+                    if (length(fit) > 1) coefficients(summary(fit))["level","Pr(>|t|)"]
+                    else NA
+                })
+                                
+                confint <- t(sapply(fits, function(fit) {
+                    if (length(fit) > 1)
+                        confint(glht(fit))$confint["level",c("Estimate","lwr","upr")]
+                    else c(Estimate=NA,lwr=NA,upr=NA)
+                }))
+                                
                 colnames(confint) <- c("estimate","lower","upper")
                 ret <- rbind(ret,
                              data.frame(x=x.name,
-                                        l=levels(x),
+                                        l=x.levels,
                                         y=y.name,
                                         test="t-test",
                                         p.value=pvals,
                                         confint))
-            }                
-            ret            
+            }
+            ret
         }))
     }))
     rownames(ret) <- NULL
     ret
 }
+
+
+
 
 plot.pairwise.associations <- function(res, batch.threshold) {    
     colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
