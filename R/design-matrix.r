@@ -98,29 +98,31 @@ meffil.control.matrix <- function(qc.objects, normalize=F,
 #' (Default: NULL).
 #' @return Design matrix with one column for the \code{new.idx} partition predicted from the
 #' first \code{number.pcs} prinicipal components of the objects. 
-predict.design.matrix <- function(qc.objects, number.pcs, new.idx, fixed.effects = NULL, random.effects=NULL) {
+predict.design.matrix <- function (qc.objects, number.pcs, new.idx,
+                                   fixed.effects = NULL,
+                                   random.effects = NULL) {
     stopifnot(all(sapply(qc.objects, meffil:::is.qc.object)))
     stopifnot(all(new.idx %in% 1:length(qc.objects)))
     
     if (!is.null(fixed.effects) && is.character(fixed.effects))
-        fixed.effects <- extract.from.samplesheet(qc.objects, fixed.effects)
+        fixed.effects <- meffil:::extract.from.samplesheet(qc.objects, fixed.effects)
     if (!is.null(random.effects) && is.character(random.effects))
-        random.effects <- extract.from.samplesheet(qc.objects, random.effects)
-
+        random.effects <- meffil:::extract.from.samplesheet(qc.objects, random.effects)
+    
     old.pca <- meffil.pcs(qc.objects[-new.idx],
-                          fixed.effects[,-new.idx,drop=F],
-                          random.effects[,-new.idx,drop=F])
-
-    new.controls <- meffil.control.matrix(qc.objects, normalize=T,
-                                          fixed.effects=fixed.effects,
-                                          random.effects=random.effects)[new.idx,]
-
-    new.pca <- predict(old.pca, newdata=data.frame(new.controls, check.names=F))
-
+                          fixed.effects[-new.idx,,drop = F],
+                          random.effects[-new.idx,, drop = F])
+    new.controls <- meffil.control.matrix(qc.objects, normalize = T,
+                                          fixed.effects = fixed.effects,
+                                          random.effects = random.effects)[new.idx,]
+    new.pca <- predict(old.pca, newdata = data.frame(new.controls, check.names = F))
     meffil:::pca.to.design.matrix(new.pca, number.pcs,
-                                  fixed.effects[,new.idx,drop=F],
-                                  random.effects[,new.idx,drop=F])
+                                  fixed.effects[new.idx,, drop = F],
+                                  random.effects[new.idx,, drop = F])
 }
+
+
+
 
 #' From PCA applied to the raw control matrix,
 #' derive the corresponding design matrix using the first \code{number.pcs} principal components.
