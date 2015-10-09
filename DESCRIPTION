@@ -22,7 +22,8 @@ Depends:  illuminaio,
 	  markdown,
 	  matrixStats,
 	  multcomp,
-	  lme4
+	  lme4,
+	  parallel
 Suggests: CopyNumber450kData,
           DNAcopy,
 	  IlluminaHumanMethylation450kmanifest,
