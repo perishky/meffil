@@ -57,10 +57,11 @@ meffil.plot.pc.fit <- function(qc.objects, fixed.effects=NULL, random.effects=NU
     stats <- as.data.frame(do.call(rbind, stats))
 
     list(data=stats,
-         plot=ggplot(stats, aes(x=n)) +
-         geom_line(aes(y=M, colour="M")) +
-         geom_line(aes(y=U, colour="U")) +
-         ggtitle("Fit residuals for different numbers of PCs") +
-         labs(x="number of PCs", y="Mean squared residuals") +
-         theme(legend.title=element_blank()))
+         plot=(ggplot(stats, aes(x=n)) +
+               geom_line(aes(y=M, colour="M")) +
+               geom_line(aes(y=U, colour="U")) +
+               ggtitle("Fit residuals for different numbers of PCs") +
+               labs(x="number of PCs", y="Mean squared residuals") +
+               scale_x_continuous(breaks=seq(0,max(stats$n),by=5 )) +
+               theme(legend.title=element_blank())))
 }

@@ -20,7 +20,6 @@ normalization.summary$parameters
 
 ```
 
-
 ## Control probe scree plots
 
 The variance captured by each principal component
@@ -31,9 +30,18 @@ do.call(grid.arrange, normalization.summary$scree.plot$graphs)
 
 ```
 
+```{r control-batch-pca-option}
+child.filename <- file.path(path, "blank.rmd")
+if (!is.null(normalization.summary$control.batch$pc.plot))
+    child.filename <- file.path(path, "control-batch-pca.rmd")
+```
+
+```{r control-batch-pca-child, child=child.filename}
+```
+
 ## Control probe associations with measured batch variables
 
-Principal components from the control probes were regressed against batch variables.
+Principal components of the control probes were regressed against batch variables.
 Shown are the $-log_{10}$ p-values for these regressions.
 The horizontal dotted line denotes $p = 0.05$ in log-scale.
 
@@ -51,10 +59,34 @@ Cases significantly different from zero are coloured red
 
 ```{r control-batch-detail}
 
-do.call(grid.arrange, normalization.summary$control.batch$cplots)
+do.call(grid.arrange, c(normalization.summary$control.batch$cplots, list(ncol=2)))
 
 ```
 
+```{r control-batch-table}
+
+tab <- normalization.summary$control.batch$tab
+tab <- tab[which(tab$p.value < normalization.summary$parameters$batch.threshold),]
+for (i in 1:ncol(tab)) {
+    if (is.numeric(tab[,i])) {
+        tab[,i] <- format(tab[,i], digits=3)
+        tab[,i] <- sub("^[ ]*NA$", "", tab[,i])
+    }
+    tab[which(is.na(tab[,i])),i] <- ""
+}
+if(nrow(tab) > 0) kable(tab,row.names=F)
+
+```
+
+
+```{r probe-batch-pca-option}
+child.filename <- file.path(path, "blank.rmd")
+if (!is.null(normalization.summary$probe.batch$pc.plot))
+    child.filename <- file.path(path, "probe-batch-pca.rmd")
+```
+
+```{r probe-batch-pca-child, child=child.filename}
+```
 
 ## Normalized probe associations with measured batch variables
 
@@ -78,7 +110,21 @@ Cases significantly different from zero are coloured red
 
 ```{r probe-batch-detail}
 
-do.call(grid.arrange, normalization.summary$probe.batch$cplots)
+do.call(grid.arrange, c(normalization.summary$probe.batch$cplots, list(ncol=2)))
 
 ```
 
+```{r probe-batch-table}
+
+tab <- normalization.summary$probe.batch$tab
+tab <- tab[which(tab$p.value < normalization.summary$parameters$batch.threshold),]
+for (i in 1:ncol(tab)) {
+    if (is.numeric(tab[,i])) {
+        tab[,i] <- format(tab[,i], digits=3)
+        tab[,i] <- sub("^[ ]*NA$", "", tab[,i])
+    }
+    tab[which(is.na(tab[,i])),i] <- ""
+}
+if(nrow(tab) > 0) kable(tab,row.names=F)
+
+```

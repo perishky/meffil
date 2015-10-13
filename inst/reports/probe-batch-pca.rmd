@@ -1,0 +1,9 @@
+## Principal components of the normalized betas
+
+The following plots show the first 3 principal components of the
+`r normalization.summary$parameters$probe.range` most variable
+probes colored by batch variables.
+
+```{r probe-batch-pca}
+normalization.summary$probe.batch$pc.plot
+```

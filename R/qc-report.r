@@ -16,14 +16,14 @@
 #'}
 meffil.qc.report <- function(
     qc.summary,
-    output.file = "meffil-qc-report.html",
+    output.file = "qc-report.html",
     author = "Analyst",
     study = "IlluminaHuman450 data",
     ...
 ) {
     msg("Writing report as html file to", output.file)
     path <- system.file("reports", package="meffil")
-    knit.report(file.path(path, "meffil-qc-report.rmd"), output.file, ...)
+    knit.report(file.path(path, "qc-report.rmd"), output.file, ...)
 }
 
 
@@ -201,13 +201,13 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
     
     dat$sex.mismatch <- as.character(dat$declared.sex) != as.character(dat$predicted.sex)
     dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Sex not specified"
-    p1 <- ggplot(dat, aes(y=1, x=xy.diff)) +
-        geom_jitter(aes(shape=predicted.sex, colour=sex.mismatch), size=3) +
-        scale_colour_manual(values=c("black", "red")) +
-        labs(shape="Predicted sex", x="XY diff", y="", colour="Incorrect\nprediction") +
-        theme_bw() +
-        theme(axis.ticks.y=element_blank(), axis.text.y=element_blank(), axis.line.y=element_blank()) +
-        geom_vline(xintercept=unique(c(dat$upper, dat$lower)), linetype="dashed", colour="purple")
+    p1 <- (ggplot(dat, aes(y=1, x=xy.diff)) +
+           geom_jitter(aes(shape=predicted.sex, colour=sex.mismatch), size=3) +
+           scale_colour_manual(values=c("black", "red")) +
+           labs(shape="Predicted sex", x="XY diff", y="", colour="Incorrect\nprediction") +
+           theme_bw() +
+           theme(axis.ticks.y=element_blank(), axis.text.y=element_blank(), axis.line.y=element_blank()) +
+           geom_vline(xintercept=unique(c(dat$upper, dat$lower)), linetype="dashed", colour="purple"))
 
     dat$status <- "good"
     dat$status[which(dat$outliers)] <- "outlier"
@@ -354,12 +354,12 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
         x$outliers <- x$value > mean(x$value) + outlier.sd * sd(x$value) | x$value < mean(x$value) - outlier.sd * sd(x$value)
         return(x)
     })
-    p1 <- ggplot(dat, aes(x=id, y=value)) +
-        geom_point(aes(colour=colour.code)) +
-        geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
-        guides(colour=g) +
-        facet_wrap(~ variable, scales="free_y") +
-        labs(y="Mean signal", x="ID", colour=colour.code)
+    p1 <- (ggplot(dat, aes(x=id, y=value)) +
+           geom_point(aes(colour=colour.code)) +
+           geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
+           guides(colour=g) +
+           facet_wrap(~ variable, scales="free_y") +
+           labs(y="Mean signal", x="ID", colour=colour.code))
     return(list(graph=p1, tab=dat))
 }
 
@@ -413,11 +413,14 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
     dat <- dat[order(dat$colour.code), ]
     dat$id <- 1:nrow(dat)
     dat$outliers <- dat$prop.badprobes > threshold
-    p1 <- ggplot(dat, aes(y=prop.badprobes, x=id)) +
-        geom_point(aes(colour=colour.code)) +
-        guides(colour = g) +
-        geom_hline(yintercept=threshold) +
-        labs(y = paste("Proportion CpG sites with p >", qc.objects[[1]]$bad.probes.detectionp.threshold), x = "Sample ID", colour = colour.code)
+    p1 <- (ggplot(dat, aes(y=prop.badprobes, x=id)) +
+           geom_point(aes(colour=colour.code)) +
+           guides(colour = g) +
+           geom_hline(yintercept=threshold) +
+           labs(y = paste("Proportion CpG sites with p >",
+                    qc.objects[[1]]$bad.probes.detectionp.threshold),
+                x = "Sample ID",
+                colour = colour.code))
     return(list(graph=p1, tab=dat))
 }
 
@@ -457,13 +460,13 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
     probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
     probe.info <- subset(probe.info, select=c(name, chr, pos, n, chr.colour))
     probe.info$outliers <- probe.info$n > threshold
-    p1 <- ggplot(probe.info, aes(x=pos, y=n)) +
-        geom_point(aes(colour=chr.colour)) +
-        facet_grid(. ~ chr, space="free_x", scales="free_x") +
-        guides(colour=FALSE) +
-        labs(x="Position", y=paste("Proportion samples with p >", qc.objects[[1]]$bad.probes.detectionp.threshold)) +
-        geom_hline(yintercept=threshold) +
-        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+    p1 <- (ggplot(probe.info, aes(x=pos, y=n)) +
+           geom_point(aes(colour=chr.colour)) +
+           facet_grid(. ~ chr, space="free_x", scales="free_x") +
+           guides(colour=FALSE) +
+           labs(x="Position", y=paste("Proportion samples with p >", qc.objects[[1]]$bad.probes.detectionp.threshold)) +
+           geom_hline(yintercept=threshold) +
+           theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()))
     return(list(graph=p1, tab=subset(probe.info, select=-c(chr.colour))))
 }
 
@@ -515,11 +518,13 @@ meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.cod
     dat <- dat[order(dat$colour.code), ]
     dat$id <- 1:nrow(dat)
     dat$outliers <- dat$prop.badprobes > threshold
-    p1 <- ggplot(dat, aes(y=prop.badprobes, x=id)) +
-        geom_point(aes(colour=colour.code)) +
-        guides(colour = g) +
-        geom_hline(yintercept=threshold) +
-        labs(y = paste("Proportion CpG sites with bead number < ", qc.objects[[1]]$bad.probes.beadnum.threshold), x = "Sample ID", colour = colour.code)
+    p1 <- (ggplot(dat, aes(y=prop.badprobes, x=id)) +
+           geom_point(aes(colour=colour.code)) +
+           guides(colour = g) +
+           geom_hline(yintercept=threshold) +
+           labs(y = paste("Proportion CpG sites with bead number < ", qc.objects[[1]]$bad.probes.beadnum.threshold),
+                x = "Sample ID",
+                colour = colour.code))
     return(list(graph=p1, tab=dat))
 }
 
@@ -554,13 +559,13 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
     probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
     probe.info <- subset(probe.info, select=c(name, chr, pos, n, chr.colour))
     probe.info$outliers <- probe.info$n > threshold
-    p1 <- ggplot(probe.info, aes(x=pos, y=n)) +
-        geom_point(aes(colour=chr.colour)) +
-        facet_grid(. ~ chr, space="free_x", scales="free_x") +
-        guides(colour=FALSE) +
-        labs(x="Position", y=paste("Proportion samples with bead number <", qc.objects[[1]]$bad.probes.beadnum.threshold)) +
-        geom_hline(yintercept=threshold) +
-        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+    p1 <- (ggplot(probe.info, aes(x=pos, y=n)) +
+           geom_point(aes(colour=chr.colour)) +
+           facet_grid(. ~ chr, space="free_x", scales="free_x") +
+           guides(colour=FALSE) +
+           labs(x="Position", y=paste("Proportion samples with bead number <", qc.objects[[1]]$bad.probes.beadnum.threshold)) +
+           geom_hline(yintercept=threshold) +
+           theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()))
     return(list(graph=p1, tab=subset(probe.info, select=-c(chr.colour))))
 }
 
@@ -622,10 +627,9 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
     data <- lapply(rownames(snp.betas), function(snp.name) 
                    data.frame(snp=snp.name, beta=snp.betas[snp.name,],stringsAsFactors=F))
     data <- do.call(rbind, data)
-    graphs$snp.beta <- ggplot(data=data, aes(beta)) +
-        geom_histogram() +
-            facet_wrap(~snp)
-    
+    graphs$snp.beta <- (ggplot(data=data, aes(beta)) +
+                        geom_histogram() +
+                        facet_wrap(~snp))
 
     if (!is.null(genotypes)) {
         genotypes <- genotypes[,which(colSums(is.na(genotypes)) < nrow(genotypes)), drop=F]
@@ -642,13 +646,13 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
                                               snp.threshold=snp.threshold,
                                               sample.threshold=sample.threshold)
         
-        graphs$snp.concordance <- ggplot(data=data.frame(concordance=concordance$snp),
-                                         aes(concordance)) +
-                                             geom_histogram()
+        graphs$snp.concordance <- (ggplot(data=data.frame(concordance=concordance$snp),
+                                          aes(concordance)) +
+                                   geom_histogram())
         
-        graphs$sample.concordance <- ggplot(data=data.frame(concordance=concordance$sample),
-                                            aes(concordance))+
-                                                geom_histogram()
+        graphs$sample.concordance <- (ggplot(data=data.frame(concordance=concordance$sample),
+                                             aes(concordance)) +
+                                      geom_histogram())
 
         tabs$samples <- with(concordance, data.frame(sample.name=names(sample),concordance=sample))
         tabs$samples$is.concordant <- tabs$samples$concordance > sample.threshold

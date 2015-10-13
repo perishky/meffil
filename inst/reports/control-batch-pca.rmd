@@ -1,0 +1,8 @@
+## Principal components of the control probes
+
+The following plots show the first 3 principal components of the
+control matrix colored by batch variables.
+
+```{r control-batch-pca}
+normalization.summary$control.batch$pc.plot
+```

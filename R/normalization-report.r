@@ -1,4 +1,3 @@
-
 #' Generate report on normalization performance
 #'
 #' Generate HTML file that summarises the normalization. 
@@ -17,14 +16,14 @@
 #'}
 meffil.normalization.report <- function(
     normalization.summary,
-    output.file = "meffil-normalization-report.md",
+    output.file = "normalization-report.md",
     author = "Analyst",
     study = "IlluminaHuman450 data",
     ...
 ) {
     msg("Writing report as html file to", output.file)
     path <- system.file("reports", package="meffil")
-    knit.report(file.path(path, "meffil-normalization-report.rmd"), output.file, ...)
+    knit.report(file.path(path, "normalization-report.rmd"), output.file, ...)
 }
 
 
@@ -137,7 +136,15 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
-    plot.pairwise.associations(res, batch.threshold)
+    ret <- plot.pairwise.associations(res, batch.threshold)
+    ret$pc.plot <- plot.pcs(pcs, dat)
+
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "l")] <- "batch.value"
+    colnames(res)[which(colnames(res) == "y")] <- "principal.component"
+    ret$tab <- res
+    
+    ret
 }
 
 
@@ -187,7 +194,14 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
       
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
-    plot.pairwise.associations(res, batch.threshold)
+    ret <- plot.pairwise.associations(res, batch.threshold)
+    ret$pc.plot <- plot.pcs(pcs, dat)
+
+    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
+    colnames(res)[which(colnames(res) == "l")] <- "batch.value"
+    colnames(res)[which(colnames(res) == "y")] <- "principal.component"
+    ret$tab <- res
+    ret
 }
 
 #' Tests associations between 
@@ -217,7 +231,7 @@ test.pairwise.associations <- function(y,x) {
             }, silent=TRUE)
             
             ret <- data.frame(x=x.name, l=NA, y=y.name, test="F-test",
-                              p.value=pval, estimate=fstat, lower=NA, upper=NA)
+                              p.value=pval, estimate=fstat["value"], lower=NA, upper=NA)
             if (is.factor(x) && length(levels(x)) > 1) {
                 q1 <- quantile(y, probs=0.25)
                 q3 <- quantile(y, probs=0.75)
@@ -263,36 +277,57 @@ test.pairwise.associations <- function(y,x) {
 
 
 plot.pairwise.associations <- function(res, batch.threshold) {    
-    colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
-    colnames(res)[which(colnames(res) == "l")] <- "batch.level"
-    colnames(res)[which(colnames(res) == "y")] <- "pc"
-    
-    cp <- sapply(unique(res$pc), function(pc) {
-        idx <- which(res$pc == pc & res$test == "t-test")
-        col <- with(res[idx,], c("black","red")[sign(p.value < 0.05) + 1])
-        ggplot(res[idx,], aes(x=paste(batch.variable, batch.level, sep="."),
-                              y=estimate,
-                              ymin=lower,
-                              ymax=upper)) +
-                   geom_errorbar(width=0.5, colour=col) +
-                   geom_point(colour=col) +
-                   geom_hline(yintercept=0, colour="blue", linetype="dashed") +
-                   ylab("coefficient") +
-                   xlab("") +
-                   ggtitle(pc) +
-                   coord_flip() 
+    cp <- sapply(unique(res$y), function(y) {
+        idx <- which(res$y == y & res$test == "t-test")
+        col <- with(res[idx,], c("black","red")[sign(p.value < batch.threshold) + 1])
+        (ggplot(res[idx,], aes(x=paste(x, l, sep="."),
+                               y=estimate,
+                               ymin=lower,
+                               ymax=upper)) +
+         geom_errorbar(width=0.5, colour=col) +
+         geom_point(colour=col) +
+         geom_hline(yintercept=0, colour="blue", linetype="dashed") +
+         ylab("coefficient") +
+         xlab("") +
+         ggtitle(y) +
+         theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+         coord_flip())
     }, simplify=F)
 
-    res <- res[which(res$test == "F-test" | res$p.value < batch.threshold),]
-    res <- res[order(res$test, res$p.value, decreasing=F),]
+    res <- res[which(res$test == "F-test"),]
 
-    fp <- ggplot(res[which(res$test == "F-test"),], aes(x=pc, y=-log10(p.value))) +
-	geom_point() +
-	geom_hline(yintercept=-log10(0.05), colour="blue", linetype="dashed") +
-	facet_grid(batch.variable ~ .) +
-	labs(y="-log10 p", x="PCs") +
-	theme_bw()
-    return(list(tab=res, fplot=fp, cplots=cp))
+    fp <- (ggplot(res, aes(x=y, y=-log10(p.value))) +
+           geom_point() +
+           geom_hline(yintercept=-log10(0.05), colour="blue", linetype="dashed") +
+           facet_grid(x ~ .) +
+           labs(y="-log10 p", x="") +
+           theme_bw())
+    
+    return(list(fplot=fp, cplots=cp))
+}
+
+
+plot.pcs <- function(pcs, dat) {
+    stopifnot(nrow(pcs) == nrow(dat))
+    
+    if (ncol(pcs) >= 3) {
+        too.many.levels <- sapply(1:ncol(dat), function(i) length(unique(dat[,i])) > 10)
+        if (any(!too.many.levels)) {            
+            pc.vars <- do.call(rbind, lapply(which(!too.many.levels), function(i) {                
+                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2], variable=colnames(dat)[i], values=dat[,i]),
+                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i]),
+                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i]))
+            }))
+            
+            return(ggplot(pc.vars, aes(x=pc.x, y=pc.y,colour=as.factor(values))) +
+                   geom_point() +
+                   scale_colour_discrete(name = "Batch") +
+                   labs(y="pc",x="pc") +
+                   facet_grid(variable ~ desc) +
+                   theme_bw())
+        }
+    }
+    return(NULL)
 }
 
 
