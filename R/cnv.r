@@ -161,11 +161,21 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
 {
 	controls <- meffil.cnv.controls(TRUE)
-	l <- mclapply(1:nrow(samplesheet), function(i)
-	{
-		calculate.cnv(samplesheet$Basename[i], samplesheet$Sample_Name[i], controls, verbose=verbose, ...)
+
+	l1 <- get.index.list(nrow(samplesheet), options("mc.cores")[[1]])
+
+	l <- lapply(l1, function(x)
+	{		
+		l2 <- mclapply(x, function(i)
+		{
+			calculate.cnv(samplesheet$Basename[i], samplesheet$Sample_Name[i], controls, verbose=verbose, ...)
+		})
+		names(l2) <- samplesheet$Sample_Name[x]
+		return(l2)
 	})
-	names(l) <- samplesheet$Sample_Name
+	nom <- unlist(sapply(l, names))
+	l <- unlist(l, recursive=FALSE)
+	names(l) <- nom
 	return(l)
 }
 
@@ -182,20 +192,39 @@ meffil.cnv.matrix <- function(cnv)
 	probeinfo <- probeinfo[order(probeinfo$chr, probeinfo$pos), ]
 	probeinfo$chr <- as.character(probeinfo$chr)
 
-	res <- mcsapply.safe(seq_along(cnv), function(X)
+	l1 <- get.index.list(length(cnv), options("mc.cores")[[1]])
+	l <- lapply(l1, function(ii)
 	{
-		x <- cnv[[X]]
-		message(X, " of ", length(cnv))
-		res <- lapply(1:nrow(x), function(i)
+		res <- mclapply(ii, function(X)
 		{
-			index <- with(probeinfo, chr == x$chrom[i] & pos >= x$loc.start[i] & pos <= x$loc.end[i])
-			p <- rep(x$seg.mean[i], sum(index))
-			names(p) <- probeinfo$name[index]
-			return(p)
+			x <- cnv[[X]]
+			message(X, " of ", length(cnv))
+			res <- lapply(1:nrow(x), function(i)
+			{
+				index <- with(probeinfo, chr == x$chrom[i] & pos >= x$loc.start[i] & pos <= x$loc.end[i])
+				p <- rep(x$seg.mean[i], sum(index))
+				names(p) <- probeinfo$name[index]
+				return(p)
+			})
+			res <- unlist(res)
+			return(res)
 		})
-		res <- unlist(res)
+		names(res) <- names(cnv)[ii]
 		return(res)
 	})
-	colnames(res) <- names(cnv)
-	return(res)
+	nom <- unlist(lapply(l, names))
+	l <- do.call(cbind, unlist(l, recursive=FALSE))
+	colnames(l) <- nom
+	return(l)
+}
+
+
+get.index.list <- function(n, mc.cores)
+{
+	mc.cores <- ifelse(mc.cores < 1, 1, mc.cores)
+	div <- floor(n / mc.cores)
+	rem <- n %% mc.cores
+	l1 <- lapply(1:div, function(x) (x-1) * mc.cores + 1:mc.cores)
+	if(rem != 0) l1[[div+1]] <- l1[[div]][mc.cores] + 1:rem
+	return(l1)
 }
