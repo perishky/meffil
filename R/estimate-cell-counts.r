@@ -26,7 +26,7 @@ meffil.estimate.cell.counts <- function(object, cell.type.reference, verbose=T) 
     
     rg <- read.rg(object$basename, verbose=verbose)
     rg <- background.correct(rg, verbose=verbose)
-    rg <- dye.bias.correct(rg, object$reference.intensity, verbose=verbose)
+    rg <- dye.bias.correct(rg, object$dye.intensity, verbose=verbose)
     mu <- rg.to.mu(rg)
 
     estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)

@@ -329,6 +329,13 @@ The normalization report gives more details.
 quantile(beta.meffil - norm.meffil.2$beta[rownames(beta.meffil),])
 ```
 
+## CNVs
+
+```{r cnv, cache=T}
+system.time(cnv.ret <- meffil.calculate.cnv(samplesheet, verbose=TRUE))
+```
+
+
 
 This file was generated from R markdown:
 
