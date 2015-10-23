@@ -300,6 +300,20 @@ for (cell.type in colnames(counts.meffil)) {
 }
 ```
 
+```{r,results="hide"}
+counts.beta <- meffil.estimate.cell.counts.from.betas(beta.meffil, cell.type.reference)
+```
+
+```{r, dev="CairoPNG"}
+for (cell.type in colnames(counts.meffil)) {
+    lim <- range(c(counts.meffil[,cell.type], counts.beta[,cell.type]))
+    plot(counts.meffil[,cell.type], counts.beta[,cell.type], pch=19,
+         main=cell.type,
+         sub=paste("R =", format(cor(counts.meffil[,cell.type], counts.beta[,cell.type]), digits=3)),
+         xlim=lim,ylim=lim)
+    abline(a=0,b=1,col="red")
+}
+```
 ## SNP signals
 
 ```{r}

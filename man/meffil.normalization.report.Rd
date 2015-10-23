@@ -5,7 +5,7 @@
 \title{Generate report on normalization performance}
 \usage{
 meffil.normalization.report(normalization.summary,
-  output.file = "meffil-normalization-report.md", author = "Analyst",
+  output.file = "normalization-report.md", author = "Analyst",
   study = "IlluminaHuman450 data", ...)
 }
 \arguments{

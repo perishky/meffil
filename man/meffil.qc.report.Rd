@@ -4,7 +4,7 @@
 \alias{meffil.qc.report}
 \title{Generate QC report}
 \usage{
-meffil.qc.report(qc.summary, output.file = "meffil-qc-report.html",
+meffil.qc.report(qc.summary, output.file = "qc-report.html",
   author = "Analyst", study = "IlluminaHuman450 data", ...)
 }
 \arguments{

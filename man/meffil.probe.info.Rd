@@ -9,8 +9,8 @@ meffil.probe.info()
 \value{
 The data frame being used to annotate
 the Infinium HumanMethylation450 BeadChip.
-The default uses \code{\link[minfi]{getProbeInfo}()}
-and \code{\link[IlluminaHumanMethylation450k]{IlluminaHumanMethylation450kmanifest}}
+The default uses
+\code{\link[IlluminaHumanMethylation450k]{IlluminaHumanMethylation450kmanifest}}
 extensively.  Probe locations are obtained using
 \code{\link[IlluminaHumanMethylation450kanno.ilmn12.hg19]{IlluminaHumanMethylation450kanno.ilmn12.hg19}}.
 }

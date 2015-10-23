@@ -72,7 +72,8 @@ create.cell.type.reference <- function(M, U, cell.types,
     quantiles <- lapply(subsets.ii, function(set) {
         set <- intersect(set, rownames(M))
         list(M=apply(apply(M[set,], 2, quantile, probs=probs, na.rm=T), 1, mean, na.rm=T),
-             U=apply(apply(U[set,], 2, quantile, probs=probs, na.rm=T), 1, mean, na.rm=T))
+             U=apply(apply(U[set,], 2, quantile, probs=probs, na.rm=T), 1, mean, na.rm=T),
+             beta=apply(apply(get.beta(M[set,],U[set,]), 2, quantile, probs=probs, na.rm=T), 1, mean, na.rm=T))
     })
 
     list(beta=specific.beta, quantiles=quantiles, subsets=subsets)

@@ -72,7 +72,8 @@ for (i in 1:ncol(tab)) {
         tab[,i] <- format(tab[,i], digits=3)
         tab[,i] <- sub("^[ ]*NA$", "", tab[,i])
     }
-    tab[which(is.na(tab[,i])),i] <- ""
+    if (any(is.na(tab[,i])))
+        tab[which(is.na(tab[,i])),i] <- ""
 }
 if(nrow(tab) > 0) kable(tab,row.names=F)
 
@@ -123,7 +124,8 @@ for (i in 1:ncol(tab)) {
         tab[,i] <- format(tab[,i], digits=3)
         tab[,i] <- sub("^[ ]*NA$", "", tab[,i])
     }
-    tab[which(is.na(tab[,i])),i] <- ""
+    if (any(is.na(tab[,i])))
+        tab[which(is.na(tab[,i])),i] <- ""
 }
 if(nrow(tab) > 0) kable(tab,row.names=F)
 

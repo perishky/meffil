@@ -92,4 +92,35 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
     counts
 }
 
+#' Estimate cell counts for a beta matrix from a reference
+#'
+#' Estimate cell type ratios from methylation profiles of purified cell populations
+#' (Infinium HumanMethylation450 BeadChip).
+#'
+#' @param beta Matrix of Illumina 450K methylation levels (rows = CpG sites, columns = subjects).
+#' @param verbose If \code{TRUE}, then status messages are printed during execution
+#' (Default: \code{FALSE}).
+#' @param cell.type.reference Character string name of the cell type reference
+#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' references.  New references can be created using
+#' \code{\link{meffil.create.cell.type.reference}()}. 
+#' @return A matrix of cell count estimates.
+#'
+#' Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
+#' 
+#' @export
+meffil.estimate.cell.counts.from.betas <- function(beta, cell.type.reference, verbose=F) {
+    stopifnot(is.matrix(beta))
+    meffil:::check.cell.type.reference.exists(cell.type.reference)
+    
+    reference.object <- meffil:::get.cell.type.reference.object(cell.type.reference)
+    
+    beta <- quantile.normalize.betas(beta, reference.object$subsets, reference.object$quantiles, verbose=verbose)
+    
+    beta <- beta[intersect(rownames(beta), rownames(reference.object$beta)),]
+    reference.beta <- reference.object$beta[rownames(beta),]
+
+    t(apply(beta, 2, meffil:::estimate.cell.counts.from.beta, reference.beta))
+}    
 
