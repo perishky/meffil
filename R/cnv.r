@@ -222,7 +222,7 @@ meffil.cnv.matrix <- function(cnv)
 
 get.index.list <- function(n, mc.cores)
 {
-	mc.cores <- ifelse(mc.cores < 1, 1, mc.cores)
+	mc.cores <- ifelse(is.null(mc.cores) || mc.cores < 1, 1, mc.cores)
 	div <- floor(n / mc.cores)
 	rem <- n %% mc.cores
 	l1 <- lapply(1:div, function(x) (x-1) * mc.cores + 1:mc.cores)
