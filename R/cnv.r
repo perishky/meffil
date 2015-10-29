@@ -136,6 +136,7 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 	segment_cna_aut <- segment(cna_aut, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
 	out <- rbind(segment_cna_aut$output, segment_cna_sex$output)
 	out$chrom <- ordered(out$chrom, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
+	out$ID <- samplename
 	return(out)
 }
 
