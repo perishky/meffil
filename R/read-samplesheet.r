@@ -118,7 +118,8 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 	{
 		names(df)[nam] <- "Sex"
 	} else {
-		stop("There should be one 'Sex' column")
+		warning("There should be one 'Sex' column")
+                df$Sex <- NA
 	}
 
 	# Check Sample_Name column
@@ -138,12 +139,7 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 		df$Sample_Name <- make.samplename.from.basename(df$Basename)
 	}
 
-	# Order samplesheet in same order as basenames from meffil.basenames
-
-	stopifnot(all(basenames) %in% df$Basename)
-	
-
-	check.samplesheet(df, basenames)
+	check.samplesheet(df)
 
 	return(df)
 }

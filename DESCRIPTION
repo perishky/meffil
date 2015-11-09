@@ -23,11 +23,13 @@ Depends:  illuminaio,
 	  matrixStats,
 	  multcomp,
 	  lme4,
-	  parallel
+	  parallel,
+	  fastICA
 Suggests: CopyNumber450kData,
           DNAcopy,
 	  IlluminaHumanMethylation450kmanifest,
-	  IlluminaHumanMethylation450kanno.ilmn12.hg19
+	  IlluminaHumanMethylation450kanno.ilmn12.hg19,
+          betareg	
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes

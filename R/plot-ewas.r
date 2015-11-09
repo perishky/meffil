@@ -1,0 +1,157 @@
+scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
+    x.cell <- floor((resolution-1)*(x - min(x,na.rm=T))/diff(range(x,na.rm=T))) + 1
+    y.cell <- floor((resolution-1)*(y - min(y,na.rm=T))/diff(range(y,na.rm=T))) + 1
+    z.cell <- x.cell * resolution + y.cell
+    frequency.table <- table(z.cell)
+    frequency <- rep(0,max(z.cell))
+    frequency[as.integer(names(frequency.table))] <- frequency.table
+    f.cell <- frequency[z.cell]
+    
+    big.cells <- length(which(frequency > max.per.cell))
+    sort(c(which(f.cell <= max.per.cell),
+           sample(which(f.cell > max.per.cell),
+                  size=big.cells * max.per.cell, replace=F)),
+         decreasing=F)
+}
+
+#' @export
+meffil.ewas.qq.plot <- function(ewas.object,
+                           sig.threshold=1e-7,
+                           sig.color="red",
+                           title="QQ plot",
+                           xlab=bquote(-log[10]("expected p-values")),
+                           ylab=bquote(-log[10]("observed p-values"))) {
+
+    sapply(names(ewas.object$analyses), function(name) {
+        p.values <- sort(ewas.object$analyses[[name]]$table$p.value, decreasing=T)
+        stats <- data.frame(is.sig=p.values < sig.threshold,
+                            expected=-log((length(p.values):1 - 0.5)/length(p.values),10),
+                            observed=-log(p.values, 10))
+        lambda <- with(stats, median(expected)/median(observed))
+        label.x <- min(stats$expected) + diff(range(stats$expected))*0.25
+        label.y <- min(stats$expected) + diff(range(stats$observed))*0.75
+
+        selection.idx <- scatter.thinning(stats$observed, stats$expected,
+                                          resolution=100, max.per.cell=100)
+
+        (ggplot(stats[selection.idx,], aes(x=expected, y=observed)) + 
+         geom_abline(intercept = 0, slope = 1, colour="black") +              
+         geom_point(aes(colour=factor(sign(is.sig)))) +
+         scale_colour_manual(values=c("black", "red"),
+                             name="Significant",
+                             breaks=c("0","1"),
+                             labels=c(paste("p-value >", sig.threshold),
+                                 paste("p-value <", sig.threshold))) +
+         annotate(geom="text", x=label.x, y=label.y,
+                  label=paste("lambda ==", format(lambda, digits=3)), parse=T) +
+         xlab(xlab) + ylab(ylab) +
+         ggtitle(paste(title, ": ", name, sep="")))
+     }, simplify=F)     
+}
+
+#' @export
+meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
+                                       title="Manhattan plot") {
+    chromosomes <- paste("chr", c(1:22, "X","Y"), sep="")
+    sapply(names(ewas.object$analyses), function(name) {
+        stats <- ewas.object$analyses[[name]]$table
+        stats$chromosome <- factor(as.character(stats$chromosome), levels=chromosomes)
+        stats$chr.colour <- 0
+        stats$chr.colour[stats$chromosomes %in% chromosomes[seq(1,length(chromosomes),2)]] <- 1
+        stats$stat <- -log(stats$p.value,10) * sign(stats$coefficient)
+
+        stats <- stats[order(stats$stat, decreasing=T),]
+
+        chromosome.lengths <- sapply(chromosomes, function(chromosome)
+                                     max(stats$position[which(stats$chromosome == chromosome)]))
+        chromosome.lengths <- as.numeric(chromosome.lengths)
+        chromosome.starts <- c(1,cumsum(chromosome.lengths)+1)
+        names(chromosome.starts) <- c(chromosomes, "NA")
+        stats$global <- stats$position + chromosome.starts[stats$chromosome] - 1
+
+        selection.idx <- scatter.thinning(stats$global, stats$stat)
+        
+        (ggplot(stats[selection.idx,], aes(x=position, y=stat)) +
+         geom_point(aes(colour=chr.colour)) +
+         facet_grid(. ~ chromosome, space="free_x", scales="free_x") +
+         theme(strip.text.x = element_text(angle = 90)) +
+         guides(colour=FALSE) +
+         labs(x="Position",
+              y=bquote(-log[10]("p-value") * sign(beta))) +             
+         geom_hline(yintercept=log(sig.threshold,10), colour="red") +
+         geom_hline(yintercept=-log(sig.threshold,10), colour="red") +
+         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+         ggtitle(paste(title, ": ", name, sep=""))) 
+    }, simplify=F)        
+}
+
+#' use comet R package to plot region nearby
+#' @export
+meffil.ewas.cpg.plot <- function(ewas.object, cpg, title=cpg, beta=NULL) {
+    variable <- ewas.object$variable
+    
+    lapply(names(ewas.object$analyses), function(name) {
+        ewas <- ewas.object$analyses[[name]]
+
+        if (cpg %in% rownames(ewas$beta))
+            methylation <- ewas$beta[cpg,ewas.object$samples]
+        else {
+            stopifnot(!is.null(beta))
+            stopifnot(all(rownames(ewas$design) %in% colnames(beta)))
+            methylation <- beta[cpg,rownames(ewas$design)]
+        }
+        covariates <- subset(data.frame(ewas$design), select=c(-variable,-intercept))
+        if (ncol(covariates) == 0)
+            covariates <- NULL
+        cpg.plot(methylation, variable, covariates, title=paste(name, ": ", title, sep=""))
+    })
+}
+
+cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
+    ## linear model fit
+    if (is.null(covariates)) {
+        fit <- lm(methylation ~ variable)
+        base <- lm(methylation ~ 1)
+    }
+    else {
+        fit <- lm(methylation ~ variable + ., data=covariates)
+        base <- lm(methylation ~ ., data=covariates)
+    }
+    p.value.lm <- anova(fit,base)[2,"Pr(>F)"]
+
+    stats.desc <- paste("variable\np[lm]= ", format(p.value.lm, digits=3), sep="")
+                        
+    has.betareg <- all(c("lmtest", "betareg") %in% rownames(installed.packages()))
+    if (has.betareg) {
+        require("betareg")
+        require("lmtest")
+        ## beta regression model fit
+        if (is.null(covariates)) {
+            fit <- betareg(methylation ~ variable)
+            base <- betareg(methylation ~ 1)
+        }
+        else {
+            fit <- betareg(methylation ~ variable + ., data=covariates)
+            base <- betareg(methylation ~ ., data=covariates)
+        }
+        p.value.beta <- lrtest(fit, base)[2,"Pr(>Chisq)"]
+
+        stats.desc <- paste(stats.desc, "; p[beta] = ", format(p.value.beta, digits=3), sep="")
+    }
+    if (!is.null(covariates))
+        methylation <- residuals(base)
+
+    ## plot
+    data <- data.frame(methylation=methylation, variable=variable)
+    if (is.factor(variable) || length(unique(variable)) <= 20) {
+        data$variable <- as.factor(data$variable)
+        p <- (ggplot(data, aes(x=variable, y=methylation)) +
+              geom_boxplot())
+    } else {
+        p <- (ggplot(data, aes(x=variable, y=methylation)) +
+              geom_point() + geom_smooth(method=lm))
+    }
+
+    (p + ggtitle(title) +
+     xlab(stats.desc) + ylab("DNA methylation"))
+}

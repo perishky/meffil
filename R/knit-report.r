@@ -19,12 +19,15 @@
 #' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
 #' @return NULL
 knit.report <- function(input.filename, output.filename, ...) {
-    output.filename <- normalizePath(output.filename)
+    input.filename <- normalizePath(input.filename)
 
     output.dir <- dirname(output.filename)
     if (!file.exists(output.dir))
-        dir.create(output.dir)
+        dir.create(output.dir, recursive=T)
 
+    output.dir <- normalizePath(output.dir)
+    output.filename <- file.path(output.dir, basename(output.filename))
+    
     current.dir <- getwd()
     on.exit(setwd(current.dir))
     setwd(output.dir)
@@ -37,7 +40,8 @@ knit.report <- function(input.filename, output.filename, ...) {
         md.filename <- paste(name, "md", sep=".")
     else
         md.filename <- basename(output.filename)
-    
+
+    assign("output.dir", output.dir, envir=parent.frame())
     knit(input.filename, output=md.filename, envir=parent.frame(), ...)
 
     if (is.html)

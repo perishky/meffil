@@ -74,6 +74,24 @@ norm.meffil.1 <- meffil.normalize.dataset(samplesheet,
                                           verbose=T)
 ```
 
+## Comparison of object sizes
+
+```{r}
+print(object.size(norm.meffil.1$qc.objects), units="Mb")
+print(object.size(norm.meffil.1$norm.objects), units="Mb")
+print(object.size(norm.meffil.1), units="Mb")
+print(object.size(norm.minfi), units="Mb")
+print(object.size(raw.minfi), units="Mb")
+```
+
+```{r}
+print(object.size(data$norm.objects), units="Mb")
+print(object.size(data), units="Mb")
+print(object.size(norm.minfi), units="Mb")
+print(object.size(raw.minfi), units="Mb")
+
+```
+
 ## Normalize using `meffil` step-by-step
 
 It is also possible to break normalization down into single steps.
