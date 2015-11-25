@@ -15,11 +15,11 @@ if (!file.exists("ecpi-demo")) source("epic-demo.r")
 
 if (!file.exists("450k-and-epic")) source("450k-and-epic.r")
 
-if (!file.exists("cnv")) rmd2html("cnv") ........ create cnv.rmd
+if (!file.exists("cnv")) rmd2html("cnv") ........ create cnv.rmd based on cnv.r
 
 if (!file.exists("ewas")) source("ewas.r")
 
-if (!file.exists("random")) rmd2html("random") ......... create  random.rmd
+if (!file.exists("random")) rmd2html("random") ......... create  random.rmd based on random.r
 
 clean.up.outputs <- function() {
     unlink("450k-demo", recursive = TRUE)
