@@ -1,5 +1,7 @@
 ## A slightly stripped down version of the function
 ## DoISVA from the ISVA R package.
+## https://cran.r-project.org/web/packages/isva/
+
 
 ## require(fastICA)
 

@@ -19,7 +19,7 @@ meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, deli
     if (is.null(Sample_Name)) {
         if(length(idcol) >= 1) {
             Sample_Name <- dat[,idcol[1]]
-            dat <- dat[,-idcol[1]]
+            dat <- dat[,-idcol[1],drop=F]
         }
         else {
             Sample_Name <- make.samplename.from.basename(basenames)

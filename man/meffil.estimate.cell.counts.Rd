@@ -4,19 +4,19 @@
 \alias{meffil.estimate.cell.counts}
 \title{Estimate cell counts from a reference}
 \usage{
-meffil.estimate.cell.counts(object, cell.type.reference, verbose = T)
+meffil.estimate.cell.counts(qc.object, cell.type.reference, verbose = T)
 }
 \arguments{
-\item{object}{An object created by \code{\link{meffil.create.qc.object}()}.}
-
 \item{cell.type.reference}{Character string name of the cell type reference
 to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-See \code{\link{meffil.get.cell.type.references}()} for a list of available
+See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.create.cell.type.reference}()}.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
+
+\item{object}{An object created by \code{\link{meffil.create.qc.object}()}.}
 }
 \value{
 A list:

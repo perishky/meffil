@@ -4,14 +4,12 @@
 \alias{meffil.most.variable.cpgs}
 \title{Most variable CpG sites}
 \usage{
-meffil.most.variable.cpgs(x, n = 1000, autosomal = T)
+meffil.most.variable.cpgs(beta, n = 1000)
 }
 \arguments{
-\item{x}{Methylation matrix (rows = CpG sites, columns = samples).}
+\item{beta}{Methylation matrix (rows = CpG sites, columns = samples).}
 
 \item{n}{Number of CpG sites to return.}
-
-\item{autosomal}{If \code{TRUE}, then consider only autosomal CpG sites (Default: TRUE).}
 }
 \value{
 The \code{n} CpG site identifiers (rownames of \code{x}) with the greatest variance in \code{x}.

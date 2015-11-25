@@ -6,7 +6,8 @@
 \usage{
 meffil.qc(samplesheet, number.quantiles = 500, dye.intensity = 5000,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
-  cell.type.reference = NULL, max.bytes = 2^30 - 1, verbose = F, ...)
+  featureset = NULL, architecture = NULL, cell.type.reference = NULL,
+  max.bytes = 2^30 - 1, verbose = F, ...)
 }
 \arguments{
 \item{samplesheet}{Data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} pr \code{\link{meffil.create.samplesheet}}).}
@@ -25,7 +26,7 @@ All probes with less than this number of beads detected.}
 
 \item{cell.type.reference}{Character string name of the cell type reference
 to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-See \code{\link{meffil.get.cell.type.references}()} for a list of available
+See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.create.cell.type.reference}()}.}
 

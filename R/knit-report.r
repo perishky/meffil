@@ -41,7 +41,9 @@ knit.report <- function(input.filename, output.filename, ...) {
     else
         md.filename <- basename(output.filename)
 
+    ## the rmd code can reference the output directory, e.g. to save a file there.
     assign("output.dir", output.dir, envir=parent.frame())
+    
     knit(input.filename, output=md.filename, envir=parent.frame(), ...)
 
     if (is.html)

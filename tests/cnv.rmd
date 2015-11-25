@@ -1,3 +1,0 @@
-bname <- "~/data/test_meffil/GSM1338121_6057825116_R05C02"
-controls <- get_cnv_controls(TRUE)
-cnv <- meffil_calculate_cnv(bname, basename(bname), controls)

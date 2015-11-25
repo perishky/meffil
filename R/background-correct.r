@@ -6,24 +6,26 @@
 #' @param offset Number to add to background corrected signal (Default: 15).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return Background corrected Cy5/Cy3 signal by \code{\link[limma]{normexp.signal}}.
-background.correct <- function(rg, offset=15, verbose=F) {
+background.correct <- function(rg, probes, offset=15, verbose=F) {
     stopifnot(is.rg(rg))
-
-    probes <- meffil.probe.info()
-    for (dye in names(rg)) {
+    
+    for (dye in c("R","G")) {
         msg("background correction for dye =", dye, verbose=verbose)
         addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
         addresses <- intersect(addresses, rownames(rg[[dye]]))
+        stopifnot(length(addresses) > 0)
         xf <- rg[[dye]][addresses,"Mean"]
         xf[which(xf <= 0)] <- 1
 
         addresses <- probes$address[which(probes$type == "control" & probes$dye == dye)]
         addresses <- intersect(addresses, rownames(rg[[dye]]))
+        stopifnot(length(addresses) > 0)
         xc <- rg[[dye]][addresses,"Mean"]
         xc[which(xc <= 0)] <- 1
 
         addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
         addresses <- intersect(addresses, rownames(rg[[dye]]))
+        stopifnot(length(addresses) > 0)
         oob <- rg[[dye]][addresses,"Mean"]
 
         ests <- huber.safe(oob)

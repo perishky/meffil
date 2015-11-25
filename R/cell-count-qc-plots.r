@@ -11,11 +11,15 @@
 #' 
 #' @export 
 meffil.cell.count.qc.plots <- function(count.objects) {
+    stopifnot(is.list(count.objects) && length(count.objects) > 0)
+    stopifnot(sapply(count.objects, is.cell.count.object))
+    stopifnot(length(unique(sapply(count.objects, function(object) object$reference))) == 1)
+    
     if (is.null(names(count.objects)))
         names(count.objects) <- paste0("s", 1:length(count.objects))
     
     reference <- count.objects[[1]]$reference
-    reference.object <- get.cell.type.reference.object(reference)
+    reference.object <- get.cell.type.reference(reference)
     
     beta <- cbind(reference.object$beta, sapply(count.objects, function(object) object$beta))
 

@@ -27,18 +27,24 @@ meffil.normalize.samples <- function(norm.objects,
     stopifnot(length(norm.objects) >= 2)
     stopifnot(all(sapply(norm.objects, is.normalized.object)))
 
-    sites <- meffil.get.sites()
+    if (length(unique(sapply(norm.objects, function(object) object$featureset))) > 1)
+        stop(paste("Heterogeneous microarray formats included without a common featureset.",
+                   "Need to set the 'featureset' argument when creating QC objects."))
+    
+    sites <- meffil.get.sites(norm.objects[[1]]$featureset)$name
     if(!is.null(cpglist.remove))
         sites <- setdiff(sites, cpglist.remove)
     
     ret <- mcsapply.safe(
         norm.objects,
         FUN=function(object) {
-            ret <- meffil.normalize.sample(object, verbose=verbose)
+            mu <- meffil.normalize.sample(object, verbose=verbose)
+            m.idx <- match(sites, names(mu$M))
+            u.idx <- match(sites, names(mu$U))
             if (just.beta)
-                get.beta(unname(ret$M[sites]), unname(ret$U[sites]), pseudo)
+                get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)
             else
-                c(unname(ret$M[sites]), unname(ret$U[sites]))
+                c(unname(mu$M[u.idx]), unname(mu$U[u.idx]))
         },
         ...,
         max.bytes=max.bytes)

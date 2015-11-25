@@ -15,8 +15,8 @@
 #'
 #' @export
 meffil.plot.pc.fit <- function(qc.objects, fixed.effects=NULL, random.effects=NULL, n.cross=10, name="autosomal.ii") {
-    stopifnot(meffil:::is.valid.probe.subset(name))    
-    stopifnot(all(sapply(qc.objects, meffil:::is.qc.object)))
+    stopifnot(is.valid.site.subset(name))    
+    stopifnot(all(sapply(qc.objects, is.qc.object)))
     stopifnot(2*n.cross <= length(qc.objects))
     
     n.quantiles <- length(qc.objects[[1]]$quantiles[[1]]$M)
@@ -31,22 +31,21 @@ meffil.plot.pc.fit <- function(qc.objects, fixed.effects=NULL, random.effects=NU
         for (test.group in unique(group)) {
             msg("pcs", number.pcs, "group", test.group)
             test.idx <- which(group == test.group)
-            design.matrix <- meffil:::predict.design.matrix(qc.objects, number.pcs, test.idx,
-                                                            fixed.effects=fixed.effects,
-                                                            random.effects=random.effects)
-            
+            design.matrix <- predict.design.matrix(qc.objects, number.pcs, test.idx,
+                                                   fixed.effects=fixed.effects,
+                                                   random.effects=random.effects)
+
             intensity.R <- sapply(qc.objects, function(object) object$intensity.R)
             intensity.G <- sapply(qc.objects, function(object) object$intensity.G)
             valid.idx <- which(intensity.R + intensity.G > 200)
             stopifnot(length(valid.idx) > 0)
             reference.idx <- valid.idx[which.min(abs(intensity.R/intensity.G-1)[valid.idx])]
             dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
-            
             for (target in c("M","U")) {
                 original <- sapply(qc.objects[test.idx], function(object) {
                     object$quantiles[[name]][[target]] * dye.intensity/object$dye.intensity
                 })
-                residuals[[target]][,test.idx] <- (meffil:::normalize.quantiles(original, design.matrix)
+                residuals[[target]][,test.idx] <- (normalize.quantiles(original, design.matrix)
                                                    - rowMeans(original))
             }
         }

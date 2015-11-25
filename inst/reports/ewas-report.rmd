@@ -19,11 +19,26 @@ ewas.summary$parameters
 
 ## Sample characteristics
 
+For continuous or ordinal variables, the "mean" column provides the mean
+and the "var" column the standard deviation of the variable.
+For categorical variables, the "mean" column provides the number
+of samples with the given "value" and the
+"var" column the percentage of samples with the given "value".
+
 ```{r sample-characteristics}
 knitr::kable(ewas.summary$sample.characteristics)
 ```
 
 ## Covariate associations
+
+For continuous or ordinal covariates, the "mean" column provides the mean
+and the "var" column the standard deviation of the covariate.
+For categorical covariates, the "mean" column provides the number
+and the "var" column the percentage of samples with the given covariate "value".
+
+If a value for the variable of interest is given in the "variable" column
+(only for categorical variables), then the statistics apply
+only to the corresponding samples.
 
 ```{r covariate-associations}
 knitr::kable(ewas.summary$covariate.associations)
@@ -77,6 +92,10 @@ CpG sites with association p-values < `r ewas.summary$parameters$practical.thres
 ```{r ewas-practical-table}
 knitr::kable(tab[practical.sites,])
 ```
+
+Plots of these sites follow, one for each covariate set.
+"p[lm]" denotes the p-value obtained using a linear model
+and "p[beta]" the p-value obtained using beta regression.
 
 ```{r ewas-practical-plots, results="hide"}
 for (cpg in practical.sites)

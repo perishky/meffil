@@ -24,7 +24,8 @@ Depends:  illuminaio,
 	  multcomp,
 	  lme4,
 	  parallel,
-	  fastICA
+	  fastICA,
+	  quadprog
 Suggests: CopyNumber450kData,
           DNAcopy,
 	  IlluminaHumanMethylation450kmanifest,

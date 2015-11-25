@@ -1,5 +1,6 @@
 extract.from.samplesheet <- function(qc.objects, names) {
     ret <- do.call(rbind, lapply(qc.objects, function(object) {
+        stopifnot(is.qc.object(object))
         object$samplesheet[, unique(names), drop = F]
     }))
     for (name in colnames(ret))

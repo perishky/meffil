@@ -1,5 +1,7 @@
 winsorize <- function(x, pct=0.05) {
     if (is.matrix(x)) {
+        if (any(is.na(x)))
+            x <- impute.matrix(x)
         low <- rowQ(x, which=floor(ncol(x)*pct)) 
         high <- rowQ(x, which=floor(ncol(x)*(1-pct))) 
         idx <- which(x < low, arr.ind=T)

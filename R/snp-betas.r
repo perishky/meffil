@@ -9,16 +9,24 @@ meffil.snp.betas <- function(qc.objects) {
     sapply(qc.objects, function(object) object$snp.betas)
 }
 
-extract.snp.probe.betas <- function(rg, verbose=F) {
+#' @export
+meffil.snp.names <- function(featureset) {
+    features <- meffil.featureset(featureset)
+    features$name[which(features$target == "snp")]
+}
+
+extract.snp.betas <- function(rg, probes, verbose=F) {
     msg(verbose=verbose)
+    stopifnot(is.rg(rg))
+    
+    probes.M.R <- probes[which(probes$target == "M-snp" & probes$dye == "R"),]
+    probes.M.G <- probes[which(probes$target == "M-snp" & probes$dye == "G"),]
+    probes.U.R <- probes[which(probes$target == "U-snp" & probes$dye == "R"),]
+    probes.U.G <- probes[which(probes$target == "U-snp" & probes$dye == "G"),]
 
-    probes <- meffil.probe.info()
-
-    probes.M.R <- probes[which(probes$target == "MG" & probes$dye == "R"),]
-    probes.M.G <- probes[which(probes$target == "MG" & probes$dye == "G"),]
-    probes.U.R <- probes[which(probes$target == "UG" & probes$dye == "R"),]
-    probes.U.G <- probes[which(probes$target == "UG" & probes$dye == "G"),]
-
+    stopifnot(all(c(probes.M.R$address, probes.U.R$address) %in% rownames(rg$R)))
+    stopifnot(all(c(probes.M.G$address, probes.U.G$address) %in% rownames(rg$G)))
+    
     M <- c(rg$R[probes.M.R$address,"Mean"],
            rg$G[probes.M.G$address,"Mean"])
     U <- c(rg$R[probes.U.R$address,"Mean"],
