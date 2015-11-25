@@ -10,8 +10,8 @@
 #'
 #' @export
 meffil.get.beta <- function(M, U, pseudo=100) {
-    stopifnot((is.matrix(M) || is.big.matrix(M))
-              && (is.matrix(U) || is.big.matrix(U))
+    stopifnot(is.matrix(M)
+              && is.matrix(U)
               && nrow(M) == nrow(U)
               && ncol(M) == ncol(U))
     get.beta(M,U,pseudo)

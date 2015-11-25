@@ -1,22 +1,6 @@
-To do list Josine: 09/06/2015:
+create tests/random.rmd tests/cnv.rmd
 
-QC report
-1) add threshold line to discriminate sexes to sex graph based on qc parameters
-  -- added as a note above the plot
-4) control probe means plots are too small and should be colored by slide
-
-Normalization report 
-1) association between PCs and batch variables. Batch variables should be factors. Boxplots of pvalues rather than betas.
-2) PCA plot of normalized data to detect outliers.
-
-
-create a qc plot that just uses hierarchical clustering of the samples?
- d <- dist(as.matrix(t(norm.beta)))
- hc<-hclust(d)
- pdf("dendrogram_pc10.pdf",height=6,width=8)
- par(cex=0.3, mar=c(5, 8, 4, 1))
- plot(hc)
- dev.off()
+make sure documentation is complete for external functions
 
 
 
@@ -24,176 +8,64 @@ create a qc plot that just uses hierarchical clustering of the samples?
 
 
 
-Josine comments on normalization report (May 19, 2015):
+objects:
+ annotation
+ qc.object
+ norm.object
+ cell.type.reference
+ rg
+ mu
+ qc.summary
+ norm.summary
+ ewas
 
-I had a look at the normalization report for the cell lines
-(attached). I have some comments the report. My first comment relates
-to the association between PC and batch var. :
+Should they S4 Classes?
 
-It is currently coded as: try(res[i, j] <-
-coefficients(summary(lm(pcs[, j] ~ dat[, i])))[2, 4]
+setClass("annotation",
+         representation(probes="data.frame"),
+         validity=function(object) {
+             errors <- c()
 
-Your batch variable should be calculated as a factor and not as a
-numeric variable. As for most of the batches you have a lot of levels
-with a few samples so you need to set the reference as the grand mean
-across all levels of your factor which is different from the default
-which set the first level as reference.
+             columns <- list("type"=c("i","ii","control"),
+                             "target"="character",
+                             "dye"=c("R","G"),
+                             "address"="character",
+                             "name"="character",
+                             "chromosome"=paste("chr", c(1:22,"X","Y"), sep=""),
+                             "position"="integer",
+                             "cpg.island.name"="character",
+                             "relation.to.island"="character",
+                             "snp.exclude"="logical")
+             
+             missing.columns <- setdiff(names(columns), colnames(object@probes))
+             if (length(missing.columns) > 0)
+                 errors <- c(errors, paste("Annotation missing columns:",
+                                           paste(missing.columns, collapse=", ")))
+             
+             for (column in names(columns)) {
+                 if (length(columns[[column]]) == 1) {
+                     if (!is(object@probes[[column]], columns[[column]]))
+                         errors <- c(errors, paste("Column", column, "is not of type", columns[[column]]))
+                 }
+                 else {
+                     if (!all(na.omit(object@probes[[column]]) %in% columns[[column]]))
+                         errors <- c(errors, paste("Column", column, "valid values:",
+                                                   paste(columns[[column]], collapse=",")))
+                 }
+             }
+             
+             if (length(errors) == 0)
+                 TRUE
+             else
+                 errors
+         })
+## e.g. annotation.450k <- new("annotation", probes=probes.450k)
 
-The plots should be showing association for each level rather than one
-pvalue for each batch as one PC might be associated with one specific
-plate.
-
-Just to check, are the associations calculated on the raw PCs
-extracted from the control matrix and not not on the design matrix
-which is scaled and winsorized?
-
-pdf(paste("pca.controlmatrix_lm.pdf",sep=""),height=6,width=6)
-for (b in 1:length(batch)){
-m<-match(batch[b],names(manifestdata))
-manifestdata[,m]<-as.factor(manifestdata[,m]) #set batch as a factor
-batch.out<-data.frame()    
-for (pcomp in 1:dim(control.matrix)[1]){
-options(contrasts=c("contr.sum","contr.poly")) #set reference as grand mean across all levels
-r1<-summary(lm(control.components$x[,pcomp]~1+manifestdata[,m]))
-batch.out<-rbind(batch.out,data.frame(pc=pcomp,f=levels(manifestdata[,m]),r1$coefficients))
-pca.pc<-control.components$x[,pcomp]
-boxplot(pca.pc~manifestdata[,m],main=paste("PC",pcomp,".",batch[b],sep=""),cex.names=0.5,las=2) #boxplot for each level of each batch
-write.table(batch.out,paste("controlmatrix_pca_lm.",batch[b],".txt",sep=""),col.names=T,row.names=F,sep="\t",quote=F)
-}
-}
-dev.off()
-
-In addition it would be good to do a PCA plot or dendogram on all
-samples to look for outliers. For the cell line data (143 samples) the
-dendogram was very clear as you can directly label your samples. Not
-sure if it is easy to see in 5000 samples. Here is some code for these
-plots.
-
-dendogram or PCA plot
-d <- dist(as.matrix(t(norm.beta)))
-hc<-hclust(d)
-pdf(paste("dendrogram_pc",pc,".pdf",height=6,width=8)
-par(cex=0.3, mar=c(5, 8, 4, 1))
-plot(hc)
-dev.off()
-
-PCA plot:
- plotPCA <- function(pca, pc1, pc2, col, covariates, selectedCov, bty="o"){
-    pheno.col=as.numeric(as.factor(covariates[,match(selectedCov,colnames(covariates))]))
-    colors <- c("#4477AA","#CC6677","#DDCC77","#117733","#88CCEE","#AA4499","#44AA99","#999933","#882255","#661100","#6699CC","#AA4466")
-    if(length(unique(pheno.col))>length(colors)){colors=rainbow(length(unique(pheno.col)))}
-    
-    u.pheno.col<-data.frame(unique(pheno.col),colors[1:length(unique(pheno.col))])
-    m<-match(pheno.col,u.pheno.col[,1])
-    col<-u.pheno.col[m,2]
-    xMin <- min(pca[,as.numeric(pc1)])
-    xMax <- max(pca[,as.numeric(pc1)])
-    xRange <- xMax - xMin
-    xlim <- c(xMin-0.05*xRange, xMax+0.20*xRange)
-    xlab <- paste("PC",as.numeric(pc1), " scores", sep="")
-    ylab <- paste("PC",as.numeric(pc2), " scores", sep="")
-    
-
-    plot(pca[,as.numeric(pc1)], pca[,as.numeric(pc2)],
-         col = col, pch = 18, cex = 2, xlab = xlab,
-         ylab = ylab, xlim = xlim,
-         main = "Principal component analysis (PCA)",
-         cex.main = 1.0, cex.lab = 1.0, bty = bty)
-    
-    uColor <- unique(col)
-    uCov   <- unique(covariates[,match(selectedCov, colnames(covariates))])
-    
-    legend("topright", legend = uCov, pch = 18, col = uColor,
-           cex = 0.8, title = selectedCov, bty = "n")
-    grid()
-}
-
-
-
-
-
-
-
-
-
-Josine comments on the qc reports (May 11, 2015):
-
-General:
-i) Could you rename the folder "figure" to "meffil_qc_plots_yy_mm_dd"
--- done (just give the output file name a dated folder, e.g. reports-20150615/qc.html
-ii) Could the default detection score p be set to 0.01?
--- done
-iii) Could the default sample failure rate set to be 0.20?
--- done
-
-Sex graph: 
-Could we change this plot to the shinymethyl version which is much more clear?
--- done
-i) Report says there are 3 sex detection outliers but plot doesn't show which samples are outliers
--- done
-ii)"Sex not specified" has same symbol as females. I also don't understand what correct prediction means
--- done
-iii) It would be great if we could add a dashed vertical line for the "sex.cutoff" used for the prediction to discriminate males and females.
--- done (text provides cutoff) 
-iv) Could we color males and females?
--- done (males and females different shapes)
-
-Meth-unmeth graph
-i) what does the red and blue line mean? Could you add legend?
-ii) Can we color samples by slide or plate so we can identify possible dyebias?
--- done (color by slide)
-
-Controlmeans:
-i) These plots are not readable if you have a lot of samples. There are too many plots on one page.
-ii) It is really important here to order and color by plate/slide as it is a way to detect specific plate/slide issues such as dyebias.
-
-cpg-detectionp-graph:
-i) ChrY needs fixing. For females, chrY should be ignored.
--- done
-ii) Could you make the plot wider, so you can see possible spikes of poor detected regions better?
-ii) Could you add chromosome number to the x-axis rather than on top?
-iii) Could you add a horizontal dashed line with the failure threshold?
--- done
-
-cpg-beadnum-graph:
-i) Could you set default threshold to 0.2? 
--- done
-ii) Could you make the plot wider, so you can see possible spikes of poor detected regions better?
-ii) Could you add chromosome number to the x-axis rather than on top?
-
-cell-counts-beta
-i) x-axis labels are unreadable, maybe use a darker color. Could you give a different color for each reference bar?
--- done (new plot just shows sorted average beta values)
-ii) what is the horizontal line?
--- done
-
-cell-counts-estimate:
-i) x-axis labels are unreadable, could you use a darker color.
--- done
-
-In the report:
-
-i) Sex mismatches: " There are 3 sex detection outliers, and 0 sex detection mismatches." What are sex detection mismatches?? Could we add column with outlier FALSE/TRUE here?
- "This is a plot of the xy.diff values estimated from the methylation data." Could you change it to median differences between Y and X intensities.
--- done
-
-ii) Methylated vs unmethylated: What does colour.code mean? Can you remove this?
--- done
-
-iii) Control probe means: What does colour code and id mean? Plate might be good to add. "There were 18 outliers detected based on deviations from mean values for control probes." How many deviations? I wouldn't remove all these outliers. I would only look at dyebias outliers here. So only include oob.ratio/dyebias outliers. So change outliers TRUE/FALSE column.
-
-
-iv)Sample detection p-values: There were 7 outliers detected based on having high detection p-values. Could you add failure rate here? What does colour code and id mean? Plate might be good to add. Could the default be set to 20%.
--- done
-
-v) Sample bead numbers. There were 0 outliers detected based on having low average bead numbers. Could you change it to There were 0 outliers detected based on having low average bead numbers (<3)
--- done
-
-vi) CpG detection p-values: Black horizontal line represents threshold of 0.05. Could you change it to 0.2?
--- done
-
-v) CpG low bead numbers. Could you change title to "Low number of beads per CpG". 
--- done
-
-
-
+setGeneric("meffil.get.autosomal.sites",
+           function(object) standardGeneric("meffil.get.autosomal.sites"))
+setMethod("meffil.get.autosomal.sites",
+          signature("annotation"),
+          function(object) {
+              probe.idx <- which(probes$chromosome %in% paste0("chr", 1:22))
+              unique(object@probes$name[probe.idx])
+          })

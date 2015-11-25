@@ -52,6 +52,8 @@ meffil.ewas.summary <- function(ewas.object, beta,
     cpg.sites <- union(rownames(sig.cpg.stats$p.value),
                        rownames(selected.cpg.stats$p.value))
     cpg.sites <- ewas.object$analyses[[1]]$table[cpg.sites,c("chromosome","position")]
+
+    parameters$winsorize.pct <- ewas.object$winsorize.pct
     
     list(parameters=parameters,
          qq.plots=qq.plots,

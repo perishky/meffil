@@ -8,7 +8,7 @@
 #' (Default: \code{FALSE}).
 #' @param cell.type.reference Character string name of the cell type reference
 #' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @return A list:
@@ -20,34 +20,36 @@
 #' Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 #' 
 #' @export
-meffil.estimate.cell.counts <- function(object, cell.type.reference, verbose=T) {
-    stopifnot(is.qc.object(object))
-    check.cell.type.reference.exists(cell.type.reference)
+meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=T) {
+    stopifnot(is.qc.object(qc.object))
+    stopifnot(cell.type.reference %in% meffil.list.cell.type.references())
+
+    reference.object <- get.cell.type.reference(cell.type.reference)
     
-    rg <- read.rg(object$basename, verbose=verbose)
-    rg <- background.correct(rg, verbose=verbose)
-    rg <- dye.bias.correct(rg, object$dye.intensity, verbose=verbose)
-    mu <- rg.to.mu(rg)
+    rg <- read.rg(qc.object$basename, verbose=verbose)
+    probes <- meffil.probe.info(reference.object$featureset, qc.object$architecture)
+    rg <- background.correct(rg, probes, verbose=verbose)
+    rg <- dye.bias.correct(rg, probes, qc.object$dye.intensity, verbose=verbose)
+    mu <- rg.to.mu(rg, probes)
 
     estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)
 }
 
 estimate.cell.counts.from.mu <- function(mu, cell.type.reference, verbose=F) {
-    check.cell.type.reference.exists(cell.type.reference)
+    stopifnot(cell.type.reference %in% meffil.list.cell.type.references())
 
-    reference.object <- get.cell.type.reference.object(cell.type.reference)
+    reference.object <- get.cell.type.reference(cell.type.reference)
 
     mu <- quantile.normalize.signals(mu, reference.object$subsets, reference.object$quantiles, verbose=F)
     beta <- get.beta(mu$M, mu$U)
     beta <- beta[rownames(reference.object$beta)]
     counts <- estimate.cell.counts.from.beta(beta, reference.object$beta)
     
-    list(origin="meffil.estimate.cell.counts", counts=counts, beta=beta, reference=cell.type.reference)
+    list(class="cell.counts", counts=counts, beta=beta, reference=cell.type.reference)
 }    
 
-is.cell.count.object <- function(object) {
-    object$origin == "meffil.estimate.cell.counts"
-}
+is.cell.count.object <- function(object)
+    is.list(object) && "class" %in% names(object) && object$class == "cell.counts"
 
 ## Input:
 ## beta[CpG] = methylation level of the CpG in the sample
@@ -102,7 +104,7 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
 #' (Default: \code{FALSE}).
 #' @param cell.type.reference Character string name of the cell type reference
 #' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @return A matrix of cell count estimates.
@@ -112,15 +114,16 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
 #' @export
 meffil.estimate.cell.counts.from.betas <- function(beta, cell.type.reference, verbose=F) {
     stopifnot(is.matrix(beta))
-    meffil:::check.cell.type.reference.exists(cell.type.reference)
-    
-    reference.object <- meffil:::get.cell.type.reference.object(cell.type.reference)
+    reference.object <- get.cell.type.reference(cell.type.reference)
     
     beta <- quantile.normalize.betas(beta, reference.object$subsets, reference.object$quantiles, verbose=verbose)
-    
-    beta <- beta[intersect(rownames(beta), rownames(reference.object$beta)),]
-    reference.beta <- reference.object$beta[rownames(beta),]
 
-    t(apply(beta, 2, meffil:::estimate.cell.counts.from.beta, reference.beta))
+    cpg.sites <- intersect(rownames(beta), rownames(reference.object$beta))
+    stopifnot(length(cpg.sites) > 0)
+    
+    beta <- beta[cpg.sites,]
+    reference.beta <- reference.object$beta[cpg.sites,]
+
+    t(apply(beta, 2, estimate.cell.counts.from.beta, reference.beta))
 }    
 

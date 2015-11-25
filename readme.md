@@ -6,8 +6,20 @@ access to all data. The `meffil` version splits the method up into
 several functions in order to allow parallelization and to reduce the
 amount of data that needs to be loaded.
 
+## One-step normalization
 
-## Overview
+	library(meffil)
+	options(mc.cores=6)
+
+	# Generate samplesheet
+	samplesheet <- meffil.create.samplesheet(path_to_idat_files)
+
+	# Or read in samplesheet
+	samplesheet <- meffil.read.samplesheet(path_to_idat_files)
+
+    beta <- meffil.normalize.dataset(samplesheet, qc.file="qc-report.html", author="Analyst", study="Illumina450", number.pcs=10)
+
+## Step-by-step normalization
 
 	# Load meffil and set how many cores to use for parallelization
 	library(meffil)
@@ -96,7 +108,8 @@ If such a matrix is available (rows = SNPs, columns = samples), then the followi
 can be omitted.  Otherwise, it is possible to obtain the matrix from a PLINK
 dataset as follows:
 
-    writeLines(meffil.get.snp.probes(), con="snp-names.txt")
+    annotation <- qc.objects[[1]]$annotation
+    writeLines(meffil.get.snp.names(annotation), con="snp-names.txt")
     command shell > plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
     filenames <- "genotypes.raw"
     genotypes <- meffil.extract.genotypes(filenames)

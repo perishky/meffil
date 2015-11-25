@@ -26,6 +26,10 @@ meffil.normalize.quantiles <- function(qc.objects,
     stopifnot(all(sapply(qc.objects, is.qc.object)))
     stopifnot(number.pcs >= 1)
 
+    if (length(unique(sapply(qc.objects, function(object) object$featureset))) > 1)
+        stop(paste("Heterogeneous microarray formats included without a common featureset.",
+                   "Need to set the 'featureset' argument when creating QC objects."))
+    
     msg("selecting dye correction reference", verbose=verbose)
     intensity.R <- sapply(qc.objects, function(object) object$intensity.R)
     intensity.G <- sapply(qc.objects, function(object) object$intensity.G)
@@ -79,7 +83,7 @@ meffil.normalize.quantiles <- function(qc.objects,
     norm.objects <- lapply(1:length(qc.objects), function(i) {
         object <- qc.objects[[i]]
         object$reference.intensity <- dye.intensity
-        subset.names <- applicable.quantile.probe.subsets(object$predicted.sex, has.both.sexes)
+        subset.names <- applicable.quantile.site.subsets(object$predicted.sex, has.both.sexes)
         object$norm <- sapply(subset.names, function(subset.name) {
             list(M=normalized.quantiles[[subset.name]]$M[,i],
                  U=normalized.quantiles[[subset.name]]$U[,i])
@@ -108,11 +112,11 @@ normalize.quantiles <- function(quantiles, design.matrix) {
     ## adjust mean centered quantiles with fixed and random effects
     mean.quantiles <- rowMeans(quantiles)
     quantiles <- quantiles - mean.quantiles
-    norm.quantiles <- adjust.columns(t(quantiles), design.matrix$fixed, design.matrix$random)
+    norm.quantiles <- meffil:::adjust.columns(t(quantiles),design.matrix$fixed, design.matrix$random)
     norm.quantiles <- mean.quantiles + t(norm.quantiles)
     
     ## make sure that the quantiles are monotonically increasing, not usually a problem but ...
     for (i in 2:nrow(norm.quantiles))
-        norm.quantiles[i,] <- apply(norm.quantiles[(i-1):i,], 2, max, na.rm=T)
+        norm.quantiles[i,] <- apply(norm.quantiles[(i-1):i,,drop=F], 2, max, na.rm=T)
     norm.quantiles
 }

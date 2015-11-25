@@ -15,7 +15,7 @@ library(plyr) ## for dlply()
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
 #' @param cell.type.reference Character string name of the cell type reference
 #' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
@@ -25,10 +25,17 @@ library(plyr) ## for dlply()
 #' @export
 meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
                       detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2,
+                      featureset=NULL,
+                      architecture=NULL,
                       cell.type.reference=NULL,
                       max.bytes=2^30-1, ## maximum number of bytes that can be returned by mclapply
                       verbose=F, ...) {
     check.samplesheet(samplesheet)
+
+    stopifnot(is.null(featureset) || featureset %in% meffil.list.featuresets())
+    stopifnot(is.null(architecture) || architecture %in% meffil.list.architectures())
+    if (!is.null(featureset) && !is.null(architecture))
+        stopifnot(is.compatible.architecture(featureset, architecture))
     
     samplesheet.row <- dlply(samplesheet, .(Sample_Name))
 
@@ -41,10 +48,16 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         detection.threshold=detection.threshold,
         bead.threshold=bead.threshold,
         sex.cutoff=sex.cutoff,
+        featureset=featureset,
+        architecture=architecture,
         cell.type.reference=cell.type.reference,
         ...,
         max.bytes=max.bytes)
     names(qc.objects) <- samplesheet$Sample_Name
+
+    if (length(unique(sapply(qc.objects, function(object) object$featureset))) > 1)
+        warning("Heterogeneous microarray formats included without setting 'featureset'.")
+    
     return(qc.objects)
 }
 

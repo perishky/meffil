@@ -11,7 +11,7 @@ meffil.estimate.cell.counts.from.betas(beta, cell.type.reference, verbose = F)
 
 \item{cell.type.reference}{Character string name of the cell type reference
 to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-See \code{\link{meffil.get.cell.type.references}()} for a list of available
+See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.create.cell.type.reference}()}.}
 

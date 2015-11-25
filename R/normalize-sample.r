@@ -10,18 +10,19 @@
 meffil.normalize.sample <- function(norm.object, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
-    probe.names <- meffil.get.sites()
-
+    probes <- meffil.probe.info(norm.object$featureset, norm.object$architecture)
+   
     rg <- read.rg(norm.object$basename, verbose=verbose)
-    rg <- background.correct(rg, verbose=verbose)
-    rg <- dye.bias.correct(rg, norm.object$reference.intensity, verbose=verbose)
-    mu <- rg.to.mu(rg)
-        
-    mu$M <- mu$M[probe.names]
-    mu$U <- mu$U[probe.names]
+    rg <- background.correct(rg, probes, verbose=verbose)
+    rg <- dye.bias.correct(rg, probes, norm.object$reference.intensity, verbose=verbose)
+    mu <- rg.to.mu(rg, probes)
+
+    sites <- meffil.get.sites(norm.object$featureset)$name
+    mu$M <- mu$M[sites]
+    mu$U <- mu$U[sites]
 
     msg("Normalizing methylated and unmethylated signals.", verbose=verbose)
-    probe.subsets <- get.quantile.probe.subsets()
+    probe.subsets <- get.quantile.site.subsets(norm.object$featureset)
     for (name in names(norm.object$norm)) {
         for (target in names(norm.object$norm[[name]])) {
             probe.idx <- which(names(mu[[target]]) %in% probe.subsets[[name]])

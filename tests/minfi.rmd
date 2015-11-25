@@ -10,7 +10,11 @@ opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
 
 ## Download example data set 
 
-```{r dataset, child = "dataset.rmd"}
+```{r child = 'dataset-450k-demo.rmd'}
+```
+
+```{r}
+path <- download.450k.demo.dataset()
 ```
 
 ## Load and normalize using `minfi`
@@ -35,7 +39,7 @@ system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
 
 ## Normalize using `meffil`
 
-Load the code, probe annotation and sample filename information.
+Load the code and sample filename information.
 ```{r}
 library(meffil)
 samplesheet <- meffil.create.samplesheet(path)
@@ -44,12 +48,12 @@ samplesheet <- meffil.create.samplesheet(path)
 The package uses `mclapply` to speed up computation.
 Provide the number of processors available.
 ```{r}
-options(mc.cores=3)
+options(mc.cores=10)
 ```
 
 List the cell type references available.
 ```{r}
-meffil.get.cell.type.references()
+meffil.list.cell.type.references()
 ```
 
 Set parameters for the analysis.
@@ -62,39 +66,7 @@ norm.file <- "minfi/normalization-report.html"
 cell.type.reference <- "blood gse35069"
 ```
 
-
-```{r comparison-meffil-short, cache=T}
-norm.meffil.1 <- meffil.normalize.dataset(samplesheet,
-                                          qc.file=qc.file,
-                                          author=author,
-                                          study=study,
-                                          number.pcs=number.pcs,
-                                          norm.file=norm.file,
-                                          cell.type.reference=cell.type.reference,
-                                          verbose=T)
-```
-
-## Comparison of object sizes
-
-```{r}
-print(object.size(norm.meffil.1$qc.objects), units="Mb")
-print(object.size(norm.meffil.1$norm.objects), units="Mb")
-print(object.size(norm.meffil.1), units="Mb")
-print(object.size(norm.minfi), units="Mb")
-print(object.size(raw.minfi), units="Mb")
-```
-
-```{r}
-print(object.size(data$norm.objects), units="Mb")
-print(object.size(data), units="Mb")
-print(object.size(norm.minfi), units="Mb")
-print(object.size(raw.minfi), units="Mb")
-
-```
-
 ## Normalize using `meffil` step-by-step
-
-It is also possible to break normalization down into single steps.
 
 Create QC objects for QC report and later normalization.
 ```{r comparison-meffil-qc, cache=T}
@@ -102,7 +74,7 @@ qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, ve
 ```
 
 Create the QC report.
-```{r,message=F,result="hide"}
+```{r,message=F,results="hide"}
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,
                  output.file=qc.file,
@@ -146,11 +118,6 @@ meffil.normalization.report(norm.summary,
                             study=study)
 ```
 
-## Both meffil normalizations should be equivalent
-
-```{r}
-quantile(beta.meffil - norm.meffil.1$beta[rownames(beta.meffil),])
-```
 
 ## Compare normalizations
 
@@ -160,12 +127,23 @@ raw.meffil <- meffil:::read.rg(samplesheet$Basename[1])
 all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 ```
 
+## Comparison of object sizes
+
+```{r}
+print(object.size(qc.objects), units="Mb")
+print(object.size(norm.objects), units="Mb")
+print(object.size(norm.meffil), units="Mb")
+print(object.size(norm.minfi), units="Mb")
+print(object.size(raw.minfi), units="Mb")
+```
+
 ### Background correction
 
 Apply `meffil` background correction.
 ```{r, results='hide'}
-bc.meffil <- meffil:::background.correct(raw.meffil)
-M.meffil <- meffil:::rg.to.mu(bc.meffil)$M
+probes <- meffil.probe.info("450k","450k")
+bc.meffil <- meffil:::background.correct(raw.meffil,probes)
+M.meffil <- meffil:::rg.to.mu(bc.meffil,probes)$M
 ```
 
 Apply `minfi` background correction.
@@ -182,10 +160,10 @@ quantile(M.meffil - M.minfi)
 ### Dye bias correction
 Apply `meffil` correction.
 ```{r, results='hide'}
-dye.meffil <- meffil:::dye.bias.correct(bc.meffil,
+dye.meffil <- meffil:::dye.bias.correct(bc.meffil, probes,
                                         intensity=norm.objects[[1]]$reference.intensity)
-M.meffil <- meffil:::rg.to.mu(dye.meffil)$M
-U.meffil <- meffil:::rg.to.mu(dye.meffil)$U
+M.meffil <- meffil:::rg.to.mu(dye.meffil,probes)$M
+U.meffil <- meffil:::rg.to.mu(dye.meffil,probes)$U
 ```
 
 Apply `minfi` background and dye bias correction.
@@ -245,22 +223,22 @@ quantile(beta.meffil - beta.minfi[rownames(beta.meffil),])
 
 On what chromosomes are the biggest differences appearing?
 ```{r}
-probes <- meffil.probe.info()
-probe.chromosome <- probes$chr[match(rownames(beta.meffil), probes$name)]
+sites <- meffil.get.sites("450k")
+site.chromosome <- sites$chr[match(rownames(beta.meffil), sites$name)]
 sex <- sapply(norm.objects, function(object) object$predicted.sex)
 is.diff <- abs(beta.meffil - beta.minfi[rownames(beta.meffil),]) > 1e-4
-table(probe.chromosome[which(is.diff, arr.ind=T)[,"row"]])
-table(probe.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])
-table(probe.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])
+table(site.chromosome[which(is.diff, arr.ind=T)[,"row"]])
+table(site.chromosome[which(is.diff[,which(sex=="M")], arr.ind=T)[,"row"]])
+table(site.chromosome[which(is.diff[,which(sex=="F")], arr.ind=T)[,"row"]])
 ```
-These results not surprising
+These results are not surprising
 because chromosome Y not handled like `minfi` in either males or females, 
 and chromosome X is handled just like `minfi` in females but not in males.
 
 ```{r}
-autosomal.cgs <- unique(probes$name[which(probes$chr %in% paste("chr", 1:22, sep=""))])
-autosomal.cgs <- intersect(autosomal.cgs, rownames(beta.meffil))
-quantile(beta.meffil[autosomal.cgs,] - beta.minfi[autosomal.cgs,])
+autosomal.sites <- meffil.get.autosomal.sites("450k")$name
+autosomal.sites <- intersect(autosomal.sites, rownames(beta.meffil))
+quantile(beta.meffil[autosomal.sites,] - beta.minfi[autosomal.sites,])
 ```
 
 In spite of the differences, CG correlations between methods are pretty close to 1.
@@ -339,35 +317,6 @@ snps.meffil <- meffil.snp.betas(qc.objects)
 snps.minfi <- getSnpBeta(raw.minfi)
 quantile(snps.meffil - snps.minfi[rownames(snps.meffil),])
 ```
-
-
-## Adjusting for other effects
-
-```{r comparison-meffil-slide, cache=T}
-norm.meffil.2 <- meffil.normalize.dataset(samplesheet,
-                                          qc.file="minfi-slide/qc-report.html",
-                                          author=author,
-                                          study=study,
-                                          number.pcs=number.pcs,
-                                          random.effects="Slide",
-                                          norm.file="minfi-slide/normalization-report.html",
-                                          cell.type.reference=cell.type.reference,
-                                          verbose=T)
-```
-
-These should be somewhat different due to slide adjustments.
-The normalization report gives more details.
-```{r}
-quantile(beta.meffil - norm.meffil.2$beta[rownames(beta.meffil),])
-```
-
-## CNVs
-
-```{r cnv, cache=T}
-system.time(cnv.ret <- meffil.calculate.cnv(samplesheet, verbose=TRUE))
-```
-
-
 
 This file was generated from R markdown:
 

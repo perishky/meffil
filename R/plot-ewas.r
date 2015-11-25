@@ -21,7 +21,8 @@ meffil.ewas.qq.plot <- function(ewas.object,
                            title="QQ plot",
                            xlab=bquote(-log[10]("expected p-values")),
                            ylab=bquote(-log[10]("observed p-values"))) {
-
+    stopifnot(is.ewas.object(ewas.object))
+    
     sapply(names(ewas.object$analyses), function(name) {
         p.values <- sort(ewas.object$analyses[[name]]$table$p.value, decreasing=T)
         stats <- data.frame(is.sig=p.values < sig.threshold,
@@ -52,6 +53,8 @@ meffil.ewas.qq.plot <- function(ewas.object,
 #' @export
 meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
                                        title="Manhattan plot") {
+    stopifnot(is.ewas.object(ewas.object))
+    
     chromosomes <- paste("chr", c(1:22, "X","Y"), sep="")
     sapply(names(ewas.object$analyses), function(name) {
         stats <- ewas.object$analyses[[name]]$table
@@ -88,6 +91,7 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
 #' use comet R package to plot region nearby
 #' @export
 meffil.ewas.cpg.plot <- function(ewas.object, cpg, title=cpg, beta=NULL) {
+    stopifnot(is.ewas.object(ewas.object))
     variable <- ewas.object$variable
     
     lapply(names(ewas.object$analyses), function(name) {

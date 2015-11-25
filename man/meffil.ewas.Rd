@@ -6,8 +6,8 @@
 \usage{
 meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
   save.beta = 100, cell.counts = NULL, isva0 = T, isva1 = T,
-  winsorize.pct = 0.05, most.variable = min(nrow(beta), 20000),
-  probes = meffil.probe.info(), verbose = F)
+  winsorize.pct = 0.05, most.variable = min(nrow(beta), 50000),
+  featureset = NULL, verbose = F)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}
@@ -37,7 +37,7 @@ the resulting variables as covariates in a regression model (Default: TRUE).}
 winsorized to the given level (Default: 0.05).}
 
 \item{most.variable}{Apply Independent Surrogate Variable Analysis to the
-given most variable CpG sites (Default: 20000).}
+given most variable CpG sites (Default: 50000).}
 }
 \description{
 Test association with each CpG site.

@@ -144,7 +144,8 @@ Manhattan plot shows the proportion of samples.
 
 ```{r cpg-detectionp-graph}
 
-qc.summary$cpg.detectionp.summary$graph
+if (!is.null(qc.summary$cpg.detectionp.summary$graph))
+    qc.summary$cpg.detectionp.summary$graph
 
 ```
 
@@ -158,7 +159,8 @@ Manhattan plot of proportion of samples.
 
 ```{r cpg-beadnum-graph}
 
-qc.summary$cpg.beadnum.summary$graph
+if (!is.null(qc.summary$cpg.beadnum.summary$graph))
+    qc.summary$cpg.beadnum.summary$graph
 
 ```
 

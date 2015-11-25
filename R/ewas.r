@@ -20,20 +20,23 @@
 #' @param winsorize.pct Apply all regression models to methylation levels
 #' winsorized to the given level (Default: 0.05).
 #' @param most.variable Apply Independent Surrogate Variable Analysis to the 
-#' given most variable CpG sites (Default: 20000).
+#' given most variable CpG sites (Default: 50000).
 #'
 #' @export
 meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL,
                         save.beta=100, cell.counts=NULL,
                         isva0=T, isva1=T,
-                        winsorize.pct=0.05,
-                        most.variable=min(nrow(beta), 20000),
+                        winsorize.pct=0.05, ## perhaps better, winsorize at 25-percentile - iqr?
+                        most.variable=min(nrow(beta), 50000),
+                        featureset=NULL,
                         verbose=F) {
 
-    probes <- meffil.probe.info()
+    if (is.null(featureset))
+        featureset <- guess.architecture(beta)
+    features <- meffil.get.features(featureset)
     
-    stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% probes$name))
+    stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% features$name))
     stopifnot(ncol(beta) == length(variable))
     stopifnot(is.null(covariates) || is.data.frame(covariates) && nrow(covariates) == ncol(beta))
     stopifnot(is.null(batch) || length(batch) == ncol(beta))
@@ -129,12 +132,13 @@ meffil.ewas <- function(beta, variable,
     rownames(p.values) <- rownames(coefficients) <- rownames(analyses[[1]]$table)
 
     for (name in names(analyses)) {
-        idx <- match(rownames(analyses[[name]]$table), probes$name)
-        analyses[[name]]$table$chromosome <- probes$chr[idx]
-        analyses[[name]]$table$position <- probes$pos[idx]
+        idx <- match(rownames(analyses[[name]]$table), features$name)
+        analyses[[name]]$table$chromosome <- features$chromosome[idx]
+        analyses[[name]]$table$position <- features$position[idx]
     }
     
-    list(samples=sample.idx,
+    list(class="ewas",
+         samples=sample.idx,
          variable=original.variable[sample.idx],
          covariates=original.covariates[sample.idx,],
          winsorize.pct=winsorize.pct,
@@ -143,6 +147,9 @@ meffil.ewas <- function(beta, variable,
          coefficient=coefficients,
          analyses=analyses)
 }
+
+is.ewas.object <- function(object)
+    is.list(object) && "class" %in% names(object) && object$class == "ewas"
 
 
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cell.counts=NULL,

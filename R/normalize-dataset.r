@@ -59,6 +59,8 @@ meffil.normalize.dataset <- function(samplesheet,
                                      detection.threshold=0.01,
                                      bead.threshold=3,
                                      sex.cutoff=-2,
+                                     featureset=NULL,
+                                     architecture=NULL,
                                      cell.type.reference=NULL,
                                      
                                      ## meffil.qc.summary
@@ -90,6 +92,8 @@ meffil.normalize.dataset <- function(samplesheet,
                             detection.threshold=detection.threshold,
                             bead.threshold=bead.threshold,
                             sex.cutoff=sex.cutoff,
+                            featureset=featureset,
+                            architecture=architecture,
                             cell.type.reference=cell.type.reference)
     
     qc.summary <- meffil.qc.summary(qc.objects,

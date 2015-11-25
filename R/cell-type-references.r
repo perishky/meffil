@@ -1,3 +1,15 @@
+#' List of available cell type references
+#'
+#' @export
+meffil.list.cell.type.references <- function() {
+    ls(reference.globals)
+}
+ 
+get.cell.type.reference <- function(name) {
+    stopifnot(name %in% meffil.list.cell.type.references())
+    get(name, reference.globals)
+}
+
 #' Create a cell type reference object
 #'
 #' Create a cell type reference object for estimating cell counts
@@ -27,44 +39,50 @@
 #' either in an island, in a shore or far from an island.
 #'
 #' @export
-meffil.create.cell.type.reference <- function(name, M, U, cell.types,
-                                              number.sites=50,
-                                              number.quantiles=500,
-                                              subsets=NULL,
-                                              verbose=F) {
-    stopifnot(!cell.type.reference.exists(name))
-
-    object <- create.cell.type.reference(M,U,cell.types,number.sites,number.quantiles,
+meffil.add.cell.type.reference <- function(name, M, U, cell.types,
+                                           featureset=NULL,
+                                           number.sites=50,
+                                           number.quantiles=500,
+                                           subsets=NULL,
+                                           verbose=F) {
+    object <- create.cell.type.reference(M,U,cell.types,featureset,
+                                         number.sites,number.quantiles,
                                          subsets,verbose)
     object$name <- name
     assign(name, object, reference.globals)
-    object
+    invisible(object)
 }
 
 create.cell.type.reference <- function(M, U, cell.types,
+                                       featureset=NULL,
                                        number.sites=50,
                                        number.quantiles=500,
                                        subsets=NULL,
                                        verbose=F) {
-    probes <- meffil.probe.info()
+
+    architecture <- guess.architecture(M)
+    
+    if (is.null(featureset))
+        featureset <- architecture
+
+    stopifnot(is.compatible.architecture(featureset, architecture))
     
     stopifnot(nrow(M) == nrow(U))
     stopifnot(ncol(M) == ncol(M))
-    stopifnot(all(rownames(M) %in% probes$name))
     stopifnot(all(rownames(M) == rownames(U)))
     stopifnot(length(cell.types) == ncol(M))
     stopifnot(number.sites > 0)
     
-    autosomal.sites <- meffil.get.autosomal.sites()
+    autosomal.sites <- meffil.get.autosomal.sites(featureset)$name
     beta <- meffil.get.beta(M=M,U=U)
     beta <- beta[which(rownames(beta) %in% autosomal.sites),]
     specific.beta <- meffil.cell.type.specific.methylation(beta, cell.types, number.sites, verbose)
 
     if (is.null(subsets))
-        subsets <- get.island.probe.subsets()
+        subsets <- get.island.site.subsets(featureset)
     
     ## create target quantiles only from the Type ii probes
-    typeii <- get.typeii.probes()
+    typeii <- meffil.get.typeii.sites(featureset)$name
     subsets.ii <- lapply(subsets, function(set) intersect(set, typeii))
 
     ## probs argument for the quantile function
@@ -76,28 +94,10 @@ create.cell.type.reference <- function(M, U, cell.types,
              beta=apply(apply(get.beta(M[set,],U[set,]), 2, quantile, probs=probs, na.rm=T), 1, mean, na.rm=T))
     })
 
-    list(beta=specific.beta, quantiles=quantiles, subsets=subsets)
+    list(class="cell.type.reference",
+         featureset=featureset,
+         beta=specific.beta,
+         quantiles=quantiles,
+         subsets=subsets)
 }
 
-
-#' List of available cell type references
-#'
-#' @export
-meffil.get.cell.type.references <- function() {
-    ls(reference.globals)
-}
-
-check.cell.type.reference.exists <- function(name) {
-    if (!cell.type.reference.exists(name))
-        stop(paste("Cell type reference", name,
-                   "has not been created with meffil.create.cell.type.reference()"))
-}    
-
-cell.type.reference.exists <- function(name) {
-    exists(name, reference.globals)
-}
-
-get.cell.type.reference.object <- function(name) {
-    check.cell.type.reference.exists(name)
-    get(name, reference.globals)
-}
