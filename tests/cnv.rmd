@@ -1,0 +1,80 @@
+```{r cnv-init, echo=FALSE}
+
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+
+```
+
+# Test that CopyNumber450k and meffil produce comparable results
+
+## Download example data set 
+
+```{r child = 'dataset-450k-demo.rmd'}
+```
+
+```{r}
+path <- download.450k.demo.dataset()
+```
+
+## Copy numbers using meffil
+
+```{r}
+library(meffil)
+samplesheet <- meffil.create.samplesheet(path)[1:4,]
+```
+
+Calculate copy numbers using meffil.
+```{r comparison-meffil-cnv, cache=T}
+segments.meffil <- meffil.calculate.cnv(samplesheet, verbose=T) ## 10 minutes
+matrix.meffil <- meffil.cnv.matrix(segments.meffil)
+```
+
+## Copy numbers using CopyNumber450k
+
+Load the data using minfi.
+```{r, message=FALSE}
+library(minfi, quietly=TRUE)
+raw.minfi <- read.450k.exp(base = path)
+raw.minfi <- raw.minfi[,basename(samplesheet$Basename)]
+```
+
+Load control data for estimating copy numbers.
+```{r}
+## source("http://bioconductor.org/biocLite.R")
+## biocLite("CopyNumber450k")
+library(CopyNumber450k)
+library(CopyNumber450kData)
+data(RGcontrolSetEx)
+```
+
+It is necessary to merge the control dataset with the dataset we plan to analyze.
+The following code sets up the sample groups and names to make this possible.
+```{r}
+phenoData(RGcontrolSetEx) <- AnnotatedDataFrame(data.frame(Sample_Group="control",
+                                                           Sample_Name=colnames(RGcontrolSetEx),
+                                                           stringsAsFactors=F))
+phenoData(raw.minfi) <- AnnotatedDataFrame(data.frame(Sample_Group="data",
+                                                      Sample_Name=basename(samplesheet$Basename),
+                                                      stringsAsFactors=F))
+sampleNames(raw.minfi) <- phenoData(raw.minfi)@data$Sample_Name
+sampleNames(RGcontrolSetEx) <- phenoData(RGcontrolSetEx)@data$Sample_Name
+```
+
+Calculate copy numbers using CopyNumber450k.
+```{r comparison-minfi-cnv, cache=T}
+raw.cnv <- CNV450kSet(combine(raw.minfi, RGcontrolSetEx))
+raw.cnv <- dropSNPprobes(raw.cnv, maf_threshold=0.01)
+norm.cnv <- normalize(raw.cnv, "quantile")
+norm.cnv <- segmentize(norm.cnv) ## 1 hour
+segments.cnv <- getSegments(norm.cnv)
+matrix.cnv <- meffil.cnv.matrix(segments.cnv)
+```
+
+Compare the two outputs using correlation.
+The diagonals give the paired correlations.
+```{r}
+r <- cor(matrix.cnv, matrix.meffil)
+quantile(diag(r))
+quantile(r)
+```

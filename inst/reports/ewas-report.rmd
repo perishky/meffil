@@ -90,7 +90,8 @@ Below are the `r length(practical.sites)`
 CpG sites with association p-values < `r ewas.summary$parameters$practical.threshold`.
 
 ```{r ewas-practical-table}
-knitr::kable(tab[practical.sites,])
+if (length(practical.sites) > 0)
+    knitr::kable(tab[practical.sites,])
 ```
 
 Plots of these sites follow, one for each covariate set.
@@ -104,17 +105,12 @@ for (cpg in practical.sites)
 
 ## Selected CpG sites
 
-There were `r nrow(ewas.summary$sig.selected.stats$p.value)`
-candidate CpG sites selected.
-```{r ewas-selected-sites}
-tab <- cbind(ewas.summary$cpg.sites[rownames(ewas.summary$selected.cpg.stats$p.value),],
-             p.value=ewas.summary$selected.cpg.stats$p.value,
-             coefficient=ewas.summary$selected.cpg.stats$coefficient)
-knitr::kable(tab)
+```{r ewas-selected-sites-option}
+child.filename <- file.path(path, "missing.rmd")
+if (nrow(ewas.summary$selected.cpg.stats$p.value) > 0)
+    child.filename <- file.path(path, "ewas-report-selected-cpg-sites.rmd")
 ```
 
-```{r ewas-selected-site-plots, results="hide"}
-for (cpg in rownames(ewas.summary$selected.cpg.stats$p.value))
-    print(do.call(grid.arrange, c(ewas.summary$cpg.plots[[cpg]], list(ncol=2))))
+```{r ewas-selected-sites, child=child.filename}
 ```
 

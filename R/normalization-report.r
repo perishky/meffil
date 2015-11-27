@@ -7,7 +7,7 @@
 #' If the file extension is not .htm, .html, .HTM or .HTML then
 #' output will be in markdown format.
 #' @param  author Default = "Analyst". Author name to be specified on report.
-#' @param  study Default = "IlluminaHuman450 data". Study name to be specified on report.
+#' @param  study Default = "Illumina methylation data". Study name to be specified on report.
 #' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
 #' @export
 #' @return NULL
@@ -18,7 +18,7 @@ meffil.normalization.report <- function(
     normalization.summary,
     output.file = "normalization-report.md",
     author = "Analyst",
-    study = "IlluminaHuman450 data",
+    study = "Illumina methylation data",
     ...
 ) {
     msg("Writing report as html file to", output.file)
