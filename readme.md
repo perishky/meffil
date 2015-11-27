@@ -1,6 +1,15 @@
 # meffil
 Efficient algorithms for analyzing DNA methylation data
-generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips.
+generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
+
+* Functional normalization for large datasets using parallelization.
+* Normalization of datasets with mixed Infinium HumanMethylation450 and MethylationEPIC BeadChips.
+* Inclusion of user-defined fixed and random effects in functional normalization procedure.
+* Cell count estimation using predefined and user-defined reference datasets.
+* Use of predefined and user-defined microarray probe annotations.
+* Epigenome-wide association studies (using data from any normalization pipeline).
+* Copy number estimation.
+* Report generation summarizing all steps.
 
 The `minfi` version consists of a single function call that requires
 access to all data. The `meffil` version splits the method up into
