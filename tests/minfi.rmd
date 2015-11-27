@@ -318,11 +318,3 @@ snps.minfi <- getSnpBeta(raw.minfi)
 quantile(snps.meffil - snps.minfi[rownames(snps.meffil),])
 ```
 
-This file was generated from R markdown:
-
-```{r, eval=F}
-library(knitr)
-knit("minfi.rmd")
-library(markdown)
-markdownToHTML("minfi.md","minfi.html")
-```

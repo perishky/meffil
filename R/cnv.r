@@ -215,10 +215,20 @@ meffil.cnv.matrix <- function(cnv) {
 
     cnv.matrix <- sapply(cnv, function(segments) {
         segments$chrom <- as.character(segments$chrom)
-        segments <- segments[with(segments, order(chrom, loc.start, decreasing=F)),]            
-        first <- match(with(segments, paste(chrom, loc.start)), sites$id)
+        segments$loc.start <- as.integer(segments$loc.start)
+        segments <- segments[with(segments, order(chrom, loc.start, decreasing=F)),]
+        segments$id <- with(segments, paste(chrom, loc.start))
+
+        for (missing.idx in which(!(segments$id %in% sites$id))) {
+            chrom.idx <- which(sites$chromosome == segments$chrom[missing.idx])
+            idx <- findInterval(segments$loc.start[missing.idx], sites$position[chrom.idx])
+            if (idx == 0) idx <- 1
+            segments$id[missing.idx] <- sites$id[chrom.idx[idx]]                
+        }
+        
+        first <- match(segments$id, sites$id)
         num.sites <- c(first[-1], nrow(sites)+1) - first
-        rep(segments$seg.mean, num.sites)
+        rep(as.numeric(segments$seg.mean), num.sites)
     })
     rownames(cnv.matrix) <- sites$name
     cnv.matrix

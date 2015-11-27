@@ -1,6 +1,5 @@
 library(knitr)
 library(markdown)
-
 rmd2html <- function(basename) {
     cat(date(), "Knitting", basename, "-------------------\n")
     knit(paste(basename, "rmd", sep="."))
@@ -9,17 +8,17 @@ rmd2html <- function(basename) {
 
 if (!file.exists("450k-demo")) source("450k-demo.r")
 
-if (!file.exists("minfi")) rmd2html("minfi")
-
-if (!file.exists("ecpi-demo")) source("epic-demo.r")
+if (!file.exists("epic-demo")) source("epic-demo.r")
 
 if (!file.exists("450k-and-epic")) source("450k-and-epic.r")
 
-if (!file.exists("cnv")) rmd2html("cnv") ........ create cnv.rmd based on cnv.r
-
 if (!file.exists("ewas")) source("ewas.r")
 
-if (!file.exists("random")) rmd2html("random") ......... create  random.rmd based on random.r
+if (!file.exists("cnv")) rmd2html("cnv") 
+
+if (!file.exists("random")) rmd2html("random")
+
+if (!file.exists("minfi")) rmd2html("minfi")
 
 clean.up.outputs <- function() {
     unlink("450k-demo", recursive = TRUE)
@@ -37,4 +36,4 @@ clean.up.data <- function() {
     unlink("data-epic-demo", recursive=T)
 }
 
-## cp -rv random random.{md,html} cnv.{md,html} 450k-and-epic 450k-demo epic-demo ewas minfi minfi.{md,html} figure OUTPUT_DIR
+## cp -rv random random.{md,html} cnv cnv.{md,html} 450k-and-epic 450k-demo epic-demo ewas minfi minfi.{md,html} figure OUTPUT_DIR

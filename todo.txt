@@ -1,5 +1,3 @@
-create tests/random.rmd tests/cnv.rmd
-
 make sure documentation is complete for external functions
 
 
@@ -7,6 +5,15 @@ make sure documentation is complete for external functions
 
 
 
+Should our 'objects' be S4 classes? 
+I have two objects to S4 classes:
+1. They are difficult to debug because they only be accessed using 
+functions rather than just typing the function name.
+2. They require so much typing.  A simple function requires 
+5 lines of code before the function even begins.
+With all the meta-functions for handling functions and argments 
+in R, I would have thought you would just need to 'register' 
+a function with a class, one step.
 
 objects:
  annotation
@@ -19,7 +26,6 @@ objects:
  norm.summary
  ewas
 
-Should they S4 Classes?
 
 setClass("annotation",
          representation(probes="data.frame"),
