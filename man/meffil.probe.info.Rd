@@ -4,12 +4,12 @@
 \alias{meffil.probe.info}
 \title{Obtain a list of probes for a given feature set (chip).}
 \usage{
-meffil.probe.info(featureset, chip = featureset)
+meffil.probe.info(chip, featureset = chip)
 }
 \arguments{
-\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}}.}
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).}
 
-\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{featureset}).}
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).}
 }
 \value{
 A data frame with one row per probe.  The full set of probes

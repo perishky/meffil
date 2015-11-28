@@ -6,7 +6,7 @@
 \usage{
 meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
-  featureset = NULL, chip = NULL, cell.type.reference = NULL,
+  chip = NULL, featureset = chip, cell.type.reference = NULL,
   qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
   author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
   fixed.effects = NULL, random.effects = NULL, pseudo = 100,
@@ -27,9 +27,9 @@ Arguments to \code{\link{meffil.qc}()}:}
 
 \item{sex.cutoff}{}
 
-\item{featureset}{}
-
 \item{chip}{}
+
+\item{featureset}{}
 
 \item{cell.type.reference}{Argument to \code{\link{meffil.qc.summary}()}:}
 

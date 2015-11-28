@@ -73,7 +73,7 @@ matrix.cnv <- meffil.cnv.matrix(segments.cnv)
 
 Compare the two outputs using correlation.
 The diagonals give the paired correlations.
-```{r}
+```{r} matrix.cnv not found
 r <- cor(matrix.cnv, matrix.meffil)
 quantile(diag(r))
 quantile(r)

@@ -141,7 +141,7 @@ print(object.size(raw.minfi), units="Mb")
 
 Apply `meffil` background correction.
 ```{r, results='hide'}
-probes <- meffil.probe.info("450k","450k")
+probes <- meffil.probe.info("450k")
 bc.meffil <- meffil:::background.correct(raw.meffil,probes)
 M.meffil <- meffil:::rg.to.mu(bc.meffil,probes)$M
 ```
@@ -223,7 +223,8 @@ quantile(beta.meffil - beta.minfi[rownames(beta.meffil),])
 
 On what chromosomes are the biggest differences appearing?
 ```{r}
-sites <- meffil.get.sites("450k")
+features <- meffil.get.features("450k")
+sites <- features[which(features$target == "methylation"),]
 site.chromosome <- sites$chr[match(rownames(beta.meffil), sites$name)]
 sex <- sapply(norm.objects, function(object) object$predicted.sex)
 is.diff <- abs(beta.meffil - beta.minfi[rownames(beta.meffil),]) > 1e-4
@@ -236,7 +237,7 @@ because chromosome Y not handled like `minfi` in either males or females,
 and chromosome X is handled just like `minfi` in females but not in males.
 
 ```{r}
-autosomal.sites <- meffil.get.autosomal.sites("450k")$name
+autosomal.sites <- sites[which(sites$name %in% meffil.get.autosomal.sites("450k")),]
 autosomal.sites <- intersect(autosomal.sites, rownames(beta.meffil))
 quantile(beta.meffil[autosomal.sites,] - beta.minfi[autosomal.sites,])
 ```

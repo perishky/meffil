@@ -1,8 +1,8 @@
-# library(CopyNumber450k)
-# library(CopyNumber450kData)
-# library(plyr)
-# library(meffil)
-# library(splitstackshape)
+## library(CopyNumber450k)
+## library(CopyNumber450kData)
+## library(plyr)
+## library(meffil)
+## library(splitstackshape)
 
 
 mu.to.cn <- function(mu) {
@@ -27,14 +27,18 @@ cnv.predict.sex <- function(cn, featureset, sex.cutoff=-2) {
   
 
 #' Create controls for calculating CNVs
-#' @param verbose Default = FALSE>
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{"450k"}).
+#' Must be compatible with the "450k" chip.
+#' @param verbose (Default: FALSE)
 #' @export
 #' @return List with pre-calculated CNV data
-meffil.cnv.controls <- function(verbose=FALSE)
+meffil.cnv.controls <- function(featureset="450k", verbose=FALSE)
 {
-        featureset <- "common"
         chip <- "450k" ## because the control data below comes from 450K microarrays
-        
+
+        if (!is.compatible.chip(featureset, chip))
+            stop(paste("feature set '", featureset, "' is not compatible with the control chip '", chip, "'", sep=""))
+
 	require(CopyNumber450kData)
             
 	data(RGcontrolSetEx)
@@ -98,14 +102,17 @@ quantile.normalize.from.reference <- function(x, ref)
 }
 
 
-calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1, min.width = 5, nperm = 10000, alpha = 0.001, undo.splits = "sdundo", undo.SD = 2, verbose = TRUE, smoothing=TRUE)
+calculate.cnv <- function(bname, samplename=basename(bname), controls, chip=NULL, featureset=NULL, trim=0.1, min.width = 5, nperm = 10000, alpha = 0.001,
+                          undo.splits = "sdundo", undo.SD = 2, verbose = TRUE, smoothing=TRUE)
 {
 	require(DNAcopy)
 	msg("Reading idat file for", bname, verbose=verbose)
         rg <- read.rg(bname, verbose=verbose)
-        
-        featureset <- controls$featureset
-        chip <- guess.chip(rg)
+
+        if (is.null(chip))
+            chip <- guess.chip(rg)
+        if (is.null(featureset))
+            featureset <- controls$featureset
         
         probes <- meffil.probe.info(featureset, chip)
         case <- mu.to.cn(rg.to.mu(rg, probes))
@@ -152,7 +159,6 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 	out <- rbind(segment_cna_aut$output, segment_cna_sex$output)
 	out$chrom <- ordered(out$chrom, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
 	out$ID <- samplename
-        out$featureset <- featureset
 	return(out)
 }
 
@@ -161,8 +167,10 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 #' Based on the algorithm developed in \code{R/CopyNumber450k} bioconductor package
 #' 
 #' @param samplesheet Output from \code{meffil.create.samplesheet}
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @param verbose Default = FALSE
-#' @param ... Extra parameters to be passed to \code{CNAcopy} for segmentation. See details.
+#' @param ... Extra parameters to be passed to \code{DNAcopy} for segmentation. See details.
 #' 
 #' @details
 #' The following default values are being used:
@@ -175,9 +183,9 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 #'
 #' @export
 #' @return Dataframe of segmented results
-meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
+meffil.calculate.cnv <- function(samplesheet, chip=NULL, featureset=chip, verbose=FALSE, ...)
 {
-	controls <- meffil.cnv.controls(verbose=verbose)
+	controls <- meffil.cnv.controls(featureset, verbose=verbose)
 
 	l1 <- get.index.list(nrow(samplesheet), options("mc.cores")[[1]])
 
@@ -185,7 +193,7 @@ meffil.calculate.cnv <- function(samplesheet, verbose=FALSE, ...)
 	{		
 		l2 <- mclapply(x, function(i)
 		{
-			calculate.cnv(samplesheet$Basename[i], samplesheet$Sample_Name[i], controls, verbose=verbose, ...)
+			calculate.cnv(samplesheet$Basename[i], samplesheet$Sample_Name[i], controls, chip, featureset, verbose=verbose, ...)
 		})
 		names(l2) <- samplesheet$Sample_Name[x]
 		return(l2) 
@@ -209,12 +217,11 @@ get.index.list <- function(n, mc.cores)
 
 #' Create matrix of CNV values
 #'
-#' @param cnv Output from \code{meffil.calculate.cnv}
-#' @export
+#' @param cnv Output from \code{\link{meffil.calculate.cnv}()}.
+#' @param featureset Name from \code{\link{meffil.list.featuresets}()}.
 #' @return Matrix of ncpg x nsample
-meffil.cnv.matrix <- function(cnv) {
-    featureset <- cnv[[1]]$featureset[1]
-
+#' @export
+meffil.cnv.matrix <- function(cnv, featureset="450k") {
     features <- meffil.get.features(featureset)
     sites <- features[which(!is.na(features$chromosome)
                             & features$target == "methylation"
