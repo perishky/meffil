@@ -4,10 +4,13 @@
 \alias{meffil.cnv.controls}
 \title{Create controls for calculating CNVs}
 \usage{
-meffil.cnv.controls(verbose = FALSE)
+meffil.cnv.controls(featureset = "450k", verbose = FALSE)
 }
 \arguments{
-\item{verbose}{Default = FALSE>}
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{"450k"}).
+Must be compatible with the "450k" chip.}
+
+\item{verbose}{(Default: FALSE)}
 }
 \value{
 List with pre-calculated CNV data

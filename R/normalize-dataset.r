@@ -16,8 +16,8 @@
 #' @param detection.threshold
 #' @param bead.threshold
 #' @param sex.cutoff
-#' @param featureset
 #' @param chip
+#' @param featureset
 #' @param cell.type.reference
 #'
 #' Argument to \code{\link{meffil.qc.summary}()}:
@@ -61,8 +61,8 @@ meffil.normalize.dataset <- function(samplesheet,
                                      detection.threshold=0.01,
                                      bead.threshold=3,
                                      sex.cutoff=-2,
-                                     featureset=NULL,
                                      chip=NULL,
+                                     featureset=chip,
                                      cell.type.reference=NULL,
                                      
                                      ## meffil.qc.summary

@@ -4,14 +4,19 @@
 \alias{meffil.calculate.cnv}
 \title{Calculate CNVs from IDAT files}
 \usage{
-meffil.calculate.cnv(samplesheet, verbose = FALSE, ...)
+meffil.calculate.cnv(samplesheet, chip = NULL, featureset = chip,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{samplesheet}{Output from \code{meffil.create.samplesheet}}
 
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).}
+
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).}
+
 \item{verbose}{Default = FALSE}
 
-\item{...}{Extra parameters to be passed to \code{CNAcopy} for segmentation. See details.}
+\item{...}{Extra parameters to be passed to \code{DNAcopy} for segmentation. See details.}
 }
 \value{
 Dataframe of segmented results

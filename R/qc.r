@@ -13,8 +13,8 @@ library(plyr) ## for dlply()
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
-#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}.
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{featureset}).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @param cell.type.reference Character string name of the cell type reference
 #' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
@@ -27,8 +27,8 @@ library(plyr) ## for dlply()
 #' @export
 meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
                       detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2,
-                      featureset=NULL,
-                      chip=featureset,
+                      chip=NULL,
+                      featureset=chip,
                       cell.type.reference=NULL,
                       max.bytes=2^30-1, ## maximum number of bytes that can be returned by mclapply
                       verbose=F, ...) {

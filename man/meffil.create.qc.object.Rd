@@ -6,8 +6,8 @@
 \usage{
 meffil.create.qc.object(samplesheet.row, number.quantiles = 500,
   dye.intensity = 5000, verbose = F, detection.threshold = 0.01,
-  bead.threshold = 3, sex.cutoff = -2, featureset = NULL,
-  chip = featureset, cell.type.reference = NULL)
+  bead.threshold = 3, sex.cutoff = -2, chip = NULL, featureset = chip,
+  cell.type.reference = NULL)
 }
 \arguments{
 \item{samplesheet.row}{Row from the data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} or \code{\link{meffil.create.samplesheet}}).}
@@ -26,9 +26,9 @@ All probes with less than this number of beads detected.}
 
 \item{sex.cutoff}{Sex prediction cutoff. Default value = -2.}
 
-\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}}.}
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).}
 
-\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{featureset}).}
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).}
 
 \item{cell.type.reference}{Character string name of the cell type reference
 to use for estimating cell counts. Estimates are not generated if set to NULL (default).

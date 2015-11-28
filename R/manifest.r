@@ -44,14 +44,14 @@ meffil.featureset <- function(featureset) {
 
 #' Obtain a list of probes for a given feature set (chip).
 #'
-#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}.
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{featureset}).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @return A data frame with one row per probe.  The full set of probes
 #' for a chip is returned if \code{chip == featureset}; otherwise,
 #' the probes are restricted to those corresponding to features in the feature set.
 #' 
 #' @export
-meffil.probe.info <- function(featureset, chip=featureset) {
+meffil.probe.info <- function(chip, featureset=chip) {
     if (missing(chip))
         chip <- featureset
     
