@@ -31,7 +31,7 @@ meffil.normalize.samples <- function(norm.objects,
         stop(paste("Heterogeneous microarray formats included without a common featureset.",
                    "Need to set the 'featureset' argument when creating QC objects."))
     
-    sites <- meffil.get.sites(norm.objects[[1]]$featureset)$name
+    sites <- meffil.get.sites(norm.objects[[1]]$featureset)
     if(!is.null(cpglist.remove))
         sites <- setdiff(sites, cpglist.remove)
     

@@ -1,38 +1,99 @@
+#' List of microarrays formats available.
+#'
+#' By default, there is '450k' and 'epic'.
+#' Additions can be made using \code{\link{meffil.add.chip}()}.
+#' 
 #' @export
-meffil.list.architectures <- function() {
+meffil.list.chips <- function() {
     ls(probe.globals)
 }
 
+#' List of feature sets available.
+#'
+#' By default, there is '450k', 'epic' and 'common'.
+#' The 'common' feature set contains features in common to both the
+#' '450k' and 'epic' feature sets.
+#' This feature set can be used to handle datasets
+#' with mixed EPIC and HumanMethylation450 microarrays.
+#'
+#' In most cases, a feature corresponds to the two probes
+#' from which it's value is derived.  Each CpG represented
+#' on the chip for example
+#' corresponds to a single feature derived from a probe measuring
+#' methylated signal and a second probe measuring unmethylated signal.
+#'
+#' Each control feature corresponds to a unique control probe.
+#' 
 #' @export
 meffil.list.featuresets <- function() {
     ls(featureset.globals)
 }
 
+#' Obtain a list of features in a feature set.
+#'
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets}()}.
+#' @return A data frame with one row for each feature.
+#' @examples
+#' x <- meffil.featureset("450k")
+#' 
 #' @export
 meffil.featureset <- function(featureset) {
    stopifnot(featureset %in% meffil.list.featuresets())
    get(featureset, featureset.globals)
 }
 
+#' Obtain a list of probes for a given feature set (chip).
+#'
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}.
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{featureset}).
+#' @return A data frame with one row per probe.  The full set of probes
+#' for a chip is returned if \code{chip == featureset}; otherwise,
+#' the probes are restricted to those corresponding to features in the feature set.
+#' 
 #' @export
-meffil.probe.info <- function(featureset, architecture) {
-    if (missing(architecture))
-        architecture <- featureset
+meffil.probe.info <- function(featureset, chip=featureset) {
+    if (missing(chip))
+        chip <- featureset
     
-    probes <- get(architecture, probe.globals)
-    if (featureset != architecture) {
+    probes <- get(chip, probe.globals)
+    if (featureset != chip) {
         features <- meffil.featureset(featureset)
         if (!all(features$name %in% probes$name))
             stop(paste("featureset", featureset,
-                       "is not compatible with microarray", architecture))
+                       "is not compatible with microarray", chip))
         idx <- which(probes$name %in% features$name | probes$target == "OOB")
         probes <- probes[idx,]
     }
     probes
 }
 
+#' Add a new chip for analysis.
+#'
+#' @param name Name of the new chip.
+#' @param manifest A data frame obtained by loading the Illumina
+#' manifest into R.
+#' @return Assuming that \code{manifest} contains a satisfactory
+#' set of columns, a new feature set and a new chip is made available.
+#' Thus, \code{name} will be added to the vectors returned by
+#' \code{\link{meffil.list.featuresets}()} and
+#' \code{\link{meffil.list.chips}()}.
+#'
+#' The manifest must contain the following columns:
+#' \itemize{
+#' \item{"IlmnID"}{character}
+#' \item{"Name"}{character}
+#' \item{"AddressA_ID"}{character}
+#' \item{"AddressB_ID"}{character}
+#' \item{"Infinium_Design_Type"}{values "I","II" or ""}
+#' \item{"CHR"}{values "1"-"22", "X" or "Y"}
+#' \item{"MAPINFO"}{integer}
+#' \item{"AlleleA_ProbeSeq"}{character}
+#' \item{"UCSC_CpG_Islands_Name"}{character}
+#' \item{"Relation_to_UCSC_CpG_Island"}{character}
+#' \item{"snp.exclude"}{logical}
+#' }
 #' @export
-meffil.add.manifest <- function(name, manifest) {
+meffil.add.chip <- function(name, manifest) {
     check.manifest(manifest)
     
     features <- extract.featureset(manifest)
@@ -44,6 +105,26 @@ meffil.add.manifest <- function(name, manifest) {
     return(TRUE)
 }
 
+#' Add a feature set.
+#'
+#' @param name Name of the new feature set.
+#' @param features A data frame listing and describing all features.
+#' @return Assuming that \code{features} contains a satisfactory
+#' set of columns, a new feature set is made available.
+#' Thus, \code{name} will be added to the vector returned by
+#' \code{\link{meffil.list.featuresets}()}.
+#' 
+#' The \code{features} data frame must contain the following columns:
+#' \itemize{
+#' \item{"name"}{character}
+#' \item{"target"}{character}
+#' \item{"type"}{values "i","ii" or "control"}
+#' \item{"chromosome"}{values "chr1"-"chr22", "chrX" or "chrY"}
+#' \item{"position"}{integer}
+#' \item{"cpg.island.name"}{character}
+#' \item{"relation.to.island"}{character}
+#' \item{"snp.exclude"}{logical}
+#' }
 #' @export
 meffil.add.featureset <- function(name, features) {
     check.featureset(features)
@@ -163,27 +244,31 @@ extract.probes <- function(manifest) {
 }
 
 
-is.compatible.architecture <- function(featureset, architecture) {
+is.compatible.chip <- function(featureset, chip) {
     ret <- FALSE
     try({
-        probes <- meffil.probe.info(featureset, architecture)
+        probes <- meffil.probe.info(featureset, chip)
         ret <- TRUE
     }, silent=TRUE)
     ret
 }
 
-guess.architecture <- function(object) {
+#' guess the correct chip for the \code{object}
+#' which may be an 'rg' object (see \code{\link{read.rg}()}
+#' or a matrix (typically beta or methylation or unmethylation matrices)
+#' with row names corresponding to feature/probe names.
+guess.chip <- function(object) {
     if (is.rg(object)) {
-        for (architecture in meffil.list.architectures()) {
-            probes <- meffil.probe.info(architecture, architecture)
+        for (chip in meffil.list.chips()) {
+            probes <- meffil.probe.info(chip, chip)
             if (all(probes$address %in% c(rownames(object$G), rownames(object$R))))
-                return(architecture)
+                return(chip)
         }
     } else if (is.matrix(object)) {
-        for (architecture in meffil.list.architectures()) {
-            features <- meffil.featureset(architecture)
+        for (chip in meffil.list.chips()) {
+            features <- meffil.featureset(chip)
             if (all(rownames(object) %in% features$name))
-                return(architecture)
+                return(chip)
         }
     }
     return(FALSE)

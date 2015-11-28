@@ -33,7 +33,7 @@ meffil.ewas <- function(beta, variable,
                         verbose=F) {
 
     if (is.null(featureset))
-        featureset <- guess.architecture(beta)
+        featureset <- guess.chip(beta)
     features <- meffil.get.features(featureset)
     
     stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% features$name))
@@ -151,7 +151,16 @@ meffil.ewas <- function(beta, variable,
 is.ewas.object <- function(object)
     is.list(object) && "class" %in% names(object) && object$class == "ewas"
 
-
+#' Test associations between \code{variable} and each row of \code{beta}
+#' while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
+#' Save methylation levels for the \code{save.beta} CpG sites most strongly associated.
+#' If \code{cell.counts} is not \code{NULL}, then it is assumed that
+#' the methylation data is derived from samples with two cell types.
+#' \code{cell.counts} should then be a vector of numbers
+#' between 0 and 1 of length equal to \code{variable} corresponding
+#' to the proportions of cell of a selected cell type in each sample.
+#' The regression model is then modified in order to identify
+#' associations specifically in the selected cell type (PMID: 24000956).
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cell.counts=NULL,
                  verbose=F) {
     stopifnot(all(!is.na(variable)))
@@ -183,7 +192,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cel
         ##    = C + A Xi pi + B Xi (1-pi) + e        
         design <- design[,-which(colnames(design) == "intercept")]
         
-        design <- cbind(typeA=design * cell.counts,
+        design <- cbind(design * cell.counts,
                         typeB=design * (1-cell.counts))
     }
 

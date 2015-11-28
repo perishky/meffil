@@ -11,6 +11,8 @@
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}.
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{featureset}).
 #' @param cell.type.reference Character string name of the cell type reference
 #' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
@@ -28,7 +30,7 @@ meffil.create.qc.object <- function(samplesheet.row,
                                     bead.threshold=3,
                                     sex.cutoff=-2,
                                     featureset=NULL,
-                                    architecture=NULL,
+                                    chip=featureset,
                                     cell.type.reference=NULL) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
@@ -36,13 +38,13 @@ meffil.create.qc.object <- function(samplesheet.row,
 
     rg <- read.rg(samplesheet.row$Basename, verbose=verbose)
 
-    if (is.null(architecture))
-        architecture <- guess.architecture(rg)
+    if (is.null(chip))
+        chip <- guess.chip(rg)
     
     if (is.null(featureset))
-        featureset <- architecture
+        featureset <- chip
     
-    probes <- meffil.probe.info(featureset, architecture)
+    probes <- meffil.probe.info(featureset, chip)
     
     bad.probes.detectionp <- identify.bad.probes.detectionp(rg, probes, detection.threshold, verbose=verbose)
 
@@ -66,10 +68,10 @@ meffil.create.qc.object <- function(samplesheet.row,
 
     mu <- rg.to.mu(rg, probes)
     
-    sites.x <- meffil.get.x.sites(featureset)$name
+    sites.x <- meffil.get.x.sites(featureset)
     x.signal <- median(log(mu$M[sites.x] + mu$U[sites.x], 2), na.rm=T)
 
-    sites.y <- meffil.get.y.sites(featureset)$name
+    sites.y <- meffil.get.y.sites(featureset)
     y.signal <- median(log(mu$M[sites.y] + mu$U[sites.y], 2), na.rm=T)
 
     probs <- seq(0,1,length.out=number.quantiles)
@@ -92,7 +94,7 @@ meffil.create.qc.object <- function(samplesheet.row,
          basename=samplesheet.row$Basename,
          controls=controls,
          featureset=featureset,
-         architecture=architecture,
+         chip=chip,
          quantiles=quantiles,
          dye.intensity=dye.intensity,
          intensity.R=intensity.R,

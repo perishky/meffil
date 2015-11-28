@@ -5,7 +5,7 @@
 \title{Generate QC report}
 \usage{
 meffil.qc.report(qc.summary, output.file = "qc-report.html",
-  author = "Analyst", study = "IlluminaHuman450 data", ...)
+  author = "Analyst", study = "Illumina methylation data", ...)
 }
 \arguments{
 \item{qc.summary}{Output from \code{meffil.qc.summary}.}
@@ -16,7 +16,7 @@ output will be in markdown format.}
 
 \item{author}{Default = "Analyst". Author name to be specified on report.}
 
-\item{study}{Default = "IlluminaHuman450 data". Study name to be specified on report.}
+\item{study}{Default = "Illumina methylation data". Study name to be specified on report.}
 
 \item{...}{Arguments to be passed to \code{\link{knitr::knit}}}
 }

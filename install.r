@@ -12,5 +12,5 @@ reload(inst("meffil"))
 source("meffil/data-raw/globals.r",chdir=T)
 system("R CMD INSTALL meffil") 
 
-## source("meffil/tests/run-all.r", chdir=T)
+source("meffil/tests/run-all.r", chdir=T)
 

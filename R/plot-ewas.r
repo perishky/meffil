@@ -1,3 +1,10 @@
+#' Remove points from a scatter plot where density is really high
+#' @param x x-coordinates vector
+#' @param y y-coordinates vector
+#' @param resolution number of partitions for the x and y-dimensions.
+#' @param max.per.cell maximum number of points per x-y partition.
+#' @return index into the points that omits points from x-y partitions
+#' so that each has at most \code{max.per.cell} points.
 scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
     x.cell <- floor((resolution-1)*(x - min(x,na.rm=T))/diff(range(x,na.rm=T))) + 1
     y.cell <- floor((resolution-1)*(y - min(y,na.rm=T))/diff(range(y,na.rm=T))) + 1
@@ -14,6 +21,15 @@ scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
          decreasing=F)
 }
 
+#' QQ plot for EWAS
+#'
+#' @param ewas.object Return object from \code{\link{meffil.ewas()}}.
+#' @param sig.threshold P-value threshold for significance (Default: 1e-7).
+#' @param sig.color Color for points corresponding to significant tests (Default: "red").
+#' @param title Title for the plot (Default: "QQ plot").
+#' @param xlab Label for the x-axis (Default: -log_10(expected p-values)).
+#' @param ylab Label for the y-axis (Default: -log_10(observed p-values)).
+#' @return \code{\link{ggplot}} showing the QQ plot. 
 #' @export
 meffil.ewas.qq.plot <- function(ewas.object,
                            sig.threshold=1e-7,
@@ -50,6 +66,12 @@ meffil.ewas.qq.plot <- function(ewas.object,
      }, simplify=F)     
 }
 
+#' Manhattan plot for EWAS
+#'
+#' @param ewas.object Return object from \code{\link{meffil.ewas()}}.
+#' @param sig.threshold P-value threshold for significance (Default: 1e-7).
+#' @param title Title for the plot (Default: "Manhattan plot").
+#' @return \code{\link{ggplot}} showing the Manhattan plot. 
 #' @export
 meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
                                        title="Manhattan plot") {
@@ -88,7 +110,17 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
     }, simplify=F)        
 }
 
-#' use comet R package to plot region nearby
+
+#' Scatter plots for a CpG site in an EWAS
+#'
+#' @param ewas.object Return object from \code{\link{meffil.ewas()}}.
+#' @param cpg CpG site to plot.
+#' @param title Title of the plot (Default: \code{cpg}).
+#' @param beta Optional matrix of methylation levels used to create the \code{ewas.object} (Default: NULL).
+#' @param \code{\link{ggplot}} object showing the scatterplots of DNA methylation vs the variable of interest
+#' in the EWAS.  Each plot corresponds to a covariate set.
+#' Methylation levels are in fact residuals from fitting a model with DNA methylation and the covariates.
+#' 
 #' @export
 meffil.ewas.cpg.plot <- function(ewas.object, cpg, title=cpg, beta=NULL) {
     stopifnot(is.ewas.object(ewas.object))

@@ -179,7 +179,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     }
 
     featureset <- norm.objects[[1]]$featureset
-    autosomal.sites <- meffil.get.autosomal.sites(featureset)$name
+    autosomal.sites <- meffil.get.autosomal.sites(featureset)
     autosomal.sites <- intersect(autosomal.sites, rownames(normalized.beta))
     
     var.sites <- meffil.most.variable.cpgs(normalized.beta[autosomal.sites,], n=probe.range)
