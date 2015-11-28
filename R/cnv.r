@@ -13,11 +13,11 @@ mu.to.cn <- function(mu) {
 cnv.predict.sex <- function(cn, featureset, sex.cutoff=-2) {
     log.cn <- log2(cn)
     
-    sites.x <- meffil.get.x.sites(featureset)$name
+    sites.x <- meffil.get.x.sites(featureset)
     stopifnot(all(sites.x %in% names(log.cn)))
     x.signal <- median(log.cn[sites.x], na.rm=T)
     
-    sites.y <- meffil.get.y.sites(featureset)$name    
+    sites.y <- meffil.get.y.sites(featureset)    
     stopifnot(all(sites.y %in% names(log.cn)))
     y.signal <- median(log.cn[sites.y], na.rm=T)
     
@@ -33,7 +33,7 @@ cnv.predict.sex <- function(cn, featureset, sex.cutoff=-2) {
 meffil.cnv.controls <- function(verbose=FALSE)
 {
         featureset <- "common"
-        architecture <- "450k" ## because the control data below comes from 450K microarrays
+        chip <- "450k" ## because the control data below comes from 450K microarrays
         
 	require(CopyNumber450kData)
             
@@ -47,9 +47,9 @@ meffil.cnv.controls <- function(verbose=FALSE)
 	# Quantile normalize controls
 
 	msg("Performing quantile normalisation", verbose=verbose)
-	sites.sex <- c(meffil.get.x.sites(featureset)$name,
-                        meffil.get.y.sites(featureset)$name)
-	sites.aut <- meffil.get.autosomal.sites(featureset)$name
+	sites.sex <- c(meffil.get.x.sites(featureset),
+                        meffil.get.y.sites(featureset))
+	sites.aut <- meffil.get.autosomal.sites(featureset)
 
 	int_sex_m <- x[sites.sex,s=="M"]
 	int_sex_f <- x[sites.sex,s=="F"]
@@ -79,7 +79,7 @@ meffil.cnv.controls <- function(verbose=FALSE)
 
 	return(list(
                 featureset=featureset,
-                architecture=architecture,
+                chip=chip,
 		intensity_sex=list(M=int_sex_m, F=int_sex_f), 
 		intensity_aut=int_aut, 
 		sex=s, 
@@ -105,18 +105,18 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
         rg <- read.rg(bname, verbose=verbose)
         
         featureset <- controls$featureset
-        architecture <- guess.architecture(rg)
+        chip <- guess.chip(rg)
         
-        probes <- meffil.probe.info(featureset, architecture)
+        probes <- meffil.probe.info(featureset, chip)
         case <- mu.to.cn(rg.to.mu(rg, probes))
 
 	msg("Predicting sex", verbose=verbose)
 	sex <- cnv.predict.sex(case, featureset, featureset)
 
 	msg("Normalisting against controls", verbose=verbose)
-	sites.sex <- c(meffil.get.x.sites(featureset)$name,
-                        meffil.get.y.sites(featureset)$name)
-	sites.aut <- meffil.get.autosomal.sites(featureset)$name
+	sites.sex <- c(meffil.get.x.sites(featureset),
+                        meffil.get.y.sites(featureset))
+	sites.aut <- meffil.get.autosomal.sites(featureset)
 
 	int_sex <- quantile.normalize.from.reference(case[sites.sex], controls$intensity_sex[[sex]])
 	int_aut <- quantile.normalize.from.reference(case[sites.aut], controls$intensity_aut)
@@ -125,10 +125,15 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 	int_sex <- log2(int_sex / controls$control_medians_sex[[sex]])
 	int_aut <- log2(int_aut / controls$control_medians_aut)
 
-        sites <- meffil.get.sites(featureset)
-	int_sex <- int_sex[names(int_sex) %in% sites$name[!sites$snp.exclude]]
-	int_aut <- int_aut[names(int_aut) %in% sites$name[!sites$snp.exclude]]
-	sites$chromosome <- ordered(sites$chromosome, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
+        features <- meffil.get.features(featureset)
+        sites <- features[which(!is.na(features$chromosome)
+                                & features$target == "methylation"
+                                & !features$snp.exclude),]
+
+	int_sex <- int_sex[names(int_sex) %in% sites$name]
+	int_aut <- int_aut[names(int_aut) %in% sites$name]
+	sites$chromosome <- ordered(sites$chromosome,
+                                    levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
 	p_sex <- sites[match(names(int_sex), sites$name), c("name", "chromosome","position")]
 	p_aut <- sites[match(names(int_aut), sites$name), c("name", "chromosome","position")]
 
@@ -147,6 +152,7 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, trim=0.1,
 	out <- rbind(segment_cna_aut$output, segment_cna_sex$output)
 	out$chrom <- ordered(out$chrom, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
 	out$ID <- samplename
+        out$featureset <- featureset
 	return(out)
 }
 
@@ -207,8 +213,13 @@ get.index.list <- function(n, mc.cores)
 #' @export
 #' @return Matrix of ncpg x nsample
 meffil.cnv.matrix <- function(cnv) {
-    sites <- meffil.get.sites("common")
-    sites <- sites[which(!sites$snp.exclude),]
+    featureset <- cnv[[1]]$featureset[1]
+
+    features <- meffil.get.features(featureset)
+    sites <- features[which(!is.na(features$chromosome)
+                            & features$target == "methylation"
+                            & !features$snp.exclude),]
+
     sites$chromosome <- as.character(sites$chromosome)
     sites <- sites[with(sites, order(chromosome, position, decreasing=F)),]
     sites$id <- with(sites, paste(chromosome, position))

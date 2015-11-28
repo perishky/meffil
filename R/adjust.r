@@ -1,3 +1,7 @@
+#' Fit linear models with each column of \code{y}
+#' as dependent variables and the fixed and random
+#' effects as independent variables.
+#' Return the residual matrix.
 adjust.columns <- function(y, fixed.effects=NULL, random.effects=NULL) {
     stopifnot(nrow(y) == nrow(fixed.effects))
     stopifnot(is.null(random.effects) || nrow(y) == nrow(random.effects))

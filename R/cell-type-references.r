@@ -19,6 +19,7 @@ get.cell.type.reference <- function(name) {
 #' @param M Matrix of methylated probe intensities (rows=CpG sites, columns=samples).
 #' @param U Matrix of unmethylatd probe intensities (rows=CpG sites, columns=samples).
 #' @param cell.types Vector of cell type names corresponding to sample \code{basename}s.
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}.
 #' @param number.quantiles Length of numeric sequence to specify probe intensity distributions
 #' (Default: 500).
 #' @param number.sites Number of probes to characterise cell type methylation (Default: 50).
@@ -60,12 +61,12 @@ create.cell.type.reference <- function(M, U, cell.types,
                                        subsets=NULL,
                                        verbose=F) {
 
-    architecture <- guess.architecture(M)
+    chip <- guess.chip(M)
     
     if (is.null(featureset))
-        featureset <- architecture
+        featureset <- chip
 
-    stopifnot(is.compatible.architecture(featureset, architecture))
+    stopifnot(is.compatible.chip(featureset, chip))
     
     stopifnot(nrow(M) == nrow(U))
     stopifnot(ncol(M) == ncol(M))
@@ -73,7 +74,7 @@ create.cell.type.reference <- function(M, U, cell.types,
     stopifnot(length(cell.types) == ncol(M))
     stopifnot(number.sites > 0)
     
-    autosomal.sites <- meffil.get.autosomal.sites(featureset)$name
+    autosomal.sites <- meffil.get.autosomal.sites(featureset)
     beta <- meffil.get.beta(M=M,U=U)
     beta <- beta[which(rownames(beta) %in% autosomal.sites),]
     specific.beta <- meffil.cell.type.specific.methylation(beta, cell.types, number.sites, verbose)
@@ -82,7 +83,7 @@ create.cell.type.reference <- function(M, U, cell.types,
         subsets <- get.island.site.subsets(featureset)
     
     ## create target quantiles only from the Type ii probes
-    typeii <- meffil.get.typeii.sites(featureset)$name
+    typeii <- meffil.get.typeii.sites(featureset)
     subsets.ii <- lapply(subsets, function(set) intersect(set, typeii))
 
     ## probs argument for the quantile function

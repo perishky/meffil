@@ -17,6 +17,8 @@ meffil.add.cell.type.reference(name, M, U, cell.types, featureset = NULL,
 
 \item{cell.types}{Vector of cell type names corresponding to sample \code{basename}s.}
 
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}}.}
+
 \item{number.sites}{Number of probes to characterise cell type methylation (Default: 50).
 For each cell type, this number of probes with greater methylation than other cell types
 and the same number with lesser methylation than the other cell types will be included.}

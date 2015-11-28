@@ -6,12 +6,12 @@ options(mc.cores=12)
 ## add 450k annotation
 source("load-450k-manifest.r")
 manifest.450k <- load.450k.manifest()
-meffil.add.manifest("450k", manifest.450k)
+meffil.add.chip("450k", manifest.450k)
 
 ## add epic annotation
 source("load-epic-manifest.r")
 manifest.epic <- load.epic.manifest()
-meffil.add.manifest("epic", manifest.epic)
+meffil.add.chip("epic", manifest.epic)
 
 ## create featureset common to both epic and 450k microarrays
 featureset.450k <- meffil.featureset("450k")

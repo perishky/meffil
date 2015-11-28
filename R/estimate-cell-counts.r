@@ -27,7 +27,7 @@ meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=
     reference.object <- get.cell.type.reference(cell.type.reference)
     
     rg <- read.rg(qc.object$basename, verbose=verbose)
-    probes <- meffil.probe.info(reference.object$featureset, qc.object$architecture)
+    probes <- meffil.probe.info(reference.object$featureset, qc.object$chip)
     rg <- background.correct(rg, probes, verbose=verbose)
     rg <- dye.bias.correct(rg, probes, qc.object$dye.intensity, verbose=verbose)
     mu <- rg.to.mu(rg, probes)
@@ -50,6 +50,23 @@ estimate.cell.counts.from.mu <- function(mu, cell.type.reference, verbose=F) {
 
 is.cell.count.object <- function(object)
     is.list(object) && "class" %in% names(object) && object$class == "cell.counts"
+
+quantile.normalize.signals <- function(mu, subsets, quantiles, verbose=F) {
+    stopifnot(is.mu(mu))
+    stopifnot(length(subsets) == length(quantiles))
+    stopifnot(all(names(subsets) %in% names(quantiles)))
+
+    for (subset.name in names(subsets)) {
+        subset <- subsets[[subset.name]]
+        for (target in c("M","U")) {
+            data <- matrix(mu[[target]][subset])
+            full.quantiles <- quantiles[[subset.name]][[target]]
+            full.quantiles <- approx(1:length(full.quantiles), full.quantiles, 1:length(data))$y
+            mu[[target]][subset] <- preprocessCore::normalize.quantiles.use.target(data,full.quantiles)
+        }
+    }
+    mu
+}
 
 ## Input:
 ## beta[CpG] = methylation level of the CpG in the sample
@@ -127,3 +144,19 @@ meffil.estimate.cell.counts.from.betas <- function(beta, cell.type.reference, ve
     t(apply(beta, 2, estimate.cell.counts.from.beta, reference.beta))
 }    
 
+quantile.normalize.betas <- function(beta, subsets, quantiles, verbose=F) {
+    stopifnot(is.matrix(beta))
+    stopifnot(length(subsets) == length(quantiles))
+    stopifnot(all(names(subsets) %in% names(quantiles)))
+    
+    for (subset.name in names(subsets)) {
+        subset <- intersect(subsets[[subset.name]], rownames(beta))
+        if (length(subset) == 0)
+            stop(paste("subset", subset.name, "and beta matrix have no features in common"))
+        full.quantiles <- quantiles[[subset.name]]$beta
+        full.quantiles <- approx(1:length(full.quantiles), full.quantiles, 1:length(subset))$y
+        beta[subset,] <- preprocessCore::normalize.quantiles.use.target(beta[subset,,drop=F],
+                                                                        full.quantiles)
+    }
+    beta
+}

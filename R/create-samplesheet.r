@@ -5,8 +5,9 @@
 #' @param  Sample_Name Array of unique sample IDs
 #' @param  Sex Array of values denoting sex for each sample, must be "M", "F" or NA
 #' @param  delim Optional delim character to separate \code{Sample_Name} into multiple columns. Default: "_"
-#' @export
 #' @return Sample sheet data frame
+#'
+#' @export
 meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, delim = "_") {
     basenames <- meffil.basenames(path)
     

@@ -10,14 +10,14 @@
 meffil.normalize.sample <- function(norm.object, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
-    probes <- meffil.probe.info(norm.object$featureset, norm.object$architecture)
+    probes <- meffil.probe.info(norm.object$featureset, norm.object$chip)
    
     rg <- read.rg(norm.object$basename, verbose=verbose)
     rg <- background.correct(rg, probes, verbose=verbose)
     rg <- dye.bias.correct(rg, probes, norm.object$reference.intensity, verbose=verbose)
     mu <- rg.to.mu(rg, probes)
 
-    sites <- meffil.get.sites(norm.object$featureset)$name
+    sites <- meffil.get.sites(norm.object$featureset)
     mu$M <- mu$M[sites]
     mu$U <- mu$U[sites]
 
