@@ -5,7 +5,7 @@ run.test <- function(filename) {
     extension <- sub("^.*(\\.[^.]+)$", "\\1", filename)
     name <- sub("\\.[^.]+$", "", filename)
 
-    if (!file.exists(name)) {
+    if (!file.exists(name) && !file.exists(paste(name, "html", sep="."))) {
         if (extension == ".r") {
             cat(date(), "Sourcing", filename, "------------------\n")
             source(filename, echo=T)
