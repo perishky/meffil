@@ -124,29 +124,22 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, chip=NULL
 	sex <- cnv.predict.sex(case, featureset)
 
 	msg("Normalisting against controls", verbose=verbose)
-	sites.sex <- c(meffil.get.x.sites(featureset),
-                        meffil.get.y.sites(featureset))
-	sites.aut <- meffil.get.autosomal.sites(featureset)
-
-	int_sex <- quantile.normalize.from.reference(case[sites.sex], controls$intensity_sex[[sex]])
-	int_aut <- quantile.normalize.from.reference(case[sites.aut], controls$intensity_aut)
+	int_sex <- quantile.normalize.from.reference(case[rownames(controls$intensity_sex[[sex]])], controls$intensity_sex[[sex]])
+	int_aut <- quantile.normalize.from.reference(case[rownames(controls$intensity_aut)], controls$intensity_aut)
 
 	msg("Estimating CNVs", verbose=verbose)
 	int_sex <- log2(int_sex / controls$control_medians_sex[[sex]])
 	int_aut <- log2(int_aut / controls$control_medians_aut)
 
         features <- meffil.get.features(featureset)
-        sites <- features[which(!is.na(features$chromosome)
-                                & features$target == "methylation"
-                                & !features$snp.exclude),]
+        features <- features[which(!features$snp.exclude),]
 
-	int_sex <- int_sex[names(int_sex) %in% sites$name]
-	int_aut <- int_aut[names(int_aut) %in% sites$name]
-	sites$chromosome <- ordered(sites$chromosome,
+	int_sex <- int_sex[names(int_sex) %in% features$name]
+	int_aut <- int_aut[names(int_aut) %in% features$name]
+	features$chromosome <- ordered(features$chromosome,
                                     levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
-	p_sex <- sites[match(names(int_sex), sites$name), c("name", "chromosome","position")]
-	p_aut <- sites[match(names(int_aut), sites$name), c("name", "chromosome","position")]
-
+	p_sex <- features[match(names(int_sex), features$name), c("name", "chromosome","position")]
+	p_aut <- features[match(names(int_aut), features$name), c("name", "chromosome","position")]
 
 	cna_sex <- CNA(int_sex, chrom=p_sex$chromosome, maploc=p_sex$position, data.type="logratio", sampleid=samplename)
 	cna_aut <- CNA(int_aut, chrom=p_aut$chromosome, maploc=p_aut$position, data.type="logratio", sampleid=samplename)
@@ -160,7 +153,7 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, chip=NULL
 	segment_cna_sex <- segment(cna_sex, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
 	segment_cna_aut <- segment(cna_aut, min.width=min.width, verbose = verbose, nperm = nperm, alpha = alpha, undo.splits = undo.splits, undo.SD = undo.SD, trim = trim)
 	out <- rbind(segment_cna_aut$output, segment_cna_sex$output)
-	out$chrom <- ordered(out$chrom, levels = c(paste("chr", 1:22, sep = ""), "chrX", "chrY"))
+	out$chrom <- ordered(out$chrom, levels = levels(features$chromosome))
 	out$ID <- samplename
 	return(out)
 }
