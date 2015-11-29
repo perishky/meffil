@@ -10,7 +10,7 @@
 meffil.normalize.sample <- function(norm.object, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
-    probes <- meffil.probe.info(norm.object$featureset, norm.object$chip)
+    probes <- meffil.probe.info(norm.object$chip, norm.object$featureset)
    
     rg <- read.rg(norm.object$basename, verbose=verbose)
     rg <- background.correct(rg, probes, verbose=verbose)

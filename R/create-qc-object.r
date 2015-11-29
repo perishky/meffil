@@ -44,7 +44,7 @@ meffil.create.qc.object <- function(samplesheet.row,
     if (is.null(featureset))
         featureset <- chip
     
-    probes <- meffil.probe.info(featureset, chip)
+    probes <- meffil.probe.info(chip, featureset)
     
     bad.probes.detectionp <- identify.bad.probes.detectionp(rg, probes, detection.threshold, verbose=verbose)
 

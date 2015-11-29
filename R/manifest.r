@@ -247,7 +247,7 @@ extract.probes <- function(manifest) {
 is.compatible.chip <- function(featureset, chip) {
     ret <- FALSE
     try({
-        probes <- meffil.probe.info(featureset, chip)
+        probes <- meffil.probe.info(chip, featureset)
         ret <- TRUE
     }, silent=TRUE)
     ret
@@ -260,7 +260,7 @@ is.compatible.chip <- function(featureset, chip) {
 guess.chip <- function(object) {
     if (is.rg(object)) {
         for (chip in meffil.list.chips()) {
-            probes <- meffil.probe.info(chip, chip)
+            probes <- meffil.probe.info(chip)
             if (all(probes$address %in% c(rownames(object$G), rownames(object$R))))
                 return(chip)
         }
