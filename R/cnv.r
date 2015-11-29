@@ -114,11 +114,11 @@ calculate.cnv <- function(bname, samplename=basename(bname), controls, chip=NULL
         if (is.null(featureset))
             featureset <- controls$featureset
         
-        probes <- meffil.probe.info(featureset, chip)
+        probes <- meffil.probe.info(chip, featureset)
         case <- mu.to.cn(rg.to.mu(rg, probes))
 
 	msg("Predicting sex", verbose=verbose)
-	sex <- cnv.predict.sex(case, featureset, featureset)
+	sex <- cnv.predict.sex(case, featureset)
 
 	msg("Normalisting against controls", verbose=verbose)
 	sites.sex <- c(meffil.get.x.sites(featureset),

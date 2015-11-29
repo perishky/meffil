@@ -27,7 +27,7 @@ meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=
     reference.object <- get.cell.type.reference(cell.type.reference)
     
     rg <- read.rg(qc.object$basename, verbose=verbose)
-    probes <- meffil.probe.info(reference.object$featureset, qc.object$chip)
+    probes <- meffil.probe.info(qc.object$chip, reference.object$featureset)
     rg <- background.correct(rg, probes, verbose=verbose)
     rg <- dye.bias.correct(rg, probes, qc.object$dye.intensity, verbose=verbose)
     mu <- rg.to.mu(rg, probes)
