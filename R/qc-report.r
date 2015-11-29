@@ -379,7 +379,7 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
     stopifnot(sapply(qc.objects, is.qc.object))
     featureset <- qc.objects[[1]]$featureset
 
-    probes <- meffil.get.features(featureset)
+    probes <- meffil.get.features(featureset)$name
     y.probes <- meffil.get.y.sites(featureset)
     not.y.probes <- setdiff(probes, y.probes)
         
@@ -493,7 +493,7 @@ meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.cod
 
     featureset <- qc.objects[[1]]$featureset
     
-    probes <- meffil.get.features(featureset)
+    probes <- meffil.get.features(featureset)$name
     y.probes <- meffil.get.y.sites(featureset)
     not.y.probes <- setdiff(probes, y.probes)
 
