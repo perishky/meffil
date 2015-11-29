@@ -1,15 +1,14 @@
 
 
-A. make sure documentation is complete for external functions
+A. notify about function name changes
 
-B. notify about function name changes
-
+meffil.probe.info("450k")
 meffil.get.*.sites() -> meffil.get.*.sites("450k")
 meffil.get.snp.probes -> meffil.snp.names
 meffil.get.cell.type.references -> meffil.list.cell.type.references
 meffil.cnv.matrix(list) -> meffil.cnv.matrix(list,featureset)
 
-C. document concept of "featurset", "manifest", "chip" and "feature" vs "probe"
+B. document concept of "featurset", "manifest", "chip" and "feature" vs "probe"
 
 
 

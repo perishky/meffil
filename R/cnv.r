@@ -32,10 +32,13 @@ cnv.predict.sex <- function(cn, featureset, sex.cutoff=-2) {
 #' @param verbose (Default: FALSE)
 #' @export
 #' @return List with pre-calculated CNV data
-meffil.cnv.controls <- function(featureset="450k", verbose=FALSE)
+meffil.cnv.controls <- function(featureset=NULL, verbose=FALSE)
 {
         chip <- "450k" ## because the control data below comes from 450K microarrays
 
+        if (is.null(featureset))
+            featureset <- chip
+        
         if (!is.compatible.chip(featureset, chip))
             stop(paste("feature set '", featureset, "' is not compatible with the control chip '", chip, "'", sep=""))
 
