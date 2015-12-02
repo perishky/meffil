@@ -358,7 +358,7 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
            geom_point(aes(colour=colour.code)) +
            geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
            guides(colour=g) +
-           facet_wrap(~ variable, scales="free_y") +
+           facet_wrap(~ variable, scales="free_y", ncol=4) +
            labs(y="Mean signal", x="ID", colour=colour.code))
     return(list(graph=p1, tab=dat))
 }

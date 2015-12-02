@@ -66,7 +66,7 @@ Calculate copy numbers using CopyNumber450k.
 raw.cnv <- CNV450kSet(combine(raw.minfi, RGcontrolSetEx))
 raw.cnv <- dropSNPprobes(raw.cnv, maf_threshold=0.01)
 norm.cnv <- normalize(raw.cnv, "quantile")
-norm.cnv <- segmentize(norm.cnv) ## 1 hour
+norm.cnv <- segmentize(norm.cnv, alpha=0.001) 
 segments.cnv <- getSegments(norm.cnv)
 matrix.cnv <- meffil.cnv.matrix(segments.cnv)
 ```
@@ -78,3 +78,4 @@ r <- cor(matrix.cnv, matrix.meffil)
 quantile(diag(r))
 quantile(r)
 ```
+

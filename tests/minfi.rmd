@@ -132,7 +132,6 @@ all(raw.meffil$R == getRed(raw.minfi)[names(raw.meffil$R),1])
 ```{r}
 print(object.size(qc.objects), units="Mb")
 print(object.size(norm.objects), units="Mb")
-print(object.size(norm.meffil), units="Mb")
 print(object.size(norm.minfi), units="Mb")
 print(object.size(raw.minfi), units="Mb")
 ```
@@ -239,7 +238,7 @@ and chromosome X is handled just like `minfi` in females but not in males.
 ```{r}
 autosomal.sites <- sites[which(sites$name %in% meffil.get.autosomal.sites("450k")),]
 autosomal.sites <- intersect(autosomal.sites, rownames(beta.meffil))
-quantile(beta.meffil[autosomal.sites,] - beta.minfi[autosomal.sites,])
+quantile(beta.meffil[autosomal.sites,] - beta.minfi[autosomal.sites,],na.rm=T)
 ```
 
 In spite of the differences, CG correlations between methods are pretty close to 1.
