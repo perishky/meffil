@@ -79,7 +79,7 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 The distribution of sample control means are plotted here:
 
-```{r controlmeans-graph}
+```{r controlmeans-graph, fig.height=24}
 
 qc.summary$controlmeans.summary$graph
 
