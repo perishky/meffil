@@ -1,36 +1,41 @@
 Package: meffil
 Version: 0.1
 Title: Efficient algorithms for DNA methylation
-Description: Tools for normalizing and analyzing the Infinium HumanMethylation450 BeadChip.
+Description: Tools for normalizing and analyzing the Infinium
+    HumanMethylation450 BeadChip.
 Authors@R: c(person("Matthew", "Suderman", role = c("cre", "aut"),
                     email = "matthewsuderman@hotmail.com"),              
              person("Gibran", "Hemani", role = c("cre", "aut")),
              person("Josine", "Min", role = c("cre", "aut")))
 Author: Matthew Suderman <matthewsuderman@hotmail.com> [cre, aut],
-  Gibran Hemani [cre, aut],
-  Josine Min [cre, aut]
+    Gibran Hemani [cre, aut],
+    Josine Min [cre, aut]
 Maintainer: Matthew Suderman <matthewsuderman@hotmail.com>
-Depends:  illuminaio, 
-	  MASS, 
-          limma,
-	  ggplot2,
-	  plyr,
-	  reshape2,
-          knitr,
-	  Cairo,
-	  gridExtra,
-	  markdown,
-	  matrixStats,
-	  multcomp,
-	  lme4,
-	  parallel,
-	  fastICA
-Suggests: CopyNumber450kData,
-          DNAcopy,
-	  IlluminaHumanMethylation450kmanifest,
-	  IlluminaHumanMethylation450kanno.ilmn12.hg19,
-          betareg	
+Depends:
+    illuminaio,
+    MASS,
+    limma,
+    ggplot2,
+    plyr,
+    reshape2,
+    knitr,
+    Cairo,
+    gridExtra,
+    markdown,
+    matrixStats,
+    multcomp,
+    lme4,
+    parallel,
+    fastICA
+Suggests:
+    CopyNumber450kData,
+    DNAcopy,
+    IlluminaHumanMethylation450kmanifest,
+    IlluminaHumanMethylation450kanno.ilmn12.hg19,
+    betareg
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes
-biocViews: DNAMethylation, Microarray, TwoChannel, DataImport, Preprocessing, QualityControl
+biocViews: DNAMethylation, Microarray, TwoChannel, DataImport, Preprocessing,
+    QualityControl
+RoxygenNote: 5.0.1
