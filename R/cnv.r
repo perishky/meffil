@@ -4,7 +4,7 @@
 # library(meffil)
 # library(splitstackshape)
 
-
+# library(matrixStats)
 
 read.mu <- function(basename, verbose=F) {
   rg <- read.rg(basename, verbose=verbose)
@@ -38,8 +38,12 @@ cnv.predict.sex <- function(cn, sex.cutoff=-2) {
 meffil.cnv.controls <- function(verbose=FALSE)
 {
 	require(CopyNumber450kData)
+
+	msg("Loading control data")
 	data(RGcontrolSetEx)
-	x <- preprocessRaw(RGcontrolSetEx)
+
+	msg("Normalising")
+	x <- preprocessIllumina(RGcontrolSetEx, bg.correct=TRUE, normalize=NULL)
 	x <- getMeth(x) + getUnmeth(x)
 
 	msg("Predicting sex", verbose=verbose)
@@ -73,9 +77,14 @@ meffil.cnv.controls <- function(verbose=FALSE)
 	# Get medians for controls
 
 	msg("Calculating control medians", verbose=verbose)
-	control_medians_sex_m <- apply(int_sex_m, 1, median, na.rm=T)
-	control_medians_sex_f <- apply(int_sex_f, 1, median, na.rm=T)
-	control_medians_aut <- apply(int_aut, 1, median, na.rm=T)
+	# control_medians_sex_m <- apply(int_sex_m, 1, median, na.rm=T)
+	# control_medians_sex_f <- apply(int_sex_f, 1, median, na.rm=T)
+	# control_medians_aut <- apply(int_aut, 1, median, na.rm=T)
+
+	control_medians_sex_m <- rowMedians(int_sex_m, na.rm=T)
+	control_medians_sex_f <- rowMedians(int_sex_f, na.rm=T)
+	control_medians_aut <- rowMedians(int_aut, na.rm=T)
+
 
 	return(list(
 		intensity_sex=list(M=int_sex_m, F=int_sex_f), 
