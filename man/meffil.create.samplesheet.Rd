@@ -4,17 +4,13 @@
 \alias{meffil.create.samplesheet}
 \title{Create sample sheet if an Illumina one isn't available}
 \usage{
-meffil.create.samplesheet(path, Sample_Name = NULL, Sex = NULL,
+meffil.create.samplesheet(path, basenames = meffil.basenames(path),
   delim = "_")
 }
 \arguments{
-\item{Sample_Name}{Array of unique sample IDs}
-
-\item{Sex}{Array of values denoting sex for each sample, must be "M", "F" or NA}
+\item{basenames}{Output from \code{\link{meffil.basenames}}}
 
 \item{delim}{Optional delim character to separate \code{Sample_Name} into multiple columns. Default: "_"}
-
-\item{basenames}{Output from \code{\link{meffil.basenames}}}
 }
 \value{
 Sample sheet data frame

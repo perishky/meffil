@@ -57,6 +57,10 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         max.bytes=max.bytes)
     names(qc.objects) <- samplesheet$Sample_Name
 
+    is.error <- sapply(qc.objects, class) == "try-error"
+    if (any(is.error))
+        stop(qc.objects[which(is.error)[1]])
+    
     if (length(unique(sapply(qc.objects, function(object) object$featureset))) > 1)
         warning("Heterogeneous microarray formats included without setting 'featureset'.")
     

@@ -34,7 +34,10 @@ meffil.normalize.quantiles <- function(qc.objects,
     intensity.R <- sapply(qc.objects, function(object) object$intensity.R)
     intensity.G <- sapply(qc.objects, function(object) object$intensity.G)
     valid.idx <- which(intensity.R + intensity.G > 200)
-    stopifnot(length(valid.idx) > 0)
+    if (length(valid.idx) == 0) {
+        valid.idx <- 1:length(intensity.R)
+        warning("All of the microarrays have very low intensity")
+    }
     reference.idx <- valid.idx[which.min(abs(intensity.R/intensity.G-1)[valid.idx])]
     dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
 

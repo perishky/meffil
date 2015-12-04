@@ -13,19 +13,22 @@ background.correct <- function(rg, probes, offset=15, verbose=F) {
         msg("background correction for dye =", dye, verbose=verbose)
         addresses <- probes$address[which(probes$target %in% c("M","U") & probes$dye == dye)]
         addresses <- intersect(addresses, rownames(rg[[dye]]))
-        stopifnot(length(addresses) > 0)
+        if(length(addresses) == 0)
+            stop("It seems like the supplied chip annotation does not match the IDAT files.")
         xf <- rg[[dye]][addresses,"Mean"]
         xf[which(xf <= 0)] <- 1
 
         addresses <- probes$address[which(probes$type == "control" & probes$dye == dye)]
         addresses <- intersect(addresses, rownames(rg[[dye]]))
-        stopifnot(length(addresses) > 0)
+        if(length(addresses) == 0)
+            stop("It seems like the supplied chip annotation does not match the IDAT files.")
         xc <- rg[[dye]][addresses,"Mean"]
         xc[which(xc <= 0)] <- 1
 
         addresses <- probes$address[which(probes$target == "OOB" & probes$dye == dye)]
         addresses <- intersect(addresses, rownames(rg[[dye]]))
-        stopifnot(length(addresses) > 0)
+        if(length(addresses) == 0)
+            stop("It seems like the supplied chip annotation does not match the IDAT files.")
         oob <- rg[[dye]][addresses,"Mean"]
 
         ests <- huber.safe(oob)

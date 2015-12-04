@@ -654,9 +654,11 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
         
         common.samples <- intersect(colnames(snp.betas), colnames(genotypes))
         common.snps <- intersect(rownames(snp.betas), rownames(genotypes))
-        
-        stopifnot(length(common.samples) > 0)
-        stopifnot(length(common.snps) > 0)
+
+        if (length(common.snps) == 0)
+            stop("SNPs in genotypes agument are not measured on these microarrays")
+        if (length(common.samples) == 0)
+            stop("genotype samples do not match samples with QC objects")
         
         concordance <- meffil.snp.concordance(snp.betas[common.snps, common.samples, drop=F],
                                               genotypes[common.snps, common.samples, drop=F],

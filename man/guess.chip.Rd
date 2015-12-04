@@ -2,15 +2,15 @@
 % Please edit documentation in R/manifest.r
 \name{guess.chip}
 \alias{guess.chip}
-\title{guess the correct chip for the \code{object}
+\title{select a compatible chip the \code{object}
 which may be an 'rg' object (see \code{\link{read.rg}()}
 or a matrix (typically beta or methylation or unmethylation matrices)
 with row names corresponding to feature/probe names.}
 \usage{
-guess.chip(object)
+guess.chip(object, chips = NULL)
 }
 \description{
-guess the correct chip for the \code{object}
+select a compatible chip the \code{object}
 which may be an 'rg' object (see \code{\link{read.rg}()}
 or a matrix (typically beta or methylation or unmethylation matrices)
 with row names corresponding to feature/probe names.

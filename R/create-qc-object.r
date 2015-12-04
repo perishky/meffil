@@ -38,8 +38,7 @@ meffil.create.qc.object <- function(samplesheet.row,
 
     rg <- read.rg(samplesheet.row$Basename, verbose=verbose)
 
-    if (is.null(chip))
-        chip <- guess.chip(rg)
+    chip <- guess.chip(rg, chip)
     
     if (is.null(featureset))
         featureset <- chip

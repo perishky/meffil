@@ -76,6 +76,7 @@ create.gse35069.references <- function() {
     meffil.add.cell.type.reference("blood gse35069 complete",
                                    ds$M[,selected], ds$U[,selected],
                                    cell.types=samplesheet$CellType[selected],
+                                   chip="450k",
                                    featureset="common",
                                    verbose=verbose)
     
@@ -84,6 +85,7 @@ create.gse35069.references <- function() {
     meffil.add.cell.type.reference("blood gse35069",
                                    ds$M[,selected], ds$U[,selected],
                                    cell.types=samplesheet$CellType[selected],
+                                   chip="450k",
                                    featureset="common",
                                    verbose=verbose)
 }

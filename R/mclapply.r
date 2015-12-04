@@ -48,6 +48,9 @@ mclapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     c(first, do.call(c, lapply(1:nrow(partitions), function(i) {
         idx <- partitions[i,"start"]:partitions[i,"end"]
         ret <- mclapply(X[idx], FUN, ...)
+        is.error <- sapply(ret, class) == "try-error"
+        if (any(is.error))
+            stop(ret[which(is.error)[1]])        
         if (length(idx) != length(ret) || any(sapply(ret, is.null)))
             stop(paste("The operating system has decided that some forks of mclapply are using too much memory.\n",
                        "Try reducing the max.bytes parameter or the R option 'mc.cores'."))
