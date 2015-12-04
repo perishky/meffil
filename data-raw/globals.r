@@ -25,7 +25,10 @@ meffil.add.featureset("common", featureset.both)
 
 ## create blood cell type references 
 source("gse35069-references.r")
-reference.globals <- create.gse35069.references() ## ~15 minutes
+create.gse35069.references() ## ~15 minutes
+
+source("gse68456-reference.r")
+create.gse68456.reference()
 
 ## save the global variables so they can be loaded by the package
 meffil:::save.globals("../inst") ## see ../R/globals.r

@@ -14,14 +14,18 @@ read.rg <- function(basename, verbose=F) {
                R=read.idat(paste(basename, "_Red.idat", sep=""), verbose=verbose))
 
     rg$class <- "rg"
+    rg$basename <- basename
     rg
 }
 
 read.idat <- function(filename, verbose=F) {
     msg("Reading", filename, verbose=verbose)
 
-    if (!file.exists(filename))
-        stop("Filename does not exist:", filename)
+    if (!file.exists(filename)) {
+        filename <- paste(filename, "gz", sep=".")
+        if (!file.exists(filename))
+            stop("Filename does not exist:", filename, sub(".gz", "", filename))
+    }
     illuminaio::readIDAT(filename)$Quants
 }
 

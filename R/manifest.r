@@ -102,7 +102,7 @@ meffil.add.chip <- function(name, manifest) {
     assign(name, features, featureset.globals)
     assign(name, probes, probe.globals)
 
-    return(TRUE)
+    invisible(manifest)
 }
 
 #' Add a feature set.
@@ -129,6 +129,7 @@ meffil.add.chip <- function(name, manifest) {
 meffil.add.featureset <- function(name, features) {
     check.featureset(features)
     assign(name, features, featureset.globals)
+    invisible(features)
 }
 
 check.featureset <- function(features) {
@@ -253,23 +254,30 @@ is.compatible.chip <- function(featureset, chip) {
     ret
 }
 
-#' guess the correct chip for the \code{object}
+#' select a compatible chip the \code{object}
 #' which may be an 'rg' object (see \code{\link{read.rg}()}
 #' or a matrix (typically beta or methylation or unmethylation matrices)
 #' with row names corresponding to feature/probe names.
-guess.chip <- function(object) {
+guess.chip <- function(object, chips=NULL) {
+    if (is.null(chips))
+        chips <- meffil.list.chips()
+    error.msg <- ""
     if (is.rg(object)) {
-        for (chip in meffil.list.chips()) {
+        for (chip in chips) {
             probes <- meffil.probe.info(chip)
             if (all(probes$address %in% c(rownames(object$G), rownames(object$R))))
                 return(chip)
         }
+        error.msg <- paste("IDAT files (", object$basename, ")", sep="")
     } else if (is.matrix(object)) {
-        for (chip in meffil.list.chips()) {
+        for (chip in chips) {
             features <- meffil.featureset(chip)
             if (all(rownames(object) %in% features$name))
                 return(chip)
         }
+        error.msg <- "Matrix"
     }
-    return(FALSE)
+    error.msg <- paste(error.msg, "is not compatible with the following chip(s):",
+                       paste(chips, collapse=", "))
+    stop(error.msg)
 }

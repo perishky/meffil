@@ -22,7 +22,8 @@ calculate.intensity.R <- function(rg, probes) {
                                       & probes$dye == "R")]
     idx <- match(addresses, rownames(rg$R))
     idx <- na.omit(idx)
-    stopifnot(length(idx) >= 10) ## there are 93 in total
+    if (length(idx) < 10) ## there are 93 in total
+        stop("Seems like this IDAT file does not match the supplied chip annotation")
 
     mean(rg$R[idx,"Mean"], na.rm=T)
 }
@@ -32,8 +33,9 @@ calculate.intensity.G <- function(rg, probes) {
                                       & probes$dye == "G")]
     idx <- match(addresses, rownames(rg$G))
     idx <- na.omit(idx)
-    stopifnot(length(idx) >= 10) ## there are 93 in total
-
+    if (length(idx) < 10) ## there are 93 in total
+        stop("Seems like this IDAT file does not match the supplied chip annotation")
+        
     mean(rg$G[idx,"Mean"], na.rm=T)
 }
 

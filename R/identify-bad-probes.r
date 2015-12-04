@@ -11,11 +11,13 @@ identify.bad.probes.beadnum <- function(rg, probes, threshold=3, verbose=F) {
         n.beads <- rep(NA, nrow(probes))
 
         addresses <- probes$address[r.idx]
-        stopifnot(all(addresses %in% rownames(rg$R)))
+        if(!all(addresses %in% rownames(rg$R)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         n.beads[r.idx] <- rg$R[match(addresses, rownames(rg$R)), "NBeads"]
 
         addresses <- probes$address[g.idx]
-        stopifnot(all(addresses %in% rownames(rg$G)))        
+        if(!all(addresses %in% rownames(rg$G)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         n.beads[g.idx] <- rg$G[addresses, "NBeads"]
         
         n.beads
@@ -47,11 +49,13 @@ identify.bad.probes.detectionp <- function(rg, probes, threshold=0.01, verbose=F
         intensity <- rep(NA, nrow(probes))
 
         addresses <- probes$address[r.idx]
-        stopifnot(all(addresses %in% rownames(rg$R)))        
+        if(!all(addresses %in% rownames(rg$R)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         intensity[r.idx] <- rg$R[match(probes$address[r.idx], rownames(rg$R)),"Mean"]
 
         addresses <- probes$address[g.idx]
-        stopifnot(all(addresses %in% rownames(rg$G)))                
+        if(!all(addresses %in% rownames(rg$G)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         intensity[g.idx] <- rg$G[match(probes$address[g.idx], rownames(rg$G)),"Mean"]
 
         med <- rep(NA, nrow(probes))

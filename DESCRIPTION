@@ -25,12 +25,9 @@ Depends:  illuminaio,
 	  lme4,
 	  parallel,
 	  fastICA,
+	  DNAcopy,
 	  quadprog
-Suggests: CopyNumber450kData,
-          DNAcopy,
-	  IlluminaHumanMethylation450kmanifest,
-	  IlluminaHumanMethylation450kanno.ilmn12.hg19,
-          betareg	
+Suggests: betareg	
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes

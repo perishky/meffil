@@ -7,9 +7,10 @@ load.450k.manifest <- function() {
     ## add snp exclusions
     library(openxlsx)
     filename <- "http://www.sickkids.ca/MS-Office-Files/Research/Weksberg%20Lab/48640-polymorphic-CpGs-Illumina450k.xlsx"
-    cat("Downloading", filename, "\n")
-    download.file(filename, basename(filename))
-    on.exit(unlink(basename(filename)))
+    if (!file.exists(basename(filename))) {
+        cat("Downloading", filename, "\n")
+        download.file(filename, basename(filename))
+    }
 
     cat("Reading sheet 1", "\n")
     cpg.snps <- read.xlsx(basename(filename), sheet=1)

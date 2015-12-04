@@ -15,20 +15,25 @@ get.cell.type.reference <- function(name) {
 #' Create a cell type reference object for estimating cell counts
 #' with the Infinium HumanMethylation450 BeadChip.
 #'
-#' @param name Character string providing the name used to reference to the reference.
+#' @param name Character string providing the name of the reference.
 #' @param M Matrix of methylated probe intensities (rows=CpG sites, columns=samples).
 #' @param U Matrix of unmethylatd probe intensities (rows=CpG sites, columns=samples).
 #' @param cell.types Vector of cell type names corresponding to sample \code{basename}s.
-#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}.
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NULL).
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: chip).
 #' @param number.quantiles Length of numeric sequence to specify probe intensity distributions
 #' (Default: 500).
 #' @param number.sites Number of probes to characterise cell type methylation (Default: 50).
 #' For each cell type, this number of probes with greater methylation than other cell types
 #' and the same number with lesser methylation than the other cell types will be included.
+#' @param object Cell type reference previously created by this function.
+#' If not \code{NULL}, then this reference is added
+#' and all other function arguments are ignored (Default: NULL).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @return A list specifying a cell type reference object that can be used by
-#' \code{\link{meffil.estimate.cell.counts}()} can use to estimate cell counts.
+#' \code{\link{meffil.estimate.cell.counts}()} to estimate cell counts
+#' in another dataset.
 #' The object is a list containing:
 #' - \code{beta} The normalized methylation values of sites
 #' differentially methylated between cell types.
@@ -41,27 +46,33 @@ get.cell.type.reference <- function(name) {
 #'
 #' @export
 meffil.add.cell.type.reference <- function(name, M, U, cell.types,
-                                           featureset=NULL,
+                                           chip=NULL,
+                                           featureset=chip,
                                            number.sites=50,
                                            number.quantiles=500,
                                            subsets=NULL,
+                                           object=NULL,
                                            verbose=F) {
-    object <- create.cell.type.reference(M,U,cell.types,featureset,
-                                         number.sites,number.quantiles,
-                                         subsets,verbose)
-    object$name <- name
-    assign(name, object, reference.globals)
+    if (is.null(object)) {
+        object <- create.cell.type.reference(M,U,cell.types,chip,featureset,
+                                             number.sites,number.quantiles,
+                                             subsets,verbose)
+        object$name <- name
+    }
+    else
+        stopifnot(is.cell.type.reference(object))
+    assign(object$name, object, reference.globals)
     invisible(object)
 }
 
 create.cell.type.reference <- function(M, U, cell.types,
-                                       featureset=NULL,
+                                       chip=NULL,
+                                       featureset=chip,
                                        number.sites=50,
                                        number.quantiles=500,
                                        subsets=NULL,
                                        verbose=F) {
-
-    chip <- guess.chip(M)
+    chip <- guess.chip(M, chip)
     
     if (is.null(featureset))
         featureset <- chip
@@ -102,3 +113,5 @@ create.cell.type.reference <- function(M, U, cell.types,
          subsets=subsets)
 }
 
+is.cell.type.reference <- function(object)
+    "class" %in% names(object) && object[[class]] == "cell.type.reference"

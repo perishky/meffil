@@ -38,7 +38,10 @@ meffil.plot.pc.fit <- function(qc.objects, fixed.effects=NULL, random.effects=NU
             intensity.R <- sapply(qc.objects, function(object) object$intensity.R)
             intensity.G <- sapply(qc.objects, function(object) object$intensity.G)
             valid.idx <- which(intensity.R + intensity.G > 200)
-            stopifnot(length(valid.idx) > 0)
+            if(length(valid.idx) == 0) {
+                valid.idx <- 1:length(intensity.R)
+                warning("Most or all of the microarrays have very low intensity.")
+            }
             reference.idx <- valid.idx[which.min(abs(intensity.R/intensity.G-1)[valid.idx])]
             dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
             for (target in c("M","U")) {

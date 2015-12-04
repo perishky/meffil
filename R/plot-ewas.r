@@ -132,8 +132,10 @@ meffil.ewas.cpg.plot <- function(ewas.object, cpg, title=cpg, beta=NULL) {
         if (cpg %in% rownames(ewas$beta))
             methylation <- ewas$beta[cpg,ewas.object$samples]
         else {
-            stopifnot(!is.null(beta))
-            stopifnot(all(rownames(ewas$design) %in% colnames(beta)))
+            if (is.null(beta))
+                stop("beta argument (methylation matrix) is needed to obtain CpG methylation levels")
+            if (!all(rownames(ewas$design) %in% colnames(beta)))
+                stop("EWAS samples do not match those in the beta argument (methylation matrix)")
             methylation <- beta[cpg,rownames(ewas$design)]
         }
         covariates <- subset(data.frame(ewas$design), select=c(-variable,-intercept))

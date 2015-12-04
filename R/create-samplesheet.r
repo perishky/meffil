@@ -2,31 +2,20 @@
 #'
 #' If necessary generates two columns necessary for some functions: \code{Sample_Name} and \code{Sex}
 #' @param basenames Output from \code{\link{meffil.basenames}}
-#' @param  Sample_Name Array of unique sample IDs
-#' @param  Sex Array of values denoting sex for each sample, must be "M", "F" or NA
 #' @param  delim Optional delim character to separate \code{Sample_Name} into multiple columns. Default: "_"
 #' @return Sample sheet data frame
 #'
 #' @export
-meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, delim = "_") {
-    basenames <- meffil.basenames(path)
-    
-    if(is.null(Sex)) Sex <- rep(NA, length(basenames))
-    if(any(!Sex %in% c("M", "F", NA))) stop("Sex column must only contain 'M', 'F' or NA values")
-    stopifnot(length(Sex) == length(basenames))
-    
+meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path), delim = "_") {
     dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)), stringsAsFactors=FALSE)
     idcol <- which(apply(dat, 2, function(x) all(!duplicated(x))))
-    if (is.null(Sample_Name)) {
-        if(length(idcol) >= 1) {
-            Sample_Name <- dat[,idcol[1]]
-            dat <- dat[,-idcol[1],drop=F]
-        }
-        else {
-            Sample_Name <- make.samplename.from.basename(basenames)
-        }
+    if(length(idcol) >= 1) {
+        Sample_Name <- dat[,idcol[1]]
+        dat <- dat[,-idcol[1],drop=F]
     }
-    stopifnot(length(Sample_Name) == length(basenames))
+    else {
+        Sample_Name <- make.samplename.from.basename(basenames)
+    }
     
     sentrixpos <- grep("^R[0-9][0-9]C[0-9][0-9]$", as.character(unlist(dat[1,])))
     if(length(sentrixpos)==1) {
@@ -41,7 +30,7 @@ meffil.create.samplesheet <- function(path, Sample_Name = NULL, Sex = NULL, deli
         colnames(dat)[slidecol] <- "Slide"
     }
     
-    samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = Sex, dat, Basename = basenames, stringsAsFactors=FALSE)
+    samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = NA, dat, Basename = basenames, stringsAsFactors=FALSE)
     return(samplesheet)
 }
 

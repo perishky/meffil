@@ -4,12 +4,12 @@
 \alias{meffil.add.cell.type.reference}
 \title{Create a cell type reference object}
 \usage{
-meffil.add.cell.type.reference(name, M, U, cell.types, featureset = NULL,
-  number.sites = 50, number.quantiles = 500, subsets = NULL,
-  verbose = F)
+meffil.add.cell.type.reference(name, M, U, cell.types, chip = NULL,
+  featureset = chip, number.sites = 50, number.quantiles = 500,
+  subsets = NULL, object = NULL, verbose = F)
 }
 \arguments{
-\item{name}{Character string providing the name used to reference to the reference.}
+\item{name}{Character string providing the name of the reference.}
 
 \item{M}{Matrix of methylated probe intensities (rows=CpG sites, columns=samples).}
 
@@ -17,7 +17,9 @@ meffil.add.cell.type.reference(name, M, U, cell.types, featureset = NULL,
 
 \item{cell.types}{Vector of cell type names corresponding to sample \code{basename}s.}
 
-\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}}.}
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: NULL).}
+
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}} (Default: chip).}
 
 \item{number.sites}{Number of probes to characterise cell type methylation (Default: 50).
 For each cell type, this number of probes with greater methylation than other cell types
@@ -26,12 +28,17 @@ and the same number with lesser methylation than the other cell types will be in
 \item{number.quantiles}{Length of numeric sequence to specify probe intensity distributions
 (Default: 500).}
 
+\item{object}{Cell type reference previously created by this function.
+If not \code{NULL}, then this reference is added
+and all other function arguments are ignored (Default: NULL).}
+
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
 }
 \value{
 A list specifying a cell type reference object that can be used by
-\code{\link{meffil.estimate.cell.counts}()} can use to estimate cell counts.
+\code{\link{meffil.estimate.cell.counts}()} to estimate cell counts
+in another dataset.
 The object is a list containing:
 - \code{beta} The normalized methylation values of sites
 differentially methylated between cell types.

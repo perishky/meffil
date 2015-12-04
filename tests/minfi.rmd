@@ -236,8 +236,7 @@ because chromosome Y not handled like `minfi` in either males or females,
 and chromosome X is handled just like `minfi` in females but not in males.
 
 ```{r}
-autosomal.sites <- sites[which(sites$name %in% meffil.get.autosomal.sites("450k")),]
-autosomal.sites <- intersect(autosomal.sites, rownames(beta.meffil))
+autosomal.sites <- intersect(meffil.get.autosomal.sites("450k"), rownames(beta.meffil))
 quantile(beta.meffil[autosomal.sites,] - beta.minfi[autosomal.sites,],na.rm=T)
 ```
 

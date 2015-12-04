@@ -2,12 +2,14 @@ extract.controls <- function(rg, probes, verbose=F) {
     stopifnot(is.rg(rg))
 
     x.mean <- function(x, na.rm=T) {
-        stopifnot(length(x) > 1)
+        if (length(x) <= 1)
+            stop("It seems that the IDAT files do not match the supplied chip annotation.")
         mean(x,na.rm=na.rm)
     }
     x.which <- function(x) {
         i <- which(x)
-        stopifnot(length(i) > 0)
+        if (length(i) == 0)
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         i
     }
 

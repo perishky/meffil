@@ -24,27 +24,34 @@ library(meffil)
 samplesheet <- meffil.create.samplesheet(path)[1:4,]
 ```
 
+Create references using data from the Bioconductor CopyNumber450kData R package.
+```{r, results="hide", message=FALSE}
+library(minfi, quietly=TRUE)
+library(CopyNumber450kData, quietly=TRUE)
+meffil.add.copynumber450k.references(verbose=T)
+```
+
+```{r}
+meffil.list.cnv.references()
+```
+
 Calculate copy numbers using meffil.
 ```{r comparison-meffil-cnv, cache=T}
-segments.meffil <- meffil.calculate.cnv(samplesheet, verbose=T) ## 10 minutes
-matrix.meffil <- meffil.cnv.matrix(segments.meffil)
+segments.meffil <- meffil.calculate.cnv(samplesheet, "copynumber450k", verbose=T) ## 20m
+matrix.meffil <- meffil.cnv.matrix(segments.meffil, "450k")
 ```
 
 ## Copy numbers using CopyNumber450k
 
 Load the data using minfi.
 ```{r, message=FALSE}
-library(minfi, quietly=TRUE)
 raw.minfi <- read.450k.exp(base = path)
 raw.minfi <- raw.minfi[,basename(samplesheet$Basename)]
 ```
 
 Load control data for estimating copy numbers.
 ```{r}
-## source("http://bioconductor.org/biocLite.R")
-## biocLite("CopyNumber450k")
-library(CopyNumber450k)
-library(CopyNumber450kData)
+library(CopyNumber450k, quietly=TRUE)
 data(RGcontrolSetEx)
 ```
 
@@ -71,11 +78,42 @@ segments.cnv <- getSegments(norm.cnv)
 matrix.cnv <- meffil.cnv.matrix(segments.cnv)
 ```
 
-Compare the two outputs using correlation.
-The diagonals give the paired correlations.
+## Compare meffil and CopyNumber450k results
+
+The diagonals give correlations between methods
+for the same samples.
 ```{r} 
-r <- cor(matrix.cnv, matrix.meffil)
+r <- cor(matrix.cnv, matrix.meffil, use="p")
 quantile(diag(r))
 quantile(r)
 ```
 
+Instead of correlation, compare the number of CpG sites
+in variable regions identified by both methods
+to the number of such sites identified by either method.
+```{r}
+identify.variable.sites <- function(segments) {
+    features <- meffil.get.features("450k")
+    segments <- segments[which(segments$adjusted.pvalue < 0.05),]
+    variable.idx <- unlist(lapply(1:nrow(segments), function(i) {
+        which(features$chromosome == segments$chrom[i]
+              & features$position >= segments$loc.start[i]
+              & features$position <= segments$loc.end[i])
+    }))
+    features$name[variable.idx]
+}
+
+variable.meffil <- lapply(segments.meffil, identify.variable.sites)
+variable.cnv <- lapply(segments.cnv, identify.variable.sites)
+
+sapply(variable.meffil, length)
+sapply(variable.cnv, length)
+
+in.both <- sapply(1:length(variable.meffil),
+                  function(i) length(intersect(variable.meffil[[i]], variable.cnv[[i]])))
+in.either <- sapply(1:length(variable.meffil),
+                    function(i) length(union(variable.meffil[[i]], variable.cnv[[i]])))
+in.both/in.either
+sapply(variable.meffil, length)/in.either
+sapply(variable.cnv, length)/in.either
+```
