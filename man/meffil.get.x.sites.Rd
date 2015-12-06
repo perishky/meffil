@@ -4,7 +4,7 @@
 \alias{meffil.get.x.sites}
 \title{Get names of chromosome X CpG sites in the feature set.}
 \usage{
-meffil.get.x.sites(featureset)
+meffil.get.x.sites(featureset = "450k")
 }
 \description{
 Get names of chromosome X CpG sites in the feature set.

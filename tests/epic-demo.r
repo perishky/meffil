@@ -14,7 +14,7 @@ norm.file <- "epic-demo/normalization-report.html"
 
 samplesheet <- meffil.read.samplesheet(base=path, pattern="Demo_SampleSheet.csv")
 
-qc.objects <- meffil.qc(samplesheet, cell.type.reference=NULL, verbose=T)
+qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069 complete", verbose=T)
 
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,

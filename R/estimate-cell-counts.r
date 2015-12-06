@@ -7,7 +7,7 @@
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @param cell.type.reference Character string name of the cell type reference
-#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' to use for estimating cell counts. 
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
@@ -120,7 +120,7 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @param cell.type.reference Character string name of the cell type reference
-#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' to use for estimating cell counts. 
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 

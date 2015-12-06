@@ -9,7 +9,7 @@ meffil.cnv.matrix(cnv, featureset = "450k")
 \arguments{
 \item{cnv}{Output from \code{\link{meffil.calculate.cnv}()}.}
 
-\item{featureset}{Name from \code{\link{meffil.list.featuresets}()}.}
+\item{featureset}{Name from \code{\link{meffil.list.featuresets}()} (Default: "450k").}
 }
 \value{
 Matrix of ncpg x nsample

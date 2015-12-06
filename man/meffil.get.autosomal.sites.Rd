@@ -4,7 +4,7 @@
 \alias{meffil.get.autosomal.sites}
 \title{Get names of autosomal CpG sites in the feature set.}
 \usage{
-meffil.get.autosomal.sites(featureset)
+meffil.get.autosomal.sites(featureset = "450k")
 }
 \description{
 Get names of autosomal CpG sites in the feature set.

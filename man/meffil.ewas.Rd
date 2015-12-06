@@ -7,7 +7,7 @@
 meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
   save.beta = 100, cell.counts = NULL, isva0 = T, isva1 = T,
   winsorize.pct = 0.05, most.variable = min(nrow(beta), 50000),
-  featureset = NULL, verbose = F)
+  featureset = NA, verbose = F)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}
@@ -38,6 +38,10 @@ winsorized to the given level (Default: 0.05).}
 
 \item{most.variable}{Apply Independent Surrogate Variable Analysis to the
 given most variable CpG sites (Default: 50000).}
+
+\item{featureset}{Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).}
+
+\item{verbose}{Set to TRUE if status updates to be printed (Default: FALSE).}
 }
 \description{
 Test association with each CpG site.

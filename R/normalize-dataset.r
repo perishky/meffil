@@ -61,9 +61,9 @@ meffil.normalize.dataset <- function(samplesheet,
                                      detection.threshold=0.01,
                                      bead.threshold=3,
                                      sex.cutoff=-2,
-                                     chip=NULL,
+                                     chip=NA,
                                      featureset=chip,
-                                     cell.type.reference=NULL,
+                                     cell.type.reference=NA,
                                      
                                      ## meffil.qc.summary
                                      qc.parameters=meffil.qc.parameters(),

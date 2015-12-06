@@ -5,8 +5,7 @@
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
 meffil.normalize.samples(norm.objects, pseudo = 100, just.beta = T,
-  cpglist.remove = NULL, filename = NULL, max.bytes = 2^30 - 1,
-  verbose = F, ...)
+  cpglist.remove = NULL, max.bytes = 2^30 - 1, verbose = F, ...)
 }
 \arguments{
 \item{norm.objects}{The list or sublist of \code{\link{meffil.normalize.quantiles}()}.}

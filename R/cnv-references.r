@@ -18,7 +18,7 @@ get.cnv.reference <- function(name) {
 #' @param name Character string providing the name of the reference.
 #' @param M Matrix of methylated probe intensities (rows=CpG sites, columns=samples).
 #' @param U Matrix of unmethylatd probe intensities (rows=CpG sites, columns=samples).
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NULL).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NA).
 #' @param featureset Name returned by \code{\link{meffil.list.featuresets()}}
 #' (Default: \code{chip}).
 #' @param object A previously created copy number reference object created by this function.
@@ -29,7 +29,7 @@ get.cnv.reference <- function(name) {
 #' @return A list specifying a copy number reference object that can be used by
 #' \code{\link{meffil.calculate.cnv}()} to estimate copy number variation in another dataset.
 #' @export
-meffil.add.cnv.reference <- function(name, M, U, chip=NULL, featureset=chip, object=NULL, verbose=T) {
+meffil.add.cnv.reference <- function(name, M, U, chip=NA, featureset=chip, object=NULL, verbose=T) {
     if (is.null(object)) {
         object <- create.cnv.reference(M, U, chip, featureset, verbose)
         object$name <- name
@@ -70,10 +70,10 @@ meffil.add.copynumber450k.references <- function(verbose=T) {
 
 
 
-create.cnv.reference <- function(M, U, chip=NULL, featureset=chip, verbose=T) {
+create.cnv.reference <- function(M, U, chip=NA, featureset=chip, verbose=T) {
     chip <- guess.chip(M, chip)
     
-    if (is.null(featureset))
+    if (is.na(featureset))
         featureset <- chip
 
     stopifnot(is.compatible.chip(featureset, chip))

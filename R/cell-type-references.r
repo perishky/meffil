@@ -19,7 +19,7 @@ get.cell.type.reference <- function(name) {
 #' @param M Matrix of methylated probe intensities (rows=CpG sites, columns=samples).
 #' @param U Matrix of unmethylatd probe intensities (rows=CpG sites, columns=samples).
 #' @param cell.types Vector of cell type names corresponding to sample \code{basename}s.
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NULL).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NA).
 #' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: chip).
 #' @param number.quantiles Length of numeric sequence to specify probe intensity distributions
 #' (Default: 500).
@@ -46,7 +46,7 @@ get.cell.type.reference <- function(name) {
 #'
 #' @export
 meffil.add.cell.type.reference <- function(name, M, U, cell.types,
-                                           chip=NULL,
+                                           chip=NA,
                                            featureset=chip,
                                            number.sites=50,
                                            number.quantiles=500,
@@ -66,7 +66,7 @@ meffil.add.cell.type.reference <- function(name, M, U, cell.types,
 }
 
 create.cell.type.reference <- function(M, U, cell.types,
-                                       chip=NULL,
+                                       chip=NA,
                                        featureset=chip,
                                        number.sites=50,
                                        number.quantiles=500,
@@ -74,7 +74,7 @@ create.cell.type.reference <- function(M, U, cell.types,
                                        verbose=F) {
     chip <- guess.chip(M, chip)
     
-    if (is.null(featureset))
+    if (is.na(featureset))
         featureset <- chip
 
     stopifnot(is.compatible.chip(featureset, chip))

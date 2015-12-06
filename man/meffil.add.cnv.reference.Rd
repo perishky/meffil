@@ -4,7 +4,7 @@
 \alias{meffil.add.cnv.reference}
 \title{Create a copy number reference object}
 \usage{
-meffil.add.cnv.reference(name, M, U, chip = NULL, featureset = chip,
+meffil.add.cnv.reference(name, M, U, chip = NA, featureset = chip,
   object = NULL, verbose = T)
 }
 \arguments{
@@ -14,7 +14,7 @@ meffil.add.cnv.reference(name, M, U, chip = NULL, featureset = chip,
 
 \item{U}{Matrix of unmethylatd probe intensities (rows=CpG sites, columns=samples).}
 
-\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: NULL).}
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: NA).}
 
 \item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}}
 (Default: \code{chip}).}

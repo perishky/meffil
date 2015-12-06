@@ -20,7 +20,6 @@ meffil.normalize.samples <- function(norm.objects,
                                      pseudo=100,
                                      just.beta=T,
                                      cpglist.remove=NULL,
-                                     filename=NULL,
                                      max.bytes=2^30-1, ## maximum number of bytes for mclapply
                                      verbose=F,
                                      ...) {

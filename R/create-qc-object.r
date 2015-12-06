@@ -11,10 +11,10 @@
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NA).
 #' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @param cell.type.reference Character string name of the cell type reference
-#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' to use for estimating cell counts. Estimates are not generated if set to NA (default).
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
@@ -29,9 +29,9 @@ meffil.create.qc.object <- function(samplesheet.row,
                                     detection.threshold=0.01,
                                     bead.threshold=3,
                                     sex.cutoff=-2,
-                                    chip=NULL,
+                                    chip=NA,
                                     featureset=chip,
-                                    cell.type.reference=NULL) {
+                                    cell.type.reference=NA) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(samplesheet.row$Sex %in% c(NA, "F", "M"))
@@ -40,7 +40,7 @@ meffil.create.qc.object <- function(samplesheet.row,
 
     chip <- guess.chip(rg, chip)
     
-    if (is.null(featureset))
+    if (is.na(featureset))
         featureset <- chip
     
     probes <- meffil.probe.info(chip, featureset)
@@ -85,7 +85,7 @@ meffil.create.qc.object <- function(samplesheet.row,
     predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
 
     cell.counts <- NULL
-    if (!is.null(cell.type.reference))
+    if (!is.na(cell.type.reference))
         cell.counts <- estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)
     
     list(class="qc.object",

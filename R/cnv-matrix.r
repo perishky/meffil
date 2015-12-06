@@ -2,11 +2,11 @@
 #' Create matrix of CNV values
 #'
 #' @param cnv Output from \code{\link{meffil.calculate.cnv}()}.
-#' @param featureset Name from \code{\link{meffil.list.featuresets}()}.
+#' @param featureset Name from \code{\link{meffil.list.featuresets}()} (Default: "450k").
 #' @return Matrix of ncpg x nsample
 #' @export
 meffil.cnv.matrix <- function(cnv, featureset="450k") {
-    features <- meffil:::cnv.features(featureset)
+    features <- cnv.features(featureset)
     features$id <- with(features, paste(as.character(chromosome), position))
 
     cnv.matrix <- sapply(cnv, function(segments)  {
@@ -18,6 +18,10 @@ meffil.cnv.matrix <- function(cnv, featureset="450k") {
         start.idx <- match(segments$start.id, features$id)
         end.idx <- match(segments$end.id, features$id)
         good.idx <- which(!is.na(start.idx) & !is.na(end.idx))
+
+        if (length(good.idx) < length(start.idx)) 
+            warning("feature set", featureset, "was not used to create the 'cnv' object")
+
         start.idx <- start.idx[good.idx]
         end.idx <- end.idx[good.idx]
         feature.idx <- unlist(lapply(1:length(start.idx), function(i) start.idx[i]:end.idx[i]))
