@@ -11,6 +11,9 @@ generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
 * Copy number estimation.
 * Report generation summarizing all steps.
 
+Examples using many of these features can be found in the
+[tests/](tests) directory.
+
 The `minfi` version consists of a single function call that requires
 access to all data. The `meffil` version splits the method up into
 several functions in order to allow parallelization and to reduce the
