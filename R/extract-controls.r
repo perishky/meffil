@@ -1,64 +1,65 @@
-extract.controls <- function(rg, verbose=F) {
+extract.controls <- function(rg, probes, verbose=F) {
     stopifnot(is.rg(rg))
 
-    probes <- meffil.probe.info()
-    
     x.mean <- function(x, na.rm=T) {
-        stopifnot(length(x) > 1)
+        if (length(x) <= 1)
+            stop("It seems that the IDAT files do not match the supplied chip annotation.")
         mean(x,na.rm=na.rm)
     }
     x.which <- function(x) {
         i <- which(x)
-        stopifnot(length(i) > 0)
+        if (length(i) == 0)
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         i
     }
 
     msg(verbose=verbose)
+
     probes.G <- probes[x.which(probes$dye == "G"),]
     probes.R <- probes[x.which(probes$dye == "R"),]
-    probes.G <- probes.G[match(rownames(rg$G), probes.G$address),]
-    probes.R <- probes.R[match(rownames(rg$R), probes.R$address),]
+    rg$R <- rg$R[match(probes.R$address, rownames(rg$R)),]
+    rg$G <- rg$G[match(probes.G$address, rownames(rg$G)),]
 
     bisulfite2 <- x.mean(rg$R[x.which(probes.R$target == "BISULFITE CONVERSION II"), "Mean"])
 
     bisulfite1.G <- rg$G[x.which(probes.G$target == "BISULFITE CONVERSION I"
-                               & probes.G$ext
+                               & probes.G$name
                                %in% sprintf("BS Conversion I%sC%s", c(" ", "-", "-"), 1:3)),"Mean"]
     bisulfite1.R <- rg$R[x.which(probes.R$target == "BISULFITE CONVERSION I"
-                               & probes.R$ext %in% sprintf("BS Conversion I-C%s", 4:6)),"Mean"]
+                               & probes.R$name %in% sprintf("BS Conversion I-C%s", 4:6)),"Mean"]
     bisulfite1 <- x.mean(bisulfite1.G + bisulfite1.R)
 
-    stain.G <- rg$G[x.which(probes.G$target == "STAINING" & probes.G$ext == "Biotin (High)"),"Mean"]
+    stain.G <- rg$G[x.which(probes.G$target == "STAINING" & probes.G$name == "Biotin (High)"),"Mean"]
 
-    stain.R <- rg$R[x.which(probes.R$target == "STAINING" & probes.R$ext == "DNP (High)"),"Mean"]
+    stain.R <- rg$R[x.which(probes.R$target == "STAINING" & probes.R$name == "DNP (High)"),"Mean"]
 
     extension.R <- rg$R[x.which(probes.R$target == "EXTENSION"
-                              & probes.R$ext %in% sprintf("Extension (%s)", c("A", "T"))),"Mean"]
+                              & probes.R$name %in% sprintf("Extension (%s)", c("A", "T"))),"Mean"]
     extension.G <- rg$G[x.which(probes.G$target == "EXTENSION"
-                              & probes.G$ext %in% sprintf("Extension (%s)", c("C", "G"))),"Mean"]
+                              & probes.G$name %in% sprintf("Extension (%s)", c("C", "G"))),"Mean"]
 
     hybe <- rg$G[x.which(probes.G$target == "HYBRIDIZATION"),"Mean"]
 
     targetrem <- rg$G[x.which(probes.G$target %in% "TARGET REMOVAL"),"Mean"]
 
     nonpoly.R <- rg$R[x.which(probes.R$target == "NON-POLYMORPHIC"
-                            & probes.R$ext %in% sprintf("NP (%s)", c("A", "T"))),"Mean"]
+                            & probes.R$name %in% sprintf("NP (%s)", c("A", "T"))),"Mean"]
 
     nonpoly.G <- rg$G[x.which(probes.G$target == "NON-POLYMORPHIC"
-                            & probes.G$ext %in% sprintf("NP (%s)", c("C", "G"))),"Mean"]
+                            & probes.G$name %in% sprintf("NP (%s)", c("C", "G"))),"Mean"]
 
     spec2.G <- rg$G[x.which(probes.G$target == "SPECIFICITY II"),"Mean"]
     spec2.R <- rg$R[x.which(probes.R$target == "SPECIFICITY II"),"Mean"]
     spec2.ratio <- x.mean(spec2.G,na.rm=T)/x.mean(spec2.R,na.rm=T)
 
-    ext <- sprintf("GT Mismatch %s (PM)", 1:3)
-    spec1.G <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext),"Mean"]
-    spec1.Rp <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext),"Mean"]
+    name <- sprintf("GT Mismatch %s (PM)", 1:3)
+    spec1.G <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$name %in% name),"Mean"]
+    spec1.Rp <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$name %in% name),"Mean"]
     spec1.ratio1 <- x.mean(spec1.Rp,na.rm=T)/x.mean(spec1.G,na.rm=T)
 
-    ext <- sprintf("GT Mismatch %s (PM)", 4:6)
-    spec1.Gp <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$ext %in% ext),"Mean"]
-    spec1.R <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$ext %in% ext),"Mean"]
+    name <- sprintf("GT Mismatch %s (PM)", 4:6)
+    spec1.Gp <- rg$G[x.which(probes.G$target == "SPECIFICITY I" & probes.G$name %in% name),"Mean"]
+    spec1.R <- rg$R[x.which(probes.R$target == "SPECIFICITY I" & probes.R$name %in% name),"Mean"]
     spec1.ratio2 <- x.mean(spec1.Gp,na.rm=T)/x.mean(spec1.R,na.rm=T)
 
     spec1.ratio <- (spec1.ratio1 + spec1.ratio2)/2

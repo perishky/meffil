@@ -114,7 +114,7 @@ predict.design.matrix <- function (qc.objects, number.pcs, new.idx,
                           random.effects[-new.idx,, drop = F])
     new.controls <- meffil.control.matrix(qc.objects, normalize = T,
                                           fixed.effects = fixed.effects,
-                                          random.effects = random.effects)[new.idx,]
+                                          random.effects = random.effects)[new.idx,,drop=F]
     new.pca <- predict(old.pca, newdata = data.frame(new.controls, check.names = F))
     meffil:::pca.to.design.matrix(new.pca, number.pcs,
                                   fixed.effects[new.idx,, drop = F],
@@ -138,19 +138,3 @@ pca.to.design.matrix <- function(pca.ret, number.pcs, fixed.effects=NULL, random
     list(fixed = cbind(design.matrix, fixed.effects), random = random.effects)   
 }
 
-impute.matrix <- function(x, margin=1, fun=function(x) mean(x, na.rm=T)) {
-    if (margin == 2) x <- t(x)
-    
-    idx <- which(is.na(x) | !is.finite(x), arr.ind=T)
-    if (length(idx) > 0) {
-        na.idx <- unique(idx[,"row"])
-        v <- apply(x[na.idx,],margin,fun) ## v = summary for each row
-        v[which(is.na(v))] <- fun(v)      ## if v[i] is NA, v[i] = fun(v)
-        x[idx] <- v[match(idx[,"row"],na.idx)] ##
-
-        stopifnot(all(!is.na(x)))
-    }
-
-    if (margin == 2) x <- t(x)
-    x
-}

@@ -1,0 +1,129 @@
+```{r random-init, echo=FALSE}
+
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+
+```
+
+# Adjusting for random effects directly
+
+## Download example data set 
+
+```{r child = 'dataset-450k-demo.rmd'}
+```
+
+```{r}
+path <- download.450k.demo.dataset()
+```
+
+## Normalize dataset with and without adjusting for slide directly
+```{r}
+library(meffil)
+samplesheet <- meffil.create.samplesheet(path)
+```
+
+Parameters.
+```{r}
+options(mc.cores=5)
+author <- "Prickett, et al."
+study <- "Silver-Russell syndrome patients (GEO:GSE55491)"
+number.pcs <- 2
+cell.type.reference <- "blood gse35069"
+```
+
+Default normalization.
+```{r random-default, message=F,results="hide", cache=T}
+data.default <- meffil.normalize.dataset(samplesheet,
+                                         qc.file="random/default/qc-report.html",
+                                         author=author,
+                                         study=study,
+                                         number.pcs=number.pcs,
+                                         norm.file="random/default/normalization-report.html",
+                                         cell.type.reference=cell.type.reference,
+                                         verbose=T)
+```
+
+Normalization with adjustment for slide as a random effect
+(takes about 20 minutes).
+```{r random-slide, message=F,results="hide", cache=T}
+data.random <- meffil.normalize.dataset(samplesheet,
+                                          qc.file="random/slide/qc-report.html",
+                                          author=author,
+                                          study=study,
+                                          number.pcs=number.pcs,
+                                          random.effects="Slide",
+                                          norm.file="random/slide/normalization-report.html",
+                                          cell.type.reference=cell.type.reference,
+                                          verbose=T)
+```
+
+## Compare results
+
+Load the raw beta metrix for comparison.
+```{r, message=FALSE}
+library(minfi, quietly=TRUE)
+beta.raw <- getBeta(read.450k.exp(base = path))
+beta.raw <- meffil:::impute.matrix(beta.raw)
+```
+
+See how much variation is explained by the slide in each normalization
+(takes about 45 minutes).
+```{r random-duplication-correlation, cache=T}
+cor.raw <- duplicateCorrelation(beta.raw, model.matrix(~1, samplesheet), block=samplesheet$Slide)
+cor.default <- duplicateCorrelation(data.default$beta, model.matrix(~1, samplesheet), block=samplesheet$Slide)
+cor.random <- duplicateCorrelation(data.random$beta, model.matrix(~1, samplesheet), block=samplesheet$Slide)
+
+cor.raw$cor
+cor.default$cor
+cor.random$cor
+```
+
+Strongest PC components associated with slide.
+```{r}
+pc.raw <- prcomp(t(beta.raw))
+pc.default <- prcomp(t(data.default$beta))
+pc.random <- prcomp(t(data.random$beta))
+
+r2.raw <- apply(pc.raw$x, 2, function(pc) summary(lm(pc ~ samplesheet$Slide))$adj.r.squared)
+r2.default <- apply(pc.default$x, 2, function(pc) summary(lm(pc ~ samplesheet$Slide))$adj.r.squared)
+r2.random <- apply(pc.random$x, 2, function(pc) summary(lm(pc ~ samplesheet$Slide))$adj.r.squared)
+
+max(abs(r2.raw))
+max(abs(r2.default))
+max(abs(r2.random))
+
+which.max(abs(r2.raw))
+which.max(abs(r2.default))
+which.max(abs(r2.random))
+
+## apply(pc.raw$x, 2, sd) == pc.raw$sdev
+pc.raw$sdev[which.max(abs(r2.raw))]^2/sum(pc.raw$sdev^2)
+pc.default$sdev[which.max(abs(r2.default))]^2/sum(pc.default$sdev^2)
+pc.random$sdev[which.max(abs(r2.random))]^2/sum(pc.random$sdev^2)
+```
+
+Significance of probes associated with slide.
+```{r}
+design <- with(samplesheet, model.matrix(~ Slide))
+fit.raw <- lmFit(beta.raw, design)
+fit.raw <- eBayes(fit.raw)
+fit.default <- lmFit(data.default$beta, design)
+fit.default <- eBayes(fit.default)
+fit.random <- lmFit(data.random$beta, design)
+fit.random <- eBayes(fit.random)
+```
+
+```{r}
+p.raw <- fit.raw$p.value[,"Slide6057825116"]
+p.default <- fit.default$p.value[,"Slide6057825116"]
+p.random <- fit.random$p.value[,"Slide6057825116"]
+
+quantile(p.raw)
+quantile(p.default)
+quantile(p.random)
+
+sort(p.raw)[1:10]
+sort(p.default)[1:10]
+sort(p.random)[1:10]
+```

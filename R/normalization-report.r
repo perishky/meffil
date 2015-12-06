@@ -7,7 +7,7 @@
 #' If the file extension is not .htm, .html, .HTM or .HTML then
 #' output will be in markdown format.
 #' @param  author Default = "Analyst". Author name to be specified on report.
-#' @param  study Default = "IlluminaHuman450 data". Study name to be specified on report.
+#' @param  study Default = "Illumina methylation data". Study name to be specified on report.
 #' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
 #' @export
 #' @return NULL
@@ -18,7 +18,7 @@ meffil.normalization.report <- function(
     normalization.summary,
     output.file = "normalization-report.md",
     author = "Analyst",
-    study = "IlluminaHuman450 data",
+    study = "Illumina methylation data",
     ...
 ) {
     msg("Writing report as html file to", output.file)
@@ -86,8 +86,10 @@ meffil.plot.control.scree <- function(norm.objects)
     sex <- sapply(norm.objects, function(object) object$predicted.sex)
     pcs <- list(all=meffil.pcs(norm.objects))
     if (max(table(sex)) < length(sex)) {
-        pcs$male <- meffil.pcs(norm.objects[sex=="M"])
-        pcs$female <- meffil.pcs(norm.objects[sex=="F"])
+        if (sum(sex == "M") >= 2)
+            pcs$male <- meffil.pcs(norm.objects[sex=="M"])
+        if (sum(sex == "F") >= 2)
+            pcs$female <- meffil.pcs(norm.objects[sex=="F"])
     }
     pc.var <- lapply(pcs, function(pcs) apply(pcs$x, 2, var))
     list(graphs=lapply(names(pcs), function(nom)
@@ -133,7 +135,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
                })
     }), stringsAsFactors=F)
     names(dat) <- variables
-    
+
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
     ret <- plot.pairwise.associations(res, batch.threshold)
@@ -176,7 +178,11 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
         normalized.beta <- normalized.beta[subset.idx,]
     }
 
-    var.sites <- meffil.most.variable.cpgs(normalized.beta,n=probe.range)
+    featureset <- norm.objects[[1]]$featureset
+    autosomal.sites <- meffil.get.autosomal.sites(featureset)
+    autosomal.sites <- intersect(autosomal.sites, rownames(normalized.beta))
+    
+    var.sites <- meffil.most.variable.cpgs(normalized.beta[autosomal.sites,], n=probe.range)
     var.idx <- match(var.sites, rownames(normalized.beta))
     
     msg("Calculating beta PCs", verbose=verbose)
@@ -247,12 +253,15 @@ test.pairwise.associations <- function(y,x) {
                 }, simplify=F)
                 
                 pvals <- sapply(fits, function(fit) {
-                    if (length(fit) > 1) coefficients(summary(fit))["level","Pr(>|t|)"]
+                    coef <- coefficients(summary(fit))
+                    if (is.matrix(coef) && "level" %in% rownames(coef))
+                        coef["level","Pr(>|t|)"]
                     else NA
                 })
                                 
                 confint <- t(sapply(fits, function(fit) {
-                    if (length(fit) > 1)
+                    coef <- coefficients(summary(fit))
+                    if (is.matrix(coef) && "level" %in% rownames(coef))
                         confint(glht(fit))$confint["level",c("Estimate","lwr","upr")]
                     else c(Estimate=NA,lwr=NA,upr=NA)
                 }))
@@ -314,9 +323,9 @@ plot.pcs <- function(pcs, dat) {
         too.many.levels <- sapply(1:ncol(dat), function(i) length(unique(dat[,i])) > 10)
         if (any(!too.many.levels)) {            
             pc.vars <- do.call(rbind, lapply(which(!too.many.levels), function(i) {                
-                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2], variable=colnames(dat)[i], values=dat[,i]),
-                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i]),
-                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i]))
+                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2], variable=colnames(dat)[i], values=dat[,i], stringsAsFactors=F),
+                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i], stringsAsFactors=F),
+                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i], stringsAsFactors=F))
             }))
             
             return(ggplot(pc.vars, aes(x=pc.x, y=pc.y,colour=as.factor(values))) +

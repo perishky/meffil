@@ -1,7 +1,8 @@
 winsorize <- function(x, pct=0.05) {
     if (is.matrix(x)) {
-        low <- rowQ(x, which=floor(ncol(x)*pct)) 
-        high <- rowQ(x, which=floor(ncol(x)*(1-pct))) 
+        quantiles <- rowQuantiles(x, probs=c(pct,1-pct), na.rm=T)
+        low <- quantiles[,1]
+        high <- quantiles[,2]
         idx <- which(x < low, arr.ind=T)
         x[idx] <- low[idx[,1]]
         idx <- which(x > high, arr.ind=T)

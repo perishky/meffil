@@ -20,20 +20,25 @@
 #' @param winsorize.pct Apply all regression models to methylation levels
 #' winsorized to the given level (Default: 0.05).
 #' @param most.variable Apply Independent Surrogate Variable Analysis to the 
-#' given most variable CpG sites (Default: 20000).
+#' given most variable CpG sites (Default: 50000).
+#' @param featureset Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).
+#' @param verbose Set to TRUE if status updates to be printed (Default: FALSE).
 #'
 #' @export
 meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL,
                         save.beta=100, cell.counts=NULL,
                         isva0=T, isva1=T,
-                        winsorize.pct=0.05,
-                        most.variable=min(nrow(beta), 20000),
+                        winsorize.pct=0.05, ## perhaps better, winsorize at 25-percentile - iqr?
+                        most.variable=min(nrow(beta), 50000),
+                        featureset=NA,
                         verbose=F) {
 
-    probes <- meffil.probe.info()
+    if (is.na(featureset))
+        featureset <- guess.chip(beta)
+    features <- meffil.get.features(featureset)
     
-    stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% probes$name))
+    stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% features$name))
     stopifnot(ncol(beta) == length(variable))
     stopifnot(is.null(covariates) || is.data.frame(covariates) && nrow(covariates) == ncol(beta))
     stopifnot(is.null(batch) || length(batch) == ncol(beta))
@@ -129,12 +134,13 @@ meffil.ewas <- function(beta, variable,
     rownames(p.values) <- rownames(coefficients) <- rownames(analyses[[1]]$table)
 
     for (name in names(analyses)) {
-        idx <- match(rownames(analyses[[name]]$table), probes$name)
-        analyses[[name]]$table$chromosome <- probes$chr[idx]
-        analyses[[name]]$table$position <- probes$pos[idx]
+        idx <- match(rownames(analyses[[name]]$table), features$name)
+        analyses[[name]]$table$chromosome <- features$chromosome[idx]
+        analyses[[name]]$table$position <- features$position[idx]
     }
     
-    list(samples=sample.idx,
+    list(class="ewas",
+         samples=sample.idx,
          variable=original.variable[sample.idx],
          covariates=original.covariates[sample.idx,],
          winsorize.pct=winsorize.pct,
@@ -144,7 +150,19 @@ meffil.ewas <- function(beta, variable,
          analyses=analyses)
 }
 
+is.ewas.object <- function(object)
+    is.list(object) && "class" %in% names(object) && object$class == "ewas"
 
+#' Test associations between \code{variable} and each row of \code{beta}
+#' while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
+#' Save methylation levels for the \code{save.beta} CpG sites most strongly associated.
+#' If \code{cell.counts} is not \code{NULL}, then it is assumed that
+#' the methylation data is derived from samples with two cell types.
+#' \code{cell.counts} should then be a vector of numbers
+#' between 0 and 1 of length equal to \code{variable} corresponding
+#' to the proportions of cell of a selected cell type in each sample.
+#' The regression model is then modified in order to identify
+#' associations specifically in the selected cell type (PMID: 24000956).
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cell.counts=NULL,
                  verbose=F) {
     stopifnot(all(!is.na(variable)))
@@ -176,7 +194,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cel
         ##    = C + A Xi pi + B Xi (1-pi) + e        
         design <- design[,-which(colnames(design) == "intercept")]
         
-        design <- cbind(typeA=design * cell.counts,
+        design <- cbind(design * cell.counts,
                         typeB=design * (1-cell.counts))
     }
 

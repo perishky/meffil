@@ -1,21 +1,36 @@
 .onLoad <- function(libname, pkgname) {
-    assign("pkg.globals", new.env(), envir=parent.env(environment()))
-
-    probe.info.filename <- system.file("probe-info.rda", package="meffil")
-    if (file.exists(probe.info.filename))
-        load(probe.info.filename, pkg.globals)
-
+    assign("probe.globals", new.env(), envir=parent.env(environment()))    
+    assign("featureset.globals", new.env(), envir=parent.env(environment()))
     assign("reference.globals", new.env(), envir=parent.env(environment()))
-    
-    references.filename <- system.file("gse35069-references.rda", package="meffil")
-    if (file.exists(references.filename))
-        load(references.filename, reference.globals)
+    assign("cnv.globals", new.env(), envir=parent.env(environment()))
+    load.globals()
 }
 
-## To create a global variable:
-## assign("name", value, pkg.globals)
-## To retrieve a global variable:
-## get("name", pkg.globals)
-## To see if it exists:
-## exists("name", pkg.globals)
+load.globals <- function() {
+    load.env <- function(filename, env) {
+        if (file.exists(filename))
+            load(filename, env)
+    }
 
+    load.env(system.file("probes.rda", package="meffil"), probe.globals)
+    load.env(system.file("featuresets.rda", package="meffil"), featureset.globals)
+    load.env(system.file("references.rda", package="meffil"), reference.globals)
+    load.env(system.file("cnv.rda", package="meffil"), cnv.globals)
+}
+
+#' called by ../data-raw/globals.r to save generated global variables to Rdata files
+#' for loading whenever the package is loaded.
+save.globals <- function(dir) {
+    require(devtools)
+    save.env <- function(filename, env) {
+        save(list=ls(env),
+             file=filename,
+             envir=env)
+        file.copy(filename, inst("meffil"), overwrite=T)
+    }
+
+    save.env(file.path(dir, "probes.rda"), probe.globals)
+    save.env(file.path(dir, "featuresets.rda"), featureset.globals)
+    save.env(file.path(dir, "references.rda"), reference.globals)
+    save.env(file.path(dir, "cnv.rda"), cnv.globals)
+}
