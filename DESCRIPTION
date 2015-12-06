@@ -27,7 +27,9 @@ Depends:  illuminaio,
 	  fastICA,
 	  DNAcopy,
 	  quadprog
-Suggests: betareg	
+Suggests: betareg, 
+	  minfi, 
+	  CopyNumber450kData
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes

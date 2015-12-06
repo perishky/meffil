@@ -13,10 +13,10 @@ library(plyr) ## for dlply()
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NA}).
 #' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @param cell.type.reference Character string name of the cell type reference
-#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
+#' to use for estimating cell counts. Estimates are not generated if set to NA (default).
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
@@ -27,16 +27,16 @@ library(plyr) ## for dlply()
 #' @export
 meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
                       detection.threshold=0.01, bead.threshold=3, sex.cutoff=-2,
-                      chip=NULL,
+                      chip=NA,
                       featureset=chip,
-                      cell.type.reference=NULL,
+                      cell.type.reference=NA,
                       max.bytes=2^30-1, ## maximum number of bytes that can be returned by mclapply
                       verbose=F, ...) {
     check.samplesheet(samplesheet)
 
-    stopifnot(is.null(featureset) || featureset %in% meffil.list.featuresets())
-    stopifnot(is.null(chip) || chip %in% meffil.list.chips())
-    if (!is.null(featureset) && !is.null(chip))
+    stopifnot(is.na(featureset) || featureset %in% meffil.list.featuresets())
+    stopifnot(is.na(chip) || chip %in% meffil.list.chips())
+    if (!is.na(featureset) && !is.na(chip))
         stopifnot(is.compatible.chip(featureset, chip))
     
     samplesheet.row <- dlply(samplesheet, .(Sample_Name))

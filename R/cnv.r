@@ -9,7 +9,7 @@
 #' 
 #' @param samplesheet Output from \code{meffil.create.samplesheet}
 #' @param cnv.reference Name returned by \code{\link{meffil.list.cnv.references}()}.
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NA).
 #' @param verbose Default = FALSE
 #' @param ... Extra parameters to be passed to \code{DNAcopy} for segmentation. See details.
 #' 
@@ -24,7 +24,7 @@
 #'
 #' @export
 #' @return Dataframe of segmented results
-meffil.calculate.cnv <- function(samplesheet, cnv.reference, chip=NULL, verbose=FALSE, ...) {
+meffil.calculate.cnv <- function(samplesheet, cnv.reference, chip=NA, verbose=FALSE, ...) {
     cnv.reference <- meffil:::get.cnv.reference(cnv.reference)
     l1 <- meffil:::get.index.list(nrow(samplesheet), options("mc.cores")[[1]])
     
@@ -46,7 +46,7 @@ meffil.calculate.cnv <- function(samplesheet, cnv.reference, chip=NULL, verbose=
 }
 
 calculate.cnv <- function(bname, samplename=basename(bname), cnv.reference,
-                          chip=NULL, 
+                          chip=NA, 
                           trim=0.1, min.width = 5, nperm = 10000, alpha = 0.001,
                           undo.splits = "sdundo", undo.SD = 2, verbose = TRUE, smoothing=TRUE) {
     msg("Reading idat file for", bname, verbose=verbose)

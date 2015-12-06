@@ -1,9 +1,9 @@
 #' Get a list of microarray features from a predefined feature set.
 #'
-#' @param featureset A name returned by \code{\link{meffil.list.featuresets()}}.
+#' @param featureset A name returned by \code{\link{meffil.list.featuresets()}} (Default: "450k").
 #' @return A data frame listing all features in the feature set.
 #' @export
-meffil.get.features <- function(featureset)
+meffil.get.features <- function(featureset="450k")
     meffil.featureset(featureset)
 
 #' Get a subset of features from a predefined feature set.

@@ -4,10 +4,10 @@
 \alias{meffil.probe.info}
 \title{Obtain a list of probes for a given feature set (chip).}
 \usage{
-meffil.probe.info(chip, featureset = chip)
+meffil.probe.info(chip = "450k", featureset = chip)
 }
 \arguments{
-\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).}
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}}  (Default: "450k").}
 
 \item{featureset}{Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).}
 }

@@ -4,7 +4,7 @@
 \alias{meffil.get.sites}
 \title{Get names of all CpG sites in the feature set.}
 \usage{
-meffil.get.sites(featureset)
+meffil.get.sites(featureset = "450k")
 }
 \description{
 Get names of all CpG sites in the feature set.

@@ -4,10 +4,10 @@
 \alias{meffil.featureset}
 \title{Obtain a list of features in a feature set.}
 \usage{
-meffil.featureset(featureset)
+meffil.featureset(featureset = "450k")
 }
 \arguments{
-\item{featureset}{Name returned by \code{\link{meffil.list.featuresets}()}.}
+\item{featureset}{Name returned by \code{\link{meffil.list.featuresets}()} (Default: "450k").}
 }
 \value{
 A data frame with one row for each feature.

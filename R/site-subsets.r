@@ -9,33 +9,33 @@ is.chromosome <- function(chr) chr %in% paste0("chr",c(1:22,"X","Y"))
 #' in the feature set.
 #' 
 #' @export
-meffil.get.typeii.sites <- function(featureset) {
+meffil.get.typeii.sites <- function(featureset="450k") {
     filter.sites(featureset, type=="ii")
 }
 
 #' Get names of autosomal CpG sites in the feature set.
 #' 
 #' @export
-meffil.get.autosomal.sites <- function(featureset) {
+meffil.get.autosomal.sites <- function(featureset="450k") {
     filter.sites(featureset, is.autosomal(chromosome))
 }
 
 
 #' Get names of chromosome X CpG sites in the feature set.
 #' @export
-meffil.get.x.sites <- function(featureset) {
+meffil.get.x.sites <- function(featureset="450k") {
     filter.sites(featureset, chromosome=="chrX")
 }
 
 #' Get names of chromosome Y CpG sites in the feature set.
 #' @export
-meffil.get.y.sites <- function(featureset) {
+meffil.get.y.sites <- function(featureset="450k") {
     filter.sites(featureset, chromosome=="chrY")
 }
 
 #' Get names of all CpG sites in the feature set.
 #' @export
-meffil.get.sites <- function(featureset) {
+meffil.get.sites <- function(featureset="450k") {
     filter.sites(featureset, !is.na(chromosome))
 }
 

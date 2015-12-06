@@ -9,8 +9,11 @@ meffil.snp.betas <- function(qc.objects) {
     sapply(qc.objects, function(object) object$snp.betas)
 }
 
+#' Obtain the list of identifiers for the SNPs on the microarray.
+#'
+#' @param featureset Name from \code{\link{meffil.list.featuresets}()} (Default: "450k").
 #' @export
-meffil.snp.names <- function(featureset) {
+meffil.snp.names <- function(featureset="450k") {
     features <- meffil.featureset(featureset)
     features$name[which(features$target == "snp")]
 }

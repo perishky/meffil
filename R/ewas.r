@@ -21,6 +21,8 @@
 #' winsorized to the given level (Default: 0.05).
 #' @param most.variable Apply Independent Surrogate Variable Analysis to the 
 #' given most variable CpG sites (Default: 50000).
+#' @param featureset Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).
+#' @param verbose Set to TRUE if status updates to be printed (Default: FALSE).
 #'
 #' @export
 meffil.ewas <- function(beta, variable,
@@ -29,10 +31,10 @@ meffil.ewas <- function(beta, variable,
                         isva0=T, isva1=T,
                         winsorize.pct=0.05, ## perhaps better, winsorize at 25-percentile - iqr?
                         most.variable=min(nrow(beta), 50000),
-                        featureset=NULL,
+                        featureset=NA,
                         verbose=F) {
 
-    if (is.null(featureset))
+    if (is.na(featureset))
         featureset <- guess.chip(beta)
     features <- meffil.get.features(featureset)
     

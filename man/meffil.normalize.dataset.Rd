@@ -6,7 +6,7 @@
 \usage{
 meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
-  chip = NULL, featureset = chip, cell.type.reference = NULL,
+  chip = NA, featureset = chip, cell.type.reference = NA,
   qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
   author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
   fixed.effects = NULL, random.effects = NULL, pseudo = 100,

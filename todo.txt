@@ -1,16 +1,9 @@
+Document more!
+
+Concept of "featurset", "manifest", "chip" and "feature" vs "probe"
 
 
-A. notify about function name changes
 
-meffil.probe.info("450k")
-meffil.get.*.sites() -> meffil.get.*.sites("450k")
-meffil.get.snp.probes -> meffil.snp.names
-meffil.get.cell.type.references -> meffil.list.cell.type.references
-meffil.calculate.cnv(samplesheet, cnv.reference, chip)
-meffil.cnv.matrix(list) -> meffil.cnv.matrix(list,featureset)
-meffil.create.samplesheet (no Sex or Sample_Name arguments, makes no sense)
-
-B. document concept of "featurset", "manifest", "chip" and "feature" vs "probe"
 
 
 

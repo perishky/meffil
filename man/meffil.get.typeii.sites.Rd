@@ -5,7 +5,7 @@
 \title{Get names of CpG sites corresponding to Infinium Type II probes
 in the feature set.}
 \usage{
-meffil.get.typeii.sites(featureset)
+meffil.get.typeii.sites(featureset = "450k")
 }
 \description{
 Get names of CpG sites corresponding to Infinium Type II probes

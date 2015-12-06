@@ -31,27 +31,27 @@ meffil.list.featuresets <- function() {
 
 #' Obtain a list of features in a feature set.
 #'
-#' @param featureset Name returned by \code{\link{meffil.list.featuresets}()}.
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets}()} (Default: "450k").
 #' @return A data frame with one row for each feature.
 #' @examples
 #' x <- meffil.featureset("450k")
 #' 
 #' @export
-meffil.featureset <- function(featureset) {
+meffil.featureset <- function(featureset="450k") {
    stopifnot(featureset %in% meffil.list.featuresets())
    get(featureset, featureset.globals)
 }
 
 #' Obtain a list of probes for a given feature set (chip).
 #'
-#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).
+#' @param chip Name returned by \code{\link{meffil.list.chips()}}  (Default: "450k").
 #' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @return A data frame with one row per probe.  The full set of probes
 #' for a chip is returned if \code{chip == featureset}; otherwise,
 #' the probes are restricted to those corresponding to features in the feature set.
 #' 
 #' @export
-meffil.probe.info <- function(chip, featureset=chip) {
+meffil.probe.info <- function(chip="450k", featureset=chip) {
     if (missing(chip))
         chip <- featureset
     
@@ -258,8 +258,9 @@ is.compatible.chip <- function(featureset, chip) {
 #' which may be an 'rg' object (see \code{\link{read.rg}()}
 #' or a matrix (typically beta or methylation or unmethylation matrices)
 #' with row names corresponding to feature/probe names.
-guess.chip <- function(object, chips=NULL) {
-    if (is.null(chips))
+guess.chip <- function(object, chip=NA) {
+    chips <- chip
+    if (is.na(chip))
         chips <- meffil.list.chips()
     error.msg <- ""
     if (is.rg(object)) {

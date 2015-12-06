@@ -4,15 +4,15 @@
 \alias{meffil.calculate.cnv}
 \title{Calculate CNVs from IDAT files}
 \usage{
-meffil.calculate.cnv(samplesheet, cnv.reference, chip = NULL,
-  verbose = FALSE, ...)
+meffil.calculate.cnv(samplesheet, cnv.reference, chip = NA, verbose = FALSE,
+  ...)
 }
 \arguments{
 \item{samplesheet}{Output from \code{meffil.create.samplesheet}}
 
 \item{cnv.reference}{Name returned by \code{\link{meffil.list.cnv.references}()}.}
 
-\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: \code{NULL}).}
+\item{chip}{Name returned by \code{\link{meffil.list.chips()}} (Default: NA).}
 
 \item{verbose}{Default = FALSE}
 

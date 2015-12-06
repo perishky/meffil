@@ -1,7 +1,7 @@
 library(devtools)
 library(meffil)
 
-options(mc.cores=12)
+options(mc.cores=5)
 
 ## add 450k annotation
 source("load-450k-manifest.r")

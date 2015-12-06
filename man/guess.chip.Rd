@@ -7,7 +7,7 @@ which may be an 'rg' object (see \code{\link{read.rg}()}
 or a matrix (typically beta or methylation or unmethylation matrices)
 with row names corresponding to feature/probe names.}
 \usage{
-guess.chip(object, chips = NULL)
+guess.chip(object, chip = NA)
 }
 \description{
 select a compatible chip the \code{object}

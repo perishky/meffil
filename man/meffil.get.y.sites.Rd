@@ -4,7 +4,7 @@
 \alias{meffil.get.y.sites}
 \title{Get names of chromosome Y CpG sites in the feature set.}
 \usage{
-meffil.get.y.sites(featureset)
+meffil.get.y.sites(featureset = "450k")
 }
 \description{
 Get names of chromosome Y CpG sites in the feature set.

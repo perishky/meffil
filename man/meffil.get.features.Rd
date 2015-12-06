@@ -4,10 +4,10 @@
 \alias{meffil.get.features}
 \title{Get a list of microarray features from a predefined feature set.}
 \usage{
-meffil.get.features(featureset)
+meffil.get.features(featureset = "450k")
 }
 \arguments{
-\item{featureset}{A name returned by \code{\link{meffil.list.featuresets()}}.}
+\item{featureset}{A name returned by \code{\link{meffil.list.featuresets()}} (Default: "450k").}
 }
 \value{
 A data frame listing all features in the feature set.
