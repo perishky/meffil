@@ -1,3 +1,119 @@
-bname <- "~/data/test_meffil/GSM1338121_6057825116_R05C02"
-controls <- get_cnv_controls(TRUE)
-cnv <- meffil_calculate_cnv(bname, basename(bname), controls)
+```{r cnv-init, echo=FALSE}
+
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+
+```
+
+# Test that CopyNumber450k and meffil produce comparable results
+
+## Download example data set 
+
+```{r child = 'dataset-450k-demo.rmd'}
+```
+
+```{r}
+path <- download.450k.demo.dataset()
+```
+
+## Copy numbers using meffil
+
+```{r}
+library(meffil)
+samplesheet <- meffil.create.samplesheet(path)[1:4,]
+```
+
+Create references using data from the Bioconductor CopyNumber450kData R package.
+```{r, results="hide", message=FALSE}
+library(minfi, quietly=TRUE)
+library(CopyNumber450kData, quietly=TRUE)
+meffil.add.copynumber450k.references(verbose=T)
+```
+
+```{r}
+meffil.list.cnv.references()
+```
+
+Calculate copy numbers using meffil.
+```{r comparison-meffil-cnv, cache=T}
+segments.meffil <- meffil.calculate.cnv(samplesheet, "copynumber450k", verbose=T) ## 20m
+matrix.meffil <- meffil.cnv.matrix(segments.meffil, "450k")
+```
+
+## Copy numbers using CopyNumber450k
+
+Load the data using minfi.
+```{r, message=FALSE}
+raw.minfi <- read.450k.exp(base = path)
+raw.minfi <- raw.minfi[,basename(samplesheet$Basename)]
+```
+
+Load control data for estimating copy numbers.
+```{r}
+library(CopyNumber450k, quietly=TRUE)
+data(RGcontrolSetEx)
+```
+
+It is necessary to merge the control dataset with the dataset we plan to analyze.
+The following code sets up the sample groups and names to make this possible.
+```{r}
+phenoData(RGcontrolSetEx) <- AnnotatedDataFrame(data.frame(Sample_Group="control",
+                                                           Sample_Name=colnames(RGcontrolSetEx),
+                                                           stringsAsFactors=F))
+phenoData(raw.minfi) <- AnnotatedDataFrame(data.frame(Sample_Group="data",
+                                                      Sample_Name=basename(samplesheet$Basename),
+                                                      stringsAsFactors=F))
+sampleNames(raw.minfi) <- phenoData(raw.minfi)@data$Sample_Name
+sampleNames(RGcontrolSetEx) <- phenoData(RGcontrolSetEx)@data$Sample_Name
+```
+
+Calculate copy numbers using CopyNumber450k.
+```{r comparison-minfi-cnv, cache=T}
+raw.cnv <- CNV450kSet(combine(raw.minfi, RGcontrolSetEx))
+raw.cnv <- dropSNPprobes(raw.cnv, maf_threshold=0.01)
+norm.cnv <- normalize(raw.cnv, "quantile")
+norm.cnv <- segmentize(norm.cnv, alpha=0.001) 
+segments.cnv <- getSegments(norm.cnv)
+matrix.cnv <- meffil.cnv.matrix(segments.cnv)
+```
+
+## Compare meffil and CopyNumber450k results
+
+The diagonals give correlations between methods
+for the same samples.
+```{r} 
+r <- cor(matrix.cnv, matrix.meffil, use="p")
+quantile(diag(r))
+quantile(r)
+```
+
+Instead of correlation, compare the number of CpG sites
+in variable regions identified by both methods
+to the number of such sites identified by either method.
+```{r}
+identify.variable.sites <- function(segments) {
+    features <- meffil.get.features("450k")
+    segments <- segments[which(segments$adjusted.pvalue < 0.05),]
+    variable.idx <- unlist(lapply(1:nrow(segments), function(i) {
+        which(features$chromosome == segments$chrom[i]
+              & features$position >= segments$loc.start[i]
+              & features$position <= segments$loc.end[i])
+    }))
+    features$name[variable.idx]
+}
+
+variable.meffil <- lapply(segments.meffil, identify.variable.sites)
+variable.cnv <- lapply(segments.cnv, identify.variable.sites)
+
+sapply(variable.meffil, length)
+sapply(variable.cnv, length)
+
+in.both <- sapply(1:length(variable.meffil),
+                  function(i) length(intersect(variable.meffil[[i]], variable.cnv[[i]])))
+in.either <- sapply(1:length(variable.meffil),
+                    function(i) length(union(variable.meffil[[i]], variable.cnv[[i]])))
+in.both/in.either
+sapply(variable.meffil, length)/in.either
+sapply(variable.cnv, length)/in.either
+```

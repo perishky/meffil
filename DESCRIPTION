@@ -11,28 +11,26 @@ Author: Matthew Suderman <matthewsuderman@hotmail.com> [cre, aut],
     Gibran Hemani [cre, aut],
     Josine Min [cre, aut]
 Maintainer: Matthew Suderman <matthewsuderman@hotmail.com>
-Depends:
-    illuminaio,
-    MASS,
-    limma,
-    ggplot2,
-    plyr,
-    reshape2,
-    knitr,
-    Cairo,
-    gridExtra,
-    markdown,
-    matrixStats,
-    multcomp,
-    lme4,
-    parallel,
-    fastICA
-Suggests:
-    CopyNumber450kData,
-    DNAcopy,
-    IlluminaHumanMethylation450kmanifest,
-    IlluminaHumanMethylation450kanno.ilmn12.hg19,
-    betareg
+Depends:  illuminaio, 
+	  MASS, 
+          limma,
+	  ggplot2,
+	  plyr,
+	  reshape2,
+          knitr,
+	  Cairo,
+	  gridExtra,
+	  markdown,
+	  matrixStats,
+	  multcomp,
+	  lme4,
+	  parallel,
+	  fastICA,
+	  DNAcopy,
+	  quadprog
+Suggests: betareg, 
+	  minfi, 
+	  CopyNumber450kData
 License: Artistic-2.0
 URL: https://github.com/perishky/meffil
 LazyData: yes

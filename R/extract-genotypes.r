@@ -5,7 +5,7 @@
 #' @return Matrix with rows corresponding to SNPs, columns to samples and values
 #' equal to 0, 1 or 2 corresponding to genotypes.
 #' @examples
-#' R> writeLines(meffil.snp.probes(), con="snp-names.txt")
+#' R> writeLines(meffil.snp.names("450k"), con="snp-names.txt")
 #' shell> plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
 #' R> filenames <- "genotypes.raw"
 #' R> genotypes <- meffil.extract.genotypes(filenames)
@@ -31,7 +31,6 @@ meffil.extract.genotypes <- function(filenames, verbose=F) {
 
     t(as.matrix(genotypes))
 }
-
 
 
 

@@ -7,7 +7,7 @@
 #' If the file extension is not .htm, .html, .HTM or .HTML then
 #' output will be in markdown format.
 #' @param  author Default = "Analyst". Author name to be specified on report.
-#' @param  study Default = "IlluminaHuman450 data". Study name to be specified on report.
+#' @param  study Default = "Illumina methylation data". Study name to be specified on report.
 #' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
 #' @export
 #' @return NULL
@@ -18,7 +18,7 @@ meffil.qc.report <- function(
     qc.summary,
     output.file = "qc-report.html",
     author = "Analyst",
-    study = "IlluminaHuman450 data",
+    study = "Illumina methylation data",
     ...
 ) {
     msg("Writing report as html file to", output.file)
@@ -358,7 +358,7 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
            geom_point(aes(colour=colour.code)) +
            geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
            guides(colour=g) +
-           facet_wrap(~ variable, scales="free_y") +
+           facet_wrap(~ variable, scales="free_y", ncol=4) +
            labs(y="Mean signal", x="ID", colour=colour.code))
     return(list(graph=p1, tab=dat))
 }
@@ -377,15 +377,16 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
 meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
+    featureset <- qc.objects[[1]]$featureset
 
-    probes <- meffil.get.sites()
-    y.probes <- meffil.get.y.sites()
+    probes <- meffil.get.features(featureset)$name
+    y.probes <- meffil.get.y.sites(featureset)
     not.y.probes <- setdiff(probes, y.probes)
         
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         prop.badprobes = sapply(qc.objects, function(x) {
-            bad.probes <- names(x$bad.probes.detectionp)
+            bad.probes <- intersect(probes, names(x$bad.probes.detectionp))
             if (as.character(x$predicted.sex) == "F") {
                 bad.probes <- setdiff(bad.probes, y.probes)
                 probes <- not.y.probes
@@ -437,37 +438,43 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
 
-    y.probes <- meffil.get.y.sites()
-    bad.probes <- unlist(sapply(qc.objects, function(x) {
+    featureset <- qc.objects[[1]]$featureset
+    
+    y.probes <- meffil.get.y.sites(featureset)
+    bad.probes <- unlist(lapply(qc.objects, function(x) {
         bad.probes <- names(x$bad.probes.detectionp)
         if (as.character(x$predicted.sex) == "F")
             bad.probes <- setdiff(bad.probes, y.probes)
         bad.probes
     }))
+    if (length(bad.probes) == 0)
+        return(list(graph=NULL, tab=NULL))
+    
     n.badprobes <- as.data.frame(table(bad.probes), stringsAsFactors=F)
     names(n.badprobes) <- c("name", "n")
-    probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
-    probe.info <- merge(probe.info, n.badprobes, by="name")
-    probe.info$n[is.na(probe.info$n)] <- 0
+    
+    probes <- meffil.get.features(featureset)
+    probes <- merge(probes, n.badprobes, by="name")
+    probes$n[is.na(probes$n)] <- 0
     
     n.males <- sum(sapply(qc.objects, function(x) as.character(x$predicted.sex) == "M"))
-    probe.info$n.samples <- length(qc.objects)
-    probe.info$n.samples[which(probe.info$name %in% y.probes)] <- n.males
+    probes$n.samples <- length(qc.objects)
+    probes$n.samples[which(probes$name %in% y.probes)] <- n.males
     
-    probe.info$n <- probe.info$n / probe.info$n.samples
-    probe.info$chr <- factor(gsub("chr", "", probe.info$chr), levels=c(1:22, "X", "Y"))
-    probe.info$chr.colour <- 0
-    probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
-    probe.info <- subset(probe.info, select=c(name, chr, pos, n, chr.colour))
-    probe.info$outliers <- probe.info$n > threshold
-    p1 <- (ggplot(probe.info, aes(x=pos, y=n)) +
+    probes$n <- probes$n / probes$n.samples
+    probes$chromosome <- factor(gsub("chr", "", probes$chromosome), levels=c(1:22, "X", "Y"))
+    probes$chr.colour <- 0
+    probes$chr.colour[probes$chromosome %in% c(seq(1,22,2), "X")] <- 1
+    probes <- subset(probes, select=c(name, chromosome, position, n, chr.colour))
+    probes$outliers <- probes$n > threshold
+    p1 <- (ggplot(probes, aes(x=position, y=n)) +
            geom_point(aes(colour=chr.colour)) +
-           facet_grid(. ~ chr, space="free_x", scales="free_x") +
+           facet_grid(. ~ chromosome, space="free_x", scales="free_x") +
            guides(colour=FALSE) +
            labs(x="Position", y=paste("Proportion samples with p >", qc.objects[[1]]$bad.probes.detectionp.threshold)) +
            geom_hline(yintercept=threshold) +
            theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()))
-    return(list(graph=p1, tab=subset(probe.info, select=-c(chr.colour))))
+    return(list(graph=p1, tab=subset(probes, select=-c(chr.colour))))
 }
 
 #' Plot number of beads per sample
@@ -483,14 +490,17 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
 meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.code=NULL)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
-    probes <- meffil.get.sites()
-    y.probes <- meffil.get.y.sites()
+
+    featureset <- qc.objects[[1]]$featureset
+    
+    probes <- meffil.get.features(featureset)$name
+    y.probes <- meffil.get.y.sites(featureset)
     not.y.probes <- setdiff(probes, y.probes)
 
     dat <- data.frame(
         sample.name = sapply(qc.objects, function(x) x$sample.name),
         prop.badprobes = sapply(qc.objects, function(x) {
-            bad.probes.beadnum <- names(x$bad.probes.beadnum)
+            bad.probes.beadnum <- intersect(names(x$bad.probes.beadnum), probes)
             if (as.character(x$predicted.sex) == "F") {
                 bad.probes.beadnum <- setdiff(bad.probes.beadnum, y.probes)
                 probes <- not.y.probes
@@ -541,32 +551,37 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 {
     stopifnot(sapply(qc.objects, is.qc.object))
 
-    y.probes <- meffil.get.y.sites()
-    bad.probes.beadnum <- unlist(sapply(qc.objects, function(x) {
+    featureset <- qc.objects[[1]]$featureset
+
+    y.probes <- meffil.get.y.sites(featureset)
+    bad.probes.beadnum <- unlist(lapply(qc.objects, function(x) {
         bad.probes.beadnum <- names(x$bad.probes.beadnum)
         if (as.character(x$predicted.sex) == "F")
             bad.probes.beadnum <- setdiff(bad.probes.beadnum, y.probes)
         bad.probes.beadnum
     }))
+    if (length(bad.probes.beadnum) == 0)
+        return(list(graph=NULL, tab=NULL))
+
     n.badprobes <- as.data.frame(table(bad.probes.beadnum), stringsAsFactors=F)
     names(n.badprobes) <- c("name", "n")
-    probe.info <- subset(meffil.probe.info(), !duplicated(name) & chr %in% paste("chr", c(1:22, "X", "Y"), sep=""))
-    probe.info <- merge(probe.info, n.badprobes, by="name")
-    probe.info$n[is.na(probe.info$n)] <- 0
-    probe.info$n <- probe.info$n / length(qc.objects)
-    probe.info$chr <- factor(gsub("chr", "", probe.info$chr), levels=c(1:22, "X", "Y"))
-    probe.info$chr.colour <- 0
-    probe.info$chr.colour[probe.info$chr %in% c(seq(1,22,2), "X")] <- 1
-    probe.info <- subset(probe.info, select=c(name, chr, pos, n, chr.colour))
-    probe.info$outliers <- probe.info$n > threshold
-    p1 <- (ggplot(probe.info, aes(x=pos, y=n)) +
+    probes <- meffil.get.features(featureset)
+    probes <- merge(probes, n.badprobes, by="name")
+    probes$n[is.na(probes$n)] <- 0
+    probes$n <- probes$n / length(qc.objects)
+    probes$chromosome <- factor(gsub("chr", "", probes$chromosome), levels=c(1:22, "X", "Y"))
+    probes$chr.colour <- 0
+    probes$chr.colour[probes$chromosome %in% c(seq(1,22,2), "X")] <- 1
+    probes <- subset(probes, select=c(name, chromosome, position, n, chr.colour))
+    probes$outliers <- probes$n > threshold
+    p1 <- (ggplot(probes, aes(x=position, y=n)) +
            geom_point(aes(colour=chr.colour)) +
-           facet_grid(. ~ chr, space="free_x", scales="free_x") +
+           facet_grid(. ~ chromosome, space="free_x", scales="free_x") +
            guides(colour=FALSE) +
            labs(x="Position", y=paste("Proportion samples with bead number <", qc.objects[[1]]$bad.probes.beadnum.threshold)) +
            geom_hline(yintercept=threshold) +
            theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()))
-    return(list(graph=p1, tab=subset(probe.info, select=-c(chr.colour))))
+    return(list(graph=p1, tab=subset(probes, select=-c(chr.colour))))
 }
 
 
@@ -619,6 +634,8 @@ meffil.plot.cell.counts <- function(qc.objects) {
 #' @export
 meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
                                   sample.threshold=0.9, snp.threshold=0.99) {
+    stopifnot(sapply(qc.objects, is.qc.object))
+    
     graphs <- list()
     tabs <- list()
     
@@ -637,9 +654,11 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
         
         common.samples <- intersect(colnames(snp.betas), colnames(genotypes))
         common.snps <- intersect(rownames(snp.betas), rownames(genotypes))
-        
-        stopifnot(length(common.samples) > 0)
-        stopifnot(length(common.snps) > 0)
+
+        if (length(common.snps) == 0)
+            stop("SNPs in genotypes agument are not measured on these microarrays")
+        if (length(common.samples) == 0)
+            stop("genotype samples do not match samples with QC objects")
         
         concordance <- meffil.snp.concordance(snp.betas[common.snps, common.samples, drop=F],
                                               genotypes[common.snps, common.samples, drop=F],

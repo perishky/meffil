@@ -11,9 +11,11 @@
 #' @param bead.threshold Default value = 3.
 #' All probes with less than this number of beads detected.
 #' @param sex.cutoff Sex prediction cutoff. Default value = -2.
+#' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NA).
+#' @param featureset Name returned by \code{\link{meffil.list.featuresets()}} (Default: \code{chip}).
 #' @param cell.type.reference Character string name of the cell type reference
-#' to use for estimating cell counts. Estimates are not generated if set to NULL (default).
-#' See \code{\link{meffil.get.cell.type.references}()} for a list of available
+#' to use for estimating cell counts. Estimates are not generated if set to NA (default).
+#' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
 #' @return List containing control probe information, probe summaries
@@ -27,44 +29,53 @@ meffil.create.qc.object <- function(samplesheet.row,
                                     detection.threshold=0.01,
                                     bead.threshold=3,
                                     sex.cutoff=-2,
-                                    cell.type.reference=NULL) {
+                                    chip=NA,
+                                    featureset=chip,
+                                    cell.type.reference=NA) {
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(samplesheet.row$Sex %in% c(NA, "F", "M"))
 
     rg <- read.rg(samplesheet.row$Basename, verbose=verbose)
 
-    bad.probes.detectionp <- identify.bad.probes.detectionp(rg, detection.threshold, verbose=verbose)
+    chip <- guess.chip(rg, chip)
+    
+    if (is.na(featureset))
+        featureset <- chip
+    
+    probes <- meffil.probe.info(chip, featureset)
+    
+    bad.probes.detectionp <- identify.bad.probes.detectionp(rg, probes, detection.threshold, verbose=verbose)
 
-    bad.probes.beadnum <- identify.bad.probes.beadnum(rg, bead.threshold, verbose=verbose)
+    bad.probes.beadnum <- identify.bad.probes.beadnum(rg, probes, bead.threshold, verbose=verbose)
 
-    snp.betas <- extract.snp.probe.betas(rg, verbose=verbose)
+    snp.betas <- extract.snp.betas(rg, probes, verbose=verbose)
 
-    controls <- extract.controls(rg, verbose=verbose)
+    controls <- extract.controls(rg, probes, verbose=verbose)
 
     tryCatch({
-        rg <- background.correct(rg, verbose=verbose)
+        rg <- background.correct(rg, probes, verbose=verbose)
     }, error = function(e) {
         save.image(paste(samplesheet.row$Basename, "rda", sep="."))
         stop(e)
     })
 
-    intensity.R <- calculate.intensity.R(rg)
-    intensity.G <- calculate.intensity.G(rg)
+    intensity.R <- calculate.intensity.R(rg, probes)
+    intensity.G <- calculate.intensity.G(rg, probes)
 
-    rg <- dye.bias.correct(rg, dye.intensity, verbose=verbose)
+    rg <- dye.bias.correct(rg, probes, dye.intensity, verbose=verbose)
 
-    mu <- rg.to.mu(rg)
+    mu <- rg.to.mu(rg, probes)
     
-    probes.x <- meffil.get.x.sites()
-    x.signal <- median(log(mu$M[probes.x] + mu$U[probes.x], 2), na.rm=T)
+    sites.x <- meffil.get.x.sites(featureset)
+    x.signal <- median(log(mu$M[sites.x] + mu$U[sites.x], 2), na.rm=T)
 
-    probes.y <- meffil.get.y.sites()
-    y.signal <- median(log(mu$M[probes.y] + mu$U[probes.y], 2), na.rm=T)
+    sites.y <- meffil.get.y.sites(featureset)
+    y.signal <- median(log(mu$M[sites.y] + mu$U[sites.y], 2), na.rm=T)
 
     probs <- seq(0,1,length.out=number.quantiles)
 
-    quantiles <- lapply(get.quantile.probe.subsets(), function(sets) {
+    quantiles <- lapply(get.quantile.site.subsets(featureset), function(sets) {
         list(M=unname(quantile(mu$M[sets], probs=probs,na.rm=T)),
              U=unname(quantile(mu$U[sets], probs=probs,na.rm=T)))
     })
@@ -74,13 +85,15 @@ meffil.create.qc.object <- function(samplesheet.row,
     predicted.sex <- ifelse(xy.diff < sex.cutoff, "F","M")
 
     cell.counts <- NULL
-    if (!is.null(cell.type.reference))
+    if (!is.na(cell.type.reference))
         cell.counts <- estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)
     
-    list(origin="meffil.create.qc.object",
+    list(class="qc.object",
          sample.name=samplesheet.row$Sample_Name,
          basename=samplesheet.row$Basename,
          controls=controls,
+         featureset=featureset,
+         chip=chip,
          quantiles=quantiles,
          dye.intensity=dye.intensity,
          intensity.R=intensity.R,
@@ -104,7 +117,9 @@ meffil.create.qc.object <- function(samplesheet.row,
 }
 
 is.qc.object <- function(object) {
-    "origin" %in% names(object) && object$origin == "meffil.create.qc.object"
+    is.list(object) && "class" %in% names(object) && object$class %in% "qc.object"
 }
+
+
 
 

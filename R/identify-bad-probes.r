@@ -1,31 +1,35 @@
-identify.bad.probes.beadnum <- function(rg, threshold=3, verbose=F) {
+identify.bad.probes.beadnum <- function(rg, probes, threshold=3, verbose=F) {
     msg(verbose=verbose)
 
-    probes <- meffil.probe.info()
-    
-    cpg.sites <- unique(na.omit(probes$name))
+    features <- unique(na.omit(probes$name))
  
-    targets <- c(M="M", U="U")
-    n.beads <- sapply(targets, function(target) {
+    n.beads <- sapply(c(M="M", U="U"), function(target) {
         probes <- probes[which(probes$target == target),]
-        probes <- probes[match(cpg.sites, probes$name),]
+        probes <- probes[match(features, probes$name),]
         r.idx <- which(probes$dye == "R")
         g.idx <- which(probes$dye == "G")        
         n.beads <- rep(NA, nrow(probes))
-        n.beads[r.idx] <- rg$R[match(probes$address[r.idx], rownames(rg$R)), "NBeads"]
-        n.beads[g.idx] <- rg$G[match(probes$address[g.idx], rownames(rg$G)), "NBeads"]
+
+        addresses <- probes$address[r.idx]
+        if(!all(addresses %in% rownames(rg$R)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
+        n.beads[r.idx] <- rg$R[match(addresses, rownames(rg$R)), "NBeads"]
+
+        addresses <- probes$address[g.idx]
+        if(!all(addresses %in% rownames(rg$G)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
+        n.beads[g.idx] <- rg$G[addresses, "NBeads"]
+        
         n.beads
     })
     n.beads <- pmin(n.beads[,"U"], n.beads[,"M"])
-    names(n.beads) <- cpg.sites
+    names(n.beads) <- features
     n.beads[which(n.beads < threshold)]
 }
 
-identify.bad.probes.detectionp <- function(rg, threshold=0.01, verbose=F) {
+identify.bad.probes.detectionp <- function(rg, probes, threshold=0.01, verbose=F) {
     msg(verbose=verbose)
 
-    probes <- meffil.probe.info()
-    
     dyes <- c(R="R", G="G")
     negative.intensities <- lapply(dyes, function(color) {
         addresses <- with(probes, address[which(dye == color & target == "NEGATIVE")])
@@ -34,17 +38,24 @@ identify.bad.probes.detectionp <- function(rg, threshold=0.01, verbose=F) {
     negative.med <- lapply(negative.intensities, median, na.rm=T)
     negative.sd  <- lapply(negative.intensities, mad, na.rm=T)
 
-    cpg.sites <- unique(na.omit(probes$name))
+    features <- unique(na.omit(probes$name))
 
-    targets <- c(M="M", U="U")
-    detection.stats <- lapply(targets, function(target) {
+    detection.stats <- lapply(c(M="M", U="U"), function(target) {
         probes <- probes[which(probes$target == target),]
-        probes <- probes[match(cpg.sites, probes$name),]
+        probes <- probes[match(features, probes$name),]
         r.idx <- which(probes$dye == "R")
         g.idx <- which(probes$dye == "G")
-
+        
         intensity <- rep(NA, nrow(probes))
+
+        addresses <- probes$address[r.idx]
+        if(!all(addresses %in% rownames(rg$R)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         intensity[r.idx] <- rg$R[match(probes$address[r.idx], rownames(rg$R)),"Mean"]
+
+        addresses <- probes$address[g.idx]
+        if(!all(addresses %in% rownames(rg$G)))
+            stop("It seems that the IDAT files do not match the supplied chip annotation")
         intensity[g.idx] <- rg$G[match(probes$address[g.idx], rownames(rg$G)),"Mean"]
 
         med <- rep(NA, nrow(probes))
@@ -61,7 +72,7 @@ identify.bad.probes.detectionp <- function(rg, threshold=0.01, verbose=F) {
     p.value <- with(detection.stats, 1-pnorm(M$intensity + U$intensity,
                                              mean=M$med + U$med,
                                              sd=M$sd + U$sd))
-    names(p.value) <- cpg.sites
+    names(p.value) <- features
     p.value[which(p.value > threshold)]
 }
 
