@@ -176,7 +176,7 @@ A summary report of the normalization performance can also be generated:
 
 Prepare a variable of interest and a set of covariates.
 
-variable <- ... ## variable of interest, one value per sample
+    variable <- ... ## variable of interest, one value per sample
     covariates <- ... ## data.frame of covariates to include (rows = samples, columns = covariates)
 
 Add cell count estimates to the set  of covariates.
