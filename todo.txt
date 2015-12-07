@@ -4,7 +4,9 @@ Concept of "featurset", "manifest", "chip" and "feature" vs "probe"
 
 
 
-
+Perphaps there is something more that could be done for mclapply.safe.
+Is it possible to gradually increase the workload to the max number of 
+requested cores, all the while 'pinging' the system to see how it responds?
 
 
 

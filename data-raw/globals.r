@@ -30,6 +30,9 @@ create.gse35069.references() ## ~15 minutes
 source("gse68456-reference.r")
 create.gse68456.reference()
 
+source("gervin-lyle-reference.r")
+create.gervin.lyle.reference("~/work/data/gervin-lyle-cord-blood-reference")
+
 ## save the global variables so they can be loaded by the package
 meffil:::save.globals("../inst") ## see ../R/globals.r
 
