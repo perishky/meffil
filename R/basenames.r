@@ -11,12 +11,12 @@
 #'
 #' @export
 meffil.basenames <- function(path,recursive=FALSE) {
-    grn.files <- list.files(path, pattern = "_Grn.idat$", recursive = recursive,
+    grn.files <- list.files(path, pattern = "_Grn.idat(|\\.gz)$", recursive = recursive,
                             ignore.case = TRUE, full.names = TRUE)
-    red.files <- list.files(path, pattern = "_Red.idat$", recursive = recursive,
+    red.files <- list.files(path, pattern = "_Red.idat(|\\.gz)$", recursive = recursive,
                             ignore.case = TRUE, full.names = TRUE)
     get.basenames(c(grn.files, red.files))
 }
 
 get.basenames <- function(filenames)
-    unique(gsub("_Red.idat$|_Grn.idat$", "", filenames))
+    unique(gsub("_(Red|Grn).idat(|\\.gz)$", "", filenames))

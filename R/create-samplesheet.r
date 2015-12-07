@@ -7,7 +7,16 @@
 #'
 #' @export
 meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path), delim = "_") {
+    if (length(basenames) == 0) {
+        warning("No idat files found.")
+        return(NULL)
+    }
+        
     dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)), stringsAsFactors=FALSE)
+
+    if (ncol(dat) != 2)
+        warning("The basenames in ", path, " do not appear to correspond to idat files")
+    
     idcol <- which(apply(dat, 2, function(x) all(!duplicated(x))))
     if(length(idcol) >= 1) {
         Sample_Name <- dat[,idcol[1]]
