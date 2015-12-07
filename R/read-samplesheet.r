@@ -80,11 +80,15 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 			allfiles <- list.files(dirname(file), recursive = recursive, full.names = TRUE)
 			mbasenames <- sapply(patterns, function(xx) grep(xx, allfiles, value = TRUE))
 			names(mbasenames) <- NULL
-			mbasenames <- sub("_Grn\\.idat", "", mbasenames, ignore.case = TRUE)
+			mbasenames <- sub("_Grn\\.idat(|\\.gz)", "", mbasenames, ignore.case = TRUE)
 			df$Basename <- mbasenames
 			sapply(df$Basename, function(x) {
-				if(!file.exists(nom <- paste(x, "_Grn.idat", sep=""))) warning(paste("Inferred basename", nom, "does not exist"))
-				if(!file.exists(nom <- paste(x, "_Red.idat", sep=""))) warning(paste("Inferred basename", nom, "does not exist"))
+                            nom <- paste(x, "_Grn.idat", sep="")
+                            if(!file.exists(nom) && !file.exists(paste(nom, "gz", sep=".")))
+                                warning(paste("Inferred basename", nom, "does not exist"))
+                            nom <- paste(x, "_Red.idat", sep="")
+                            if(!file.exists(nom) && !file.exists(paste(nom, "gz", sep=".")))
+                                warning(paste("Inferred basename", nom, "does not exist"))
 			})
 		}
 		df
@@ -104,6 +108,7 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 	} else
 		csvfiles <- list.files(base, full.names = TRUE)
 	dfs <- lapply(csvfiles, readSheet)
+
 	namesUnion <- Reduce(union, lapply(dfs, names))
 	df <- do.call(rbind, lapply(dfs, function(df) {
 		newnames <- setdiff(namesUnion, names(df))
@@ -138,7 +143,6 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 		warning("No Sample_Name column, and no Slide and Array columns to generate Sample_Name column. Using IDAT basenames.")
 		df$Sample_Name <- make.samplename.from.basename(df$Basename)
 	}
-
 	check.samplesheet(df)
 
 	return(df)
