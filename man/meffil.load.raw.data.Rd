@@ -5,8 +5,7 @@
 \title{Load raw beta matrix}
 \usage{
 meffil.load.raw.data(qc.objects, pseudo = 100, just.beta = T,
-  background.correct = T, dye.bias.correct = T, max.bytes = 2^30 - 1,
-  verbose = F, ...)
+  max.bytes = 2^30 - 1, verbose = F, ...)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}
