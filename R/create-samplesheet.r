@@ -14,7 +14,7 @@ meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path), de
         
     dat <- data.frame(do.call(rbind, strsplit(basename(basenames), split=delim)), stringsAsFactors=FALSE)
 
-    if (ncol(dat) != 2)
+    if (ncol(dat) < 2)
         warning("The basenames in ", path, " do not appear to correspond to idat files")
     
     idcol <- which(apply(dat, 2, function(x) all(!duplicated(x))))

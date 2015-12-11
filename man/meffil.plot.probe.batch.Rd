@@ -6,7 +6,7 @@
 \usage{
 meffil.plot.probe.batch(normalized.beta, norm.objects, npcs = 1:10,
   variables = guess.batch.vars(norm.objects), batch.threshold = 1e-50,
-  probe.range = 5000, verbose = T)
+  probe.range = 5000, cols = NULL, verbose = T)
 }
 \arguments{
 \item{normalized.beta}{Output from \code{meffil.normalize.samples}}

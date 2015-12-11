@@ -6,7 +6,7 @@
 \usage{
 meffil.plot.control.batch(norm.objects, npcs = 1:10,
   variables = guess.batch.vars(norm.objects), batch.threshold = 1e-50,
-  verbose = TRUE)
+  cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{norm.objects}{From \code{meffil.normalize.quantiles}}
