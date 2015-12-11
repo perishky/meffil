@@ -49,6 +49,7 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
         npcs=parameters$control.pcs, 
         variables=parameters$variables,
         batch.threshold=parameters$batch.threshold,
+        cols=parameters$colours,
         verbose=verbose
 	)
     probe.batch <- meffil.plot.probe.batch(
@@ -58,6 +59,7 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
         variables=parameters$variables,
         probe.range=parameters$probe.range,
         batch.threshold=parameters$batch.threshold,
+        cols=parameters$colours,
         verbose=verbose
 	)
     return(list(
@@ -117,7 +119,7 @@ meffil.plot.control.scree <- function(norm.objects)
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, verbose=TRUE)
+meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, cols=NULL, verbose=TRUE)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
 
@@ -139,7 +141,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
     ret <- plot.pairwise.associations(res, batch.threshold)
-    ret$pc.plot <- plot.pcs(pcs, dat)
+    ret$pc.plot <- plot.pcs(pcs, dat, cols)
 
     colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
     colnames(res)[which(colnames(res) == "l")] <- "batch.value"
@@ -165,7 +167,7 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, probe.range=5000, verbose=T)
+meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, probe.range=5000, cols=NULL, verbose=T)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
     
@@ -201,7 +203,7 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
     ret <- plot.pairwise.associations(res, batch.threshold)
-    ret$pc.plot <- plot.pcs(pcs, dat)
+    ret$pc.plot <- plot.pcs(pcs, dat, cols)
 
     colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
     colnames(res)[which(colnames(res) == "l")] <- "batch.value"
@@ -316,24 +318,37 @@ plot.pairwise.associations <- function(res, batch.threshold) {
 }
 
 
-plot.pcs <- function(pcs, dat) {
+plot.pcs <- function(pcs, dat, cols=NULL) {
     stopifnot(nrow(pcs) == nrow(dat))
+
+    if (is.null(cols)) {
+        ## http://colorbrewer2.org/
+        ## 12 colours, qualitative
+        cols <- c("#a6cee3", "#1f78b4", "#b2df8a",
+                  "#33a02c","#fb9a99", "#e31a1c",
+                  "#fdbf6f", "#ff7f00", "#cab2d6",
+                  "#6a3d9a","#ffff99", "#b15928")
+    }
     
     if (ncol(pcs) >= 3) {
         too.many.levels <- sapply(1:ncol(dat), function(i) length(unique(dat[,i])) > 10)
         if (any(!too.many.levels)) {            
             pc.vars <- do.call(rbind, lapply(which(!too.many.levels), function(i) {                
-                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2], variable=colnames(dat)[i], values=dat[,i], stringsAsFactors=F),
-                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i], stringsAsFactors=F),
-                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=dat[,i], stringsAsFactors=F))
+                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F),
+                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F),
+                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F))
             }))
-            
+
             return(ggplot(pc.vars, aes(x=pc.x, y=pc.y,colour=as.factor(values))) +
                    geom_point() +
-                   scale_colour_discrete(name = "Batch") +
+                   scale_colour_manual(name="Batch", values=cols) +
+                   #scale_colour_discrete(name = "Batch") +
                    labs(y="pc",x="pc") +
                    facet_grid(variable ~ desc) +
                    theme_bw())
+
+            scale_fill_manual(values=rep(mixed, length.out=nrow(icc)))
+            
         }
     }
     return(NULL)
@@ -348,11 +363,10 @@ plot.pcs <- function(pcs, dat) {
 #' @examples \dontrun{
 #'
 #'}
-guess.batch.vars <- function(norm.objects)
-{
-	nom <- names(norm.objects[[1]]$samplesheet)
-	nom <- nom[!nom %in% c("Sample_Name", "Sex", "Basename")]
-	return(nom)
+guess.batch.vars <- function(norm.objects) {
+    nom <- names(norm.objects[[1]]$samplesheet)
+    nom <- nom[!nom %in% c("Sample_Name", "Sex", "Basename")]
+    return(nom)
 }
 
 
@@ -363,13 +377,19 @@ guess.batch.vars <- function(norm.objects)
 #' @param  control.pcs Default = 1:10. Number of control PCs to test against batch variables
 #' @param  probe.pcs Default = 1:10. Number of probe PCs to test against batch variables
 #' @param  probe.range Default = 1:1000. Number of probes to use to calculate PCs for actual CpGs
+#' @param  colours Colours to use for scatterplots.
 #' @export
 #' @return List of parameters
 #' @examples \dontrun{
 #'
 #'}
-meffil.normalization.parameters <- function(norm.objects, variables = guess.batch.vars(norm.objects), control.pcs = 1:10, probe.pcs = 1:10, probe.range = 5000, batch.threshold=1e-50)
-{
+meffil.normalization.parameters <- function(norm.objects,
+                                            variables = guess.batch.vars(norm.objects),
+                                            control.pcs = 1:10,
+                                            probe.pcs = 1:10,
+                                            probe.range = 5000,
+                                            batch.threshold=1e-50,
+                                            colours=NULL) {                                           
     stopifnot(sapply(norm.objects, is.normalized.object))
     
     parameters <- list(
@@ -377,7 +397,8 @@ meffil.normalization.parameters <- function(norm.objects, variables = guess.batc
         control.pcs = control.pcs,
         probe.pcs = probe.pcs,
         probe.range = probe.range,
-        batch.threshold=batch.threshold
+        batch.threshold=batch.threshold,
+        colours=colours
 	)
     return(parameters)
 }
