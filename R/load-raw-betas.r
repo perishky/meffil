@@ -19,7 +19,7 @@ meffil.load.raw.data <- function(qc.objects,
                                  max.bytes=2^30-1,
                                  verbose=F,
                                  ...) {
-    stopifnot(all(sapply(qc.objects, meffil:::is.qc.object)))
+    stopifnot(all(sapply(qc.objects, is.qc.object)))
 
     featuresets <- sapply(qc.objects, function(qc.object) qc.object$featureset)
     featureset <- featuresets[1]
@@ -40,17 +40,17 @@ meffil.load.raw.data <- function(qc.objects,
     reference.idx <- valid.idx[which.min(abs(intensity.R/intensity.G-1)[valid.idx])]
     dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
 
-    ret <- meffil:::mcsapply.safe(qc.objects, function(qc.object) {
+    ret <- mcsapply.safe(qc.objects, function(qc.object) {
         probes <- meffil.probe.info(qc.object$chip)
-        rg <- meffil:::read.rg(qc.object$basename, verbose=verbose)
-        rg <- meffil:::background.correct(rg, probes, verbose=verbose)
-        rg <- meffil:::dye.bias.correct(rg, probes, dye.intensity, verbose=verbose)
-        mu <- meffil:::rg.to.mu(rg, probes)
+        rg <- read.rg(qc.object$basename, verbose=verbose)
+        rg <- background.correct(rg, probes, verbose=verbose)
+        rg <- dye.bias.correct(rg, probes, dye.intensity, verbose=verbose)
+        mu <- rg.to.mu(rg, probes)
         
         m.idx <- match(sites, names(mu$M))
         u.idx <- match(sites, names(mu$U))
         if (just.beta)
-            meffil:::get.beta(mu$M[m.idx], mu$U[u.idx])
+            get.beta(mu$M[m.idx], mu$U[u.idx])
         else
             c(unname(mu$M[m.idx]), unname(mu$U[u.idx]))
     }, ..., max.bytes=max.bytes)
