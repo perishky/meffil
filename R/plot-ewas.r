@@ -94,7 +94,8 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
         names(chromosome.starts) <- c(chromosomes, "NA")
         stats$global <- stats$position + chromosome.starts[stats$chromosome] - 1
 
-        selection.idx <- scatter.thinning(stats$global, stats$stat)
+        selection.idx <- scatter.thinning(stats$global, stats$stat,
+                                          resolution=100, max.per.cell=100)
         
         (ggplot(stats[selection.idx,], aes(x=position, y=stat)) +
          geom_point(aes(colour=chr.colour)) +

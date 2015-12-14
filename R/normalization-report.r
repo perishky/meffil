@@ -339,6 +339,10 @@ plot.pcs <- function(pcs, dat, cols=NULL) {
                       data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F))
             }))
 
+            n.values <- length(unique(values))
+            if (n.values > length(cols))
+                cols <- rep(cols, length.out=n.values)
+
             return(ggplot(pc.vars, aes(x=pc.x, y=pc.y,colour=as.factor(values))) +
                    geom_point() +
                    scale_colour_manual(name="Batch", values=cols) +
