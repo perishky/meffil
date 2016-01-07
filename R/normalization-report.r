@@ -339,7 +339,7 @@ plot.pcs <- function(pcs, dat, cols=NULL) {
                       data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F))
             }))
 
-            n.values <- length(unique(p.vars$values))
+            n.values <- length(unique(pc.vars$values))
             if (n.values > length(cols))
                 cols <- rep(cols, length.out=n.values)
 
