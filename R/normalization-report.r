@@ -22,8 +22,14 @@ meffil.normalization.report <- function(
     ...
 ) {
     msg("Writing report as html file to", output.file)
-    path <- system.file("reports", package="meffil")
-    knit.report(file.path(path, "normalization-report.rmd"), output.file, ...)
+    report.path <- system.file("reports", package="meffil")
+    require(knitr)
+    require(Cairo)
+    require(gridExtra)
+    opts <- opts_chunk$get()
+    on.exit(opts_chunk$set(opts))
+    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")    
+    knit.report(file.path(report.path, "normalization-report.rmd"), output.file, ...)
 }
 
 
@@ -339,7 +345,7 @@ plot.pcs <- function(pcs, dat, cols=NULL) {
                       data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F))
             }))
 
-            n.values <- length(unique(values))
+            n.values <- length(unique(pc.vars$values))
             if (n.values > length(cols))
                 cols <- rep(cols, length.out=n.values)
 

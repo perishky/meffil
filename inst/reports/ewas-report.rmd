@@ -1,11 +1,3 @@
-```{r qc-init, echo=FALSE}
-
-library(knitr)
-library(Cairo)
-opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG",error=FALSE)
-
-```
-
 # EWAS report
 - study: `r study`
 - author: `r author`
@@ -13,7 +5,7 @@ opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.wid
 
 ## Parameters
 
-```{r ewas-parameters, results="markup"}
+```{r, results="markup"}
 ewas.summary$parameters
 ```
 
@@ -25,55 +17,65 @@ For categorical variables, the "mean" column provides the number
 of samples with the given "value" and the
 "var" column the percentage of samples with the given "value".
 
-```{r sample-characteristics}
+```{r}
 knitr::kable(ewas.summary$sample.characteristics)
 ```
 
 ## Covariate associations
 
-For continuous or ordinal covariates, the "mean" column provides the mean
-and the "var" column the standard deviation of the covariate.
-For categorical covariates, the "mean" column provides the number
-and the "var" column the percentage of samples with the given covariate "value".
+```{r,include=FALSE}
+if (!is.null(ewas.summary$covariate.associations)) {
+    out <- NULL
+    for (covariate.name in names(ewas.summary$covariate.associations))
+        out <- c(out, knit_child(file.path(report.path, "ewas-covariate.rmd")))
+}
+```
 
-If a value for the variable of interest is given in the "variable" column
-(only for categorical variables), then the statistics apply
-only to the corresponding samples.
-
-```{r covariate-associations}
-knitr::kable(ewas.summary$covariate.associations)
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
 ## QQ plots
 
-```{r ewas-qq-plots, results="hide"}
-for (p in ewas.summary$qq.plots) print(p)
+```{r, include=FALSE}
+out <- NULL
+for (plot in ewas.summary$qq.plots)
+    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+```
+
+```{r,results="asis"}
+cat(out, sep="\n")
 ```
 
 ## Manhattan plots
 
-```{r ewas-manhattan-plots, results="hide"}
-for (p in ewas.summary$manhattan.plots) print(p)
+```{r, include=FALSE}
+out <- NULL
+for (plot in ewas.summary$manhattan.plots)
+    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+```
+
+```{r,results="asis"}
+cat(out, sep="\n")
 ```
 
 ## Significant CpG sites
 
-There were `r nrow(ewas.summary$sig.cpg.stats$p.value)`
+There were `r length(ewas.summary$significant.sites)`
 CpG sites with association p-values < `r ewas.summary$parameters$sig.threshold`.
 These are listed in the file [associations.csv](associations.csv).
 
-```{r ewas-significant-sites}
-tab <- cbind(ewas.summary$cpg.sites[rownames(ewas.summary$sig.cpg.stats$p.value),],
-             p.value=ewas.summary$sig.cpg.stats$p.value,
-             coefficient=ewas.summary$sig.cpg.stats$coefficient)
-write.csv(tab, file=file.path(output.dir, "associations.csv"))
+```{r}
+tab <- with(ewas.summary, cpg.stats[match(significant.sites, rownames(cpg.stats)),])
+write.csv(tab, file=file.path(opts_knit$get("output.dir"), "associations.csv"))
 ```
 
 The following table shows overlaps between
 associations under different sets of covariates:
-```{r ewas-associations-overlap}
-tab.overlaps <- apply(ewas.summary$sig.cpg.stats$p.value, 2, function(p.a) {
-    apply(ewas.summary$sig.cpg.stats$p.value, 2, function(p.b) {
+```{r}
+p.value.idx <- grep("p.value", colnames(tab))
+tab.overlaps <- apply(tab[,p.value.idx], 2, function(p.a) {
+    apply(tab[,p.value.idx], 2, function(p.b) {
         sum(p.a < ewas.summary$parameters$sig.threshold
             & p.b < ewas.summary$parameters$sig.threshold, na.rm=T)
     })
@@ -81,36 +83,49 @@ tab.overlaps <- apply(ewas.summary$sig.cpg.stats$p.value, 2, function(p.a) {
 knitr::kable(tab.overlaps)
 ```
 
-```{r ewas-practical-sites}
-practical.sites <- intersect(rownames(ewas.summary$sig.cpg.stats$p.value),
-                             names(ewas.summary$cpg.plots))
+```{r}
+practical.sites <- setdiff(names(ewas.summary$cpg.plots),
+                           ewas.summary$selected.sites)
+tab <- with(ewas.summary, cpg.stats[match(practical.sites, rownames(cpg.stats)),])
 ```
 
 Below are the `r length(practical.sites)`
 CpG sites with association p-values < `r ewas.summary$parameters$practical.threshold`.
 
-```{r ewas-practical-table}
-if (length(practical.sites) > 0)
-    knitr::kable(tab[practical.sites,])
+```{r}
+knitr::kable(tab[practical.sites,])
 ```
 
 Plots of these sites follow, one for each covariate set.
 "p[lm]" denotes the p-value obtained using a linear model
 and "p[beta]" the p-value obtained using beta regression.
 
-```{r ewas-practical-plots, results="hide"}
-for (cpg in practical.sites)
-    print(do.call(grid.arrange, c(ewas.summary$cpg.plots[[cpg]], list(ncol=2))))
+```{r, include=FALSE}
+out <- NULL
+for (cpg in practical.sites) 
+    out <- c(out, knit_child(file.path(report.path, "cpg-plot.rmd")))
+```
+
+```{r}
+cat(out, sep="\n")
 ```
 
 ## Selected CpG sites
 
-```{r ewas-selected-sites-option}
-child.filename <- file.path(path, "missing.rmd")
-if (nrow(ewas.summary$selected.cpg.stats$p.value) > 0)
-    child.filename <- file.path(path, "ewas-report-selected-cpg-sites.rmd")
+Number of CpG sites selected: `r length(ewas.summary$selected.sites)`.
+
+```{r}
+tab <- with(ewas.summary, cpg.stats[match(selected.sites, rownames(cpg.stats)),])
+knitr::kable(tab)
 ```
 
-```{r ewas-selected-sites, child=child.filename}
+```{r, include=FALSE}
+out <- NULL
+for (cpg in ewas.summary$selected.sites)
+    out <- c(out, knit_child(file.path(report.path, "cpg-plot.rmd")))
+```
+
+```{r}
+cat(out, sep="\n\n")
 ```
 

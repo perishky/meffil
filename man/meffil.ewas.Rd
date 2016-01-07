@@ -5,9 +5,8 @@
 \title{Epigenome-wide association study}
 \usage{
 meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
-  save.beta = 100, cell.counts = NULL, isva0 = T, isva1 = T,
-  winsorize.pct = 0.05, most.variable = min(nrow(beta), 50000),
-  featureset = NA, verbose = F)
+  cell.counts = NULL, isva0 = T, isva1 = T, winsorize.pct = 0.05,
+  most.variable = min(nrow(beta), 50000), featureset = NA, verbose = F)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}
@@ -18,9 +17,6 @@ meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
 one row per sample, one column per covariate (Default: NULL).}
 
 \item{batch}{Batch vector to be included as a random effect (Default: NULL).}
-
-\item{save.beta}{Number of most strongly associated CpG sites for which to retain
-methylation levels for later plotting (Default: 100).}
 
 \item{cell.counts}{Proportion of cell counts for one cell type in cases
 where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL).}

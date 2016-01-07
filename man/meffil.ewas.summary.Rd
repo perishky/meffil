@@ -10,6 +10,8 @@ meffil.ewas.summary(ewas.object, beta, selected.cpg.sites = character(0),
 \arguments{
 \item{ewas.object}{From \code{\link{meffil.ewas}()}.}
 
+\item{beta}{Matrix of methylation levels used in the analysis.}
+
 \item{selected.cpg.sites}{Vector of CpG site names to plot (Default: character(0)).}
 
 \item{parameters}{Default = meffil.ewas.parameters(). List of parameter values. See \code{\link{meffil.ewas.parameters}()}.}

@@ -4,10 +4,11 @@
 \alias{meffil.ewas.parameters}
 \title{Specify parameters for QC}
 \usage{
-meffil.ewas.parameters(sig.threshold = 1e-07, max.plots = 10)
+meffil.ewas.parameters(sig.threshold = NA, max.plots = 10)
 }
 \arguments{
-\item{sig.threshold}{P-value threshold for significance (Default: 1e-7).}
+\item{sig.threshold}{P-value threshold for significance (Default: NA).
+If NA, then threshold used will be 0.05 divided by the number of tests/probes.}
 
 \item{max.plots}{Maximum number of plots to generate (Default: 10).}
 }

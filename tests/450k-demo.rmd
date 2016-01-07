@@ -1,47 +1,78 @@
-library(meffil)
+```{r 450k-demo-init, echo=FALSE}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
 
-source("dataset-450k-demo.r")
+```
+
+# Normalize a 450k dataset
+
+## Download example data set 
+
+```{r child = 'dataset-450k-demo.rmd'}
+```
+
+```{r}
 path <- download.450k.demo.dataset()
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
 
 samplesheet <- meffil.create.samplesheet(path)
 
 options(mc.cores=3)
+```
 
-meffil.list.cell.type.references()
-
+Parameters.
+```{r}
 qc.file <- "450k-demo/qc-report.html"
 author <- "Prickett, et al."
 study <- "Silver-Russell syndrome patients (GEO:GSE55491)"
-number.pcs <- 2
 norm.file <- "450k-demo/normalization-report.html"
 cell.type.reference <- "blood gse35069"
+```
 
+Generate quality control objects.
+```{r 450k-demo-qc, cache=T}
 qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+```
 
+QC report.
+```{r}
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
 meffil.qc.report(qc.summary,
                  output.file=qc.file,
                  author=author,
                  study=study)
+```
 
+Remove any low quality samples.
+```{r}
 if (nrow(qc.summary$bad.samples) > 0)
     qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+```
 
+Check how many principal components to include.
+```{r, dev="CairoPNG"}
+print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+```
 
-print(meffil.plot.pc.fit(qc.objects, n.cross=3)$data)
-##   n        M        U
-## 1 1 95142.16 757128.5
-## 2 2 28414.64 109172.8
-## 3 3 29346.49 109954.2
-## 4 4 29714.49 111386.4
-
+Normalize dataset.
+```{r, 450-demo-norm, cache=T}
+number.pcs <- 2
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
-
 norm.meffil <- meffil.normalize.samples(norm.objects,
                                         just.beta=F, 
                                         cpglist.remove=qc.summary$bad.cpgs$name,
                                         verbose=T)
+```
 
+Generate normalization report.
+```{r}
 beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 parameters <- meffil.normalization.parameters(norm.objects)
 parameters$batch.threshold <- 0.01
@@ -54,7 +85,12 @@ meffil.normalization.report(norm.summary,
                             output.file=norm.file,
                             author=author,
                             study=study)
+```
 
+Just for fun, compare cell count estimates
+obtained from raw data to estimates obtained from normalized beta matrix
+(i.e. normalized methylation levels).
+```{r}
 counts.meffil <- t(meffil.cell.count.estimates(norm.objects))
 
 counts.beta <- meffil.estimate.cell.counts.from.betas(beta.meffil, cell.type.reference)
@@ -62,9 +98,4 @@ counts.beta <- meffil.estimate.cell.counts.from.betas(beta.meffil, cell.type.ref
 for (cell.type in colnames(counts.meffil)) {
     cat(cell.type, cor(counts.meffil[,cell.type], counts.beta[,cell.type]), "\n")
 }
-## Bcell 0.9814654 
-## CD4T 0.998171 
-## CD8T 0.9966193 
-## Gran 0.9993144 
-## Mono 0.9818829 
-## NK 0.9810345 
+```

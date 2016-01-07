@@ -1,0 +1,141 @@
+```{r ewas-init, echo=FALSE}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+
+```
+
+# EWAS in meffil
+
+## Download example data set 
+
+```{r child = 'dataset-450k-lead.rmd'}
+```
+
+```{r}
+path <- download.450k.lead.dataset()
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
+options(mc.cores=5)
+samplesheet <- meffil.create.samplesheet(path)
+
+samples <- read.csv(file.path(path, "samples.csv"), check.names=F, row.names=1)
+samplesheet <- data.frame(samplesheet,
+                          samples[match(samplesheet$Sample_Name, rownames(samples)),],
+                          stringsAsFactors=F, check.names=F)
+
+samplesheet <- samplesheet[which(samplesheet[["sample type"]] == "HM450K"),]
+```
+
+Parameters.
+```{r}
+qc.file <- "ewas/qc-report.html"
+author <- "Sen, et al."
+study <- "Cord blood DNA methylation and lead exposure (GSE69633)"
+norm.file <- "ewas/normalization-report.html"
+cell.type.reference <- "gervin and lyle cord blood"
+```
+
+Generate QC objects for each sample and QC report.
+```{r ewas-qc, cache=T}
+qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+```
+
+Remove any low quality samples.
+```{r}
+if (nrow(qc.summary$bad.samples) > 0)
+    qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+
+samplesheet <- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
+```
+
+Check how many principal components to include.
+```{r, dev="CairoPNG"}
+print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+```
+
+Ten seems about right.
+```{r}
+number.pcs <- 10
+```
+
+Normalize dataset and generate normalization report.
+```{r ewas-norm, cache=T}
+norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+norm.meffil <- meffil.normalize.samples(norm.objects,
+                                        just.beta=F, 
+                                        cpglist.remove=qc.summary$bad.cpgs$name,
+                                        verbose=T)
+
+beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
+parameters <- meffil.normalization.parameters(norm.objects)
+norm.summary <- meffil.normalization.summary(beta.meffil,
+                                             norm.objects=norm.objects,
+                                             parameters=parameters, verbose=T)
+meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+
+```
+
+## Test associations with gestational age
+
+Parameters.
+```{r}
+ewas.variable.name <- "gestational age"
+ewas.covariate.names <- c("socioeconomic score","gender","smoke ever","birth weight")
+ewas.output.file <- "ewas/ewas-gestational-age-report.html"
+ewas.author <- "Me"
+ewas.study <- "Gestational age in cord blood DNA methylation (GEO:GSE69633)"
+ewas.cpg.sites <- c("cg08943494", "cg11932158","cg16725984", "cg20334115", "cg18623216") 
+## PMID: 25869828 (top 5)
+```
+
+Perform EWAS.
+```{r ewas, cache=T}
+variable <- samplesheet[[ewas.variable.name]]
+covariates <- data.frame(t(meffil.cell.count.estimates(qc.objects)),
+                         samplesheet[,ewas.covariate.names],
+                         stringsAsFactors=F)
+   
+ewas.ret <- meffil.ewas(beta.meffil,
+                        variable=variable,
+                        covariates=covariates,
+                        most.variable=50000,
+                        verbose=T)
+```
+
+Generate EWAS report.
+```{r ewas-report}
+ewas.parameters <- meffil.ewas.parameters(sig.threshold=1e-5,max.plots=10)
+ewas.summary <- meffil.ewas.summary(ewas.ret,
+                                    beta.meffil,
+                                    selected.cpg.sites=ewas.cpg.sites,
+                                    parameters=ewas.parameters, verbose=T)
+
+meffil.ewas.report(ewas.summary,
+                   output.file=ewas.output.file,
+                   author=ewas.author,
+                   study=ewas.study)
+```
+
+
+
+
+
+
+
+
+

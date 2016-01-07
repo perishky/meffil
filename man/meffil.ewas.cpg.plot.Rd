@@ -4,16 +4,16 @@
 \alias{meffil.ewas.cpg.plot}
 \title{Scatter plots for a CpG site in an EWAS}
 \usage{
-meffil.ewas.cpg.plot(ewas.object, cpg, title = cpg, beta = NULL)
+meffil.ewas.cpg.plot(ewas.object, cpg, beta, title = cpg)
 }
 \arguments{
 \item{ewas.object}{Return object from \code{\link{meffil.ewas()}}.}
 
 \item{cpg}{CpG site to plot.}
 
-\item{title}{Title of the plot (Default: \code{cpg}).}
+\item{beta}{Matrix of methylation levels used to create the \code{ewas.object}.}
 
-\item{beta}{Optional matrix of methylation levels used to create the \code{ewas.object} (Default: NULL).}
+\item{title}{Title of the plot (Default: \code{cpg}).}
 
 \item{\code{\link{ggplot}}}{object showing the scatterplots of DNA methylation vs the variable of interest
 in the EWAS.  Each plot corresponds to a covariate set.

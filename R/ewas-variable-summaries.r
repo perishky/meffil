@@ -1,4 +1,4 @@
-#' Describe EWAS samples using variable of interest and covariates.
+#' Describe EWAS samples using the variable of interest and covariates.
 #'
 #' @param ewas.object Output of \code{\link{meffil.ewas}()}.
 #' @return A data frame with one row for each continuous or ordinal variable
@@ -62,101 +62,193 @@ meffil.ewas.sample.characteristics <- function(ewas.object) {
 #' @export
 meffil.ewas.covariate.associations <- function(ewas.object) {
     stopifnot(is.ewas.object(ewas.object))
-
-    summarize.covariate <- function(name,covariate, variable) {
-        samples <- expand.grid(variable=if (!is.factor(variable)) "" else levels(variable),
-                               covariate=if (!is.factor(covariate)) "" else levels(covariate),
-                               stringsAsFactors=F)
-        samples$idx <- lapply(1:nrow(samples), function(i)
-                              which((is.na(samples$variable[i])
-                                     | variable == samples$variable[i]) &
-                                    (is.na(samples$covariate[i])
-                                     | covariate == samples$covariate[i])))
+    if (is.null(ewas.object$covariates)) return(NULL)
     
-        if (is.factor(variable) && is.factor(covariate)) {
-            contingency.table <- table(variable,covariate)
-            all.ret <- data.frame(covariate=name,
-                                  value="",
-                                  variable="",
-                                  mean="",
-                                  var="",
-                                  p.value=format(fisher.test(contingency.table, simulate.p.value=T)$p.value,digits=3,nsmall=2),
-                                  test="Fisher's test")
-            cases.ret <- do.call(rbind, lapply(1:nrow(samples), function(i) {
-                contingency.table <- table(variable==samples$variable[i],
-                                           covariate==samples$covariate[i])
-                data.frame(covariate=name,
-                           value=samples$covariate[i], ## covariate level
-                           variable=samples$variable[i], ## variable level
-                           mean=format(contingency.table[2,2]),
-                           var=format(contingency.table[2,2]/sum(contingency.table[2,])*100,digits=3,nsmall=1),
-                           p.value=format(fisher.test(contingency.table)$p.value,digits=3,nsmall=2),
-                           test="Fisher's test")
+    ret <- lapply(1:ncol(ewas.object$covariates), function(i) {
+        vars <- data.frame(variable=ewas.object$variable,
+                           covariate=ewas.object$covariates[,i])
+        if (length(unique(na.omit(vars$variable))) <= 2)
+            vars$variable <- as.factor(vars$variable)
+        colnames(vars)[2] <- colnames(ewas.object$covariates)[i]
+        meffil.summarize.relationship(vars)
+    })
+    names(ret) <- colnames(ewas.object$covariates)
+    ret
+}
+
+#' Describe the relationship between two variables.
+#'
+#' @param vars A data frame with at least two columns.
+#' The first two columns will be compared.
+#' @return A list whose elements depends on the types of the two variables.
+#' In each case, the list contains the following elements:
+#' \describe{
+#' \item{var1}{Name of the first variable, i.e. colnames(vars)[1].}
+#' \item{var2}{Name of the second variable.}
+#' \item{r}{Spearman's correlation between the variables. This may be meaningless if one variable is an unordered factor.}
+#' \item{r.p}{P-value corresponding to the correlation between the variables.}
+#' \item{output}{The contents of the list formatted to be printed as markdown text.}
+#' \item{plot}{A plot (ggplot2) visualizing the relationship.}
+#' }
+#'
+#' If both variables are factors, then the list will include a frequency table (\code{freq})
+#' and a corresponding matrix of p-values (\code{p.values}) obtained using Fisher's test to test for
+#' enrichment in each cell of the frequency table.
+#'
+#' If one variable is a factor and the other numeric, then list will include
+#' the F-statistic (\code{F.stat}) and p-value (\code{p.value}) from one-way analysis of variance.
+#' There will also be a data frame (\code{cases}) with each row providing statistics from a t-test
+#' comparing the numeric variable within and without each level of the factor variable.
+#'
+#' If both variables are numeric, then the list will include
+#' the F-statistic (\code{F.stat}) and p-value (\code{p.value})
+#' from the linear model fitting the variables.
+#'
+#' @export
+meffil.summarize.relationship <- function(vars) {
+    stopifnot(is.data.frame(vars))
+    values <- lapply(vars, function(var) if (!is.factor(var)) NA else levels(var))
+    samples <- do.call(expand.grid, c(values, list(stringsAsFactors=F)))
+    samples$idx <- lapply(1:nrow(samples), function(i)
+                          which((is.na(samples[[1]][i]) | vars[[1]] == samples[[1]][i]) &
+                                (is.na(samples[[2]][i]) | vars[[2]] == samples[[2]][i])))
+    if (is.factor(vars[[1]]) && is.factor(vars[[2]])) {        
+        freq <- do.call(table, vars)
+        ret <- list(freq=freq)
+        fit <- cor.test(as.integer(vars[[1]]), as.integer(vars[[2]]), method="s")
+        ret$r <- fit$estimate[["rho"]]
+        ret$r.p <- fit$p.value
+        ret$p.values <- sapply(values[[1]], function(level1)
+                               sapply(values[[2]], function(level2) {
+                                   is.value <- mapply(function(var,value) var == value,
+                                                      vars,
+                                                      list(level1, level2))
+                                   freq <- do.call(table, as.data.frame(is.value))
+                                   p <- NA
+                                   try(p <- fisher.test(freq, alternative="greater")$p.value, silent=T)
+                                   p
+                               }))
+        ret$p.values <- t(ret$p.values)
+        ret$sig <- ret$p.values
+        ret$sig[] <- ""
+        ret$sig[which(ret$p.values < 0.05)] <- "+"
+        ret$sig[which(ret$p.values < 0.01)] <- "*"
+        ret$sig[which(ret$p.values < 0.001)] <- "**"
+        ret$sig[which(ret$p.values < 0.0001)] <- "***"
+        ret$sig[which(ret$p.values < 0.00001)] <- "****"
+    } else {
+        var1 <- sign(is.factor(vars[[1]])) + 1 ## variable that is not a factor
+        var2 <- 3-var1 ## the other variable
+        fit <- lm(vars[[var1]] ~ vars[[var2]])        
+        f.stat <- summary(fit)$fstatistic
+        p.value <- 1 - pf(f.stat["value"],f.stat["numdf"],f.stat["dendf"])[["value"]]
+
+        ret <- list(f.stat=f.stat[["value"]],
+                    p.value=p.value,
+                    n=sum(!is.na(vars[[var1]]) & !is.na(vars[[var2]])))
+        
+        if (!is.factor(vars[[var1]]) && !is.factor(vars[[var2]])) {
+            fit <- cor.test(vars[[1]], vars[[2]], method="s")
+            ret$r <- fit$estimate[["rho"]]
+            ret$r.p <- fit$p.value
+        } else { ## vars[[var2]] is a factor
+            fit <- cor.test(vars[[var1]], as.integer(vars[[var2]]), method="s")
+            ret$r <- fit$estimate[["rho"]]
+            ret$r.p <- fit$p.value
+                         
+            ret$cases <- do.call(rbind, lapply(1:nrow(samples), function(i) {
+                level <- samples[[var2]][i]
+                is.level <- vars[[var2]] == level
+
+                if (sum(is.level, na.rm=T) > 1 && sum(!is.level, na.rm=T) > 1)
+                    fit <- t.test(vars[[var1]][which(is.level)], 
+                                  vars[[var1]][which(!is.level)])
+                else
+                    fit <- list(p.value=NA,statistic=list(t=NA))
+
+                data.frame(level=level,
+                           mean=mean(vars[[var1]][which(is.level)], na.rm=T),
+                           var=var(vars[[var1]][which(is.level)], na.rm=T),
+                           n=sum(is.level, na.rm=T),
+                           t.stat=fit$statistic[["t"]],
+                           p.value=fit$p.value)
             }))
-            ret <- rbind(all.ret, cases.ret)
-        } else {                
-            if (is.factor(variable)) 
-                fit <- lm(covariate ~ variable)
-            else
-                fit <- lm(variable ~ covariate)
-            f <- summary(fit)$fstatistic
-            p.value <- 1 - pf(f["value"],f["numdf"],f["dendf"])
-            
-            if (!is.factor(variable) && !is.factor(covariate))
-                ret <- data.frame(covariate=name,
-                                  value="",
-                                  variable="",
-                                  mean=format(mean(covariate,na.rm=T)),
-                                  var=format(var(covariate,na.rm=T)),
-                                  p.value=format(p.value,digits=3,nsmall=2),
-                                  test="OLS")
-            else {
-                if (is.factor(variable)) {
-                    var.numeric <- covariate
-                    var.factor <- variable
-                } else {
-                    var.numeric <- variable
-                    var.factor <- covariate
-                }
-                
-                all.ret <- data.frame(covariate=name,
-                                      value="",
-                                      variable="",
-                                      mean=format(mean(var.numeric,na.rm=T)),
-                                      var=format(sd(var.numeric,na.rm=T)),
-                                      p.value=format(p.value,digits=3,nsmall=2),
-                                      test="ANOVA")
-                cases.ret <- do.call(rbind, lapply(1:nrow(samples), function(i) {
-                    if (is.factor(variable)) {
-                        var.factor <- variable == samples$variable[i]
-                    }
-                    else {
-                        var.factor <- covariate == samples$covariate[i]
-                    }
-                    p.value <- t.test(var.numeric[which(var.factor)],
-                                      var.numeric[which(!var.factor)])$p.value
-                    data.frame(covariate=name,
-                               value=samples$covariate[i], ## == "" if covariate is not categorical, otherwise covariate level
-                               variable=samples$variable[i],  ## same as above for variable
-                               mean=format(mean(var.numeric[which(var.factor)], na.rm=T)),
-                               var=format(sd(var.numeric[which(var.factor)], na.rm=T)),
-                               p.value=format(p.value,digits=3,nsmall=2),
-                               test="t-test")
-                }))
-                ret <- rbind(all.ret, cases.ret)
-            }
+            names(ret$cases)[1] <- names(vars)[var2]
+            rownames(ret$cases) <- NULL
         }
-        rownames(ret) <- NULL
-        ret
     }
 
-    do.call(rbind, lapply(1:ncol(ewas.object$covariates), function(i) {
-        summarize.covariate(colnames(ewas.object$covariates)[i],
-                            ewas.object$covariates[,i],
-                            ewas.object$variable)
-    }))
+    ret$var1 <- names(vars)[1]
+    ret$var2 <- names(vars)[2]
+
+    ret$output <- format.relationship(ret)
+    ret$plot <- visualize.relationship(vars, ret)
+    
+    ret
 }
 
 
+format.relationship <- function(ret) {
+    if ("p.values" %in% names(ret)) {        
+        list("statistics"=kable(data.frame(var1=ret$var1, var2=ret$var2,
+                 R=ret$r, "p-value"=ret$r.p, check.names=F)),
+             "frequencies"=kable(ret$freq),
+             "enrichment p-values"=kable(ret$p.values))
+    }
+    else if ("cases" %in% names(ret)) {
+        list("statistics"=kable(data.frame(var1=ret$var1, var2=ret$var2,
+                              F=ret$f.stat, "p-value"=ret$p.value,
+                              R=ret$r, "p-value"=ret$r.p, check.names=F)),
+             "cases"=kable(ret$cases))
+    }
+    else {
+        list("statistics"=kable(data.frame(var1=ret$var1, var2=ret$var2,
+                 F=ret$f.stat, "p-value"=ret$p.value,
+                 R=ret$r, "p-value"=ret$r.p, check.names=F)))
+    }
+}
 
+visualize.relationship <- function(vars, ret) {
+    if ("p.values" %in% names(ret)) {
+        data <- melt(-log(ret$p.values,10))
+        colnames(data) <- c("var1","var2","p.value")
+        data$freq <- melt(ret$freq)$value
+        (ggplot(data, aes(x=as.factor(var2), y=as.factor(var1)))
+         + geom_tile(aes(fill=p.value))
+         + geom_text(aes(label=freq))
+         + labs(x=names(vars)[2], y=names(vars)[1], fill="-log10(p-value)")
+         + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+         + ggtitle(""))
+    }
+    else {
+        if (!is.factor(vars[[1]]) && !is.factor(vars[[2]])) {
+            n.levels <- sapply(vars, function(var) length(unique(var)))
+            if (n.levels[1] <= n.levels[2] && n.levels[1] < 20)
+                vars[[1]] <- factor(vars[[1]], levels=sort(unique(vars[[1]])), ordered=T)
+            if (n.levels[2] < n.levels[1] && n.levels[2] < 20)
+                vars[[2]] <- factor(vars[[2]], levels=sort(unique(vars[[2]])), ordered=T)
+        }
+        if (is.factor(vars[[2]])) {
+            vars[1:2] <- vars[2:1]
+            names(vars)[1:2] <- names(vars)[2:1]
+        } ## if one is a factor, then it is the first one
 
+        data <- data.frame(x=vars[[1]], y=vars[[2]])
+        if (!is.factor(data$x) && !is.factor(data$y)) {        
+            (ggplot(data, aes(x=x, y=y))
+             + geom_point()
+             + geom_smooth(method=lm)
+             + xlab(names(vars)[1])
+             + ylab(names(vars)[2])
+             + ggtitle(""))
+        } else {            
+            (ggplot(data, aes(x=x,y=y))
+             + geom_boxplot()
+             + xlab(names(vars)[1])
+             + ylab(names(vars)[2])
+             + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+             + ggtitle(""))
+        } 
+    }
+}
+        

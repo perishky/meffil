@@ -3,7 +3,7 @@ There are
 samples whose genotypes do not match the SNP probes on the microarray
 (concordance threshold = `r qc.summary$parameters$sample.genotype.concordance.threshold`).
 
-```{r genotype-discordant-samples}
+```{r}
 
 tab <- qc.summary$genotype.summary$tabs$samples
 tab <- tab[which(!tab$is.concordant),]
@@ -12,9 +12,9 @@ if (nrow(tab) > 0) kable(tab,row.names=F)
 ```
 
 Sample concordances are distributed as follows:
-```{r sample-genotype-graph}
+```{r,message=FALSE}
 
-qc.summary$genotype.summary$graphs$sample.concordance
+(qc.summary$genotype.summary$graphs$sample.concordance)
 
 ```
 
@@ -23,7 +23,7 @@ There are
 SNP probes whose genotypes do not match their values on the microarray
 (concordance threshold = `r qc.summary$parameters$snp.concordance.threshold`).
 
-```{r genotype-discordant-snps}
+```{r}
 
 tab <- qc.summary$genotype.summary$tabs$snps
 tab <- tab[which(!tab$is.concordant),]
@@ -33,8 +33,8 @@ if (nrow(tab) > 0) kable(tab,row.names=F)
 
 SNP concordances are distributed as follows:
 
-```{r snp-genotype-graph}
+```{r,message=FALSE}
 
-qc.summary$genotype.summary$graphs$snp.concordance
+(qc.summary$genotype.summary$graphs$snp.concordance)
 
 ```

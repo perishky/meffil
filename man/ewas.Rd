@@ -4,7 +4,6 @@
 \alias{ewas}
 \title{Test associations between \code{variable} and each row of \code{beta}
 while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
-Save methylation levels for the \code{save.beta} CpG sites most strongly associated.
 If \code{cell.counts} is not \code{NULL}, then it is assumed that
 the methylation data is derived from samples with two cell types.
 \code{cell.counts} should then be a vector of numbers
@@ -13,13 +12,12 @@ to the proportions of cell of a selected cell type in each sample.
 The regression model is then modified in order to identify
 associations specifically in the selected cell type (PMID: 24000956).}
 \usage{
-ewas(variable, beta, covariates = NULL, batch = NULL, save.beta = 100,
-  cell.counts = NULL, verbose = F)
+ewas(variable, beta, covariates = NULL, batch = NULL, cell.counts = NULL,
+  verbose = F)
 }
 \description{
 Test associations between \code{variable} and each row of \code{beta}
 while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
-Save methylation levels for the \code{save.beta} CpG sites most strongly associated.
 If \code{cell.counts} is not \code{NULL}, then it is assumed that
 the methylation data is derived from samples with two cell types.
 \code{cell.counts} should then be a vector of numbers

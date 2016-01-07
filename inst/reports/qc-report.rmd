@@ -1,13 +1,3 @@
-
-```{r qc-init, echo=FALSE}
-
-library(knitr)
-library(Cairo)
-opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")
-
-```
-
-
 # QC report
 - study: `r study`
 - author: `r author`
@@ -15,7 +5,7 @@ opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.wid
 
 ## Parameters used for QC
 
-```{r qc-parameters, results="markup"}
+```{r, results="markup"}
 qc.summary$parameters
 ```
 
@@ -24,7 +14,7 @@ qc.summary$parameters
 
 There are `r sum(qc.summary$sex.summary$tab$outliers)` sex detection outliers, and `r sum(qc.summary$sex.summary$tab$sex.mismatch == "TRUE")` sex detection mismatches.
 
-```{r sex-summary}
+```{r}
 
 tab <- qc.summary$sex.check
 if(nrow(tab) > 0) kable(tab,row.names=F)
@@ -36,9 +26,9 @@ chromosome Y and chromosome X probe intensities ("XY diff").
 Cutoff for sex detection was
 XY diff = `r qc.summary$parameters$sex.cutoff`.
 
-```{r sex-graph}
+```{r,message=FALSE}
 
-qc.summary$sex.summary$graph
+(qc.summary$sex.summary$graph)
 
 ```
 
@@ -50,7 +40,7 @@ Outliers are samples whose predicted median methylated signal is
 more than `r qc.summary$parameters$meth.unmeth.outlier.sd` standard deviations
 from the expected (regression line).
 
-```{r meth-unmeth-summary}
+```{r}
 
 tab <- subset(qc.summary$meth.unmeth.summary$tab, outliers)
 if(nrow(tab) > 0) kable(tab,row.names=F)
@@ -59,9 +49,9 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 This is a plot of the methylation signals vs unmethylated signals
 
-```{r meth-unmeth-graph}
+```{r,message=FALSE}
 
-qc.summary$meth.unmeth.summary$graph
+(qc.summary$meth.unmeth.summary$graph)
 
 ```
 
@@ -70,7 +60,7 @@ qc.summary$meth.unmeth.summary$graph
 
 There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detected based on deviations from mean values for control probes.
 
-```{r controlmeans-summary}
+```{r}
 
 tab <- subset(qc.summary$controlmeans.summary$tab, outliers)
 if(nrow(tab) > 0) kable(tab,row.names=F)
@@ -79,9 +69,9 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 The distribution of sample control means are plotted here:
 
-```{r controlmeans-graph, fig.height=24}
+```{r, message=FALSE, fig.height=24}
 
-qc.summary$controlmeans.summary$graph
+(qc.summary$controlmeans.summary$graph)
 
 ```
 
@@ -94,7 +84,7 @@ with a high proportion of undetected probes
 detection p-value > `r qc.summary$parameters$detection.threshold`
 is > `r qc.summary$parameters$detectionp.samples.threshold`).
 
-```{r sample-detectionp-summary}
+```{r}
 
 tab <- subset(qc.summary$sample.detectionp.summary$tab, outliers)
 if(nrow(tab) > 0) kable(tab,row.names=F)
@@ -103,9 +93,9 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 Distribution:
 
-```{r sample-detectionp-graph}
+```{r, message=FALSE}
 
-qc.summary$sample.detectionp.summary$graph
+(qc.summary$sample.detectionp.summary$graph)
 
 ```
 
@@ -118,7 +108,7 @@ with a high proportion of probes with low bead number
 bead number < `r qc.summary$parameters$bead.threshold`
 is > `r qc.summary$parameters$beadnum.samples.threshold`).
 
-```{r sample-beadnum-summary}
+```{r}
 
 tab <- subset(qc.summary$sample.beadnum.summary$tab, outliers)
 if(nrow(tab) > 0) kable(tab,row.names=F)
@@ -127,9 +117,9 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 Distribution:
 
-```{r sample-beadnum-graph}
+```{r, message=FALSE}
 
-qc.summary$sample.beadnum.summary$graph
+(qc.summary$sample.beadnum.summary$graph)
 
 ```
 
@@ -142,10 +132,10 @@ probes with only background signal in a high proportion of samples
 is > `r qc.summary$parameters$detectionp.cpgs.threshold`).
 Manhattan plot shows the proportion of samples.
 
-```{r cpg-detectionp-graph}
+```{r,message=FALSE}
 
 if (!is.null(qc.summary$cpg.detectionp.summary$graph))
-    qc.summary$cpg.detectionp.summary$graph
+    (qc.summary$cpg.detectionp.summary$graph)
 
 ```
 
@@ -157,40 +147,40 @@ with low bead numbers in a high proportion of samples
 is > `r qc.summary$parameters$beadnum.cpgs.threshold`).
 Manhattan plot of proportion of samples.
 
-```{r cpg-beadnum-graph}
+```{r,message=FALSE}
 
 if (!is.null(qc.summary$cpg.beadnum.summary$graph))
-    qc.summary$cpg.beadnum.summary$graph
+    (qc.summary$cpg.beadnum.summary$graph)
 
 ```
 
 ## Cell count estimates
 
-```{r cell-counts-option}
-child.filename <- file.path(path, "missing.rmd")
+```{r,message=FALSE}
+child.filename <- file.path(report.path, "missing.rmd")
 if (!is.null(qc.summary$cell.counts))
-    child.filename <- file.path(path, "cell-counts.rmd")
+    child.filename <- file.path(report.path, "cell-counts.rmd")
 ```
 
-```{r cell-counts-report, child = child.filename}
+```{r, child = child.filename}
 ``` 
 
 ## SNP probe beta values
 
 Distributions of SNP probe beta values.
-```{r snp-beta-graph}
+```{r,message=FALSE}
 
-suppressMessages(qc.summary$genotype.summary$graphs$snp.beta)
+(qc.summary$genotype.summary$graphs$snp.beta)
 
 ```
 
 ## Genotype concordance
 
-```{r genotype-option}
-child.filename <- file.path(path, "missing.rmd")
+```{r,message=FALSE}
+child.filename <- file.path(report.path, "missing.rmd")
 if (!is.null(qc.summary$genotype.summary$graphs$snp.concordance))
-    child.filename <- file.path(path, "genotype-concordance.rmd")
+    child.filename <- file.path(report.path, "genotype-concordance.rmd")
 ```
 
-```{r genotype-concordance, child=child.filename}
+```{r, child=child.filename}
 ```

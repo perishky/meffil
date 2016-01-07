@@ -1,0 +1,15 @@
+> Sen A, Cingolani P, Senut MC, Land S et al. Lead exposure induces
+> changes in 5-hydroxymethylcytosine clusters in CpG islands in human
+> embryonic stem cells and umbilical cord blood. Epigenetics
+> 2015;10(7):607-21. PMID: 26046694
+
+Retrieve the data from the Gene Expression Omnibus (GEO) website
+(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69633).
+
+
+```{r, echo=F}
+knitr::read_chunk("dataset-450k-lead.r")
+```
+
+```{r download-450k-lead-dataset}
+```

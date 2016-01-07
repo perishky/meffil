@@ -7,8 +7,6 @@
 #' @param covariates Covariates data frame to include in regression model,
 #' one row per sample, one column per covariate (Default: NULL).
 #' @param batch Batch vector to be included as a random effect (Default: NULL).
-#' @param save.beta Number of most strongly associated CpG sites for which to retain
-#' methylation levels for later plotting (Default: 100).
 #' @param cell.counts Proportion of cell counts for one cell type in cases
 #' where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL).
 #' @param isva0 Apply Independent Surrogate Variable Analysis (ISVA) to the
@@ -27,7 +25,7 @@
 #' @export
 meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL,
-                        save.beta=100, cell.counts=NULL,
+                        cell.counts=NULL,
                         isva0=T, isva1=T,
                         winsorize.pct=0.05, ## perhaps better, winsorize at 25-percentile - iqr?
                         most.variable=min(nrow(beta), 50000),
@@ -125,7 +123,6 @@ meffil.ewas <- function(beta, variable,
              beta=beta,
              covariates=covariates,
              batch=batch,
-             save.beta=save.beta,
              cell.counts=cell.counts)
     }, simplify=F)
 
@@ -155,7 +152,6 @@ is.ewas.object <- function(object)
 
 #' Test associations between \code{variable} and each row of \code{beta}
 #' while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
-#' Save methylation levels for the \code{save.beta} CpG sites most strongly associated.
 #' If \code{cell.counts} is not \code{NULL}, then it is assumed that
 #' the methylation data is derived from samples with two cell types.
 #' \code{cell.counts} should then be a vector of numbers
@@ -163,7 +159,7 @@ is.ewas.object <- function(object)
 #' to the proportions of cell of a selected cell type in each sample.
 #' The regression model is then modified in order to identify
 #' associations specifically in the selected cell type (PMID: 24000956).
-ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cell.counts=NULL,
+ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL,
                  verbose=F) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
@@ -172,7 +168,6 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cel
     stopifnot(is.null(cell.counts)
               || length(cell.counts) == ncol(beta)
               && all(cell.counts >= 0 & cell.counts <= 1))
-    stopifnot(save.beta > 0)
 
     if (is.null(covariates))
         design <- data.frame(intercept=1, variable=variable)
@@ -226,13 +221,10 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, save.beta=100, cel
                      * fit.ebayes$stdev.unscaled[,"variable"]
                      * qt(alpha, df=fit.ebayes$df.total))
 
-    save.idx <- order(fit.ebayes$p.value[,"variable"], decreasing=F)[1:save.beta]    
-    
     list(design=design,
          batch=batch,
          batch.cor=batch.cor,
          cell.counts=cell.counts,
-         beta=beta[save.idx,,drop=F],
          table=data.frame(p.value=fit.ebayes$p.value[,"variable"],
              fdr=p.adjust(fit.ebayes$p.value[,"variable"], "fdr"),
              p.holm=p.adjust(fit.ebayes$p.value[,"variable"], "holm"),
