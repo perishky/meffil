@@ -1,0 +1,13 @@
+### Covariate `r covariate.name`
+
+```{r}
+output <- ewas.summary$covariate.associations[[covariate.name]]$output
+for (name in names(output)) {
+    cat("", name, sep="\n")
+    print(output[[name]])
+}
+```
+
+```{r,message=F}
+(ewas.summary$covariate.associations[[covariate.name]]$plot)
+```

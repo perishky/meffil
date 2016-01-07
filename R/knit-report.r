@@ -1,13 +1,5 @@
 #' Knit report using working environment
 #'
-#' Warning: It is quite likely that this will be called within an RMD file
-#' implying a recursive call to knit(). This will generate "duplicate label"
-#' errors for unlabelled chunks. To avoid this, all code chunks
-#' in \code{rmd.filename} should be named.
-#' Supposedly this error can also be avoided by setting the following option:
-#'      options(knitr.duplicate.label='allow')
-#' I tried this but it didn't seem to help.
-#'
 #' @param rmd.filename RMD file.
 #' @param output.filename Markdown or HTML output file.  An HTML file
 #' is specified using the .htm, .html, .HTM or .HTML file extension.
@@ -28,25 +20,36 @@ knit.report <- function(input.filename, output.filename, ...) {
     output.dir <- normalizePath(output.dir)
     output.filename <- file.path(output.dir, basename(output.filename))
     
-    current.dir <- getwd()
-    on.exit(setwd(current.dir))
-    setwd(output.dir)
-
     name <- gsub("\\.[^.]+$", "", basename(output.filename))
     suffix <- gsub(".*\\.([^.]+)$", "\\1", output.filename)
     is.html <- tolower(suffix) %in% c("htm","html")
 
     if (is.html)
-        md.filename <- paste(name, "md", sep=".")
+        md.filename <- file.path(output.dir, paste(name, "md", sep="."))
     else
-        md.filename <- basename(output.filename)
+        md.filename <- output.filename
 
-    ## the rmd code can reference the output directory, e.g. to save a file there.
-    assign("output.dir", output.dir, envir=parent.frame())
-    
-    knit(input.filename, output=md.filename, envir=parent.frame(), ...)
+    current.dir <- opts_knit$get("output.dir")
+    on.exit(opts_knit$set(output.dir=current.dir))
+    opts_knit$set(output.dir=output.dir)
+
+    cwd <- getwd()
+    on.exit(setwd(cwd), add=TRUE)
+
+    if (is.null(options("knitr.in.progress")[[1]]))
+        knit(input.filename, output=md.filename, envir=parent.frame(), ...)
+    else {
+        opts_knit$set(progress=FALSE)
+        out <- knit_child(input.filename, envir=parent.frame(), quiet=T)
+        writeLines(out, con=md.filename)
+    }
+
+    lines <- readLines(md.filename)
+    lines <- gsub("![plot", "\n\n![plot", lines, fixed=T)
+    writeLines(lines, md.filename)
 
     if (is.html)
-        markdownToHTML(md.filename, basename(output.filename))
+        markdownToHTML(md.filename, output.filename)
 }
+
 

@@ -19,12 +19,6 @@ same folder as \code{output.filename}.}
 \item{rmd.filename}{RMD file.}
 }
 \description{
-Warning: It is quite likely that this will be called within an RMD file
-implying a recursive call to knit(). This will generate "duplicate label"
-errors for unlabelled chunks. To avoid this, all code chunks
-in \code{rmd.filename} should be named.
-Supposedly this error can also be avoided by setting the following option:
-     options(knitr.duplicate.label='allow')
-I tried this but it didn't seem to help.
+Knit report using working environment
 }
 

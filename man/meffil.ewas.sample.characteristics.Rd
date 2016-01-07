@@ -2,7 +2,7 @@
 % Please edit documentation in R/ewas-variable-summaries.r
 \name{meffil.ewas.sample.characteristics}
 \alias{meffil.ewas.sample.characteristics}
-\title{Describe EWAS samples using variable of interest and covariates.}
+\title{Describe EWAS samples using the variable of interest and covariates.}
 \usage{
 meffil.ewas.sample.characteristics(ewas.object)
 }
@@ -17,6 +17,6 @@ In the second case (categorical), each row provides the name of the variable lev
 the number of cases and percentage of cases at that level.
 }
 \description{
-Describe EWAS samples using variable of interest and covariates.
+Describe EWAS samples using the variable of interest and covariates.
 }
 

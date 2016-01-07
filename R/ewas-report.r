@@ -19,8 +19,14 @@ meffil.ewas.report <- function(ewas.summary,
                                study = "Illumina methylation data",
                                ...) {
     meffil:::msg("Writing report as html file to", output.file)
-    path <- system.file("reports", package="meffil")
-    knit.report(file.path(path, "ewas-report.rmd"),output.file, ...)
+    report.path <- system.file("reports", package="meffil")
+    require(knitr)
+    require(Cairo)
+    require(gridExtra)
+    opts <- opts_chunk$get()
+    on.exit(opts_chunk$set(opts))
+    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")
+    knit.report(file.path(report.path, "ewas-report.rmd"),output.file, ...)
 }
 
 #' Summarize EWAS results.
@@ -29,8 +35,9 @@ meffil.ewas.report <- function(ewas.summary,
 #' plots of the strongest associations and plots of selected CpG sites.
 #'
 #' @param ewas.object From \code{\link{meffil.ewas}()}.
+#' @param beta Matrix of methylation levels used in the analysis.
 #' @param selected.cpg.sites Vector of CpG site names to plot (Default: character(0)).
-#' @param  parameters Default = meffil.ewas.parameters(). List of parameter values. See \code{\link{meffil.ewas.parameters}()}.
+#' @param parameters Default = meffil.ewas.parameters(). List of parameter values. See \code{\link{meffil.ewas.parameters}()}.
 #' @export
 #' @return List
 #' 
@@ -41,18 +48,21 @@ meffil.ewas.summary <- function(ewas.object, beta,
                                 verbose=T) {
     min.p <- rowMins(ewas.object$p.value)
     parameters$practical.threshold <- min.p[order(min.p, decreasing=F)][parameters$max.plots+1]
-    if (parameters$practical.threshold > parameters$sig.threshold) {
-        parameters$practical.threshold <- sig.threshold
-    }
+
+    if (is.na(parameters$sig.threshold)) 
+        parameters$sig.threshold <- 0.05/nrow(ewas.object$p.value)
         
     sig.idx <- unique(which(ewas.object$p.value < parameters$sig.threshold, arr.ind=T)[,"row"])
-    sig.cpg.stats <- list(p.value=ewas.object$p.value[sig.idx,],
-                          coefficient=ewas.object$coefficient[sig.idx,])
+    practical.idx <- which(rowMins(ewas.object$p.value) < parameters$practical.threshold)
+    selected.idx <- match(selected.cpg.sites, rownames(ewas.object$p.value))    
 
-    selected.cpg.idx <- match(selected.cpg.sites, rownames(ewas.object$p.value))
-    selected.cpg.stats <- list(p.value=ewas.object$p.value[selected.cpg.idx,],
-                               coefficient=ewas.object$coefficient[selected.cpg.idx,])
+    cpg.idx <- union(sig.idx, union(practical.idx, selected.idx))
+    cpg.sites <- rownames(ewas.object$p.value)[cpg.idx]
 
+    cpg.stats <- data.frame(ewas.object$analyses[[1]]$table[cpg.sites, c("chromosome","position")],
+                            p.value=ewas.object$p.value[cpg.idx,],
+                            coefficient=ewas.object$coefficient[cpg.idx,])
+    
     msg("QQ plots", verbose=T)
     qq.plots <- meffil.ewas.qq.plot(ewas.object,
                                     sig.threshold=parameters$sig.threshold)
@@ -61,32 +71,26 @@ meffil.ewas.summary <- function(ewas.object, beta,
     manhattan.plots <- meffil.ewas.manhattan.plot(ewas.object,
                                                   sig.threshold=parameters$sig.threshold)
 
-    practical.idx <- which(rowMins(sig.cpg.stats$p.value) < parameters$practical.threshold)
-    cpg.sites <- union(rownames(sig.cpg.stats$p.value)[practical.idx], 
-                       rownames(selected.cpg.stats$p.value))
-    msg("CpG site plots:", length(cpg.sites), verbose=T)
-    cpg.plots <- sapply(cpg.sites, function(cpg) {
+    plot.sites <- rownames(ewas.object$p.value)[union(practical.idx, selected.idx)]
+    msg("CpG site plots:", length(plot.sites), verbose=T)
+    cpg.plots <- sapply(plot.sites, function(cpg) {
         msg("Plotting", cpg, verbose=T)
-        meffil.ewas.cpg.plot(ewas.object, cpg, beta=beta)
+        meffil.ewas.cpg.plot(ewas.object, cpg=cpg, beta=beta)
     }, simplify=F)
 
     msg("Sample characteristics", verbose=T)
     sample.characteristics <- meffil.ewas.sample.characteristics(ewas.object)
     covariate.associations <- meffil.ewas.covariate.associations(ewas.object)
 
-    cpg.sites <- union(rownames(sig.cpg.stats$p.value),
-                       rownames(selected.cpg.stats$p.value))
-    cpg.sites <- ewas.object$analyses[[1]]$table[cpg.sites,c("chromosome","position")]
-
     parameters$winsorize.pct <- ewas.object$winsorize.pct
     
     list(parameters=parameters,
          qq.plots=qq.plots,
          manhattan.plots=manhattan.plots,
-         sig.cpg.stats=sig.cpg.stats,
-         selected.cpg.stats=selected.cpg.stats,
+         cpg.stats=cpg.stats,
          cpg.plots=cpg.plots,
-         cpg.sites=cpg.sites,
+         significant.sites=rownames(ewas.object$p.value)[sig.idx],
+         selected.sites=rownames(ewas.object$p.value)[selected.idx],         
          sample.characteristics=sample.characteristics,
          covariate.associations=covariate.associations)         
 }
@@ -94,12 +98,13 @@ meffil.ewas.summary <- function(ewas.object, beta,
 #' Specify parameters for QC
 #'
 #' 
-#' @param sig.threshold P-value threshold for significance (Default: 1e-7).
+#' @param sig.threshold P-value threshold for significance (Default: NA).
+#' If NA, then threshold used will be 0.05 divided by the number of tests/probes.
 #' @param max.plots Maximum number of plots to generate (Default: 10).
 #' @return List of parameter values
 #'
 #' @export
-meffil.ewas.parameters <- function(sig.threshold=1e-7,max.plots=10) {
+meffil.ewas.parameters <- function(sig.threshold=NA,max.plots=10) {
     list(sig.threshold=sig.threshold,
          max.plots=max.plots)
 }

@@ -51,10 +51,10 @@ meffil.normalize.samples <- function(norm.objects,
     if (!just.beta) {
         ret <- list(M=ret[1:length(sites),],
                     U=ret[(length(sites)+1):nrow(ret),])
-        dimnames(ret$M) <- dimnames(ret$U) <- list(sites, names(qc.objects))
+        dimnames(ret$M) <- dimnames(ret$U) <- list(sites, names(norm.objects))
     }
     else
-        dimnames(ret) <- list(sites, names(qc.objects))
+        dimnames(ret) <- list(sites, names(norm.objects))
     ret
 }
 

@@ -1,0 +1,5 @@
+### CpG site `r cpg`
+
+```{r,message=F}
+(do.call(grid.arrange, c(ewas.summary$cpg.plots[[cpg]], list(ncol=2))))
+```

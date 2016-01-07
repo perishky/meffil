@@ -22,8 +22,14 @@ meffil.qc.report <- function(
     ...
 ) {
     msg("Writing report as html file to", output.file)
-    path <- system.file("reports", package="meffil")
-    knit.report(file.path(path, "qc-report.rmd"), output.file, ...)
+    report.path <- system.file("reports", package="meffil")
+    require(knitr)
+    require(Cairo)
+    require(gridExtra)
+    opts <- opts_chunk$get()
+    on.exit(opts_chunk$set(opts))
+    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")
+    knit.report(file.path(report.path, "qc-report.rmd"), output.file, ...)
 }
 
 

@@ -1,0 +1,13 @@
+Information about the new EPIC microarray can be obtained here:
+
+http://support.illumina.com/array/array_kits/infinium-methylationepic-beadchip-kit/downloads.html
+
+
+```{r, echo=F}
+knitr::read_chunk("dataset-epic-demo.r")
+```
+
+```{r download-epic-demo-dataset}
+```
+
+

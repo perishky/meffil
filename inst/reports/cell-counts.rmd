@@ -6,16 +6,16 @@ Methylation levels of samples should generally overlap with reference methylatio
 otherwise estimation will have simply selected the cell type reference
 with the nearest mean methylation level.
 
-```{r cell-counts-betas}
+```{r,message=FALSE}
 
-qc.summary$cell.counts$betas
+(qc.summary$cell.counts$betas)
 
 ```
 
 Boxplot shows the distributions of estimated cell counts for each reference cell type across all samples.
 
-```{r cell-counts-estimates}
+```{r,message=FALSE}
 
-qc.summary$cell.counts$counts
+(qc.summary$cell.counts$counts)
 
 ```

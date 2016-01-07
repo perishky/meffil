@@ -1,0 +1,236 @@
+```{r cord-init, echo=FALSE}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+
+```
+
+# EWAS using different cell type references
+
+## Download example data set 
+
+```{r child = 'dataset-450k-lead.rmd'}
+```
+
+```{r}
+path <- download.450k.lead.dataset()
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
+options(mc.cores=5)
+samplesheet <- meffil.create.samplesheet(path)
+
+samples <- read.csv(file.path(path, "samples.csv"), check.names=F, row.names=1)
+samplesheet <- data.frame(samplesheet,
+                          samples[match(samplesheet$Sample_Name, rownames(samples)),],
+                          stringsAsFactors=F, check.names=F)
+
+samplesheet <- samplesheet[which(samplesheet[["sample type"]] == "HM450K"),]
+```
+
+Parameters.
+```{r}
+qc.file <- "cord/qc-report.html"
+author <- "Sen, et al."
+study <- "Cord blood DNA methylation and lead exposure (GSE69633)"
+norm.file <- "cord/normalization-report.html"
+cell.type.reference <- "gervin and lyle cord blood"
+```
+
+Generate QC objects for each sample and QC report.
+```{r cord-qc, cache=T}
+qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+```
+
+Remove any low quality samples.
+```{r}
+if (nrow(qc.summary$bad.samples) > 0)
+    qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+
+samplesheet <- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
+```
+
+Check how many principal components to include.
+```{r, dev="CairoPNG"}
+print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+```
+
+Ten seems about right.
+```{r}
+number.pcs <- 10
+```
+
+Normalize dataset and generate normalization report.
+```{r cord-norm, cache=T}
+norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+norm.meffil <- meffil.normalize.samples(norm.objects,
+                                        just.beta=F, 
+                                        cpglist.remove=qc.summary$bad.cpgs$name,
+                                        verbose=T)
+
+beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
+parameters <- meffil.normalization.parameters(norm.objects)
+norm.summary <- meffil.normalization.summary(beta.meffil,
+                                             norm.objects=norm.objects,
+                                             parameters=parameters, verbose=T)
+meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+
+```
+
+
+## Estimate cell counts using all available references
+
+```{r cord-cell-counts, cache=T}
+counts <- sapply(meffil.list.cell.type.references(), function(reference) {
+    cat(date(), reference, "\n")
+    do.call(rbind, mclapply(qc.objects, function(qc.object) {
+        meffil.estimate.cell.counts(qc.object, cell.type.reference=reference)$counts
+    }))
+}, simplify=F)
+```
+
+## Variables of interest
+
+We will test associations with gender, gestational age, birth weight and blood lead levels.
+The following list provides the names of potential confounders to be included
+in EWAS regression models.
+```{r}
+covariate.names <- list("gender"=c("socioeconomic score","gestational age","smoke ever","birth weight"),
+                        "gestational age"=c("socioeconomic score","gender","smoke ever","birth weight"),
+                        "birth weight"=c("socioeconomic score","gestational age","smoke ever","gender"),
+                        "pbconc (ng/dl)"=c("socioeconomic score","gestational age","smoke ever","birth weight","gender"))
+```
+
+For the gender EWAS, we will test only CpG sites on autosomes.
+```{r}
+features <- meffil.featureset("450k")
+autosomal <- features[which(!(features$chromosome %in% c("chrX","chrY"))),]
+```
+
+## Test associations
+
+Test associations for each variable of interest (4)
+and each cell type reference.
+```{r cord-all, cache=T,cache.lazy=F}
+results <- sapply(names(covariate.names), function(variable.name) {
+    variable <- samplesheet[[variable.name]]
+    sapply(names(counts), function(reference) {
+        covariates <- data.frame(counts[[reference]],
+                                 samplesheet[,covariate.names[[variable.name]]],
+                                 stringsAsFactors=F)
+        cat(date(), "ewas", variable.name, reference, "\n")
+        if (variable.name == "gender")
+            beta.meffil <- beta.meffil[which(rownames(beta.meffil) %in% autosomal$name),]
+        meffil.ewas(beta.meffil, variable=variable, covariates=covariates,
+                    most.variable=50000,verbose=T)
+    }, simplify=F)
+}, simplify=F)
+```
+
+## Previously identified associations
+
+For generating the EWAS reports,
+previously identified associations are provided
+for comparison with previous analyses.
+Only the lead ("pbconc") list of associations is from the dataset
+used here.
+```{r}
+published.hits <- list("gender"=c("cg03691818", "cg26921482", "cg17743279", "cg07852945", "cg26355737", "cg25568337", "cg05100634", "cg03608000", "cg02325951", "cg17612569", "cg04874129", "cg08906898", "cg04946709", "cg02989351", "cg12204423", "cg25304146", "cg22345911", "cg01906879", "cg06152526", "cg04190002", "cg06644124", "cg07628841", "cg23001456", "cg26213873", "cg25438440", "cg07816873", "cg24016844", "cg11841231", "cg13323902", "cg12900929"), ## PMID: 26553366 (top 30)
+                       "gestational age"=c("cg08943494", "cg11932158", "cg16725984", "cg20334115", "cg18623216", "cg07835443", "cg00220721", "cg04685228", "cg16103712", "cg27518892", "cg22117805", "cg21926626", "cg04347477", "cg08817867", "cg27448161", "cg01154283", "cg02001279", "cg02430430", "cg06870470", "cg13924996", "cg07136133", "cg00481600", "cg13675859", "cg11934771", "cg19744173", "cg12713583", "cg11360522", "cg16834726", "cg18608055", "cg05283597"), ## PMID: 25869828 (top 30)
+                       "birth weight"=c("cg20076442", "cg25953130", "cg04521626", "cg14097568", "cg17133774", "cg00654448", "cg00442282", "cg13696490", "cg12044213", "cg08817867", "cg00382138", "cg06870470", "cg25557739", "cg24324628", "cg15783941", "cg14597739", "cg22962123", "cg05851442", "cg23387597", "cg24973755", "cg16219283", "cg25799241", "cg06658067"), ## PMID: 25869828 (bonferroni p < 0.05)
+                       "pbconc (ng/dl)"=c("cg01105385", "cg07208333", "cg08945395", "cg20439288", "cg20474370"))## PMID: 26046694, all sites in chr5:67584213-67584451
+```
+
+##  EWAS reports
+
+Generate a report for each EWAS.
+Significance thresholds are selected so that the top 100 associations
+are plotted in the report.
+The reports can be found in the "cord" directory
+under the name of the variable of interest (e.g. "cord/gender").
+
+```{r cord-reports, eval=FALSE}
+for (variable.name in names(results)) {
+    for (reference in names(results[[variable.name]])) {
+        cat(date(), "EWAS report", variable.name, reference, "\n")
+        
+        ewas.ret <- results[[variable.name]][[reference]]
+        
+        p.values <- ewas.ret$p.value[,"isva1"]
+        ewas.parameters <- meffil.ewas.parameters(max.plots=10)
+        
+        ewas.summary <- meffil.ewas.summary(ewas.ret,
+                                            beta.meffil,
+                                            selected.cpg.sites=published.hits[[variable.name]],
+                                            parameters=ewas.parameters, verbose=T)
+        meffil.ewas.report(ewas.summary,
+                           output.file=file.path("cord", sub(" \\(.*", "", variable.name),
+                               reference, "report.html"),
+                           author="Me",
+                           study=paste(variable.name,
+                               " in cord blood DNA methylation (GEO:GSE69633)",
+                               " adjusted with the '", reference, "' cell type reference", sep=""))
+    }
+}
+```
+
+## Association overlaps between different analyses
+
+Show size of overlap between analyses using different cell type references.
+For each, we use the results obtained using confounders obtained using "ISVA"
+(all potential confounders listed above plus independent surrogate variables).
+```{r, results="asis"}
+compare.top <- function(results, top=100) {
+    sites <- lapply(results, function(ewas) {
+        idx <- order(ewas$p.value[,"isva1"], decreasing=F)[1:top]
+        rownames(ewas$p.value)[idx]
+    })
+    sapply(sites, function(x) sapply(sites, function(y) length(intersect(x,y))))
+}
+comparisons <- lapply(results, compare.top)
+for (name in names(results)) {
+  comparisons[[name]] <- as.data.frame(comparisons[[name]])
+  comparisons[[name]]$reference <- rownames(comparisons[[name]])
+  comparisons[[name]]$variable <- name
+}
+comparisons <- do.call(rbind, comparisons)
+knitr:::kable(comparisons, row.names=F)
+```
+
+## Significance ranks of previously identified associations 
+
+Below we show the p-value ranks in our analyses of each previously identified association.
+```{r}
+ranks <- sapply(names(results), function(variable.name) {
+    do.call(rbind, lapply(results[[variable.name]], function(ewas) {
+        idx <- match(published.hits[[variable.name]], rownames(ewas$p.value))
+        r <- rank(ewas$p.value[,"isva1"])[idx]
+        p <- wilcox.test(ewas$p.value[idx,"isva1"], ewas$p.value[-idx,"isva1"], alternative="less")$p.value
+        c(quantile(r), p=p)
+    }))
+}, simplify=F)
+for (name in names(results)) {
+  ranks[[name]] <- as.data.frame(ranks[[name]])
+  ranks[[name]]$reference <- rownames(ranks[[name]])
+  ranks[[name]]$variable <- name
+}
+ranks <- do.call(rbind, ranks)
+knitr:::kable(ranks, row.names=F)
+```
+
+It's not clear from the table above if using any specific cell type reference
+provides lower ranks (i.e. stronger p-values) than any other reference.
+

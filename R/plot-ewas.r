@@ -10,7 +10,7 @@ scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
     y.cell <- floor((resolution-1)*(y - min(y,na.rm=T))/diff(range(y,na.rm=T))) + 1
     z.cell <- x.cell * resolution + y.cell
     frequency.table <- table(z.cell)
-    frequency <- rep(0,max(z.cell))
+    frequency <- rep(0,max(z.cell, na.rm=T))
     frequency[as.integer(names(frequency.table))] <- frequency.table
     f.cell <- frequency[z.cell]
     
@@ -117,28 +117,25 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
 #' @param ewas.object Return object from \code{\link{meffil.ewas()}}.
 #' @param cpg CpG site to plot.
 #' @param title Title of the plot (Default: \code{cpg}).
-#' @param beta Optional matrix of methylation levels used to create the \code{ewas.object} (Default: NULL).
+#' @param beta Matrix of methylation levels used to create the \code{ewas.object}.
 #' @param \code{\link{ggplot}} object showing the scatterplots of DNA methylation vs the variable of interest
 #' in the EWAS.  Each plot corresponds to a covariate set.
 #' Methylation levels are in fact residuals from fitting a model with DNA methylation and the covariates.
 #' 
 #' @export
-meffil.ewas.cpg.plot <- function(ewas.object, cpg, title=cpg, beta=NULL) {
+meffil.ewas.cpg.plot <- function(ewas.object, cpg, beta, title=cpg) {
     stopifnot(is.ewas.object(ewas.object))
+    stopifnot(is.matrix(beta) && cpg %in% rownames(beta))
+    
     variable <- ewas.object$variable
     
     lapply(names(ewas.object$analyses), function(name) {
         ewas <- ewas.object$analyses[[name]]
 
-        if (cpg %in% rownames(ewas$beta))
-            methylation <- ewas$beta[cpg,ewas.object$samples]
-        else {
-            if (is.null(beta))
-                stop("beta argument (methylation matrix) is needed to obtain CpG methylation levels")
-            if (!all(rownames(ewas$design) %in% colnames(beta)))
-                stop("EWAS samples do not match those in the beta argument (methylation matrix)")
-            methylation <- beta[cpg,rownames(ewas$design)]
-        }
+        if (!all(rownames(ewas$design) %in% colnames(beta)))
+            stop("EWAS samples do not match those in the beta argument (methylation matrix)")
+        methylation <- beta[cpg,rownames(ewas$design)]
+
         covariates <- subset(data.frame(ewas$design), select=c(-variable,-intercept))
         if (ncol(covariates) == 0)
             covariates <- NULL
