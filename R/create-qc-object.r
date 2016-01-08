@@ -117,7 +117,9 @@ meffil.create.qc.object <- function(samplesheet.row,
 }
 
 is.qc.object <- function(object) {
-    is.list(object) && "class" %in% names(object) && object$class %in% "qc.object"
+    is.list(object) &&
+        ("class" %in% names(object) && object$class %in% "qc.object"
+         || "origin" %in% names(object) && object$origin == "meffil.create.qc.object") ## backward compatibility
 }
 
 
