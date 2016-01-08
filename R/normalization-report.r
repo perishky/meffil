@@ -181,11 +181,6 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     
     msg("Calculating variances", verbose=verbose)
     
-    if (class(normalized.beta) == "big.matrix") {
-        subset.idx <- sample(1:nrow(normalized.beta), size=floor(nrow(normalized.beta))*0.1)
-        normalized.beta <- normalized.beta[subset.idx,]
-    }
-
     featureset <- norm.objects[[1]]$featureset
     autosomal.sites <- meffil.get.autosomal.sites(featureset)
     autosomal.sites <- intersect(autosomal.sites, rownames(normalized.beta))
