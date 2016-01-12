@@ -53,7 +53,9 @@ estimate.cell.counts.from.mu <- function(mu, cell.type.reference, verbose=F) {
 }    
 
 is.cell.count.object <- function(object)
-    is.list(object) && "class" %in% names(object) && object$class == "cell.counts"
+    is.list(object) &&
+    ("class" %in% names(object) && object$class == "cell.counts"
+     || "origin" %in% names(object) && object$origin == "meffil.estimate.cell.counts") ## backwards compatibility
 
 quantile.normalize.signals <- function(mu, subsets, quantiles, verbose=F) {
     stopifnot(is.mu(mu))
