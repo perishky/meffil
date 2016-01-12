@@ -182,6 +182,11 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
     msg("Calculating variances", verbose=verbose)
     
     featureset <- norm.objects[[1]]$featureset
+    
+    if (is.null(featureset)) { ## backwards compatibility
+        featureset <- "450k"
+    }   
+
     autosomal.sites <- meffil.get.autosomal.sites(featureset)
     autosomal.sites <- intersect(autosomal.sites, rownames(normalized.beta))
     

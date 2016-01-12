@@ -25,6 +25,10 @@ meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=
     stopifnot(cell.type.reference %in% meffil.list.cell.type.references())
 
     reference.object <- get.cell.type.reference(cell.type.reference)
+
+    if (is.null(qc.object$featureset)) { ## backwards compatibility
+        qc.object$chip <- qc.object$featureset <- "450k"
+    }   
     
     rg <- read.rg(qc.object$basename, verbose=verbose)
     probes <- meffil.probe.info(qc.object$chip, reference.object$featureset)
