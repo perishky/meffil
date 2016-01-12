@@ -10,6 +10,10 @@
 meffil.normalize.sample <- function(norm.object, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
+    if (is.null(norm.object$featureset)) { ## backwards compatibility
+        norm.object$chip <- norm.object$featureset <- "450k"
+    }   
+    
     probes <- meffil.probe.info(norm.object$chip, norm.object$featureset)
    
     rg <- read.rg(norm.object$basename, verbose=verbose)

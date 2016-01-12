@@ -29,8 +29,14 @@ meffil.normalize.samples <- function(norm.objects,
     if (length(unique(sapply(norm.objects, function(object) object$featureset))) > 1)
         stop(paste("Heterogeneous microarray formats included without a common featureset.",
                    "Need to set the 'featureset' argument when creating QC objects."))
+
+    featureset <- norm.objects[[1]]$featureset
     
-    sites <- meffil.get.sites(norm.objects[[1]]$featureset)
+    if (is.null(featureset)) { ## backwards compatibility
+        featureset <- "450k"
+    }   
+
+    sites <- meffil.get.sites(featureset)
     if(!is.null(cpglist.remove))
         sites <- setdiff(sites, cpglist.remove)
     

@@ -385,6 +385,10 @@ meffil.plot.detectionp.samples <- function(qc.objects, threshold = 0.05, colour.
     stopifnot(sapply(qc.objects, is.qc.object))
     featureset <- qc.objects[[1]]$featureset
 
+    if (is.null(featureset)) { ## backwards compatibility
+        featureset <- "450k"
+    }   
+
     probes <- meffil.get.features(featureset)$name
     y.probes <- meffil.get.y.sites(featureset)
     not.y.probes <- setdiff(probes, y.probes)
@@ -445,6 +449,10 @@ meffil.plot.detectionp.cpgs <- function(qc.objects, threshold=0.05)
     stopifnot(sapply(qc.objects, is.qc.object))
 
     featureset <- qc.objects[[1]]$featureset
+
+    if (is.null(featureset)) { ## backwards compatibility
+        featureset <- "450k"
+    }   
     
     y.probes <- meffil.get.y.sites(featureset)
     bad.probes <- unlist(lapply(qc.objects, function(x) {
@@ -498,6 +506,10 @@ meffil.plot.beadnum.samples <- function(qc.objects, threshold = 0.05, colour.cod
     stopifnot(sapply(qc.objects, is.qc.object))
 
     featureset <- qc.objects[[1]]$featureset
+
+    if (is.null(featureset)) { ## backwards compatibility
+        featureset <- "450k"
+    }   
     
     probes <- meffil.get.features(featureset)$name
     y.probes <- meffil.get.y.sites(featureset)
@@ -558,6 +570,10 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
     stopifnot(sapply(qc.objects, is.qc.object))
 
     featureset <- qc.objects[[1]]$featureset
+
+    if (is.null(featureset)) { ## backwards compatibility
+        featureset <- "450k"
+    }   
 
     y.probes <- meffil.get.y.sites(featureset)
     bad.probes.beadnum <- unlist(lapply(qc.objects, function(x) {

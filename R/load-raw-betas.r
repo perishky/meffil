@@ -24,6 +24,10 @@ meffil.load.raw.data <- function(qc.objects,
     featuresets <- sapply(qc.objects, function(qc.object) qc.object$featureset)
     featureset <- featuresets[1]
 
+    if (is.list(featuresets)) { ## backwards compatibility
+        featureset <- featuresets <- "450k"
+    }   
+
     if (any(featuresets != featureset)) 
         stop("Multiple feature sets were used to create these QC objects:",
              paste(unique(featuresets), collapse=", "))
@@ -41,6 +45,11 @@ meffil.load.raw.data <- function(qc.objects,
     dye.intensity <- (intensity.R + intensity.G)[reference.idx]/2
 
     ret <- mcsapply.safe(qc.objects, function(qc.object) {
+        
+        if (is.null(qc.object$featureset)) { ## backwards compatibility
+            qc.object$chip <- qc.object$featureset <- "450k"
+        }   
+        
         probes <- meffil.probe.info(qc.object$chip)
         rg <- read.rg(qc.object$basename, verbose=verbose)
         rg <- background.correct(rg, probes, verbose=verbose)
