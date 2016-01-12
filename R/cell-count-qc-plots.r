@@ -20,8 +20,11 @@ meffil.cell.count.qc.plots <- function(count.objects) {
     
     reference <- count.objects[[1]]$reference
     reference.object <- get.cell.type.reference(reference)
+
+    beta <- sapply(count.objects, function(object) object$beta)
+    common.sites <- intersect(rownames(reference.object$beta), rownames(beta)) ## for backwards compatibility
+    beta <- cbind(reference.object$beta[common.sites,], beta[common.sites,])
     
-    beta <- cbind(reference.object$beta, sapply(count.objects, function(object) object$beta))
 
     if (ncol(beta) <= 200) {
         dat <- sapply(colnames(beta), function(sample)
