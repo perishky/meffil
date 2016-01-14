@@ -36,8 +36,10 @@ knit.report <- function(input.filename, output.filename, ...) {
     cwd <- getwd()
     on.exit(setwd(cwd), add=TRUE)
 
-    if (is.null(options("knitr.in.progress")[[1]]))
+    if (is.null(options("knitr.in.progress")[[1]])) {
+        setwd(output.dir)
         knit(input.filename, output=md.filename, envir=parent.frame(), ...)
+    }
     else {
         opts_knit$set(progress=FALSE)
         out <- knit_child(input.filename, envir=parent.frame(), quiet=T)
