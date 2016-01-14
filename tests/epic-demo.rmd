@@ -84,3 +84,25 @@ length(setdiff(clock$CpGmarker, rownames(beta.meffil)))
 nrow(clock)
 length(intersect(clock$CpGmarker, rownames(beta.meffil)))/nrow(clock)
 ```
+
+20 of the 'clock' sites are missing.
+
+## Hannum predictor CpG sites and the EPIC microarray
+
+71 CpG sites were used in the Hannum et al. age predictor:
+
+> Hannum G, et al.
+> Genome-wide methylation profiles reveal quantitative views of human aging rates.
+> Mol Cell. 2013 Jan 24;49(2):359-67.
+
+The list can be obtained from here:
+http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3780611/bin/NIHMS418935-supplement-02.xlsx
+
+```{r}
+hannum.sites <- readLines("hannum.txt")
+length(hannum.sites)
+length(setdiff(hannum.sites, rownames(beta.meffil)))
+length(intersect(hannum.sites, rownames(beta.meffil)))/length(hannum.sites)
+```
+
+6 of the 71 sites are missing.
