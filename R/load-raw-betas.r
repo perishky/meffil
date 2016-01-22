@@ -59,7 +59,7 @@ meffil.load.raw.data <- function(qc.objects,
         m.idx <- match(sites, names(mu$M))
         u.idx <- match(sites, names(mu$U))
         if (just.beta)
-            get.beta(mu$M[m.idx], mu$U[u.idx])
+            get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)
         else
             c(unname(mu$M[m.idx]), unname(mu$U[u.idx]))
     }, ..., max.bytes=max.bytes)

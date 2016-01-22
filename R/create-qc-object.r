@@ -44,11 +44,13 @@ meffil.create.qc.object <- function(samplesheet.row,
         featureset <- chip
     
     probes <- meffil.probe.info(chip, featureset)
+
+    detectionp <- extract.detection.pvalues(rg, probes, verbose=verbose)
+    bad.probes.detectionp <- detectionp[which(detectionp > detection.threshold)]
     
-    bad.probes.detectionp <- identify.bad.probes.detectionp(rg, probes, detection.threshold, verbose=verbose)
-
-    bad.probes.beadnum <- identify.bad.probes.beadnum(rg, probes, bead.threshold, verbose=verbose)
-
+    beadnum <- extract.beadnum(rg, probes, verbose=verbose)
+    bad.probes.beadnum <- beadnum[which(beadnum < bead.threshold)]
+    
     snp.betas <- extract.snp.betas(rg, probes, verbose=verbose)
 
     controls <- extract.controls(rg, probes, verbose=verbose)
