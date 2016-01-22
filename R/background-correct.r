@@ -31,25 +31,28 @@ background.correct <- function(rg, probes, offset=15, verbose=F) {
             stop("It seems like the supplied chip annotation does not match the IDAT files.")
         oob <- rg[[dye]][addresses,"Mean"]
 
-        ests <- huber.safe(oob)
-        mu <- ests$mu
-        sigma <- log(ests$s)
-        alpha <- log(max(huber.safe(xf)$mu - mu, 10))
-        ## mu = robust median of the oob probes
-        ## sigma = log(mad of the oob probes)
-        ## alpha = log(robust median of meth/unmeth probes  -  robust median of oob probes)
-        ## c(xf,xc) = c(meth/unmeth probes, control probes)
-        ## bg <- c(xf,xc) background corrected
-        bg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), c(xf,xc)) + offset
-
+        bg <- rep(NA, length(xf) + length(xc))
+        try({
+            ests <- huber.2(oob)
+            mu <- ests$mu
+            sigma <- log(ests$s)
+            alpha <- log(max(huber.2(xf)$mu - mu, 10))
+            ## mu = robust median of the oob probes
+            ## sigma = log(mad of the oob probes)
+            ## alpha = log(robust median of meth/unmeth probes  -  robust median of oob probes)
+            ## c(xf,xc) = c(meth/unmeth probes, control probes)
+            ## bg <- c(xf,xc) background corrected
+            bg <- limma::normexp.signal(as.numeric(c(mu,sigma,alpha)), c(xf,xc)) + offset
+        })
         rg[[dye]][c(names(xf), names(xc)), "Mean"] <- bg
+        
     }
     rg
 }
 
-huber.safe <- function(x) {
+huber.2 <- function(x) {
     ret <- tryCatch(MASS::huber(x), error=function(e) e)
     if ("error" %in% class(ret)) 
-        ret <- tryCatch(MASS::huber(x[which(x > min(x,na.rm=T))]), error=function(e) stop(e))
+        ret <- MASS::huber(x[which(x > min(x,na.rm=T))])
     ret
 }
