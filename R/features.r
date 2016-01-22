@@ -25,4 +25,19 @@ filter.features <- function(featureset, expr) {
 }
 
 
-
+#' select a compatible featureset for the set of features.
+guess.featureset <- function(features) {
+    featuresets <- meffil.list.featuresets()
+    error.msg <- ""
+    sizes <- sapply(featuresets, function(featureset) {
+        proposed.features <- meffil.get.features(featureset)$name        
+        if (all(features %in% proposed.features))
+            length(proposed.features)
+        else
+            NA
+    })
+    if (all(is.na(sizes)))
+        stop("'features' are not compatible with any available feature set")
+    
+    featuresets[which.max(sizes)]
+}

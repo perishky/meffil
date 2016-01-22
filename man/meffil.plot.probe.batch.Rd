@@ -4,20 +4,21 @@
 \alias{meffil.plot.probe.batch}
 \title{Test normalized betas for association with known batch variables}
 \usage{
-meffil.plot.probe.batch(normalized.beta, norm.objects, npcs = 1:10,
-  variables = guess.batch.vars(norm.objects), batch.threshold = 1e-50,
-  probe.range = 5000, cols = NULL, verbose = T)
+meffil.plot.probe.batch(norm.objects, pcs,
+  variables = guess.batch.vars(norm.objects), additional = NULL,
+  batch.threshold = 1e-50, cols = NULL, verbose = T)
 }
 \arguments{
-\item{normalized.beta}{Output from \code{meffil.normalize.samples}}
+\item{norm.objects}{Output from \code{\link{meffil.normalize.quantiles}()}.}
 
-\item{norm.objects}{Output from \code{meffil.normalize.quantiles}}
-
-\item{npcs}{Default = 1:10. Which CpG PCs to test}
+\item{pcs}{Output from \code{\link{meffil.methylation.pcs}()}
+applied to the normalized methylation matrix
+corresponding to \code{norm.objects}.}
 
 \item{variables}{Default = guess.batch.vars(norm). Which variables in sample sheet to test}
 
-\item{probe.range}{Default = 1:1000. How many probes to be used in calculating PCs}
+\item{additional.}{Default = NULL. Data frame containing variables to test for association
+with control matrix PCs. Must have \code{nrow(additional) == length(norm.objects)}.}
 
 \item{verbose=T}{Print progress messages?}
 }

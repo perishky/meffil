@@ -4,21 +4,27 @@
 \alias{meffil.normalization.summary}
 \title{Perform tests to check normalization performance}
 \usage{
-meffil.normalization.summary(normalized.beta, norm.objects,
+meffil.normalization.summary(norm.objects, pcs,
   parameters = meffil.normalization.parameters(norm.objects),
-  verbose = TRUE)
+  variables = NULL, verbose = TRUE)
 }
 \arguments{
-\item{normalized.beta}{Output from \code{meffil.normalize.samples}}
+\item{norm.objects}{Output from \link{meffil.normalize.quantiles}}
 
-\item{parameters}{Default = meffil.post.parameters(norm) List of parameters.}
+\item{pcs}{Output from \code{\link{meffil.methylation.pcs}()}
+applied to the normalized methylation matrix
+corresponding to \code{norm.objects}.}
+
+\item{parameters}{Default = meffil.post.parameters(norm.objects). Report parameters.}
+
+\item{variables}{Default = NULL. Data frame of variables to compare to
+principal components (\code{pcs}).  Must contain \code{length(norm.objects)} rows.
+Columns that are not factors are ignored.}
 
 \item{verbose}{Default = TRUE}
-
-\item{norm}{Output from \link{meffil.normalize.quantiles}}
 }
 \value{
-List of tables and graphs
+List of tables and graphs.
 }
 \description{
 Creates scree plot of PCs of control probes, tests for association of control probe PCs with batch variables, tests for association of normalized probes with batch variables, creates PCA plots

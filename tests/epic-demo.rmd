@@ -51,21 +51,27 @@ Normalization dataset.
 ```{r epic-demo-norm, cache=T}
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
 
-norm.meffil <- meffil.normalize.samples(norm.objects,
-                                        just.beta=F, 
-                                        cpglist.remove=qc.summary$bad.cpgs$name,
-                                        verbose=T)
+norm.dataset <- meffil.normalize.samples(norm.objects,
+                                         just.beta=F, 
+                                         cpglist.remove=qc.summary$bad.cpgs$name,
+                                         verbose=T)
+```
+
+```{r}
+beta.meffil <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+```
+
+Compute principal components of the normalized methylation matrix.
+```{r epic-demo-pcs, cache=T}
+pcs <- meffil.methylation.pcs(beta.meffil, verbose=T)
 ```
 
 Normalization report.
 ```{r}
-beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 parameters <- meffil.normalization.parameters(norm.objects)
 parameters$batch.threshold <- 0.01
-parameters$probe.pcs <- 1:min(10,length(norm.objects))
-parameters$control.pcs <- 1:min(10,length(norm.objects))
-norm.summary <- meffil.normalization.summary(beta.meffil,
-                                             norm.objects=norm.objects,
+norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
                                              parameters=parameters, verbose=T)
 
 meffil.normalization.report(norm.summary,

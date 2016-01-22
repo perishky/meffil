@@ -73,15 +73,17 @@ number.pcs <- 10
 Normalize dataset and generate normalization report.
 ```{r cord-norm, cache=T}
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
-norm.meffil <- meffil.normalize.samples(norm.objects,
+norm.dataset <- meffil.normalize.samples(norm.objects,
                                         just.beta=F, 
                                         cpglist.remove=qc.summary$bad.cpgs$name,
                                         verbose=T)
 
-beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
+beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+pcs <- meffil.methylation.pcs(beta, verbose=T)
+
 parameters <- meffil.normalization.parameters(norm.objects)
-norm.summary <- meffil.normalization.summary(beta.meffil,
-                                             norm.objects=norm.objects,
+norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
                                              parameters=parameters, verbose=T)
 meffil.normalization.report(norm.summary,
                             output.file=norm.file,
@@ -133,8 +135,8 @@ results <- sapply(names(covariate.names), function(variable.name) {
                                  stringsAsFactors=F)
         cat(date(), "ewas", variable.name, reference, "\n")
         if (variable.name == "gender")
-            beta.meffil <- beta.meffil[which(rownames(beta.meffil) %in% autosomal$name),]
-        meffil.ewas(beta.meffil, variable=variable, covariates=covariates,
+            beta <- beta[which(rownames(beta) %in% autosomal$name),]
+        meffil.ewas(beta, variable=variable, covariates=covariates,
                     most.variable=50000,verbose=T)
     }, simplify=F)
 }, simplify=F)
@@ -173,7 +175,7 @@ for (variable.name in names(results)) {
         ewas.parameters <- meffil.ewas.parameters(max.plots=10)
         
         ewas.summary <- meffil.ewas.summary(ewas.ret,
-                                            beta.meffil,
+                                            beta,
                                             selected.cpg.sites=published.hits[[variable.name]],
                                             parameters=ewas.parameters, verbose=T)
         meffil.ewas.report(ewas.summary,

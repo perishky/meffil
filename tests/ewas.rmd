@@ -73,15 +73,17 @@ number.pcs <- 10
 Normalize dataset and generate normalization report.
 ```{r ewas-norm, cache=T}
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
-norm.meffil <- meffil.normalize.samples(norm.objects,
-                                        just.beta=F, 
-                                        cpglist.remove=qc.summary$bad.cpgs$name,
-                                        verbose=T)
+norm.dataset <- meffil.normalize.samples(norm.objects,
+                                         just.beta=F, 
+                                         cpglist.remove=qc.summary$bad.cpgs$name,
+                                         verbose=T)
 
-beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
+beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+pcs <- meffil.methylation.pcs(beta, verbose=T)
+
 parameters <- meffil.normalization.parameters(norm.objects)
-norm.summary <- meffil.normalization.summary(beta.meffil,
-                                             norm.objects=norm.objects,
+norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
                                              parameters=parameters, verbose=T)
 meffil.normalization.report(norm.summary,
                             output.file=norm.file,
@@ -110,7 +112,7 @@ covariates <- data.frame(t(meffil.cell.count.estimates(qc.objects)),
                          samplesheet[,ewas.covariate.names],
                          stringsAsFactors=F)
    
-ewas.ret <- meffil.ewas(beta.meffil,
+ewas.ret <- meffil.ewas(beta,
                         variable=variable,
                         covariates=covariates,
                         most.variable=50000,
@@ -121,7 +123,7 @@ Generate EWAS report.
 ```{r ewas-report}
 ewas.parameters <- meffil.ewas.parameters(sig.threshold=1e-5,max.plots=10)
 ewas.summary <- meffil.ewas.summary(ewas.ret,
-                                    beta.meffil,
+                                    beta,
                                     selected.cpg.sites=ewas.cpg.sites,
                                     parameters=ewas.parameters, verbose=T)
 

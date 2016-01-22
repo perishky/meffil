@@ -48,7 +48,7 @@ samplesheet <- meffil.create.samplesheet(path)
 The package uses `mclapply` to speed up computation.
 Provide the number of processors available.
 ```{r}
-options(mc.cores=10)
+options(mc.cores=5)
 ```
 
 List the cell type references available.
@@ -106,12 +106,20 @@ norm.meffil <- meffil.normalize.samples(norm.objects,
                                         verbose=T)
 ```
 
+```{r}
+beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
+```
+
+Compute principal components of the normalized methylation matrix.
+```{r comparison-meffil-pcs, cache=T}
+pcs <- meffil.methylation.pcs(beta.meffil, verbose=T)
+```
+
 Generate a normalization report.
 ```{r,message=F,results="hide"}
-beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 parameters <- meffil.normalization.parameters(norm.objects)
 parameters$batch.threshold <- 0.01
-norm.summary <- meffil.normalization.summary(beta.meffil, norm.objects=norm.objects, parameters=parameters, verbose=T)
+norm.summary <- meffil.normalization.summary(norm.objects=norm.objects, pcs=pcs, parameters=parameters, verbose=T)
 meffil.normalization.report(norm.summary,
                             output.file=norm.file,
                             author=author,

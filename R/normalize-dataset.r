@@ -39,6 +39,11 @@
 #' @param just.beta
 #' @param pseudo
 #'
+#' Arguments to \code{\link{meffil.methylation.pcs}()}.
+#' @param npcs (Default: 1:10).
+#' @param probe.range (Default: 5000).
+#' @param autosomal (Default: TRUE).
+#' 
 #' Arguments to \code{\link{meffil.normalization.summary}()}:
 #' @param norm.parameters (parameters)
 #' @param norm.file (output.file)
@@ -82,6 +87,10 @@ meffil.normalize.dataset <- function(samplesheet,
                                      pseudo=100,
                                      just.beta=T,
 
+                                     ## meffil.methylation.pcs
+                                     probe.range=5000,
+                                     autosomal=T,
+                                     
                                      ## meffil.normalization.summary
                                      norm.parameters=NULL,
                                      norm.file="meffil-normalization-report.md",
@@ -130,8 +139,10 @@ meffil.normalize.dataset <- function(samplesheet,
     if (is.null(norm.parameters))
         norm.parameters <- meffil.normalization.parameters(norm.objects)
 
-    norm.summary <- meffil.normalization.summary(beta,
-                                                 norm.objects=norm.objects,
+    pcs <- meffil.methylation.pcs(beta, probe.range=probe.range, autosomal=autosomal, verbose=verbose)
+    
+    norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
+                                                 pcs=pcs,
                                                  parameters=norm.parameters,
                                                  verbose=verbose)
 
