@@ -68,7 +68,7 @@ amount of data that needs to be loaded.
 	norm.beta <- meffil.normalize.samples(norm.objects, cpglist.remove=qc.summary$bad.cpgs$name)
 
 	# Generate normalization report
-	pcs <- meffil.compute.pcs(norm.beta)
+	pcs <- meffil.methylation.pcs(norm.beta)
 	norm.summary <- meffil.normalization.summary(norm.objects, pcs=pcs)
 	meffil.normalization.report(norm.summary, output.file="normalization/report.html")
 
@@ -173,7 +173,7 @@ that were found to be dodgy in the QC analysis:
 
 A summary report of the normalization performance can also be generated:
 
-    pcs <- meffil.compute.pcs(norm.beta)
+    pcs <- meffil.methylation.pcs(norm.beta)
 	norm.summary <- meffil.normalization.summary(norm.objects, pcs=pcs)
 	meffil.normalization.report(norm.summary, output.file="normalization/report.html")
 
