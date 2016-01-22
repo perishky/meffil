@@ -33,7 +33,7 @@ meffil.ewas <- function(beta, variable,
                         verbose=F) {
 
     if (is.na(featureset))
-        featureset <- guess.chip(beta)
+        featureset <- guess.featureset(rownames(beta))
     features <- meffil.get.features(featureset)
     
     stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% features$name))

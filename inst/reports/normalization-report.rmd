@@ -13,21 +13,32 @@ normalization.summary$parameters
 
 ## Control probe scree plots
 
-The variance captured by each principal component
+The variance captured by each principal component.
 
-```{r,message=F}
-
-(do.call(grid.arrange, normalization.summary$scree.plot$graphs))
-
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$scree.plot$graphs)
+    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
 ```
 
-```{r}
-child.filename <- file.path(report.path, "blank.rmd")
-if (!is.null(normalization.summary$control.batch$pc.plot))
-    child.filename <- file.path(report.path, "control-batch-pca.rmd")
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
-```{r, child=child.filename}
+## Principal components of the control probes
+
+The following plots show the first 3 principal components of the
+control matrix colored by batch variables.
+Batch variables with more than 10 levels are omitted.
+
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$control.batch$pc.plots)
+    out <- c(out, knit_child(file.path(report.path, "wide-plot.rmd")))
+```
+
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
 ## Control probe associations with measured batch variables
@@ -36,11 +47,16 @@ Principal components of the control probes were regressed against batch variable
 Shown are the $-log_{10}$ p-values for these regressions.
 The horizontal dotted line denotes $p = 0.05$ in log-scale.
 
-```{r,message=F}
-
-(normalization.summary$control.batch$fplot)
-
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$control.batch$fplots)
+    out <- c(out, knit_child(file.path(report.path, "wide-plot.rmd")))
 ```
+
+```{r,results="asis"}
+cat(out, sep="\n\n")
+```
+
 
 The following plots show regression coefficients when
 each principal component is regressed against each batch variable level
@@ -48,10 +64,14 @@ along with 95% confidence intervals.
 Cases significantly different from zero are coloured red
 (p < `r normalization.summary$parameters$batch.threshold`, t-test).
 
-```{r,message=F}
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$control.batch$cplots)
+    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+```
 
-(do.call(grid.arrange, c(normalization.summary$control.batch$cplots, list(ncol=2))))
-
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
 ```{r}
@@ -70,14 +90,21 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
 
+## Principal components of the normalized betas
 
-```{r}
-child.filename <- file.path(report.path, "blank.rmd")
-if (!is.null(normalization.summary$probe.batch$pc.plot))
-    child.filename <- file.path(report.path, "probe-batch-pca.rmd")
+The following plots show the first 3 principal components of the
+`r normalization.summary$parameters$probe.range` most variable
+probes colored by batch variables.
+Batch variables with more than 10 levels are omitted.
+
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$probe.batch$pc.plots)
+    out <- c(out, knit_child(file.path(report.path, "wide-plot.rmd")))
 ```
 
-```{r, child=child.filename}
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
 ## Normalized probe associations with measured batch variables
@@ -88,10 +115,14 @@ variable. If the normalization has performed well then there will be
 no associations between normalized probe PCs and batch
 variables. Horizontal dotted line denotes $p = 0.05$ in log-scale.
 
-```{r,message=F}
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$probe.batch$fplots)
+    out <- c(out, knit_child(file.path(report.path, "wide-plot.rmd")))
+```
 
-(normalization.summary$probe.batch$fplot)
-
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
 The following plots show regression coefficients when
@@ -100,10 +131,14 @@ along with 95% confidence intervals.
 Cases significantly different from zero are coloured red
 (p < `r normalization.summary$parameters$batch.threshold`, t-test).
 
-```{r,message=F}
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$probe.batch$cplots)
+    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+```
 
-(do.call(grid.arrange, c(normalization.summary$probe.batch$cplots, list(ncol=2))))
-
+```{r,results="asis"}
+cat(out, sep="\n\n")
 ```
 
 ```{r}

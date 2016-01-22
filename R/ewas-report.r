@@ -25,7 +25,7 @@ meffil.ewas.report <- function(ewas.summary,
     require(gridExtra)
     opts <- opts_chunk$get()
     on.exit(opts_chunk$set(opts))
-    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")
+    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=6, fig.height=6, dev="CairoPNG")
     knit.report(file.path(report.path, "ewas-report.rmd"),output.file, ...)
 }
 
