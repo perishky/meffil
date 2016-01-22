@@ -28,7 +28,7 @@ meffil.normalization.report <- function(
     require(gridExtra)
     opts <- opts_chunk$get()
     on.exit(opts_chunk$set(opts))
-    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")    
+    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=6, fig.height=6, dev="CairoPNG")    
     knit.report(file.path(report.path, "normalization-report.rmd"), output.file, ...)
 }
 
@@ -36,34 +36,42 @@ meffil.normalization.report <- function(
 #' Perform tests to check normalization performance
 #'
 #' Creates scree plot of PCs of control probes, tests for association of control probe PCs with batch variables, tests for association of normalized probes with batch variables, creates PCA plots
-#' @param  normalized.beta Output from \code{meffil.normalize.samples}
-#' @param  norm Output from \link{meffil.normalize.quantiles}
-#' @param  parameters Default = meffil.post.parameters(norm) List of parameters.
+#' @param  norm.objects Output from \link{meffil.normalize.quantiles}
+#' @param  pcs Output from \code{\link{meffil.methylation.pcs}()}
+#' applied to the normalized methylation matrix
+#' corresponding to \code{norm.objects}.
+#' @param  parameters Default = meffil.post.parameters(norm.objects). Report parameters.
+#' @param  variables Default = NULL. Data frame of variables to compare to
+#' principal components (\code{pcs}).  Must contain \code{length(norm.objects)} rows.
+#' Columns that are not factors are ignored.
 #' @param  verbose Default = TRUE
 #' @export 
-#' @return List of tables and graphs
+#' @return List of tables and graphs.
 #' @examples \dontrun{
 #'
 #'}
-meffil.normalization.summary <- function(normalized.beta, norm.objects, parameters = meffil.normalization.parameters(norm.objects), verbose=TRUE)
+meffil.normalization.summary <- function(norm.objects, pcs, parameters = meffil.normalization.parameters(norm.objects), variables=NULL, verbose=TRUE)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
+    stopifnot(is.matrix(pcs) && nrow(pcs) == length(norm.objects))
+    stopifnot(is.numeric(pcs))
+    stopifnot(is.null(variables) || is.data.frame(variables) && nrow(variables) == length(norm.objects))
     
     scree.plot <- meffil.plot.control.scree(norm.objects)
     control.batch <- meffil.plot.control.batch(
         norm.objects, 
         npcs=parameters$control.pcs, 
         variables=parameters$variables,
+        additional=variables,
         batch.threshold=parameters$batch.threshold,
         cols=parameters$colours,
         verbose=verbose
 	)
     probe.batch <- meffil.plot.probe.batch(
-        normalized.beta,
         norm.objects,
-        npcs=parameters$probe.pcs,
+        pcs[,intersect(1:ncol(pcs), parameters$batch.pcs),drop=F],
         variables=parameters$variables,
-        probe.range=parameters$probe.range,
+        additional=variables,
         batch.threshold=parameters$batch.threshold,
         cols=parameters$colours,
         verbose=verbose
@@ -86,7 +94,6 @@ meffil.normalization.summary <- function(normalized.beta, norm.objects, paramete
 #' @examples \dontrun{
 #'
 #'}
-
 meffil.plot.control.scree <- function(norm.objects)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
@@ -102,10 +109,11 @@ meffil.plot.control.scree <- function(norm.objects)
     pc.var <- lapply(pcs, function(pcs) apply(pcs$x, 2, var))
     list(graphs=lapply(names(pcs), function(nom)
              {
-                 qplot(x=1:length(pc.var[[nom]]), y=pc.var[[nom]],
-                       geom="bar", stat="identity", position="dodge") +
-                       labs(x="PC", y="variance") +
-                       ggtitle(paste(nom, "samples"))                           
+                 dat <- data.frame(x=1:length(pc.var[[nom]]), y=pc.var[[nom]])
+                 (ggplot(dat, aes(x=x,y=y)) +
+                  geom_bar(stat="identity", position="dodge") +
+                  labs(x="PC", y="variance") +
+                  ggtitle(paste(nom, "samples")))                 
              }),
          tab=pc.var)
 }
@@ -118,19 +126,23 @@ meffil.plot.control.scree <- function(norm.objects)
 #'
 #' @param  norm.objects From \code{meffil.normalize.quantiles}
 #' @param  pcs Which PCs to plot. Default first 10
-#' @param  variables. Default = guess.batch.vars(norm.objects). Array spacifying column names in samplesheet to test for association with control matrix PCs
+#' @param  variables. Default = guess.batch.vars(norm.objects). Array spacifying column names in samplesheet to test for association with control matrix PCs.
+#' @param additional. Default = NULL. Data frame containing variables to test for association
+#' with control matrix PCs. Must have \code{nrow(additional) == length(norm.objects)}.
 #' @param  verbose=T Print progress messages?
 #' @export
 #' @return Data frame of results plus plot
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, cols=NULL, verbose=TRUE)
+meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), additional=NULL, batch.threshold=1e-50, cols=NULL, verbose=TRUE)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
+    stopifnot(is.null(additional) || is.data.frame(additional) && nrow(additional) == length(norm.objects))
 
     pcs <- meffil.pcs(norm.objects)$x
-    stopifnot(all(npcs %in% 1:ncol(pcs)))
+    npcs <- intersect(npcs, 1:ncol(pcs))
+    stopifnot(length(npcs) > 0)
     pcs <- pcs[,npcs,drop=F]
     
     variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
@@ -143,11 +155,13 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
                })
     }), stringsAsFactors=F)
     names(dat) <- variables
+    if (!is.null(additional))
+        dat <- cbind(dat, additional)
 
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
     ret <- plot.pairwise.associations(res, batch.threshold)
-    ret$pc.plot <- plot.pcs(pcs, dat, cols)
+    ret$pc.plots <- plot.pcs(pcs, dat, cols)
 
     colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
     colnames(res)[which(colnames(res) == "l")] <- "batch.value"
@@ -162,39 +176,26 @@ meffil.plot.control.batch <- function(norm.objects, npcs=1:10, variables=guess.b
 #'
 #' Performs association of each of \code{n} PCs calculated from most variable CpG sites (after normalization) against each of \code{m} measured batch variables
 #'
-#' @param  normalized.beta Output from \code{meffil.normalize.samples}
-#' @param  norm.objects Output from \code{meffil.normalize.quantiles}
-#' @param  npcs Default = 1:10. Which CpG PCs to test
+#' @param  norm.objects Output from \code{\link{meffil.normalize.quantiles}()}.
+#' @param  pcs Output from \code{\link{meffil.methylation.pcs}()}
+#' applied to the normalized methylation matrix
+#' corresponding to \code{norm.objects}.
 #' @param  variables Default = guess.batch.vars(norm). Which variables in sample sheet to test
-#' @param  probe.range Default = 1:1000. How many probes to be used in calculating PCs
+#' @param additional. Default = NULL. Data frame containing variables to test for association
+#' with control matrix PCs. Must have \code{nrow(additional) == length(norm.objects)}.
 #' @param  verbose=T Print progress messages?
-#' @export
 #' @return List of table of results and graph
 #' @examples \dontrun{
 #'
 #'}
-meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, variables=guess.batch.vars(norm.objects), batch.threshold=1e-50, probe.range=5000, cols=NULL, verbose=T)
+#' @export
+meffil.plot.probe.batch <- function(norm.objects, pcs, variables=guess.batch.vars(norm.objects), additional=NULL, batch.threshold=1e-50, cols=NULL, verbose=T)
 {
     stopifnot(sapply(norm.objects, is.normalized.object))
-    
-    stopifnot(all(npcs %in% 1:ncol(normalized.beta)) & all(npcs %in% 1:probe.range))
-    
-    msg("Calculating variances", verbose=verbose)
-    
-    featureset <- norm.objects[[1]]$featureset
-    
-    if (is.null(featureset)) { ## backwards compatibility
-        featureset <- "450k"
-    }   
+    stopifnot(is.matrix(pcs) && nrow(pcs) == length(norm.objects))
+    stopifnot(is.numeric(pcs))
+    stopifnot(is.null(additional) || is.data.frame(additional) && nrow(additional) == length(norm.objects))
 
-    autosomal.sites <- meffil.get.autosomal.sites(featureset)
-    autosomal.sites <- intersect(autosomal.sites, rownames(normalized.beta))
-    
-    var.sites <- meffil.most.variable.cpgs(normalized.beta[autosomal.sites,], n=probe.range)
-    var.idx <- match(var.sites, rownames(normalized.beta))
-    
-    msg("Calculating beta PCs", verbose=verbose)
-    pcs <- prcomp(t(meffil:::impute.matrix(normalized.beta[var.idx,], margin=1)))$x[,npcs,drop=F]
     msg("Extracting batch variables", verbose=verbose)
     variables <- variables[variables %in% names(norm.objects[[1]]$samplesheet)]
     
@@ -205,11 +206,14 @@ meffil.plot.probe.batch <- function(normalized.beta, norm.objects, npcs=1:10, va
                })
     }), stringsAsFactors=F)
     names(dat) <- variables
-      
+
+    if (!is.null(additional))
+        dat <- cbind(dat, additional)
+    
     msg("Testing associations", verbose=verbose)
     res <- test.pairwise.associations(pcs, dat)
     ret <- plot.pairwise.associations(res, batch.threshold)
-    ret$pc.plot <- plot.pcs(pcs, dat, cols)
+    ret$pc.plots <- plot.pcs(pcs, dat, cols)
 
     colnames(res)[which(colnames(res) == "x")] <- "batch.variable"
     colnames(res)[which(colnames(res) == "l")] <- "batch.value"
@@ -241,9 +245,9 @@ test.pairwise.associations <- function(y,x) {
             fstat <- NA
             try({
                 fstat <- summary(lm(y ~ x))$fstatistic
+                if (is.null(fstat)) fstat <- NA
                 pval <- pf(fstat["value"], df1=fstat["numdf"], df2=fstat["dendf"], lower.tail=F)#
             }, silent=TRUE)
-            
             ret <- data.frame(x=x.name, l=NA, y=y.name, test="F-test",
                               p.value=pval, estimate=fstat["value"], lower=NA, upper=NA)
             if (is.factor(x) && length(levels(x)) > 1) {
@@ -269,9 +273,10 @@ test.pairwise.associations <- function(y,x) {
                                 
                 confint <- t(sapply(fits, function(fit) {
                     coef <- coefficients(summary(fit))
+                    ret <- c(Estimate=NA,lwr=NA,upr=NA)
                     if (is.matrix(coef) && "level" %in% rownames(coef))
-                        confint(glht(fit))$confint["level",c("Estimate","lwr","upr")]
-                    else c(Estimate=NA,lwr=NA,upr=NA)
+                        try(ret <- confint(glht(fit))$confint["level",c("Estimate","lwr","upr")], silent=TRUE)
+                    ret
                 }))
                                 
                 colnames(confint) <- c("estimate","lower","upper")
@@ -293,9 +298,11 @@ test.pairwise.associations <- function(y,x) {
 
 
 
-plot.pairwise.associations <- function(res, batch.threshold) {    
-    cp <- sapply(unique(res$y), function(y) {
-        idx <- which(res$y == y & res$test == "t-test")
+plot.pairwise.associations <- function(res, batch.threshold) {
+    res <- res[which(res$test == "F-test" | res$test == "t-test" & !is.na(res$estimate)),]
+    
+    cp <- sapply(unique(res$y), function(y.value) {
+        idx <- which(res$y == y.value & res$test == "t-test")  
         col <- with(res[idx,], c("black","red")[sign(p.value < batch.threshold) + 1])
         (ggplot(res[idx,], aes(x=paste(x, l, sep="."),
                                y=estimate,
@@ -306,21 +313,24 @@ plot.pairwise.associations <- function(res, batch.threshold) {
          geom_hline(yintercept=0, colour="blue", linetype="dashed") +
          ylab("coefficient") +
          xlab("") +
-         ggtitle(y) +
+         ggtitle(y.value) +
          theme(axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
          coord_flip())
     }, simplify=F)
 
     res <- res[which(res$test == "F-test"),]
 
-    fp <- (ggplot(res, aes(x=y, y=-log10(p.value))) +
-           geom_point() +
-           geom_hline(yintercept=-log10(0.05), colour="blue", linetype="dashed") +
-           facet_grid(x ~ .) +
-           labs(y="-log10 p", x="") +
-           theme_bw())
+    fp <- sapply(unique(res$x), function(x.value) {
+        idx <- which(res$x == x.value)
+        (ggplot(res[idx,], aes(x=y, y=-log10(p.value))) +
+         geom_point() +
+         geom_hline(yintercept=-log10(0.05), colour="blue", linetype="dashed") +
+         labs(x="", y="-log10 p") +
+         ggtitle(x.value) +
+         theme_bw())
+    }, simplify=F)
     
-    return(list(fplot=fp, cplots=cp))
+    return(list(fplots=fp, cplots=cp))
 }
 
 
@@ -340,25 +350,33 @@ plot.pcs <- function(pcs, dat, cols=NULL) {
         too.many.levels <- sapply(1:ncol(dat), function(i) length(unique(dat[,i])) > 10)
         if (any(!too.many.levels)) {            
             pc.vars <- do.call(rbind, lapply(which(!too.many.levels), function(i) {                
-                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F),
-                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F),
-                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3], variable=colnames(dat)[i], values=paste(colnames(dat)[i], dat[,i], sep="."), stringsAsFactors=F))
+                rbind(data.frame(desc="pc1vpc2", pc.x=pcs[,1], pc.y=pcs[,2],
+                                 variable=colnames(dat)[i],
+                                 values=paste(colnames(dat)[i], dat[,i], sep="."),
+                                 stringsAsFactors=F),
+                      data.frame(desc="pc1vpc3", pc.x=pcs[,1], pc.y=pcs[,3],
+                                 variable=colnames(dat)[i],
+                                 values=paste(colnames(dat)[i], dat[,i], sep="."),
+                                 stringsAsFactors=F),
+                      data.frame(desc="pc2vpc3", pc.x=pcs[,2], pc.y=pcs[,3],
+                                 variable=colnames(dat)[i],
+                                 values=paste(colnames(dat)[i], dat[,i], sep="."),
+                                 stringsAsFactors=F))
             }))
 
-            n.values <- length(unique(pc.vars$values))
-            if (n.values > length(cols))
-                cols <- rep(cols, length.out=n.values)
-
-            return(ggplot(pc.vars, aes(x=pc.x, y=pc.y,colour=as.factor(values))) +
-                   geom_point() +
-                   scale_colour_manual(name="Batch", values=cols) +
-                   #scale_colour_discrete(name = "Batch") +
-                   labs(y="pc",x="pc") +
-                   facet_grid(variable ~ desc) +
-                   theme_bw())
-
-            scale_fill_manual(values=rep(mixed, length.out=nrow(icc)))
-            
+            return(sapply(unique(pc.vars$variable), function(variable) {
+                idx <- which(pc.vars$variable == variable)
+                n.values <- length(unique(pc.vars$values[idx]))
+                if (n.values > length(cols))
+                    cols <- rep(cols, length.out=n.values)
+                
+                (ggplot(pc.vars[idx,], aes(x=pc.x, y=pc.y,colour=as.factor(values))) +
+                 geom_point() +
+                 scale_colour_manual(name="Batch", values=cols) +
+                 labs(y="pc",x="pc") +
+                 facet_grid(variable ~ desc) +
+                 theme_bw())
+            },simplify=F))            
         }
     }
     return(NULL)
@@ -385,8 +403,6 @@ guess.batch.vars <- function(norm.objects) {
 #' @param  norm.objects Output from \link{meffil.normalize.quantiles}
 #' @param  variables Default = guess.batch.vars(norm). Which variables in sample sheet to test
 #' @param  control.pcs Default = 1:10. Number of control PCs to test against batch variables
-#' @param  probe.pcs Default = 1:10. Number of probe PCs to test against batch variables
-#' @param  probe.range Default = 1:1000. Number of probes to use to calculate PCs for actual CpGs
 #' @param  colours Colours to use for scatterplots.
 #' @export
 #' @return List of parameters
@@ -396,8 +412,7 @@ guess.batch.vars <- function(norm.objects) {
 meffil.normalization.parameters <- function(norm.objects,
                                             variables = guess.batch.vars(norm.objects),
                                             control.pcs = 1:10,
-                                            probe.pcs = 1:10,
-                                            probe.range = 5000,
+                                            batch.pcs = 1:10,
                                             batch.threshold=1e-50,
                                             colours=NULL) {                                           
     stopifnot(sapply(norm.objects, is.normalized.object))
@@ -405,8 +420,7 @@ meffil.normalization.parameters <- function(norm.objects,
     parameters <- list(
         variables = variables,
         control.pcs = control.pcs,
-        probe.pcs = probe.pcs,
-        probe.range = probe.range,
+        batch.pcs = batch.pcs,
         batch.threshold=batch.threshold,
         colours=colours
 	)

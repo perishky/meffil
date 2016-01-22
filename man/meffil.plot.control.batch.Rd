@@ -5,15 +5,18 @@
 \title{Test for association of control matrix probes with known batch variables}
 \usage{
 meffil.plot.control.batch(norm.objects, npcs = 1:10,
-  variables = guess.batch.vars(norm.objects), batch.threshold = 1e-50,
-  cols = NULL, verbose = TRUE)
+  variables = guess.batch.vars(norm.objects), additional = NULL,
+  batch.threshold = 1e-50, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{norm.objects}{From \code{meffil.normalize.quantiles}}
 
 \item{pcs}{Which PCs to plot. Default first 10}
 
-\item{variables.}{Default = guess.batch.vars(norm.objects). Array spacifying column names in samplesheet to test for association with control matrix PCs}
+\item{variables.}{Default = guess.batch.vars(norm.objects). Array spacifying column names in samplesheet to test for association with control matrix PCs.}
+
+\item{additional.}{Default = NULL. Data frame containing variables to test for association
+with control matrix PCs. Must have \code{nrow(additional) == length(norm.objects)}.}
 
 \item{verbose=T}{Print progress messages?}
 }

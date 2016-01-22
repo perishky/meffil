@@ -10,8 +10,9 @@ meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
   author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
   fixed.effects = NULL, random.effects = NULL, pseudo = 100,
-  just.beta = T, norm.parameters = NULL,
-  norm.file = "meffil-normalization-report.md", verbose = FALSE)
+  just.beta = T, probe.range = 5000, autosomal = T,
+  norm.parameters = NULL, norm.file = "meffil-normalization-report.md",
+  verbose = FALSE)
 }
 \arguments{
 \item{samplesheet}{Output from \code{\link{meffil.read.samplesheet}()} or
@@ -53,9 +54,15 @@ along with control matrix principal components (Default: NULL).}
 
 Arguments to \code{\link{meffil.normalize.samples}()}:}
 
-\item{pseudo}{Arguments to \code{\link{meffil.normalization.summary}()}:}
+\item{pseudo}{Arguments to \code{\link{meffil.methylation.pcs}()}.}
 
 \item{just.beta}{}
+
+\item{probe.range}{(Default: 5000).}
+
+\item{autosomal}{(Default: TRUE).
+
+Arguments to \code{\link{meffil.normalization.summary}()}:}
 
 \item{norm.parameters}{(parameters)}
 
@@ -65,6 +72,8 @@ Other:}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
+
+\item{npcs}{(Default: 1:10).}
 }
 \value{
 A list:

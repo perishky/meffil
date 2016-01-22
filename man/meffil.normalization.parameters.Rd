@@ -6,8 +6,7 @@
 \usage{
 meffil.normalization.parameters(norm.objects,
   variables = guess.batch.vars(norm.objects), control.pcs = 1:10,
-  probe.pcs = 1:10, probe.range = 5000, batch.threshold = 1e-50,
-  colours = NULL)
+  batch.pcs = 1:10, batch.threshold = 1e-50, colours = NULL)
 }
 \arguments{
 \item{norm.objects}{Output from \link{meffil.normalize.quantiles}}
@@ -15,10 +14,6 @@ meffil.normalization.parameters(norm.objects,
 \item{variables}{Default = guess.batch.vars(norm). Which variables in sample sheet to test}
 
 \item{control.pcs}{Default = 1:10. Number of control PCs to test against batch variables}
-
-\item{probe.pcs}{Default = 1:10. Number of probe PCs to test against batch variables}
-
-\item{probe.range}{Default = 1:1000. Number of probes to use to calculate PCs for actual CpGs}
 
 \item{colours}{Colours to use for scatterplots.}
 }
