@@ -40,7 +40,7 @@ cat(out, sep="\n\n")
 ```{r, include=FALSE}
 out <- NULL
 for (plot in ewas.summary$qq.plots)
-    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+    out <- c(out, knit_child(file.path(report.path, "qq-plot.rmd")))
 ```
 
 ```{r,results="asis"}
@@ -52,7 +52,7 @@ cat(out, sep="\n")
 ```{r, include=FALSE}
 out <- NULL
 for (plot in ewas.summary$manhattan.plots)
-    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+    out <- c(out, knit_child(file.path(report.path, "manhattan-plot.rmd")))
 ```
 
 ```{r,results="asis"}

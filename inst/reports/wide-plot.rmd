@@ -1,0 +1,7 @@
+```{r}
+fig.width <- 3*opts_chunk$get("fig.width")
+```
+
+```{r,message=F,fig.width=fig.width}
+(plot)
+```

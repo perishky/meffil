@@ -28,7 +28,7 @@ meffil.qc.report <- function(
     require(gridExtra)
     opts <- opts_chunk$get()
     on.exit(opts_chunk$set(opts))
-    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=12, fig.height=12, dev="CairoPNG")
+    opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results="asis", fig.width=10, fig.height=10, dev="CairoPNG")
     knit.report(file.path(report.path, "qc-report.rmd"), output.file, ...)
 }
 
@@ -271,8 +271,9 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
 
         p1 <- (ggplot(dat, aes(y=methylated, x=unmethylated)) +
                geom_point(aes(colour=colour.code)) +
-               guides(colour = g) +
-               geom_point(data=subset(dat, outliers), aes(colour=colour.code), size=3.5))
+               guides(colour = g))
+        if (any(dat$outliers))
+            p1 <- p1 + geom_point(data=subset(dat, outliers), aes(colour=colour.code), size=3.5)
     } else {
         dat$slide <- as.character(sapply(qc.objects, function(object) object$samplesheet$Slide))
         outlier.counts <- table(factor(dat$slide)[dat$outliers])
@@ -291,8 +292,9 @@ meffil.plot.meth.unmeth <- function(qc.objects, outlier.sd=3, colour.code = NULL
 
         p1 <- (ggplot(dat, aes(y=methylated, x=unmethylated)) +
                geom_point(colour="black") +
-               guides(colour=g) +
-               geom_point(data=subset(dat, outliers), aes(colour=outlier.slide), size=3.5))
+               guides(colour=g))
+        if (any(dat$outliers))
+            p1 <- p1 + geom_point(data=subset(dat, outliers), aes(colour=outlier.slide), size=3.5)
         dat$slide <- dat$slide.outlier.count <- dat$outlier.slide <- NULL
     }
 
@@ -362,10 +364,11 @@ meffil.plot.controlmeans <- function(qc.objects, control.categories=NULL, colour
     })
     p1 <- (ggplot(dat, aes(x=id, y=value)) +
            geom_point(aes(colour=colour.code)) +
-           geom_point(data=subset(dat, outliers), shape=1, size=3.5) +
            guides(colour=g) +
            facet_wrap(~ variable, scales="free_y", ncol=4) +
            labs(y="Mean signal", x="ID", colour=colour.code))
+    if (any(dat$outliers))
+        p1 <- p1 + geom_point(data=subset(dat, outliers), shape=1, size=3.5)
     return(list(graph=p1, tab=dat))
 }
 
