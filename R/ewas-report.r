@@ -105,11 +105,12 @@ meffil.ewas.summary <- function(ewas.object, beta,
 #' If NA, then threshold used will be 0.05 divided by the number of tests/probes.
 #' @param max.plots Maximum number of plots to generate (Default: 10).
 #' @param model Model to use for selecting associations: "none" (no covariates),
-#' "all" (all covariates), "isva0" (independent surrogate variables), "isva1" (ISVA applied to isva0 and all covariates) (Default: "isva1").
+#' "all" (all covariates), "isva0" (independent surrogate variables), "isva1" (ISVA applied to isva0 and all covariates) (Default: "none").
 #' @return List of parameter values
 #'
 #' @export
-meffil.ewas.parameters <- function(sig.threshold=NA,max.plots=10) {
+meffil.ewas.parameters <- function(sig.threshold=NA,max.plots=10, model="none") {
     list(sig.threshold=sig.threshold,
-         max.plots=max.plots)
+         max.plots=max.plots,
+         model=model)
 }
