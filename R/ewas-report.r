@@ -46,14 +46,17 @@ meffil.ewas.summary <- function(ewas.object, beta,
                                 selected.cpg.sites=character(0),
                                 parameters=meffil.ewas.parameters(),
                                 verbose=T) {
-    min.p <- rowMins(ewas.object$p.value)
-    parameters$practical.threshold <- min.p[order(min.p, decreasing=F)][parameters$max.plots+1]
+    stopifnot(parameters$model %in% colnames(ewas.object$p.value))
+    stopifnot(parameters$max.plots < nrow(ewas.object$p.value))
+    
+    p.values <- ewas.object$p.value[,parameters$model]
+    parameters$practical.threshold <- p.values[order(p.values)[parameters$max.plots+1]]
 
     if (is.na(parameters$sig.threshold)) 
         parameters$sig.threshold <- 0.05/nrow(ewas.object$p.value)
         
     sig.idx <- unique(which(ewas.object$p.value < parameters$sig.threshold, arr.ind=T)[,"row"])
-    practical.idx <- which(rowMins(ewas.object$p.value) < parameters$practical.threshold)
+    practical.idx <- which(p.values < parameters$practical.threshold)
     selected.idx <- match(selected.cpg.sites, rownames(ewas.object$p.value))    
 
     cpg.idx <- union(sig.idx, union(practical.idx, selected.idx))
@@ -101,6 +104,8 @@ meffil.ewas.summary <- function(ewas.object, beta,
 #' @param sig.threshold P-value threshold for significance (Default: NA).
 #' If NA, then threshold used will be 0.05 divided by the number of tests/probes.
 #' @param max.plots Maximum number of plots to generate (Default: 10).
+#' @param model Model to use for selecting associations: "none" (no covariates),
+#' "all" (all covariates), "isva0" (independent surrogate variables), "isva1" (ISVA applied to isva0 and all covariates) (Default: "isva1").
 #' @return List of parameter values
 #'
 #' @export

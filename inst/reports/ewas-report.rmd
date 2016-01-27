@@ -90,7 +90,8 @@ tab <- with(ewas.summary, cpg.stats[match(practical.sites, rownames(cpg.stats)),
 ```
 
 Below are the `r length(practical.sites)`
-CpG sites with association p-values < `r ewas.summary$parameters$practical.threshold`.
+CpG sites with association p-values < `r ewas.summary$parameters$practical.threshold`
+in the `r ewas.summary$parameters$model` regression model.
 
 ```{r}
 knitr::kable(tab[practical.sites,])
