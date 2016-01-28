@@ -98,8 +98,9 @@ meffil.ewas <- function(beta, variable,
 
     if (isva0 || isva1) {
         msg("ISVA with no covariates.", verbose=verbose)
-        var.idx <- order(rowVars(beta, na.rm=T), decreasing=T)[1:most.variable]    
-        isva0 <- DoISVA(beta[var.idx,,drop=F], variable, verbose=verbose)
+        var.idx <- order(rowVars(beta, na.rm=T), decreasing=T)[1:most.variable]
+        beta.isva <- impute.matrix(beta[var.idx,,drop=F])
+        isva0 <- DoISVA(beta.isva, variable, verbose=verbose)
         covariate.sets$isva0 <- as.data.frame(isva0$isv)
     }
 
@@ -107,7 +108,8 @@ meffil.ewas <- function(beta, variable,
         msg("ISVA with covariates.", verbose=verbose)
         if (!is.null(covariates)) {
             factor.log <- rep(FALSE, nrow(covariates))
-            isva1 <- DoISVA(beta[var.idx,,drop=F], variable, cf.m=covariates, factor.log=factor.log,
+            beta.isva <- impute.matrix(beta[var.idx,,drop=F])
+            isva1 <- DoISVA(beta.isva, variable, cf.m=covariates, factor.log=factor.log,
                         verbose=verbose)
             covariate.sets$isva1 <- as.data.frame(isva1$isv)
         }
