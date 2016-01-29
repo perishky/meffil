@@ -1,6 +1,13 @@
-#install.packages("devtools")
-#devtools::install_github("klutometis/roxygen")
+#' Only two steps are needed to install meffil in R:
+#' 1. library(devtools)
+#' 2. devtools::install_github("perishky/meffil")
 
+#' The following steps are needed only to regenerate
+#' the included with the package. This data has already 
+#' present in the package.
+
+#' install.packages("devtools")
+#' devtools::install_github("klutometis/roxygen")
 library(devtools)
 library(roxygen2)
 
