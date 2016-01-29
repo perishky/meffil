@@ -19,6 +19,15 @@ access to all data. The `meffil` version splits the method up into
 several functions in order to allow parallelization and to reduce the
 amount of data that needs to be loaded.
 
+## Installation
+
+Only a few steps are needed to install `meffil` in R. First, start R and then type the following commands:
+
+         source("http://bioconductor.org/biocLite.R")
+         install.packages("devtools") # if the devtools package is not installed
+         library(devtools)
+         install_github("perishky/meffil")
+
 ## One-step normalization
 
 	library(meffil)
