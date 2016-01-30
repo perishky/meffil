@@ -44,7 +44,8 @@ meffil.ewas.qq.plot <- function(ewas.object,
         stats <- data.frame(is.sig=p.values < sig.threshold,
                             expected=-log((length(p.values):1 - 0.5)/length(p.values),10),
                             observed=-log(p.values, 10))
-        lambda <- with(stats, median(expected)/median(observed))
+        lambda <- median(qchisq(p.values,1,lower.tail=FALSE), na.rm=T)/qchisq(0.5,1)
+
         label.x <- min(stats$expected) + diff(range(stats$expected))*0.25
         label.y <- min(stats$expected) + diff(range(stats$observed))*0.75
 
