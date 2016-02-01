@@ -145,12 +145,22 @@ meffil.ewas.cpg.plot <- function(ewas.object, cpg, beta, title=cpg) {
 }
 
 cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
+    ## remove missing values
+    idx <- which(!is.na(methylation) & !is.na(variable))
+    if (length(idx) < 3) {
+        warning("Not enough data points to plot CpG methylation.")
+        return(NULL)
+    }
+    methylation <- methylation[idx]
+    variable <- variable[idx]
+    
     ## linear model fit
     if (is.null(covariates)) {
         fit <- lm(methylation ~ variable)
         base <- lm(methylation ~ 1)
     }
     else {
+        covariates <- covariates[idx,]
         fit <- lm(methylation ~ variable + ., data=covariates)
         base <- lm(methylation ~ ., data=covariates)
     }
