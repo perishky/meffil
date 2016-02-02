@@ -35,7 +35,7 @@ meffil.ewas <- function(beta, variable,
     if (is.na(featureset))
         featureset <- guess.featureset(rownames(beta))
     features <- meffil.get.features(featureset)
-    
+          
     stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% features$name))
     stopifnot(ncol(beta) == length(variable))
     stopifnot(is.null(covariates) || is.data.frame(covariates) && nrow(covariates) == ncol(beta))
@@ -90,6 +90,8 @@ meffil.ewas <- function(beta, variable,
     }
 
     covariate.sets <- list(none=NULL)
+    if (!is.null(covariates))
+        covariate.sets$all <- covariates
 
     if (is.numeric(winsorize.pct))  {
         msg(winsorize.pct, "- winsorizing the beta matrix.", verbose=verbose)
@@ -98,8 +100,18 @@ meffil.ewas <- function(beta, variable,
 
     if (isva0 || isva1) {
         msg("ISVA with no covariates.", verbose=verbose)
-        var.idx <- order(rowVars(beta, na.rm=T), decreasing=T)[1:most.variable]
-        beta.isva <- impute.matrix(beta[var.idx,,drop=F])
+        beta.isva <- beta
+        
+        autosomal.sites <- meffil.get.autosomal.sites(featureset)
+        autosomal.sites <- intersect(autosomal.sites, rownames(beta.isva))
+        if (length(autosomal.sites) < most.variable) {
+          warning("Probes from the sex chromosomes will be used to calculate surrogate variables.")
+        } else {
+          beta.isva <- beta.isva[autosomal.sites,]
+        }
+        var.idx <- order(rowVars(beta.isva, na.rm=T), decreasing=T)[1:most.variable]
+        beta.isva <- impute.matrix(beta.isva[var.idx,,drop=F])
+
         isva0 <- DoISVA(beta.isva, variable, verbose=verbose)
         covariate.sets$isva0 <- as.data.frame(isva0$isv)
     }
@@ -107,16 +119,14 @@ meffil.ewas <- function(beta, variable,
     if (isva1) {
         msg("ISVA with covariates.", verbose=verbose)
         if (!is.null(covariates)) {
-            factor.log <- rep(FALSE, nrow(covariates))
-            beta.isva <- impute.matrix(beta[var.idx,,drop=F])
-            isva1 <- DoISVA(beta.isva, variable, cf.m=covariates, factor.log=factor.log,
+          factor.log <- rep(FALSE, nrow(covariates))
+          isva1 <- DoISVA(beta.isva, variable, 
+                        cf.m=cbind(isva0$isv, covariates), 
+                        factor.log=factor.log,
                         verbose=verbose)
-            covariate.sets$isva1 <- as.data.frame(isva1$isv)
+          covariate.sets$isva1 <- as.data.frame(isva1$isv)
         }
     }
-
-    if (!is.null(covariates))
-        covariate.sets$all <- covariates
 
     analyses <- sapply(names(covariate.sets), function(name) {
         msg("EWAS for covariate set", name, verbose=verbose)
@@ -125,7 +135,8 @@ meffil.ewas <- function(beta, variable,
              beta=beta,
              covariates=covariates,
              batch=batch,
-             cell.counts=cell.counts)
+             cell.counts=cell.counts,
+             winsorize.pct=winsorize.pct)
     }, simplify=F)
 
     p.values <- sapply(analyses, function(analysis) analysis$table$p.value)
@@ -161,7 +172,7 @@ is.ewas.object <- function(object)
 #' to the proportions of cell of a selected cell type in each sample.
 #' The regression model is then modified in order to identify
 #' associations specifically in the selected cell type (PMID: 24000956).
-ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL,
+ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL, winsorize.pct=0.05,
                  verbose=F) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
@@ -216,7 +227,11 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL,
     }
     
     msg("Empirical Bayes", verbose=verbose)
-    fit.ebayes <- eBayes(fit, robust=T)
+    if (is.numeric(winsorize.pct)) {
+      fit.ebayes <- eBayes(fit, robust=T, winsor.tail.p=c(winsorize.pct, winsorize.pct))
+    } else { 
+      fit.ebayes <- eBayes(fit)
+    }
 
     alpha <- 0.975
     margin.error <- (sqrt(fit.ebayes$s2.post)
