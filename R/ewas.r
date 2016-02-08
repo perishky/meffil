@@ -119,7 +119,7 @@ meffil.ewas <- function(beta, variable,
     if (isva1) {
         msg("ISVA with covariates.", verbose=verbose)
         if (!is.null(covariates)) {
-          factor.log <- rep(FALSE, nrow(covariates))
+          factor.log <- sapply(covariates, is.factor)
           isva1 <- DoISVA(beta.isva, variable, 
                         cf.m=cbind(isva0$isv, covariates), 
                         factor.log=factor.log,
