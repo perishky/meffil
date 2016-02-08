@@ -6,7 +6,7 @@ load.epic.manifest <- function() {
 
     cat("Reading", basename(filename), "\n")
 
-    manifest.filename <- unzip("infinium-methylationepic-manifest-file-csv.zip",list=T)$Name[1]  
+    manifest.filename <- unzip(basename(filename),list=T)$Name[1]  
     system.time(manifest <- read.csv(unz(basename(filename), manifest.filename),
                                      skip=7, stringsAsFactors=F)) ## 5 minutes
 
