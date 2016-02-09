@@ -131,7 +131,7 @@ meffil.ewas.cpg.plot <- function(ewas.object, cpg, beta, title=cpg) {
     variable <- ewas.object$variable
     
     lapply(names(ewas.object$analyses), function(name) {
-        ewas <- ewas.object$analyses[[name]]
+        ewas <- ewas.object$analyses[[name]]        
 
         if (!all(rownames(ewas$design) %in% colnames(beta)))
             stop("EWAS samples do not match those in the beta argument (methylation matrix)")
@@ -160,7 +160,7 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
         base <- lm(methylation ~ 1)
     }
     else {
-        covariates <- covariates[idx,]
+        covariates <- covariates[idx,,drop=F]
         fit <- lm(methylation ~ variable + ., data=covariates)
         base <- lm(methylation ~ ., data=covariates)
     }
