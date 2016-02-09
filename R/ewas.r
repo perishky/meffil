@@ -74,7 +74,7 @@ meffil.ewas <- function(beta, variable,
     variable <- variable[sample.idx]
 
     if (!is.null(covariates))
-        covariates <- covariates[sample.idx,]
+        covariates <- covariates[sample.idx,,drop=F]
 
     if (!is.null(batch))
         batch <- batch[sample.idx]
@@ -152,7 +152,7 @@ meffil.ewas <- function(beta, variable,
     list(class="ewas",
          samples=sample.idx,
          variable=original.variable[sample.idx],
-         covariates=original.covariates[sample.idx,],
+         covariates=original.covariates[sample.idx,,drop=F],
          winsorize.pct=winsorize.pct,
          most.variable=most.variable,
          p.value=p.values,
