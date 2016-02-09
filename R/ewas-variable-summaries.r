@@ -12,6 +12,7 @@ meffil.ewas.sample.characteristics <- function(ewas.object) {
     stopifnot(is.ewas.object(ewas.object))
     
     summarize.variable <- function(name, variable) {
+        if (is.character(variable)) variable <- as.factor(variable)
         if (is.factor(variable)) {
             n <- sapply(levels(variable), function(level) sum(variable == level,na.rm=T))
             data.frame(variable=name,
