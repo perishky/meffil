@@ -50,15 +50,18 @@ meffil.ewas.qq.plot <- function(ewas.object,
         lambda <- qq.lambda(p.values[which(p.values > sig.threshold)],
                             method=lambda.method)
 
-        label.x <- min(stats$expected) + diff(range(stats$expected))*0.25
-        label.y <- min(stats$expected) + diff(range(stats$observed))*0.75
-
-        selection.idx <- scatter.thinning(stats$observed, stats$expected,
-                                          resolution=100, max.per.cell=100)
+        label.x <- min(stats$expected) + diff(range(stats$expected))*0.1
+        label.y <- min(stats$expected) + diff(range(stats$observed))*0.9
 
         lambda.label <- paste("lambda == ", format(lambda$estimate,digits=3),
                               "%+-%", format(lambda$se, digits=3),
                               "~(", lambda.method, ")", sep="")
+
+        selection.idx <- scatter.thinning(stats$observed, stats$expected,
+                                          resolution=100, max.per.cell=100)
+
+        lim <- range(c(0, stats$expected, stats$observed))
+        sig.threshold <- format(sig.threshold, digits=3)
         
         (ggplot(stats[selection.idx,], aes(x=expected, y=observed)) + 
          geom_abline(intercept = 0, slope = 1, colour="black") +              
@@ -68,10 +71,12 @@ meffil.ewas.qq.plot <- function(ewas.object,
                              breaks=c("0","1"),
                              labels=c(paste("p-value >", sig.threshold),
                                  paste("p-value <", sig.threshold))) +
-         annotate(geom="text", x=label.x, y=label.y,
+         annotate(geom="text", x=label.x, y=label.y, hjust=0,
                   label=lambda.label,
                   parse=T) +
+         xlim(lim) + ylim(lim) + 
          xlab(xlab) + ylab(ylab) +
+         coord_fixed() +
          ggtitle(paste(title, ": ", name, sep="")))
      }, simplify=F)     
 }
