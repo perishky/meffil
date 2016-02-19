@@ -234,9 +234,9 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL, 
     }
 
     alpha <- 0.975
-    margin.error <- (sqrt(fit.ebayes$s2.post)
-                     * fit.ebayes$stdev.unscaled[,"variable"]
-                     * qt(alpha, df=fit.ebayes$df.total))
+    std.error <- (sqrt(fit.ebayes$s2.post) * fit.ebayes$stdev.unscaled[,"variable"])
+    margin.error <- (std.error * qt(alpha, df=fit.ebayes$df.total))
+    n <- rowSums(!is.na(beta))
 
     list(design=design,
          batch=batch,
@@ -248,7 +248,9 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL, 
              t.statistic=fit.ebayes$t[,"variable"],
              coefficient=fit.ebayes$coefficient[,"variable"],
              coefficient.ci.high=fit.ebayes$coefficient[,"variable"] + margin.error,
-             coefficient.ci.low=fit.ebayes$coefficient[,"variable"] - margin.error))
+             coefficient.ci.low=fit.ebayes$coefficient[,"variable"] - margin.error,
+             coefficient.se=std.error,
+             n=n))             
 }
 
 
