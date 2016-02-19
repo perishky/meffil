@@ -10,8 +10,10 @@
 #' @export
 meffil.ewas.sample.characteristics <- function(ewas.object) {
     stopifnot(is.ewas.object(ewas.object))
-    
+
+    msg("summarizing variables")
     summarize.variable <- function(name, variable) {
+        msg(name)
         if (is.character(variable)) variable <- as.factor(variable)
         if (is.factor(variable)) {
             n <- sapply(levels(variable), function(level) sum(variable == level,na.rm=T))
@@ -64,12 +66,17 @@ meffil.ewas.sample.characteristics <- function(ewas.object) {
 meffil.ewas.covariate.associations <- function(ewas.object) {
     stopifnot(is.ewas.object(ewas.object))
     if (is.null(ewas.object$covariates)) return(NULL)
-    
+
+    msg("covariate associations")
     ret <- lapply(1:ncol(ewas.object$covariates), function(i) {
+        msg(colnames(ewas.object$covariates)[i])
         vars <- data.frame(variable=ewas.object$variable,
                            covariate=ewas.object$covariates[,i])
-        if (length(unique(na.omit(vars$variable))) <= 2)
-            vars$variable <- as.factor(vars$variable)
+        for (j in colnames(vars)) {
+            if (!is.numeric(vars[[j]])
+                && length(unique(na.omit(vars[[j]]))) <= 2)
+                vars[[j]] <- as.factor(vars[[j]])
+        }
         colnames(vars)[2] <- colnames(ewas.object$covariates)[i]
         meffil.summarize.relationship(vars)
     })
