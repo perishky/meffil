@@ -8,6 +8,10 @@ for (name in names(output)) {
 }
 ```
 
-```{r,message=F}
+```{r}
+fig.width <- 1 + opts_chunk$get("fig.width")
+```
+
+```{r,message=F,fig.width=fig.width}
 (ewas.summary$covariate.associations[[covariate.name]]$plot)
 ```

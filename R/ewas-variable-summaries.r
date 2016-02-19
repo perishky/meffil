@@ -225,7 +225,8 @@ visualize.relationship <- function(vars, ret) {
          + geom_tile(aes(fill=p.value))
          + geom_text(aes(label=freq))
          + labs(x=names(vars)[2], y=names(vars)[1], fill="-log10(p-value)")
-         + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+         + theme(axis.text.x = element_text(angle = 90, hjust = 1),
+                 aspect.ratio=1)
          + ggtitle(""))
     }
     else {
