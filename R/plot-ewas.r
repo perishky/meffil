@@ -29,22 +29,26 @@ scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
 #' @param title Title for the plot (Default: "QQ plot").
 #' @param xlab Label for the x-axis (Default: -log_10(expected p-values)).
 #' @param ylab Label for the y-axis (Default: -log_10(observed p-values)).
-#' @return \code{\link{ggplot}} showing the QQ plot. 
+#' @param lambda.method Method for calculating genomic inflation lambda.
+#' Valid values are "median" or "regression" (Default: "median").
+#' @return List of \code{\link{ggplot}} for each analysis in \code{ewas.object}.
 #' @export
 meffil.ewas.qq.plot <- function(ewas.object,
-                           sig.threshold=1e-7,
-                           sig.color="red",
-                           title="QQ plot",
-                           xlab=bquote(-log[10]("expected p-values")),
-                           ylab=bquote(-log[10]("observed p-values"))) {
+                                sig.threshold=1e-7,
+                                sig.color="red",
+                                title="QQ plot",
+                                xlab=bquote(-log[10]("expected p-values")),
+                                ylab=bquote(-log[10]("observed p-values")),
+                                lambda.method="median") {
     stopifnot(is.ewas.object(ewas.object))
     
     sapply(names(ewas.object$analyses), function(name) {
         p.values <- sort(ewas.object$analyses[[name]]$table$p.value, decreasing=T)
         stats <- data.frame(is.sig=p.values < sig.threshold,
-                            expected=-log((length(p.values):1 - 0.5)/length(p.values),10),
+                            expected=-log(sort(ppoints(p.values),decreasing=T),10),
                             observed=-log(p.values, 10))
-        lambda <- median(qchisq(p.values,1,lower.tail=FALSE), na.rm=T)/qchisq(0.5,1)
+        lambda <- qq.lambda(p.values[which(p.values > sig.threshold)],
+                            method=lambda.method)
 
         label.x <- min(stats$expected) + diff(range(stats$expected))*0.25
         label.y <- min(stats$expected) + diff(range(stats$observed))*0.75
@@ -52,6 +56,10 @@ meffil.ewas.qq.plot <- function(ewas.object,
         selection.idx <- scatter.thinning(stats$observed, stats$expected,
                                           resolution=100, max.per.cell=100)
 
+        lambda.label <- paste("lambda == ", format(lambda$estimate,digits=3),
+                              "%+-%", format(lambda$se, digits=3),
+                              "~(", lambda.method, ")", sep="")
+        
         (ggplot(stats[selection.idx,], aes(x=expected, y=observed)) + 
          geom_abline(intercept = 0, slope = 1, colour="black") +              
          geom_point(aes(colour=factor(sign(is.sig)))) +
@@ -61,10 +69,32 @@ meffil.ewas.qq.plot <- function(ewas.object,
                              labels=c(paste("p-value >", sig.threshold),
                                  paste("p-value <", sig.threshold))) +
          annotate(geom="text", x=label.x, y=label.y,
-                  label=paste("lambda ==", format(lambda, digits=3)), parse=T) +
+                  label=lambda.label,
+                  parse=T) +
          xlab(xlab) + ylab(ylab) +
          ggtitle(paste(title, ": ", name, sep="")))
      }, simplify=F)     
+}
+
+qq.lambda <- function(p.values, method="median", B=100) {
+    stopifnot(method %in% c("median","regression"))
+    p.values <- na.omit(p.values)
+    observed <- qchisq(p.values, df=1, lower.tail = FALSE)
+    observed <- sort(observed)
+    expected <- qchisq(ppoints(length(observed)), df=1, lower.tail=FALSE)
+    expected <- sort(expected)
+
+    lambda <- se <- NA
+    if (method == "median")  {
+        lambda <- median(observed)/qchisq(0.5, df=1)
+        boot.medians <- sapply(1:B, function(i) median(sample(observed, replace=T)))
+        se <- sd(boot.medians/qchisq(0.5,df=1))
+    } else if (method == "regression") {
+        coef.table <- summary(lm(observed ~ 0 + expected))$coeff
+        lambda <- coef.table["expected","Estimate"]
+        se <- coef.table["expected", "Std. Error"]
+    }
+    list(method=method, estimate=lambda, se=se)
 }
 
 #' Manhattan plot for EWAS
