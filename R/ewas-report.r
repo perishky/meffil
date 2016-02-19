@@ -68,7 +68,8 @@ meffil.ewas.summary <- function(ewas.object, beta,
     
     msg("QQ plots", verbose=T)
     qq.plots <- meffil.ewas.qq.plot(ewas.object,
-                                    sig.threshold=parameters$sig.threshold)
+                                    sig.threshold=parameters$sig.threshold,
+                                    lambda.method=parameters$qq.inflation.method)
 
     msg("Manhattan plots", verbose=T)
     manhattan.plots <- meffil.ewas.manhattan.plot(ewas.object,
@@ -106,11 +107,17 @@ meffil.ewas.summary <- function(ewas.object, beta,
 #' @param max.plots Maximum number of plots to generate (Default: 10).
 #' @param model Model to use for selecting associations: "none" (no covariates),
 #' "all" (all covariates), "isva0" (independent surrogate variables), "isva1" (ISVA applied to isva0 and all covariates) (Default: "none").
+#' @param qq.inflation.method Method for calculating genomic inflation lambda.
+#' Valid values are "median" or "regression" (Default: "median").
 #' @return List of parameter values
 #'
 #' @export
-meffil.ewas.parameters <- function(sig.threshold=NA,max.plots=10, model="none") {
+meffil.ewas.parameters <- function(sig.threshold=NA,
+                                   max.plots=10,
+                                   model="none",
+                                   qq.inflation.method="median") {
     list(sig.threshold=sig.threshold,
          max.plots=max.plots,
-         model=model)
+         model=model,
+         qq.inflation.method=qq.inflation.method)
 }
