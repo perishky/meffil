@@ -53,10 +53,14 @@ meffil.normalize.quantiles <- function(qc.objects,
                                           fixed.effects=fixed.effects,
                                           random.effects=random.effects)
     if (has.both.sexes) {
-        design.male <- meffil.design.matrix(qc.objects[male.idx], number.pcs,
+        design.male <- meffil.design.matrix(qc.objects[male.idx],
+                                            number.pcs=min(number.pcs,
+                                                length(male.idx)),
                                             fixed.effects=fixed.effects,
                                             random.effects=random.effects)
-        design.female <- meffil.design.matrix(qc.objects[female.idx], number.pcs,
+        design.female <- meffil.design.matrix(qc.objects[female.idx],
+                                              number.pcs=min(number.pcs,
+                                                  length(female.idx)),
                                               fixed.effects=fixed.effects,
                                               random.effects=random.effects)
     }
