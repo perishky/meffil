@@ -4,13 +4,20 @@
 \alias{meffil.ewas.parameters}
 \title{Specify parameters for QC}
 \usage{
-meffil.ewas.parameters(sig.threshold = NA, max.plots = 10)
+meffil.ewas.parameters(sig.threshold = NA, max.plots = 10, model = "none",
+  qq.inflation.method = "median")
 }
 \arguments{
 \item{sig.threshold}{P-value threshold for significance (Default: NA).
 If NA, then threshold used will be 0.05 divided by the number of tests/probes.}
 
 \item{max.plots}{Maximum number of plots to generate (Default: 10).}
+
+\item{model}{Model to use for selecting associations: "none" (no covariates),
+"all" (all covariates), "isva0" (independent surrogate variables), "isva1" (ISVA applied to isva0 and all covariates) (Default: "none").}
+
+\item{qq.inflation.method}{Method for calculating genomic inflation lambda.
+Valid values are "median" or "regression" (Default: "median").}
 }
 \value{
 List of parameter values
