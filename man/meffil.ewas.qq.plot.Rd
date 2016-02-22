@@ -6,7 +6,7 @@
 \usage{
 meffil.ewas.qq.plot(ewas.object, sig.threshold = 1e-07, sig.color = "red",
   title = "QQ plot", xlab = bquote(-log[10]("expected p-values")),
-  ylab = bquote(-log[10]("observed p-values")))
+  ylab = bquote(-log[10]("observed p-values")), lambda.method = "median")
 }
 \arguments{
 \item{ewas.object}{Return object from \code{\link{meffil.ewas()}}.}
@@ -20,9 +20,12 @@ meffil.ewas.qq.plot(ewas.object, sig.threshold = 1e-07, sig.color = "red",
 \item{xlab}{Label for the x-axis (Default: -log_10(expected p-values)).}
 
 \item{ylab}{Label for the y-axis (Default: -log_10(observed p-values)).}
+
+\item{lambda.method}{Method for calculating genomic inflation lambda.
+Valid values are "median" or "regression" (Default: "median").}
 }
 \value{
-\code{\link{ggplot}} showing the QQ plot.
+List of \code{\link{ggplot}} for each analysis in \code{ewas.object}.
 }
 \description{
 QQ plot for EWAS

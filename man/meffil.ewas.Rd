@@ -30,7 +30,7 @@ methylation levels, covariates and \code{isva0} variables and include
 the resulting variables as covariates in a regression model (Default: TRUE).}
 
 \item{winsorize.pct}{Apply all regression models to methylation levels
-winsorized to the given level (Default: 0.05).}
+winsorized to the given level (Default: 0.05).  Set to NA to avoid winsorizing.}
 
 \item{most.variable}{Apply Independent Surrogate Variable Analysis to the
 given most variable CpG sites (Default: 50000).}
