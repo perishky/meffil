@@ -26,7 +26,7 @@ meffil.extract.genotypes <- function(filenames, verbose=F) {
                        drop=F]
     })
     genotypes <- do.call(cbind, genotypes)
-    colnames(genotypes) <- gsub("_[GCAT]{1}$", "", colnames(genotypes)) 
+    colnames(genotypes) <- sub("_.*", "", colnames(genotypes)) 
     rownames(genotypes) <- sample.names
 
     t(as.matrix(genotypes))
