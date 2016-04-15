@@ -6,7 +6,7 @@ meffil.list.cnv.references <- function() {
 }
  
 get.cnv.reference <- function(name) {
-    stopifnot(name %in% meffil.list.cnv.references())
+    stopifnot(is.character(name) && name %in% meffil.list.cnv.references())
     get(name, cnv.globals)
 }
 

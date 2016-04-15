@@ -22,7 +22,7 @@
 #' @export
 meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=T) {
     stopifnot(is.qc.object(qc.object))
-    stopifnot(cell.type.reference %in% meffil.list.cell.type.references())
+    stopifnot(is.character(cell.type.reference) && cell.type.reference %in% meffil.list.cell.type.references())
 
     reference.object <- get.cell.type.reference(cell.type.reference)
 
@@ -40,7 +40,7 @@ meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=
 }
 
 estimate.cell.counts.from.mu <- function(mu, cell.type.reference, verbose=F) {
-    stopifnot(cell.type.reference %in% meffil.list.cell.type.references())
+    stopifnot(is.character(cell.type.reference) && cell.type.reference %in% meffil.list.cell.type.references())
 
     reference.object <- get.cell.type.reference(cell.type.reference)
 

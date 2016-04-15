@@ -38,7 +38,7 @@ meffil.list.featuresets <- function() {
 #' 
 #' @export
 meffil.featureset <- function(featureset="450k") {
-   stopifnot(featureset %in% meffil.list.featuresets())
+   stopifnot(is.character(featureset) && featureset %in% meffil.list.featuresets())
    get(featureset, featureset.globals)
 }
 
@@ -259,6 +259,8 @@ is.compatible.chip <- function(featureset, chip) {
 #' or a matrix (typically beta or methylation or unmethylation matrices)
 #' with row names corresponding to feature/probe names.
 guess.chip <- function(object, chip=NA) {
+    stopifnot(is.character(chip) || is.na(chip))
+    
     chips <- chip
     if (is.na(chip))
         chips <- meffil.list.chips()
