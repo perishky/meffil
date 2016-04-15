@@ -34,8 +34,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
                       verbose=F, ...) {
     check.samplesheet(samplesheet)
 
-    stopifnot(is.na(featureset) || featureset %in% meffil.list.featuresets())
-    stopifnot(is.na(chip) || chip %in% meffil.list.chips())
+    stopifnot(is.na(featureset) || is.character(featureset) && featureset %in% meffil.list.featuresets())
+    stopifnot(is.na(chip) || is.character(chip) && chip %in% meffil.list.chips())
     if (!is.na(featureset) && !is.na(chip))
         stopifnot(is.compatible.chip(featureset, chip))
     

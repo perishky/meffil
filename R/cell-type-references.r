@@ -6,7 +6,7 @@ meffil.list.cell.type.references <- function() {
 }
  
 get.cell.type.reference <- function(name) {
-    stopifnot(name %in% meffil.list.cell.type.references())
+    stopifnot(is.character(name) && name %in% meffil.list.cell.type.references())
     get(name, reference.globals)
 }
 
