@@ -17,15 +17,6 @@ meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path), de
     if (ncol(dat) < 2)
         warning("The basenames in ", path, " do not appear to correspond to idat files")
     
-    idcol <- which(apply(dat, 2, function(x) all(!duplicated(x))))
-    if(length(idcol) >= 1) {
-        Sample_Name <- dat[,idcol[1]]
-        dat <- dat[,-idcol[1],drop=F]
-    }
-    else {
-        Sample_Name <- make.samplename.from.basename(basenames)
-    }
-    
     sentrixpos <- grep("^R[0-9][0-9]C[0-9][0-9]$", as.character(unlist(dat[1,])))
     if(length(sentrixpos)==1) {
         temp <- do.call(rbind, strsplit(as.character(dat[,sentrixpos]), split="C"))
@@ -37,6 +28,15 @@ meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path), de
     slidecol <- grep("^[0-9]{9}[0-9]*$", as.character(unlist(dat[1,])))
     if (length(slidecol) == 1) {
         colnames(dat)[slidecol] <- "Slide"
+    }
+    
+    idcol <- which(apply(dat, 2, function(x) all(!duplicated(x))))
+    if(length(idcol) >= 1) {
+        Sample_Name <- dat[,idcol[1]]
+        dat <- dat[,-idcol[1],drop=F]
+    }
+    else {
+        Sample_Name <- make.samplename.from.basename(basenames)
     }
     
     samplesheet <- data.frame(Sample_Name = Sample_Name, Sex = NA, dat, Basename = basenames, stringsAsFactors=FALSE)
