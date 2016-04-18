@@ -44,6 +44,8 @@
 #' the \code{data.frame} will contain a column named \code{Basename}.
 #'
 meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, recursive = TRUE, verbose = TRUE) {
+    stopifnot(file.info(base)$isdir)
+    
 	readSheet <- function(file) {
 		dataheader <- grep("^\\[DATA\\]", readLines(file), ignore.case = TRUE)
 		if(length(dataheader) == 0)
@@ -107,6 +109,10 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 		}
 	} else
 		csvfiles <- list.files(base, full.names = TRUE)
+
+        if (length(csvfiles) == 0)
+            return(NULL)
+    
 	dfs <- lapply(csvfiles, readSheet)
 
 	namesUnion <- Reduce(union, lapply(dfs, names))
@@ -115,7 +121,7 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 		newdf <- matrix(NA, ncol = length(newnames), nrow = nrow(df), dimnames = list(NULL, newnames))
 		cbind(df, as.data.frame(newdf))
 	}))
-
+    
 	# Check that Sex column is present in sample sheet
 	# Avoid case issues
 	
