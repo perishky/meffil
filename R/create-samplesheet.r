@@ -6,7 +6,7 @@
 #' @return Sample sheet data frame
 #'
 #' @export
-meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path), delim = "_") {
+meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path,recursive), recursive=FALSE, delim = "_") {
     if (length(basenames) == 0) {
         warning("No idat files found.")
         return(NULL)
