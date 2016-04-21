@@ -55,8 +55,9 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         cell.type.reference=cell.type.reference,
         ...,
         max.bytes=max.bytes)
-    names(qc.objects) <- samplesheet$Sample_Name
 
+    names(qc.objects) <- sapply(qc.objects, function(x) x$samplesheet$Sample_Name)
+    
     is.error <- sapply(qc.objects, class) == "try-error"
     if (any(is.error))
         stop(qc.objects[which(is.error)[1]])
