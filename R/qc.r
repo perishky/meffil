@@ -1,5 +1,3 @@
-library(plyr) ## for dlply()
-
 #' Perform QC on HumanMethylation450 idat files
 #'
 #' Read in control matrices for each sample.
@@ -38,8 +36,9 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
     stopifnot(is.na(chip) || is.character(chip) && chip %in% meffil.list.chips())
     if (!is.na(featureset) && !is.na(chip))
         stopifnot(is.compatible.chip(featureset, chip))
-    
-    samplesheet.row <- dlply(samplesheet, .(Sample_Name))
+
+    samplesheet.row <- lapply(1:nrow(samplesheet), function(i) samplesheet[i,,drop=F])
+    names(samplesheet.row) <- samplesheet$Sample_Name
 
     qc.objects <- mclapply.safe(
         samplesheet.row, 
