@@ -55,7 +55,7 @@
 #' @return A list:
 #' - qc.summary \code{\link{meffil.qc.summary}()} output.
 #' - norm \code{\link{meffil.normalize.quantiles}()} output.
-#' - beta Normalized beta matrix (methylation levels) of class \code{\link[bigmemory]{big.matrix}}.
+#' - beta Normalized beta matrix (methylation levels).
 #' - norm.summary \code{\link{meffil.normalization.summary}()} output.
 #'
 #' @export
