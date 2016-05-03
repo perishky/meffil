@@ -2,8 +2,8 @@
 #'
 #' Compute beta values (methylation levels) from methylated/unmethylated signals
 #'
-#' @param M Methylated signal matrix or \code{\link[bigmemory]{big.matrix}}.
-#' @param U Unmethylated signal matrix or \code{\link[bigmemory]{big.matrix}}.
+#' @param M Methylated signal matrix.
+#' @param U Unmethylated signal matrix.
 #' @param pseudo Value to add to the denominator to make the methylation estimate more stable.
 #' @return Matrix of 0..1 methylation level estimates.
 #' Equal to methylated/(methylated + unmethylated + pseudo).

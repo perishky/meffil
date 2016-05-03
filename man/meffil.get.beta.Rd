@@ -7,9 +7,9 @@
 meffil.get.beta(M, U, pseudo = 100)
 }
 \arguments{
-\item{M}{Methylated signal matrix or \code{\link[bigmemory]{big.matrix}}.}
+\item{M}{Methylated signal matrix.}
 
-\item{U}{Unmethylated signal matrix or \code{\link[bigmemory]{big.matrix}}.}
+\item{U}{Unmethylated signal matrix.}
 
 \item{pseudo}{Value to add to the denominator to make the methylation estimate more stable.}
 }
