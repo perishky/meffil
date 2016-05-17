@@ -72,7 +72,7 @@ meffil.snp.concordance <- function(snp.betas, genotypes,
 }
 
 calculate.beta.genotypes <- function(snp.betas, centers=c(0.2,0.5,0.8)) {
-    t(apply(snp.betas,1,function(x) {
+    x <- t(apply(snp.betas,1,function(x) {
         tryCatch(kmeans(x, centers=centers)$cluster - 1,
                  error=function(e) {
                      cluster <- rep(1,ncol(snp.betas))
@@ -81,6 +81,8 @@ calculate.beta.genotypes <- function(snp.betas, centers=c(0.2,0.5,0.8)) {
                      cluster
                  })
     }))
+    dimnames(x) <- dimnames(snp.betas)
+    x
 }
 
 
