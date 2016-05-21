@@ -50,8 +50,8 @@ get.quantile.site.subsets <- function(featureset) {
          not.y.iR=filter.sites(featureset, type=="i" & meth.dye=="R" & chromosome != "chrY"), 
          not.y.ii=filter.sites(featureset, type=="ii" & chromosome != "chrY"), 
          sex=filter.sites(featureset, chromosome %in% c("chrX", "chrY")), 
-         chrX=filter.sites(featureset, chromosome=="chrX"), 
-         chrY=filter.sites(featureset, chromosome=="chrY"))
+         chrx=filter.sites(featureset, chromosome=="chrX"), 
+         chry=filter.sites(featureset, chromosome=="chrY"))
 }
          
 get.island.site.subsets <- function(featureset) {
