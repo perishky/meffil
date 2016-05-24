@@ -33,6 +33,10 @@ create.gse68456.reference()
 source("gervin-lyle-reference.r")
 create.gervin.lyle.reference("~/work/data/gervin-lyle-cord-blood-reference")
 
+source("andrews-bakulski-reference.r")
+create.andrews.bakulski.reference()
+
+
 ## save the global variables so they can be loaded by the package
 meffil:::save.globals("../inst") ## see ../R/globals.r
 

@@ -317,6 +317,7 @@ for (cell.type in colnames(counts.meffil)) {
     abline(a=0,b=1,col="red")
 }
 ```
+
 ## SNP signals
 
 ```{r}
