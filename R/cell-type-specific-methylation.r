@@ -18,6 +18,7 @@ meffil.cell.type.specific.methylation <- function(beta, cell.types, number.sites
     stopifnot(number.sites > 0 && number.sites < nrow(beta))
 
     number.cell.types <- length(unique(cell.types))
+    cell.types <- as.character(cell.types)
     design <- model.matrix(~ 0 + cell.types)
 
     msg("fitting linear model with limma::lmFit", verbose=verbose)
