@@ -120,6 +120,7 @@ create.cnv.reference <- function(M, U, chip=NA, featureset=chip, verbose=T) {
 
     return(list(
         class="cnv.reference",
+        version=packageVersion("meffil"),
         featureset=featureset,
         chip=chip,
         intensity.sex=list(M=int.sex.m, F=int.sex.f), 

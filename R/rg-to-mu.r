@@ -25,7 +25,10 @@ rg.to.mu <- function(rg, probes) {
     names(M) <- c(probes.M.R$name, probes.M.G$name)
     names(U) <- c(probes.U.R$name, probes.U.G$name)
 
-    list(class="mu", M=M,U=U[names(M)])
+    list(class="mu",
+         version=packageVersion("meffil"),
+         M=M,
+         U=U[names(M)])
 }
 
 is.mu <- function(object)

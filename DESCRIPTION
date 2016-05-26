@@ -1,5 +1,5 @@
 Package: meffil
-Version: 0.1
+Version: 1.0.0
 Title: Efficient algorithms for DNA methylation
 Description: Tools for normalizing and analyzing the Infinium
     HumanMethylation450 BeadChip.
