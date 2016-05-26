@@ -156,3 +156,9 @@ for (i in 1:ncol(tab)) {
 if(nrow(tab) > 0) kable(tab,row.names=F)
 
 ```
+
+## R session information
+
+```{r, results="markup"}
+sessionInfo()
+```

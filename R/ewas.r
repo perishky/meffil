@@ -150,6 +150,7 @@ meffil.ewas <- function(beta, variable,
     }
     
     list(class="ewas",
+         version=packageVersion("meffil"),
          samples=sample.idx,
          variable=original.variable[sample.idx],
          covariates=original.covariates[sample.idx,,drop=F],

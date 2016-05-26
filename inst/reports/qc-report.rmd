@@ -184,3 +184,9 @@ if (!is.null(qc.summary$genotype.summary$graphs$snp.concordance))
 
 ```{r, child=child.filename}
 ```
+
+## R session information
+
+```{r, results="markup"}
+sessionInfo()
+```

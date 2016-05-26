@@ -130,3 +130,8 @@ for (cpg in ewas.summary$selected.sites)
 cat(out, sep="\n\n")
 ```
 
+## R session information
+
+```{r, results="markup"}
+sessionInfo()
+```

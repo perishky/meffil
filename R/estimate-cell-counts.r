@@ -49,7 +49,11 @@ estimate.cell.counts.from.mu <- function(mu, cell.type.reference, verbose=F) {
     beta <- beta[rownames(reference.object$beta)]
     counts <- estimate.cell.counts.from.beta(beta, reference.object$beta)
     
-    list(class="cell.counts", counts=counts, beta=beta, reference=cell.type.reference)
+    list(class="cell.counts",
+         version=packageVersion("meffil"),
+         counts=counts,
+         beta=beta,
+         reference=cell.type.reference)
 }    
 
 is.cell.count.object <- function(object)

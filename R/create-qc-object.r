@@ -91,6 +91,7 @@ meffil.create.qc.object <- function(samplesheet.row,
         cell.counts <- estimate.cell.counts.from.mu(mu, cell.type.reference, verbose)
     
     list(class="qc.object",
+         version=packageVersion("meffil"),
          sample.name=samplesheet.row$Sample_Name,
          basename=samplesheet.row$Basename,
          controls=controls,

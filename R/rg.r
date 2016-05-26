@@ -10,12 +10,11 @@
 #' @return List containing raw Cy5 ('R') and Cy3 ('G') data including
 #' the intensity mean, intensity standard deviation and number of contributing beads.
 read.rg <- function(basename, verbose=F) {
-    rg <- list(G=read.idat(paste(basename, "_Grn.idat", sep = ""), verbose=verbose),
-               R=read.idat(paste(basename, "_Red.idat", sep=""), verbose=verbose))
-
-    rg$class <- "rg"
-    rg$basename <- basename
-    rg
+    list(G=read.idat(paste(basename, "_Grn.idat", sep = ""), verbose=verbose),
+         R=read.idat(paste(basename, "_Red.idat", sep=""), verbose=verbose),
+         class="rg",
+         version=packageVersion("meffil"),
+         basename=basename)
 }
 
 read.idat <- function(filename, verbose=F) {

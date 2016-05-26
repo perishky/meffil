@@ -107,6 +107,7 @@ create.cell.type.reference <- function(M, U, cell.types,
     })
 
     list(class="cell.type.reference",
+         version=packageVersion("meffil"),
          featureset=featureset,
          beta=specific.beta,
          quantiles=quantiles,
@@ -114,4 +115,4 @@ create.cell.type.reference <- function(M, U, cell.types,
 }
 
 is.cell.type.reference <- function(object)
-    "class" %in% names(object) && object[[class]] == "cell.type.reference"
+    "class" %in% names(object) && object[["class"]] == "cell.type.reference"
