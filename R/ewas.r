@@ -7,6 +7,10 @@
 #' @param covariates Covariates data frame to include in regression model,
 #' one row per sample, one column per covariate (Default: NULL).
 #' @param batch Batch vector to be included as a random effect (Default: NULL).
+#' @param weights Non-negative observation weights.
+#' Can be a numeric matrix of individual weights of same dimension as \code{beta},
+#' or a numeric vector of weights with length \code{ncol(beta)},
+#' or a numeric vector of weights with length \code{nrow(beta)}. 
 #' @param cell.counts Proportion of cell counts for one cell type in cases
 #' where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL).
 #' @param isva0 Apply Independent Surrogate Variable Analysis (ISVA) to the
@@ -24,7 +28,7 @@
 #'
 #' @export
 meffil.ewas <- function(beta, variable,
-                        covariates=NULL, batch=NULL,
+                        covariates=NULL, batch=NULL, weights=NULL,
                         cell.counts=NULL,
                         isva0=T, isva1=T,
                         winsorize.pct=0.05, ## perhaps better, winsorize at 25-percentile - iqr?
@@ -40,6 +44,10 @@ meffil.ewas <- function(beta, variable,
     stopifnot(ncol(beta) == length(variable))
     stopifnot(is.null(covariates) || is.data.frame(covariates) && nrow(covariates) == ncol(beta))
     stopifnot(is.null(batch) || length(batch) == ncol(beta))
+    stopifnot(is.null(weights)
+              || is.numeric(weights) && (is.matrix(weights) && nrow(weights) == nrow(beta) && ncol(weights) == ncol(beta)
+                                         || is.vector(weights) && length(weights) == nrow(beta)
+                                         || is.vector(weights) && length(weights) == ncol(beta)))
     stopifnot(most.variable > 1 && most.variable <= nrow(beta))
     stopifnot(!is.numeric(winsorize.pct) || winsorize.pct > 0 && winsorize.pct < 0.5)
 
@@ -70,6 +78,12 @@ meffil.ewas <- function(beta, variable,
 
     sample.idx <- which(!is.na(variable))
     msg("Removing", ncol(beta) - length(sample.idx), "missing case(s).", verbose=verbose)
+
+    if (is.matrix(weights))
+        weights <- weights[,sample.idx]
+    if (is.vector(weights) && length(weights) == ncol(beta))
+        weights <- weights[sample.idx]
+    
     beta <- beta[,sample.idx]
     variable <- variable[sample.idx]
 
@@ -135,6 +149,7 @@ meffil.ewas <- function(beta, variable,
              beta=beta,
              covariates=covariates,
              batch=batch,
+             weights=weights,
              cell.counts=cell.counts,
              winsorize.pct=winsorize.pct)
     }, simplify=F)
@@ -173,7 +188,7 @@ is.ewas.object <- function(object)
 #' to the proportions of cell of a selected cell type in each sample.
 #' The regression model is then modified in order to identify
 #' associations specifically in the selected cell type (PMID: 24000956).
-ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL, winsorize.pct=0.05,
+ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell.counts=NULL, winsorize.pct=0.05,
                  verbose=F) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
@@ -215,7 +230,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL, 
         corfit <- duplicateCorrelation(beta, design, block=batch, ndups=1)
         batch.cor <- corfit$consensus
         msg("Linear regression with batch as random effect", verbose=verbose)
-        tryCatch(fit <- lmFit(beta, design, block=batch, cor=batch.cor),
+        tryCatch(fit <- lmFit(beta, design, block=batch, cor=batch.cor, weights=weights),
                  error=function(e) {
                      print(e)
                      msg("lmFit failed with random effect batch variable, omitting", verbose=verbose)
@@ -224,7 +239,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, cell.counts=NULL, 
     if (is.null(fit)) {
         msg("Linear regression with only fixed effects", verbose=verbose)
         batch <- NULL
-        fit <- lmFit(beta, design)
+        fit <- lmFit(beta, design, weights=weights)
     }
     
     msg("Empirical Bayes", verbose=verbose)
