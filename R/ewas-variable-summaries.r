@@ -32,11 +32,16 @@ meffil.ewas.sample.characteristics <- function(ewas.object) {
         }
     }
 
-    rbind(summarize.variable("variable of interest", ewas.object$variable),
-          do.call(rbind, lapply(1:ncol(ewas.object$covariates), function(i) {
-              summarize.variable(colnames(ewas.object$covariates)[i],
-                                 ewas.object$covariates[,i])
-          })))
+    var.summary <- summarize.variable("variable of interest", ewas.object$variable)
+    cov.summary <- NULL
+    if (!is.null(ewas.object$covariates)) {
+        cov.summary <- lapply(1:ncol(ewas.object$covariates), function(i) {
+            summarize.variable(colnames(ewas.object$covariates)[i],
+                               ewas.object$covariates[,i])
+        })
+        cov.summary <- do.call(rbind, cov.summary)
+    }
+    rbind(var.summary, cov.summary)
 }
 
 #' Describe associations between EWAS covariates and the variable of interest.

@@ -132,12 +132,3 @@ meffil.ewas.report(ewas.summary,
                    author=ewas.author,
                    study=ewas.study)
 ```
-
-
-
-
-
-
-
-
-
