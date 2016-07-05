@@ -15,10 +15,17 @@
 #' where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL).
 #' @param isva0 Apply Independent Surrogate Variable Analysis (ISVA) to the
 #' methylation levels and include the resulting variables as covariates in a
-#' regression model (Default: TRUE).
+#' regression model (Default: TRUE).  Note that ISVA depends on pseudo-random number
+#' generation; consequently, the only way to ensure that the same surrogate
+#' variables are generated each time, it is necessary to set the random seed
+#' using \code{set.seed()}.
 #' @param isva1 Apply Independent Surrogate Variable Analysis (ISVA) to the
 #' methylation levels, covariates and \code{isva0} variables and include
 #' the resulting variables as covariates in a regression model (Default: TRUE).
+#' Note that ISVA depends on pseudo-random number
+#' generation; consequently, the only way to ensure that the same surrogate
+#' variables are generated each time, it is necessary to set the random seed
+#' using \code{set.seed()}.
 #' @param winsorize.pct Apply all regression models to methylation levels
 #' winsorized to the given level (Default: 0.05).  Set to NA to avoid winsorizing.
 #' @param most.variable Apply Independent Surrogate Variable Analysis to the 
