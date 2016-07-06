@@ -64,12 +64,12 @@ estimateCellCounts.new <- function (rgSet, compositeCellType = "Blood", processM
         combinedMset <- processMethod(combinedRGset)
     }
     rm(combinedRGset)
-    
+
     ## Extracts normalized reference data
     referenceMset <- combinedMset[, combinedMset$studyIndex == "reference"]
-    pData(referenceMset) <- as(referencePd, "DataFrame")
+    referenceMset@phenoData <- as(referencePd, "AnnotatedDataFrame")
     mSet <- combinedMset[, combinedMset$studyIndex == "user"]
-    pData(mSet) <- as(pData(rgSet), "DataFrame")
+    mSet@phenoData <- as(pData(rgSet), "AnnotatedDataFrame")
     rm(combinedMset)
     
     if(verbose) cat("[estimateCellCounts] Picking probes for composition estimation.\n")
