@@ -65,19 +65,6 @@ meffil.ewas <- function(beta, variable,
     
     stopifnot(!is.factor(variable) || is.ordered(variable) || length(levels(variable)) == 2)
     
-    simplify.variable <- function(v) {
-        if (is.character(v))
-            v <- as.factor(v)
-        if (is.factor(v)) {
-            v <- droplevels(v)
-            if (is.ordered(v) || length(levels(v)) <= 2)
-                as.integer(v) - 1
-            else
-                model.matrix(~ 0 + v)[,-1,drop=F]
-        } else
-            v
-    }
-
     msg("Simplifying any categorical variables.", verbose=verbose)
     variable <- simplify.variable(variable)
     if (!is.null(covariates))

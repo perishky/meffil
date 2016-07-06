@@ -1,11 +1,15 @@
 #' Fit linear models with each column of \code{y}
 #' as dependent variables and the fixed and random
 #' effects as independent variables.
-#' Return the residual matrix.
+#' Independent variables lacking variation are omitted.
+#' Returns the residual matrix.
 adjust.columns <- function(y, fixed.effects=NULL, random.effects=NULL) {
+    stopifnot(is.matrix(y))
+    stopifnot((is.matrix(fixed.effects) || is.data.frame(fixed.effects)) && nrow(y) == nrow(fixed.effects))
+    stopifnot(is.null(random.effects) || nrow(y) == nrow(random.effects))
+    
     remove.invariant.columns <- function(x) {
         if (is.null(x)) return(x)
-        stopifnot(nrow(y) == nrow(x))
         is.variable <- apply(x, 2, function(x) length(unique(x))) > 1
         var.idx <- which(is.variable)
         if (length(var.idx) == 0) NULL
@@ -18,6 +22,8 @@ adjust.columns <- function(y, fixed.effects=NULL, random.effects=NULL) {
     if (is.null(fixed.effects) && is.null(random.effects)) return(y)
 
     if (is.null(random.effects)) {
+        if (is.data.frame(fixed.effects))
+            fixed.effects <- do.call(cbind, lapply(fixed.effects, simplify.variable))        
         fit <- lm.fit(x=fixed.effects, y=y)
         return(residuals(fit))
     }

@@ -126,8 +126,6 @@ is.normalized.object <- function(object) {
 
 normalize.quantiles <- function(quantiles, design.matrix) {
     stopifnot(is.matrix(quantiles))
-    stopifnot(is.matrix(design.matrix$fixed) && ncol(quantiles) == nrow(design.matrix$fixed))
-    stopifnot(is.null(design.matrix$random) || ncol(quantiles) == nrow(design.matrix$random))
 
     ## make sure lowest and highest quantiles extreme
     quantiles[1,] <- 0
