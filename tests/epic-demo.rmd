@@ -84,8 +84,9 @@ meffil.normalization.report(norm.summary,
 ## Horvath's clock and the EPIC microarray
 
 ```{r}
-require(RCurl)
-clock <- read.csv(textConnection(getURL("https://labs.genetics.ucla.edu/horvath/dnamage/AdditionalFile3.csv")), comment.char="#", stringsAsFactors=F)
+#require(RCurl)
+#clock <- read.csv(textConnection(getURL("https://labs.genetics.ucla.edu/horvath/dnamage/AdditionalFile3.csv")), comment.char="#", stringsAsFactors=F)
+clock <- read.csv("AdditionalFile3.csv", comment.char="#", stringsAsFactors=F)
 length(setdiff(clock$CpGmarker, rownames(beta.meffil)))
 nrow(clock)
 length(intersect(clock$CpGmarker, rownames(beta.meffil)))/nrow(clock)
