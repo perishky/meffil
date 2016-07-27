@@ -10,6 +10,7 @@ generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
 * Epigenome-wide association studies (using data from any normalization pipeline).
 * Copy number estimation.
 * Report generation summarizing all steps.
+* A manual can be found [here](https://github.com/perishky/meffil/wiki)
 
 Examples using many of these features can be found in the
 [tests/](tests) directory.
