@@ -1,15 +1,9 @@
-Document more!
+1. Add new method for estimating genomic inflation.
 
-Concept of "featurset", "manifest", "chip" and "feature" vs "probe"
+Maarten M. van Iterson, Erik W. van Zwet, The Bios Consortium, P. Eline Slagboom, Bastiaan T. Heijmans. Controlling bias and inflation in epigenome- and transcriptome-wide association studies using the empirical null distribution. 
+http://biorxiv.org/content/early/2016/05/27/055772
 
-
-
-Perphaps there is something more that could be done for mclapply.safe.
-Is it possible to gradually increase the workload to the max number of 
-requested cores, all the while 'pinging' the system to see how it responds?
-
-
-
+2. Proper tutorial (based on tests) and recipes list.
 
 Should our 'objects' be S4 classes? 
 I have two objects to S4 classes:
