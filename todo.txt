@@ -5,6 +5,10 @@ http://biorxiv.org/content/early/2016/05/27/055772
 
 2. Proper tutorial (based on tests) and recipes list.
 
+3. Add random seed to EWAS function to make ISVA reproducible.
+
+4. Perhaps add SVA to EWAS?
+
 Should our 'objects' be S4 classes? 
 I have two objects to S4 classes:
 1. They are difficult to debug because they only be accessed using 
