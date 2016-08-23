@@ -44,6 +44,7 @@ meffil.ewas.qq.plot <- function(ewas.object,
     
     sapply(names(ewas.object$analyses), function(name) {
         p.values <- sort(ewas.object$analyses[[name]]$table$p.value, decreasing=T)
+        p.values[which(p.values < .Machine$double.xmin)] <- .Machine$double.xmin
         stats <- data.frame(is.sig=p.values < sig.threshold,
                             expected=-log(sort(ppoints(p.values),decreasing=T),10),
                             observed=-log(p.values, 10))
@@ -119,7 +120,9 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
         stats$chromosome <- factor(as.character(stats$chromosome), levels=chromosomes)
         stats$chr.colour <- 0
         stats$chr.colour[stats$chromosomes %in% chromosomes[seq(1,length(chromosomes),2)]] <- 1
-        stats$stat <- -log(stats$p.value,10) * sign(stats$coefficient)
+        p.values <- stats$p.value
+        p.values[which(p.values < .Machine$double.xmin)] <- .Machine$double.xmin
+        stats$stat <- -log(p.values,10) * sign(stats$coefficient)
 
         stats <- stats[order(stats$stat, decreasing=T),]
 
