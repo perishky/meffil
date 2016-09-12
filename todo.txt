@@ -79,3 +79,5 @@ setMethod("meffil.get.autosomal.sites",
               probe.idx <- which(probes$chromosome %in% paste0("chr", 1:22))
               unique(object@probes$name[probe.idx])
           })
+5. Give a warning when a idat is not found during the cnv extraction. It now gives a mclapply warning.
+6. Regional localization plots.
