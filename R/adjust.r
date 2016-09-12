@@ -5,7 +5,7 @@
 #' Returns the residual matrix.
 adjust.columns <- function(y, fixed.effects=NULL, random.effects=NULL) {
     stopifnot(is.matrix(y))
-    stopifnot((is.matrix(fixed.effects) || is.data.frame(fixed.effects)) && nrow(y) == nrow(fixed.effects))
+    stopifnot(is.null(fixed.effects) || (is.matrix(fixed.effects) || is.data.frame(fixed.effects)) && nrow(y) == nrow(fixed.effects))
     stopifnot(is.null(random.effects) || nrow(y) == nrow(random.effects))
     
     remove.invariant.columns <- function(x) {
