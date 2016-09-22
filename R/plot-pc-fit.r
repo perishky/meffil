@@ -17,7 +17,9 @@
 meffil.plot.pc.fit <- function(qc.objects, fixed.effects=NULL, random.effects=NULL, n.cross=10, name="autosomal.ii") {
     stopifnot(is.valid.site.subset(name))    
     stopifnot(all(sapply(qc.objects, is.qc.object)))
-    stopifnot(2*n.cross <= length(qc.objects))
+    
+    if (2*n.cross > length(qc.objects)) 
+        n.cross <- floor(length(qc.objects)/2)
     
     n.quantiles <- length(qc.objects[[1]]$quantiles[[1]]$M)
     max.pcs <- min(ncol(meffil.control.matrix(qc.objects)),
