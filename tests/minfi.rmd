@@ -248,6 +248,13 @@ autosomal.sites <- intersect(meffil.get.autosomal.sites("450k"), rownames(beta.m
 quantile(beta.meffil[autosomal.sites,] - beta.minfi[autosomal.sites,],na.rm=T)
 ```
 
+These are small differences relative to differences with unormalized data:
+```{r}
+beta.raw <- getBeta(raw.minfi)
+quantile(beta.meffil[autosomal.sites,] - beta.raw[autosomal.sites,], na.rm=T)
+quantile(beta.minfi[autosomal.sites,] - beta.raw[autosomal.sites,], na.rm=T)
+```
+
 In spite of the differences, CG correlations between methods are pretty close to 1.
 ```{r}
 male.idx <- which(rowSums(is.diff[,sex=="M"]) >= 5)
