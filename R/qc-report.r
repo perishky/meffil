@@ -206,10 +206,10 @@ meffil.plot.sex <- function(qc.objects, outlier.sd=3)
     })
     
     dat$sex.mismatch <- as.character(dat$declared.sex) != as.character(dat$predicted.sex)
-    dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Sex not specified"
+    dat$sex.mismatch[is.na(dat$sex.mismatch)] <- "Unspecified sex"
     p1 <- (ggplot(dat, aes(y=1, x=xy.diff)) +
            geom_jitter(aes(shape=predicted.sex, colour=sex.mismatch), size=3) +
-           scale_colour_manual(values=c("black", "red")) +
+           scale_colour_manual(values=c("black", "red", "blue")) + ## alphabetic order: FALSE=black, TRUE=red, Unspecified sex=blue
            labs(shape="Predicted sex", x="XY diff", y="", colour="Incorrect\nprediction") +
            theme_bw() +
            theme(axis.ticks.y=element_blank(), axis.text.y=element_blank(), axis.line.y=element_blank()) +
