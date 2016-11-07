@@ -1,5 +1,6 @@
 load.epic.manifest <- function() {
-    filename <- "ftp://webdata2:webdata2@ussd-ftp.illumina.com/downloads/productfiles/methylationEPIC/infinium-methylationepic-v1-0-b1-manifest-file-csv.zip"
+##    filename <- "ftp://webdata2:webdata2@ussd-ftp.illumina.com/downloads/productfiles/methylationEPIC/infinium-methylationepic-v1-0-b1-manifest-file-csv.zip"
+    filename <- "ftp://webdata2:webdata2@ussd-ftp.illumina.com/downloads/productfiles/methylationEPIC/infinium-methylationepic-v1-0-b2-manifest-file-csv.zip"
     on.exit(unlink(basename(filename)))
     cat("Downloading", filename, "\n")
     download.file(filename, basename(filename))
