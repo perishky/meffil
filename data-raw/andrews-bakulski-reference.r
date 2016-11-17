@@ -1,8 +1,10 @@
 create.andrews.bakulski.reference <- function(verbose=T) {
-    if (!require("FlowSorted.CordBlood.450k")) {
-        source("http://bioconductor.org/biocLite.R")
+    source("http://bioconductor.org/biocLite.R")
+    if (!require("FlowSorted.CordBlood.450k")) 
         biocLite("FlowSorted.CordBlood.450k")
-    }
+    if (!require("minfi"))
+        biocLite("minfi")
+    require("minfi")
     require("FlowSorted.CordBlood.450k")
     data("FlowSorted.CordBlood.450k")
 

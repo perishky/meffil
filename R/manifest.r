@@ -88,6 +88,9 @@ meffil.probe.info <- function(chip="450k", featureset=chip) {
 #' \item{"CHR"}{values "1"-"22", "X" or "Y"}
 #' \item{"MAPINFO"}{integer}
 #' \item{"AlleleA_ProbeSeq"}{character}
+#' \item{UCSC_RefGene_Name}{character}
+#' \item{UCSC_RefGene_Accession}{character}
+#' \item{UCSC_RefGene_Group}{character}
 #' \item{"UCSC_CpG_Islands_Name"}{character}
 #' \item{"Relation_to_UCSC_CpG_Island"}{character}
 #' \item{"snp.exclude"}{logical}
@@ -121,6 +124,9 @@ meffil.add.chip <- function(name, manifest) {
 #' \item{"type"}{values "i","ii" or "control"}
 #' \item{"chromosome"}{values "chr1"-"chr22", "chrX" or "chrY"}
 #' \item{"position"}{integer}
+#' \item{"gene.symbol"}{character},
+#' \item{"gene.accession"}{character},
+#' \item{"gene.region"}{character},
 #' \item{"cpg.island.name"}{character}
 #' \item{"relation.to.island"}{character}
 #' \item{"snp.exclude"}{logical}
@@ -139,6 +145,9 @@ check.featureset <- function(features) {
                           "name"="character",
                           "chromosome"=paste("chr",c(1:22,"X","Y"),sep=""),
                           "position"="integer",
+                          "gene.symbol"="character",
+                          "gene.accession"="character",
+                          "gene.region"="character",
                           "cpg.island.name"="character",
                           "relation.to.island"="character",
                           "snp.exclude"="logical"))
@@ -156,6 +165,9 @@ check.manifest <- function(manifest) {
                           "CHR"=c(1:22,"X","Y",""),
                           "MAPINFO"="integer",
                           "AlleleA_ProbeSeq"="character",
+                          "UCSC_RefGene_Name"="character",
+                          "UCSC_RefGene_Accession"="character",
+                          "UCSC_RefGene_Group"="character",                     
                           "UCSC_CpG_Islands_Name"="character",
                           "Relation_to_UCSC_CpG_Island"="character",
                           "snp.exclude"="logical"))
@@ -178,6 +190,11 @@ extract.featureset <- function(manifest) {
     manifest$chromosome <- paste("chr", as.character(manifest$CHR), sep="")
     manifest$position <- manifest$MAPINFO
     manifest$chromosome[which(is.na(manifest$position))] <- NA
+
+    ## rename gene columns
+    manifest$gene.symbol <- manifest$UCSC_RefGene_Name
+    manifest$gene.accession <- manifest$UCSC_RefGene_Accession
+    manifest$gene.region <- manifest$UCSC_RefGene_Group
     
     ## rename cpg island columns
     manifest$cpg.island.name <- as.character(manifest$UCSC_CpG_Islands_Name)
@@ -193,6 +210,7 @@ extract.featureset <- function(manifest) {
         
     manifest[,c("type","target","name",
                 "chromosome","position", "meth.dye",
+                "gene.symbol", "gene.accession","gene.region",
                 "cpg.island.name","relation.to.island",
                 "snp.exclude")]
 }

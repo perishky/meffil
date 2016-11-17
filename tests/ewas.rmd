@@ -21,7 +21,7 @@ path <- download.450k.lead.dataset()
 Create samplesheet
 ```{r}
 library(meffil)
-options(mc.cores=5)
+options(mc.cores=10)
 samplesheet <- meffil.create.samplesheet(path)
 
 samples <- read.csv(file.path(path, "samples.csv"), check.names=F, row.names=1)

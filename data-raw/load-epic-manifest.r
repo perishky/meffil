@@ -10,7 +10,7 @@ load.epic.manifest <- function() {
     manifest.filename <- unzip(basename(filename),list=T)$Name[1]  
     system.time(manifest <- read.csv(unz(basename(filename), manifest.filename),
                                      skip=7, stringsAsFactors=F)) ## 5 minutes
-
+    
     ## add snp exclusions
     manifest$snp.exclude <- manifest$Name %in% with(manifest, Name[which(as.numeric(as.character(SNP_MinorAlleleFrequency)) > 0.01)])
 
