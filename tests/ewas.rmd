@@ -132,3 +132,118 @@ meffil.ewas.report(ewas.summary,
                    author=ewas.author,
                    study=ewas.study)
 ```
+
+
+
+
+
+
+
+
+
+
+How well does SVA and ISVA capture batch effects
+that are not explicitly included in the model?
+
+```{r}
+slide <- model.matrix(~ 0 + Slide, samplesheet)
+row <- model.matrix(~ 0 + sentrix_row, samplesheet)
+
+sv <- ewas.ret$analyses$sva$design
+sv <- sv[,grep("X", colnames(sv))]
+
+isv <- ewas.ret$analyses$isva$design
+isv <- isv[,grep("X", colnames(isv))]
+
+library(penalized)
+
+prediction.accuracy <- function(v, p) {
+    fit <- optL1(response=v, penalized=p, fold=10, standardize=T, maxiter=1000, model="logistic")
+    sum((fit$predictions > 0.5) == (v == 1))/length(v)
+}
+
+cbind(isva=apply(row, 2, prediction.accuracy, isv),
+      sva =apply(row, 2, prediction.accuracy, sv))
+
+cbind(isva=apply(slide, 2, prediction.accuracy, isv),
+      sva =apply(slide, 2, prediction.accuracy, sv))
+```
+
+
+How much do the different EWAS models agree?
+```{r}
+sapply(ewas.ret$analyses, function(a) 
+       sapply(ewas.ret$analyses, function(b) 
+              length(intersect(rownames(a$table)[which(a$table$p.value < 0.0001)],
+                               rownames(b$table)[which(b$table$p.value < 0.0001)]))))
+
+sapply(ewas.ret$analyses, function(a) 
+       sapply(ewas.ret$analyses, function(b) {
+           a <- rownames(a$table)[which(a$table$p.value < 0.0001)]
+           b <- rownames(b$table)[which(b$table$p.value < 0.0001)]
+           length(intersect(a,b))/length(union(a,b))
+       }))
+
+```
+
+```{r}
+sapply(ewas.ret$analyses, function(a) 
+       sapply(ewas.ret$analyses, function(b) {
+           idx <- which(a$table$p.value < 0.01)
+           cor(a$table$coefficient[idx], b$table$coefficient[idx])
+       }))
+```
+
+
+Compare meffil EWAS to EWAS 'done by hand'.
+```{r}
+## EWAS by meffil
+test.ret <- meffil.ewas(beta,
+                        variable=variable,
+                        covariates=covariates,
+                        isva=F,sva=T,
+                        most.variable=50000,
+                        random.seed=20161123,
+                        verbose=T)
+test.ret$sv <- test.ret$analyses$sva$design
+test.ret$sv <- test.ret$sv[,grep("X", colnames(test.ret$sv))]
+
+## EWAS by hand
+beta.win <- meffil:::winsorize(beta)
+beta.sva <- beta.win
+beta.sva <- beta.sva[which(rownames(beta.sva) %in% meffil.get.autosomal.sites()),]
+beta.sva <- beta.sva[order(rowVars(beta.sva), decreasing=T)[1:50000],]
+mod0 <- model.matrix(~ ., covariates)
+mod <- cbind(mod0, variable)
+set.seed(20161123)
+sva.ret <- sva(dat=beta.sva, mod=mod, mod0=mod0)
+
+apply(abs(cor(test.ret$sv, sva.ret$sv)), 2, max)
+
+mod <- cbind(mod, sva.ret$sv)
+fit <- lm.fit(mod, t(beta.win))
+
+cor(fit$coefficients["variable",], ewas.ret$analyses$sva$table$coefficient)
+```
+
+Check to see how outliers are being handled:
+```{r}
+test.ret <- meffil.ewas(beta,
+                        variable=variable,
+                        covariates=covariates,
+                        isva=F,sva=F,
+                        winsorize=NA,
+                        outlier.iqr.factor=3,
+                        verbose=T)
+outlier.mask <- beta
+outlier.mask[] <- F
+outlier.mask[test.ret$too.lo] <- T
+outlier.mask[test.ret$too.hi] <- T
+
+q13 <- rowQuantiles(beta, probs=c(0.25, 0.75))
+factor <- 3*(q13[,2] - q13[,1])
+lo.threshold <- q13[,1] - factor
+hi.threshold <- q13[,2] + factor
+all((beta < lo.threshold | beta > hi.threshold)
+    == outlier.mask)
+```
