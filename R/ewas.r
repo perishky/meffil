@@ -13,22 +13,21 @@
 #' or a numeric vector of weights with length \code{nrow(beta)}. 
 #' @param cell.counts Proportion of cell counts for one cell type in cases
 #' where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL).
-#' @param isva0 Apply Independent Surrogate Variable Analysis (ISVA) to the
+#' @param isva Apply Independent Surrogate Variable Analysis (ISVA) to the
 #' methylation levels and include the resulting variables as covariates in a
-#' regression model (Default: TRUE).  Note that ISVA depends on pseudo-random number
-#' generation; consequently, the only way to ensure that the same surrogate
-#' variables are generated each time, it is necessary to set the random seed
-#' using \code{set.seed()}.
-#' @param isva1 Apply Independent Surrogate Variable Analysis (ISVA) to the
-#' methylation levels, covariates and \code{isva0} variables and include
+#' regression model (Default: TRUE).  
+#' @param sva Apply Surrogate Variable Analysis (SVA) to the
+#' methylation levels and covariates and include
 #' the resulting variables as covariates in a regression model (Default: TRUE).
-#' Note that ISVA depends on pseudo-random number
-#' generation; consequently, the only way to ensure that the same surrogate
-#' variables are generated each time, it is necessary to set the random seed
-#' using \code{set.seed()}.
 #' @param winsorize.pct Apply all regression models to methylation levels
-#' winsorized to the given level (Default: 0.05).  Set to NA to avoid winsorizing.
-#' @param most.variable Apply Independent Surrogate Variable Analysis to the 
+#' winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05). 
+#' @param outlier.iqr.factor For each CpG site, prior to fitting regression models,
+#' set methylation levels less than
+#' \code{Q1 - outlier.iqr.factor * IQR} or more than
+#' \code{Q3 + outlier.iqr.factor * IQR} to NA. Here IQR is the inter-quartile
+#' range of the methylation levels at the CpG site, i.e. Q3-Q1.
+#' Set to NA to skip this step (Default: NA).
+#' @param most.variable Apply (Independent) Surrogate Variable Analysis to the 
 #' given most variable CpG sites (Default: 50000).
 #' @param featureset Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).
 #' @param verbose Set to TRUE if status updates to be printed (Default: FALSE).
@@ -37,12 +36,18 @@
 meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL, weights=NULL,
                         cell.counts=NULL,
-                        isva0=T, isva1=T,
-                        winsorize.pct=0.05, ## perhaps better, winsorize at 25-percentile - iqr?
+                        isva=T, sva=T, ## cate?
+                        isva0=F,isva1=F, ## deprecated
+                        winsorize.pct=0.05,
+                        outlier.iqr.factor=NA, ## typical value = 3
                         most.variable=min(nrow(beta), 50000),
                         featureset=NA,
+                        random.seed=20161123,
                         verbose=F) {
 
+    if (isva0 || isva1)
+        stop("isva0 and isva1 are deprecated and superceded by isva and sva")
+    
     if (is.na(featureset))
         featureset <- guess.featureset(rownames(beta))
     features <- meffil.get.features(featureset)
@@ -106,33 +111,48 @@ meffil.ewas <- function(beta, variable,
         beta <- winsorize(beta, pct=winsorize.pct)
     }
 
-    if (isva0 || isva1) {
-        msg("ISVA with no covariates.", verbose=verbose)
-        beta.isva <- beta
+    too.hi <- too.lo <- NULL
+    if (is.numeric(outlier.iqr.factor)) {
+        q <- rowQuantiles(beta, probs = c(0.25, 0.75), na.rm = T)
+        iqr <- q[,2] - q[,1]
+        too.hi <- which(beta > q[,2] + outlier.iqr.factor * iqr, arr.ind=T)
+        too.lo <- which(beta < q[,1] - outlier.iqr.factor * iqr, arr.ind=T)
+        if (nrow(too.hi) > 0) beta[too.hi] <- NA
+        if (nrow(too.lo) > 0) beta[too.lo] <- NA
+    }
+
+    if (isva || sva) {
+        beta.sva <- beta
         
         autosomal.sites <- meffil.get.autosomal.sites(featureset)
-        autosomal.sites <- intersect(autosomal.sites, rownames(beta.isva))
+        autosomal.sites <- intersect(autosomal.sites, rownames(beta.sva))
         if (length(autosomal.sites) < most.variable) {
           warning("Probes from the sex chromosomes will be used to calculate surrogate variables.")
         } else {
-          beta.isva <- beta.isva[autosomal.sites,]
+          beta.sva <- beta.sva[autosomal.sites,]
         }
-        var.idx <- order(rowVars(beta.isva, na.rm=T), decreasing=T)[1:most.variable]
-        beta.isva <- impute.matrix(beta.isva[var.idx,,drop=F])
-
-        isva0 <- DoISVA(beta.isva, variable, verbose=verbose)
-        covariate.sets$isva0 <- as.data.frame(isva0$isv)
-    }
-
-    if (isva1) {
-        msg("ISVA with covariates.", verbose=verbose)
-        if (!is.null(covariates)) {
-          factor.log <- sapply(covariates, is.factor)
-          isva1 <- DoISVA(beta.isva, variable, 
-                        cf.m=cbind(isva0$isv, covariates), 
-                        factor.log=factor.log,
-                        verbose=verbose)
-          covariate.sets$isva1 <- as.data.frame(isva1$isv)
+        var.idx <- order(rowVars(beta.sva, na.rm=T), decreasing=T)[1:most.variable]
+        beta.sva <- impute.matrix(beta.sva[var.idx,,drop=F])
+        
+        if (!is.null(covariates)) 
+            mod0 <- model.matrix(~ ., data.frame(covariates, stringsAsFactors=F))
+        else
+            mod0 <- data.frame(rep(1, length(variable)))
+        mod <- cbind(mod0, variable)
+        
+        if (isva) {
+            msg("ISVA.", verbose=verbose)
+            set.seed(random.seed)
+            isva.ret <- isva(beta.sva, mod, verbose=verbose)
+            covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
+        }
+        
+        if (sva) {
+            msg("SVA.", verbose=verbose)
+            set.seed(random.seed)
+            sva.ret <- sva(beta.sva, mod=mod, mod0=mod0)
+            covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
+            cat("\n")
         }
     }
 
@@ -157,17 +177,21 @@ meffil.ewas <- function(beta, variable,
         analyses[[name]]$table$chromosome <- features$chromosome[idx]
         analyses[[name]]$table$position <- features$position[idx]
     }
-    
+
     list(class="ewas",
          version=packageVersion("meffil"),
          samples=sample.idx,
          variable=original.variable[sample.idx],
          covariates=original.covariates[sample.idx,,drop=F],
          winsorize.pct=winsorize.pct,
+         outlier.iqr.factor=outlier.iqr.factor,
          most.variable=most.variable,
          p.value=p.values,
          coefficient=coefficients,
-         analyses=analyses)
+         analyses=analyses,
+         random.seed=random.seed,
+         too.hi=too.hi,
+         too.lo=too.lo)
 }
 
 is.ewas.object <- function(object)

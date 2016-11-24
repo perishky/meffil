@@ -233,7 +233,6 @@ for (variable.name in names(results)) {
         
         ewas.ret <- results[[variable.name]][[reference]]
         
-        p.values <- ewas.ret$p.value[,"isva1"]
         ewas.parameters <- meffil.ewas.parameters(max.plots=10)
         
         ewas.summary <- meffil.ewas.summary(ewas.ret,
@@ -257,42 +256,59 @@ Show size of overlap between analyses using different cell type references.
 For each, we use the results obtained using confounders obtained using "ISVA"
 (all potential confounders listed above plus independent surrogate variables).
 ```{r, results="asis"}
-compare.top <- function(results, top=100) {
+compare.top <- function(results, top=100, method) {
     sites <- lapply(results, function(ewas) {
-        idx <- order(ewas$p.value[,"isva1"], decreasing=F)[1:top]
+        idx <- order(ewas$p.value[,method], decreasing=F)[1:top]
         rownames(ewas$p.value)[idx]
     })
     sapply(sites, function(x) sapply(sites, function(y) length(intersect(x,y))))
 }
-comparisons <- lapply(results, compare.top)
-for (name in names(results)) {
-  comparisons[[name]] <- as.data.frame(comparisons[[name]])
-  comparisons[[name]]$reference <- rownames(comparisons[[name]])
-  comparisons[[name]]$variable <- name
+comparison.table <- function(results, method) {
+    comparisons <- lapply(results, compare.top, method=method)
+    for (name in names(results)) {
+        comparisons[[name]] <- as.data.frame(comparisons[[name]])
+        comparisons[[name]]$reference <- rownames(comparisons[[name]])
+        comparisons[[name]]$variable <- name
+    }
+    comparisons <- do.call(rbind, comparisons)
 }
-comparisons <- do.call(rbind, comparisons)
-knitr:::kable(comparisons, row.names=F)
+knitr:::kable(comparison.table(results, "isva"), row.names=F)
+```
+
+Similarly for SVA EWAS:
+```{r, results="asis"}
+knitr:::kable(comparison.table(results, "sva"), row.names=F)
 ```
 
 ## Significance ranks of previously identified associations 
 
 Below we show the p-value ranks in our analyses of each previously identified association.
-```{r}
-ranks <- sapply(names(results), function(variable.name) {
-    do.call(rbind, lapply(results[[variable.name]], function(ewas) {
-        idx <- match(published.hits[[variable.name]], rownames(ewas$p.value))
-        r <- rank(ewas$p.value[,"isva1"])[idx]
-        p <- wilcox.test(ewas$p.value[idx,"isva1"], ewas$p.value[-idx,"isva1"], alternative="less")$p.value
-        c(quantile(r), p=p)
-    }))
-}, simplify=F)
-for (name in names(results)) {
-  ranks[[name]] <- as.data.frame(ranks[[name]])
-  ranks[[name]]$reference <- rownames(ranks[[name]])
-  ranks[[name]]$variable <- name
+First for ISVA EWAS:
+```{r, results="asis"}
+compare.p.value.ranks <- function(results) {
+    ranks <- sapply(names(results), function(variable.name, method) {
+        do.call(rbind, lapply(results[[variable.name]], function(ewas) {
+            idx <- match(published.hits[[variable.name]], rownames(ewas$p.value))
+            r <- rank(ewas$p.value[,method])[idx]
+            p <- wilcox.test(ewas$p.value[idx,method],
+                             ewas$p.value[-idx,method],
+                             alternative="less")$p.value
+            c(quantile(r), p=p)
+        }))
+    }, simplify=F)
+    for (name in names(results)) {
+        ranks[[name]] <- as.data.frame(ranks[[name]])
+        ranks[[name]]$reference <- rownames(ranks[[name]])
+        ranks[[name]]$variable <- name
+    }
+    ranks <- do.call(rbind, ranks)
 }
-ranks <- do.call(rbind, ranks)
-knitr:::kable(ranks, row.names=F)
+knitr:::kable(compare.p.value.ranks(results, "isva"), row.names=F)
+```
+
+Second for SVA EWAS:
+```{r, results="asis"}
+knitr:::kable(compare.p.value.ranks(results, "sva"), row.names=F)
 ```
 
 It's not clear from the table above if using any specific cell type reference
