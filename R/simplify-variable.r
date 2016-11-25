@@ -10,7 +10,7 @@ simplify.variable <- function(v) {
         if (is.ordered(v) || length(levels(v)) <= 2)
             as.integer(v) - 1
         else
-            model.matrix(~ 0 + v)[,-1,drop=F]
+            model.matrix(~ v, model.frame(~ v, na.action=na.pass))[,-1,drop=F]
     } else
         v
 }
