@@ -96,7 +96,7 @@ meffil.ewas <- function(beta, variable,
         cell.counts <- cell.counts[sample.idx]
 
     if (!is.null(covariates)) {
-        pos.var.idx <- which(apply(covariates, 2, var) > 0)
+        pos.var.idx <- which(apply(covariates, 2, var, na.rm=T) > 0)
         msg("Removing", ncol(covariates) - length(pos.var.idx), "covariates with no variance.",
             verbose=verbose)
         covariates <- covariates[,pos.var.idx, drop=F]
