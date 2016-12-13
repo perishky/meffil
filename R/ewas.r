@@ -134,8 +134,10 @@ meffil.ewas <- function(beta, variable,
         var.idx <- order(rowVars(beta.sva, na.rm=T), decreasing=T)[1:most.variable]
         beta.sva <- impute.matrix(beta.sva[var.idx,,drop=F])
         
-        if (!is.null(covariates)) 
-            mod0 <- model.matrix(~ ., data.frame(covariates, stringsAsFactors=F))
+        if (!is.null(covariates)) {
+            cov.frame <- model.frame(~., data.frame(covariates, stringsAsFactors=F), na.action=na.pass)
+            mod0 <- model.matrix(~., cov.frame)
+        }
         else
             mod0 <- data.frame(rep(1, length(variable)))
         mod <- cbind(mod0, variable)
