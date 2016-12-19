@@ -76,6 +76,9 @@ meffil.ewas <- function(beta, variable,
         covariates <- do.call(cbind, lapply(covariates, simplify.variable))
 
     sample.idx <- which(!is.na(variable))
+    if (!is.null(covariates))
+        sample.idx <- intersect(sample.idx, which(apply(!is.na(covariates), 1, all)))
+    
     msg("Removing", ncol(beta) - length(sample.idx), "missing case(s).", verbose=verbose)
 
     if (is.matrix(weights))
