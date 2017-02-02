@@ -142,7 +142,7 @@ meffil.ewas <- function(beta, variable,
             mod0 <- model.matrix(~., cov.frame)
         }
         else
-            mod0 <- data.frame(rep(1, length(variable)))
+            mod0 <- matrix(1, ncol=1, nrow=length(variable))
         mod <- cbind(mod0, variable)
         
         if (isva) {
