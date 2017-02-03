@@ -144,19 +144,26 @@ meffil.ewas <- function(beta, variable,
         else
             mod0 <- matrix(1, ncol=1, nrow=length(variable))
         mod <- cbind(mod0, variable)
-        
+
         if (isva) {
             msg("ISVA.", verbose=verbose)
             set.seed(random.seed)
             isva.ret <- isva(beta.sva, mod, verbose=verbose)
-            covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
+            if (!is.null(covariates))
+                covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
+            else
+                covariate.sets$isva <- as.data.frame(isva.ret$isv)
+            cat("\n")
         }
         
         if (sva) {
             msg("SVA.", verbose=verbose)
             set.seed(random.seed)
             sva.ret <- sva(beta.sva, mod=mod, mod0=mod0)
-            covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
+            if (!is.null(covariates))
+                covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
+            else
+                covariate.sets$sva <- as.data.frame(sva.ret$sv)
             cat("\n")
         }
     }
