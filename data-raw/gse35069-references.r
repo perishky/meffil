@@ -1,4 +1,6 @@
-#' Defines cell type references "blood gse35069" and "blood gse35069 complete"
+#' Defines cell type references "blood gse35069", "blood gse35069 complete"
+#' and "blood gse35069 chen".
+#'
 #' for estimating blood cell counts.
 #' Both use methylation profiles from Reinius et al. 2012 (PMID 25424692)
 #' for purified blood cell types.
@@ -6,6 +8,14 @@
 #' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran.
 #' The second is based on 
 #' the same cell types but with Gran replaced by Neu and Eos.
+#'
+#' An epigenome-wide association study of total serum IgE in Hispanic children.
+#' Chen W, Wang T, Pino-Yanes M, Forno E, Liang L, Yan Q, Hu D, Weeks DE,
+#' Baccarelli A, Acosta-Perez E, Eng C, Han YY, Boutaoui N, Laprise C,
+#' Davies GA, Hopkin JM, Moffatt MF, Cookson WO, Canino G, Burchard EG, Celedón JC.
+#' J Allergy Clin Immunol. 2017 Jan 6. pii:
+#' S0091-6749(16)32546-5. PMID: 28069425
+
 
 retrieve.gse35069 <- function(dir) {
     wd <- getwd()
@@ -88,6 +98,19 @@ create.gse35069.references <- function() {
                                    chip="450k",
                                    featureset="common",
                                    verbose=verbose)
+
+
+    cpg.sites <- read.csv("chen-table-e2.csv",stringsAsFactors=F)    
+
+    cell.types <- c("CD4T","CD8T","Mono","Bcell","NK","Neu","Eos")
+    selected <- samplesheet$CellType %in% cell.types
+    meffil.add.cell.type.reference("blood gse35069 chen",
+                                   ds$M[,selected], ds$U[,selected],
+                                   cell.types=samplesheet$CellType[selected],
+                                   chip="450k",
+                                   featureset="common",
+                                   specific.sites=cpg.sites$cpg,
+                                   verbose=verbose)    
 }
 
 
