@@ -26,6 +26,9 @@ get.cell.type.reference <- function(name) {
 #' @param number.sites Number of probes to characterise cell type methylation (Default: 50).
 #' For each cell type, this number of probes with greater methylation than other cell types
 #' and the same number with lesser methylation than the other cell types will be included.
+#' @param specific.sites If not null (default), then \code{number.sites} is ignored and
+#' the supplied site identifiers are used to differentiate between cell types instead
+#' of those maximally different between the cell types within the reference.
 #' @param object Cell type reference previously created by this function.
 #' If not \code{NULL}, then this reference is added
 #' and all other function arguments are ignored (Default: NULL).
@@ -49,13 +52,14 @@ meffil.add.cell.type.reference <- function(name, M, U, cell.types,
                                            chip=NA,
                                            featureset=chip,
                                            number.sites=50,
+                                           specific.sites=NULL,
                                            number.quantiles=500,
                                            subsets=NULL,
                                            object=NULL,
                                            verbose=F) {
     if (is.null(object)) {
         object <- create.cell.type.reference(M,U,cell.types,chip,featureset,
-                                             number.sites,number.quantiles,
+                                             number.sites,specific.sites,number.quantiles,
                                              subsets,verbose)
         object$name <- name
     }
@@ -69,6 +73,7 @@ create.cell.type.reference <- function(M, U, cell.types,
                                        chip=NA,
                                        featureset=chip,
                                        number.sites=50,
+                                       specific.sites=NULL,
                                        number.quantiles=500,
                                        subsets=NULL,
                                        verbose=F) {
@@ -88,7 +93,14 @@ create.cell.type.reference <- function(M, U, cell.types,
     autosomal.sites <- meffil.get.autosomal.sites(featureset)
     beta <- meffil.get.beta(M=M,U=U)
     beta <- beta[which(rownames(beta) %in% autosomal.sites),]
-    specific.beta <- meffil.cell.type.specific.methylation(beta, cell.types, number.sites, verbose)
+    if (is.null(specific.sites))
+        specific.beta <- meffil.cell.type.specific.methylation(beta, cell.types,
+                                                               number.sites, verbose)
+    else {
+        stopifnot(is.character(specific.sites))
+        specific.sites <- intersect(specific.sites, rownames(beta))
+        specific.beta <- beta[specific.sites,]
+    }
 
     if (is.null(subsets))
         subsets <- get.island.site.subsets(featureset)
