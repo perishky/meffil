@@ -99,7 +99,10 @@ create.cell.type.reference <- function(M, U, cell.types,
     else {
         stopifnot(is.character(specific.sites))
         specific.sites <- intersect(specific.sites, rownames(beta))
-        specific.beta <- beta[specific.sites,]
+        specific.beta <- meffil.cell.type.specific.methylation(beta[specific.sites,],
+                                                               cell.types,
+                                                               length(specific.sites),
+                                                               verbose)
     }
 
     if (is.null(subsets))

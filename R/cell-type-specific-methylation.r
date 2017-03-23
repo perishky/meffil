@@ -15,7 +15,7 @@ meffil.cell.type.specific.methylation <- function(beta, cell.types, number.sites
 
     stopifnot(is.matrix(beta))
     stopifnot(ncol(beta) == length(cell.types))
-    stopifnot(number.sites > 0 && number.sites < nrow(beta))
+    stopifnot(number.sites > 0 && number.sites <= nrow(beta))
 
     number.cell.types <- length(unique(cell.types))
     cell.types <- as.character(cell.types)
