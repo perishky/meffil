@@ -28,7 +28,8 @@ Depends:  illuminaio,
 	  parallel,
 	  fastICA,
 	  DNAcopy,
-	  quadprog
+	  quadprog,
+	  statmod
 Suggests: betareg, 
 	  minfi, 
 	  CopyNumber450kData
