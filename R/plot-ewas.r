@@ -210,11 +210,13 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
     if (has.betareg) {
         require("betareg")
         require("lmtest")
+        
         ## beta regression model fit
-        min.value <- .Machine$double.xmin
+        min.value <- 1e-20
         meth <- methylation
         meth[which(meth < min.value)] <- min.value
         meth[which(meth > 1-min.value)] <- 1-min.value
+
         if (is.null(covariates)) {
             fit <- betareg(meth ~ variable)
             base <- betareg(meth ~ 1)
