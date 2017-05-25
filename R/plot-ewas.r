@@ -210,14 +210,21 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
     if (has.betareg) {
         require("betareg")
         require("lmtest")
+        
         ## beta regression model fit
+
+        min.value <- 1e-20
+        meth <- methylation
+        meth[which(meth < min.value)] <- min.value
+        meth[which(meth > 1-min.value)] <- 1-min.value
+        
         if (is.null(covariates)) {
-            fit <- betareg(methylation ~ variable)
-            base <- betareg(methylation ~ 1)
+            fit <- betareg(meth ~ variable)
+            base <- betareg(meth ~ 1)
         }
         else {
-            fit <- betareg(methylation ~ variable + ., data=covariates)
-            base <- betareg(methylation ~ ., data=covariates)
+            fit <- betareg(meth ~ variable + ., data=covariates)
+            base <- betareg(meth ~ ., data=covariates)
         }
         p.value.beta <- lrtest(fit, base)[2,"Pr(>Chisq)"]
 
