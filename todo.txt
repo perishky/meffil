@@ -3,13 +3,7 @@
 Maarten M. van Iterson, Erik W. van Zwet, The Bios Consortium, P. Eline Slagboom, Bastiaan T. Heijmans. Controlling bias and inflation in epigenome- and transcriptome-wide association studies using the empirical null distribution. 
 http://biorxiv.org/content/early/2016/05/27/055772
 
-2. Proper tutorial (based on tests) and recipes list.
-
-3. Add random seed to EWAS function to make ISVA reproducible.
-
-4. Perhaps add SVA to EWAS?
-
-Should our 'objects' be S4 classes? 
+2. Should our 'objects' be S4 classes? 
 I have two objects to S4 classes:
 1. They are difficult to debug because they only be accessed using 
 functions rather than just typing the function name.
@@ -79,5 +73,7 @@ setMethod("meffil.get.autosomal.sites",
               probe.idx <- which(probes$chromosome %in% paste0("chr", 1:22))
               unique(object@probes$name[probe.idx])
           })
-5. Give a warning when a idat is not found during the cnv extraction. It now gives a mclapply warning.
-6. Regional localization plots.
+
+3. Give a warning when a idat is not found during the cnv extraction. It now gives a mclapply warning.
+
+4. Regional localization plots.

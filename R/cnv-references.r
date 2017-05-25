@@ -58,17 +58,40 @@ meffil.add.copynumber450k.references <- function(verbose=T) {
     require(CopyNumber450kData)
 
     data(RGcontrolSetEx)
-    rgset <- preprocessIllumina(RGcontrolSetEx, bg.correct=TRUE, normalize=NULL)
-    M <- getMeth(rgset)
-    U <- getUnmeth(rgset)
+    
+    ## CopyNumber450kData version incompatibility won't allow this to run with
+    ## latest version of minfi so below we do it manually, grrrrrrrr
+    #rgset <- preprocessIllumina(RGcontrolSetEx, bg.correct=TRUE, normalize=NULL)
+    #M <- getMeth(rgset)
+    #U <- getUnmeth(rgset)
 
+    ## start preprocessIllumina
+    green <- RGcontrolSetEx@assayData$Green
+    red <- RGcontrolSetEx@assayData$Red
+    probes <- meffil.probe.info("450k")
+
+    mu <- meffil:::mcsapply.safe(1:ncol(red), function(i) {
+        rg <- list(G=matrix(green[,i], ncol=1, dimnames=list(rownames(green), "Mean")),
+                   R=matrix(red[,i], ncol=1, dimnames=list(rownames(red), "Mean")),
+                   class="rg",
+                   version=packageVersion("meffil"),
+                   basename="RGcontrolSetEx")
+        rg <- meffil:::background.correct(rg, probes, verbose=verbose)
+        mu <- meffil:::rg.to.mu(rg, probes)
+        c(mu$M, mu$U)
+    })
+    idx.m <- 1:(nrow(mu)/2)
+    idx.u <- (max(idx.m)+1):nrow(mu)
+    M <- mu[idx.m,]
+    U <- mu[idx.u,]
+    colnames(M) <- colnames(U) <- colnames(red)
+    ## end preprocessIllumina
+    
     list("copynumber450k"=meffil.add.cnv.reference("copynumber450k", M, U,
                              chip="450k", featureset="450k", verbose=verbose),
          "copynumber450k-common"=meffil.add.cnv.reference("copynumber450k-common", M, U,
              chip="450k", featureset="common", verbose=verbose))
 }
-
-
 
 create.cnv.reference <- function(M, U, chip=NA, featureset=chip, verbose=T) {
     chip <- guess.chip(M, chip)

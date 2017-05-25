@@ -1,7 +1,9 @@
-```{r 450k-and-epic-init, echo=FALSE}
+```{r 450k-and-epic-init, echo=FALSE, message=F}
 library(knitr)
 library(Cairo)
-opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+library(GEOquery)
 
 ```
 

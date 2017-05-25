@@ -1,6 +1,9 @@
 library(devtools)
 library(meffil)
 
+library(openxlsx) ## load.450k.manifest() uses read.xlsx()
+library(FlowSorted.CordBlood.450k) ## create.andrews.bakulski.reference() 
+
 options(mc.cores=5)
 
 ## add 450k annotation

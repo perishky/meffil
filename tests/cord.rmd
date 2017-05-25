@@ -1,7 +1,14 @@
-```{r cord-init, echo=FALSE}
+```{r cord-init, echo=FALSE, message=F}
 library(knitr)
 library(Cairo)
-opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+library(minfi, quietly=TRUE)
+library(FlowSorted.CordBlood.450k, quietly=TRUE)
+#source("http://bioconductor.org/biocLite.R")
+#biocLite("FlowSorted.CordBlood.450k")
+
+library(GEOquery)
 
 ```
 
@@ -126,45 +133,6 @@ for (type in types) {
 }
 ```
 
-## Compare Andrews and Bekulski cord blood counts to minfi
-
-```{r cord-minfi, cache=T}
-#source("http://bioconductor.org/biocLite.R")
-#biocLite("FlowSorted.CordBlood.450k")
-if (require(FlowSorted.CordBlood.450k)) {
-    library(minfi)
-    raw.minfi <- read.450k.exp(base = path)
-    source("estimate-cell-counts.r")
-    counts.minfi <- estimateCellCounts.new(raw.minfi,
-                                           compositeCellType="CordBlood",
-                                           cellTypes = c("CD8T","CD4T", "NK","Bcell",
-                                               "Mono","Gran", "nRBC"))
-}
-```
-
-```{r}
-if (require(FlowSorted.CordBlood.450k)) {
-    counts.meffil <- counts[["andrews and bakulski cord blood"]]
-    rownames(counts.minfi) <- sub("_.*", "", rownames(counts.minfi))
-    counts.minfi <- counts.minfi[rownames(counts.meffil), colnames(counts.meffil)]
-    print(sapply(rownames(counts.meffil), function(i) cor(counts.meffil[i,], counts.minfi[i,])))
-    print(sapply(colnames(counts.meffil), function(i) cor(counts.meffil[,i], counts.minfi[,i])))
-    print(cbind(colMeans(counts.meffil), colMeans(counts.minfi)))
-}
-```
-
-```{r, dev="CairoPNG"}
-if (require(FlowSorted.CordBlood.450k)) {
-    for (cell.type in colnames(counts.meffil)) {
-        lim <- range(c(counts.meffil[,cell.type], counts.minfi[,cell.type]))
-        plot(counts.meffil[,cell.type], counts.minfi[,cell.type], pch=19,
-             main=cell.type,
-             sub=paste("R =", format(cor(counts.meffil[,cell.type], counts.minfi[,cell.type]), digits=3)),
-             xlim=lim,ylim=lim)
-        abline(a=0,b=1,col="red")
-    }
-}
-```
 
 ## Variables of interest
 
@@ -285,8 +253,8 @@ knitr:::kable(comparison.table(results, "sva"), row.names=F)
 Below we show the p-value ranks in our analyses of each previously identified association.
 First for ISVA EWAS:
 ```{r, results="asis"}
-compare.p.value.ranks <- function(results) {
-    ranks <- sapply(names(results), function(variable.name, method) {
+compare.p.value.ranks <- function(results, method) {
+    ranks <- sapply(names(results), function(variable.name) {
         do.call(rbind, lapply(results[[variable.name]], function(ewas) {
             idx <- match(published.hits[[variable.name]], rownames(ewas$p.value))
             r <- rank(ewas$p.value[,method])[idx]

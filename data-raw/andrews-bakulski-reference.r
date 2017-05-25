@@ -15,7 +15,7 @@ create.andrews.bakulski.reference <- function(verbose=T) {
     reference <- preprocessNoob(FlowSorted.CordBlood.450k)
     reference <- mapToGenome(reference)
     extracted.data <- minfi:::.extractFromRGSet450k(FlowSorted.CordBlood.450k)
-    samplesheet <- pData(phenoData(FlowSorted.CordBlood.450k))
+    samplesheet <- colData(FlowSorted.CordBlood.450k) ## pData(phenoData(FlowSorted.CordBlood.450k))
     sex <- sign(samplesheet$Sex == "F") + 1
     reference <- minfi:::.normalizeFunnorm450k(object=reference, extractedData=extracted.data,
                                                sex=sex, nPCs=10, verbose=F)

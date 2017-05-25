@@ -1,8 +1,12 @@
-```{r comparison-init, echo=FALSE}
+```{r comparison-init, echo=FALSE, message=F}
 
 library(knitr)
 library(Cairo)
-opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+library(minfi)
+library(matrixStats)
+library(GEOquery)
 
 ```
 
@@ -32,7 +36,7 @@ library(minfi, quietly=TRUE)
 
 Normalize using the minfi package.
 ```{r comparison-minfi, cache=T}
-raw.minfi <- read.450k.exp(base = path)
+raw.minfi <- read.metharray.exp(base = path)
 system.time(norm.minfi <- preprocessFunnorm(raw.minfi, nPCs=2,
                                             sex=NULL, bgCorr=TRUE, dyeCorr=TRUE, verbose=TRUE))
 ```
