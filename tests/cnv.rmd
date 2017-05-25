@@ -1,12 +1,21 @@
-```{r cnv-init, echo=FALSE}
+```{r cnv-init, echo=FALSE, message=F}
 
 library(knitr)
 library(Cairo)
-opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+library(minfi, quietly=TRUE)
+library(CopyNumber450kData, quietly=TRUE)
+library(CopyNumber450k, quietly=TRUE)
+library(GEOquery)
 
 ```
 
 # Test that CopyNumber450k and meffil produce comparable results
+
+```{r}
+warning("This script may fail because of CopyNumber450k and minfi version incompatibilities.")
+```
 
 ## Download example data set 
 
@@ -45,7 +54,7 @@ matrix.meffil <- meffil.cnv.matrix(segments.meffil, "450k")
 
 Load the data using minfi.
 ```{r, message=FALSE}
-raw.minfi <- read.450k.exp(base = path)
+raw.minfi <- read.metharray.exp(base = path)
 raw.minfi <- raw.minfi[,basename(samplesheet$Basename)]
 ```
 

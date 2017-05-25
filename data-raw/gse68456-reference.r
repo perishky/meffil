@@ -15,7 +15,7 @@ retrieve.gse68456 <- function(dir) {
     
     cat("Downloading data ...\n")
     filename <- "gse68456.tar"
-    download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE68456&format=file", filename)
+    download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE68456&format=file", filename, method="wget")
     
     cat("Unzipping data ...\n")
     system(paste("tar xvf", filename))

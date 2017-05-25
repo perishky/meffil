@@ -1,8 +1,10 @@
-```{r random-init, echo=FALSE}
+```{r random-init, echo=FALSE, message=F}
 
 library(knitr)
 library(Cairo)
-opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG")
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+library(GEOquery)
 
 ```
 
@@ -62,8 +64,7 @@ data.random <- meffil.normalize.dataset(samplesheet,
 
 Load the raw beta metrix for comparison.
 ```{r, message=FALSE}
-library(minfi, quietly=TRUE)
-beta.raw <- getBeta(read.450k.exp(base = path))
+beta.raw <- meffil.load.raw.data(data.default$norm.objects,verbose=T)
 beta.raw <- meffil:::impute.matrix(beta.raw)
 ```
 
