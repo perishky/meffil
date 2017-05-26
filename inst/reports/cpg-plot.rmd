@@ -1,11 +1,18 @@
 ### CpG site `r cpg`
 
+
 ```{r,message=F}
-ewas.summary$cpg.plots[[cpg]][[1]]
-ewas.summary$cpg.plots[[cpg]][[2]]
+num.plots <- length(ewas.summary$cpg.plots[[cpg]])
+if (num.plots > 0) ewas.summary$cpg.plots[[cpg]][[1]]
+if (num.plots > 1) ewas.summary$cpg.plots[[cpg]][[2]]    
 ```
 
 ```{r,message=F}
-ewas.summary$cpg.plots[[cpg]][[3]]
-ewas.summary$cpg.plots[[cpg]][[4]]
+if (num.plots > 2) ewas.summary$cpg.plots[[cpg]][[3]]
+if (num.plots > 3) ewas.summary$cpg.plots[[cpg]][[4]]    
+```
+
+```{r,message=F}
+if (num.plots > 4) ewas.summary$cpg.plots[[cpg]][[5]]
+if (num.plots > 5) ewas.summary$cpg.plots[[cpg]][[6]]    
 ```
