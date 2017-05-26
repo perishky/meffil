@@ -24,15 +24,16 @@ knitr::kable(ewas.summary$sample.characteristics)
 ## Covariate associations
 
 ```{r,include=FALSE}
+out <- NULL
 if (!is.null(ewas.summary$covariate.associations)) {
-    out <- NULL
     for (covariate.name in names(ewas.summary$covariate.associations))
         out <- c(out, knit_child(file.path(report.path, "ewas-covariate.rmd")))
 }
 ```
 
 ```{r,results="asis"}
-cat(out, sep="\n\n")
+if (!is.null(out))
+    cat(out, sep="\n\n")
 ```
 
 ## QQ plots
