@@ -85,8 +85,7 @@ knitr::kable(tab.overlaps)
 ```
 
 ```{r}
-practical.sites <- setdiff(names(ewas.summary$cpg.plots),
-                           ewas.summary$selected.sites)
+practical.sites <- names(ewas.summary$cpg.plots)
 tab <- with(ewas.summary, cpg.stats[match(practical.sites, rownames(cpg.stats)),])
 ```
 
