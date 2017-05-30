@@ -229,8 +229,11 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
 
         stats.desc <- paste(stats.desc, "; p[beta] = ", format(p.value.beta, digits=3), sep="")
     }
-    if (!is.null(covariates))
+    y.axis.label <- "DNA methylation"
+    if (!is.null(covariates)) {
         methylation <- residuals(base)
+        y.axis.label <- "adjusted DNA methylation"
+    }
 
     ## plot
     data <- data.frame(methylation=methylation, variable=variable)
@@ -244,5 +247,5 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
     }
 
     (p + ggtitle(title) +
-     xlab(stats.desc) + ylab("DNA methylation"))
+     xlab(stats.desc) + ylab(y.axis.label))
 }
