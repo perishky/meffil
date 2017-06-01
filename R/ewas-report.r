@@ -48,6 +48,7 @@ meffil.ewas.summary <- function(ewas.object, beta,
                                 verbose=T) {
     stopifnot(parameters$model %in% colnames(ewas.object$p.value))
     stopifnot(parameters$max.plots < nrow(ewas.object$p.value))
+    stopifnot(all(selected.cpg.sites %in% rownames(ewas.object$p.value)))
     
     p.values <- ewas.object$p.value[,parameters$model]
     parameters$practical.threshold <- p.values[order(p.values)[parameters$max.plots+1]]
