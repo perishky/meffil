@@ -19,6 +19,7 @@
 #' @param sva Apply Surrogate Variable Analysis (SVA) to the
 #' methylation levels and covariates and include
 #' the resulting variables as covariates in a regression model (Default: TRUE).
+#' @param n.sv Number of surrogate variables to calculate (Default: NULL).
 #' @param winsorize.pct Apply all regression models to methylation levels
 #' winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05). 
 #' @param outlier.iqr.factor For each CpG site, prior to fitting regression models,
@@ -37,6 +38,7 @@ meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL, weights=NULL,
                         cell.counts=NULL,
                         isva=T, sva=T, ## cate?
+                        n.sv=NULL,
                         isva0=F,isva1=F, ## deprecated
                         winsorize.pct=0.05,
                         outlier.iqr.factor=NA, ## typical value = 3
@@ -148,7 +150,7 @@ meffil.ewas <- function(beta, variable,
         if (isva) {
             msg("ISVA.", verbose=verbose)
             set.seed(random.seed)
-            isva.ret <- isva(beta.sva, mod, verbose=verbose)
+            isva.ret <- isva(beta.sva, mod, ncomp=n.sv, verbose=verbose)
             if (!is.null(covariates))
                 covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
             else
@@ -159,7 +161,7 @@ meffil.ewas <- function(beta, variable,
         if (sva) {
             msg("SVA.", verbose=verbose)
             set.seed(random.seed)
-            sva.ret <- sva(beta.sva, mod=mod, mod0=mod0)
+            sva.ret <- sva(beta.sva, mod=mod, mod0=mod0, n.sv=n.sv)
             if (!is.null(covariates))
                 covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
             else
