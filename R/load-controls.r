@@ -23,7 +23,7 @@ meffil.load.controls <- function(samplesheet,
         stopifnot(is.compatible.chip(featureset, chip))
 
     probes.R <- probes.G <- NULL
-    values <- meffil:::mclapply.safe(1:nrow(samplesheet), function(i) {
+    values <- meffil:::mcsapply.safe(1:nrow(samplesheet), function(i) {
         msg(samplesheet$Sample_Name[i], samplesheet$Basename[i])
         rg <- meffil:::read.rg(samplesheet$Basename[i], verbose=verbose)
         this.chip <- meffil:::guess.chip(rg, chip)
@@ -43,11 +43,7 @@ meffil.load.controls <- function(samplesheet,
         c(rg$R[match(probes.R$address, rownames(rg$R)), "Mean"],
           rg$G[match(probes.G$address, rownames(rg$G)), "Mean"])
     }, ...)
-    is.error <- sapply(values, class) == "try-error"
-    if (any(is.error))
-        stop(values[which(is.error)[1]])
-    names(values) <- samplesheet$Sample_Name
-    values <- do.call(cbind, values)
+    colnames(values) <- samplesheet$Sample_Name
     probes <- rbind(probes.R, probes.G)
     probes$address <- NULL
     rownames(values) <- rownames(probes)
