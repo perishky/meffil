@@ -55,13 +55,18 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         ...,
         max.bytes=max.bytes)
 
-    names(qc.objects) <- sapply(qc.objects, function(x) x$samplesheet$Sample_Name)
+    names(qc.objects) <- sapply(qc.objects, function(x) {
+        if ("samplesheet" %in% names(x))
+            if ("Sample_Name" %in% names(x$samplesheet))
+                return(x$samplesheet$Sample_Name)
+        "Error"
+    })
     
     is.error <- sapply(qc.objects, class) == "try-error"
     if (any(is.error))
-        stop(qc.objects[which(is.error)[1]])
+        warning("Errors were encountered, do this: which(sapply(qc.objects, class) == 'try-error')")
     
-    if (length(unique(sapply(qc.objects, function(object) object$featureset))) > 1)
+    if (length(unique(sapply(qc.objects[which(!is.error)], function(object) object$featureset))) > 1)
         warning("Heterogeneous microarray formats included without setting 'featureset'.")
     
     return(qc.objects)
