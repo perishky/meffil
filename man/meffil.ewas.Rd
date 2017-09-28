@@ -5,8 +5,8 @@
 \title{Epigenome-wide association study}
 \usage{
 meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
-  weights = NULL, cell.counts = NULL, isva = T, sva = T, isva0 = F,
-  isva1 = F, winsorize.pct = 0.05, outlier.iqr.factor = NA,
+  weights = NULL, cell.counts = NULL, isva = T, sva = T, n.sv = NULL,
+  isva0 = F, isva1 = F, winsorize.pct = 0.05, outlier.iqr.factor = NA,
   most.variable = min(nrow(beta), 50000), featureset = NA,
   random.seed = 20161123, verbose = F)
 }
@@ -35,6 +35,8 @@ regression model (Default: TRUE).}
 \item{sva}{Apply Surrogate Variable Analysis (SVA) to the
 methylation levels and covariates and include
 the resulting variables as covariates in a regression model (Default: TRUE).}
+
+\item{n.sv}{Number of surrogate variables to calculate (Default: NULL).}
 
 \item{winsorize.pct}{Apply all regression models to methylation levels
 winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05).}
