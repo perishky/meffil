@@ -4,7 +4,7 @@
 #' Defines cell type reference "cord blood gse68456" 
 #' for estimating cord blood cell counts.
 #' The first is based on
-#' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran.
+#' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran, RBC.
 #' The second is based on 
 #' the same cell types but with Gran replaced by Neu and Eos.
 
@@ -40,6 +40,8 @@ retrieve.gse68456 <- function(dir) {
 create.gse68456.reference <- function() {
     number.pcs <- 5
     verbose <- T
+    chip <- "450k"
+    featureset <- "common"
     
     dir.create(temp.dir <- tempfile(tmpdir="."))
     on.exit(unlink(temp.dir, recursive=TRUE))
@@ -47,25 +49,17 @@ create.gse68456.reference <- function() {
     samplesheet <- retrieve.gse68456(temp.dir)
     samplesheet$Basename <- file.path(temp.dir, samplesheet$Basename)
 
-    ds <- meffil.normalize.dataset(samplesheet,
-                                   just.beta=F,
-                                   qc.file="gse68456-qc-report.html",
-                                   author="Olivia de Goede, et al.",
-                                   study="Purified cord blood cell type methylation (GEO:GSE68456)",
-                                   number.pcs=number.pcs,
-                                   norm.file="gse68456-normalization-report.html",
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
-
-    samplesheet <- samplesheet[match(colnames(ds$M), samplesheet$Sample_Name),]
+    ## remove standard facs samples
+    id <- as.integer(sub("^GSM", "", samplesheet$Sample_Name))
+    samplesheet <- samplesheet[which(id > 1672168),]
     
-    cell.types <- c("CD3T", "CD4T","CD8T","Mono","Bcell","NK","Gran")
-    selected <- samplesheet$cell.type %in% cell.types
-    meffil.add.cell.type.reference("cord blood gse68456",
-                                   ds$M[,selected], ds$U[,selected],
-                                   cell.types=samplesheet$cell.type[selected],
-                                   chip="450k",
-                                   featureset="common",
+    qc.objects <- meffil.qc(samplesheet, chip=chip, featureset=featureset, verbose=verbose)
+    norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=verbose)
+    ds <- meffil.normalize.samples(norm.objects, just.beta=F, verbose=T)
+
+    meffil.add.cell.type.reference("cord blood gse68456", ds$M, ds$U,
+                                   cell.types=samplesheet$cell.type,
+                                   chip=chip,
+                                   featureset=featureset,
                                    verbose=verbose)
 }
