@@ -110,7 +110,7 @@ meffil.ewas.summary <- function(ewas.object, beta,
 #' "all" (all covariates), "isva" (independent surrogate variables),
 #' and "sva" (surrogate variables) (Default: "none").
 #' @param qq.inflation.method Method for calculating genomic inflation lambda.
-#' Valid values are "median" or "regression" (Default: "median").
+#' Valid values are "median", "regression" or "robust" (Default: "median").
 #' @return List of parameter values
 #'
 #' @export
