@@ -30,7 +30,7 @@ scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
 #' @param xlab Label for the x-axis (Default: -log_10(expected p-values)).
 #' @param ylab Label for the y-axis (Default: -log_10(observed p-values)).
 #' @param lambda.method Method for calculating genomic inflation lambda.
-#' Valid values are "median" or "regression" (Default: "median").
+#' Valid values are "median", "regression", or "robust" (Default: "median").
 #' @return List of \code{\link{ggplot}} for each analysis in \code{ewas.object}.
 #' @export
 meffil.ewas.qq.plot <- function(ewas.object,
@@ -83,7 +83,7 @@ meffil.ewas.qq.plot <- function(ewas.object,
 }
 
 qq.lambda <- function(p.values, method="median", B=100) {
-    stopifnot(method %in% c("median","regression"))
+    stopifnot(method %in% c("median","regression","robust"))
     p.values <- na.omit(p.values)
     observed <- qchisq(p.values, df=1, lower.tail = FALSE)
     observed <- sort(observed)
@@ -95,9 +95,12 @@ qq.lambda <- function(p.values, method="median", B=100) {
         lambda <- median(observed)/qchisq(0.5, df=1)
         boot.medians <- sapply(1:B, function(i) median(sample(observed, replace=T)))
         se <- sd(boot.medians/qchisq(0.5,df=1))
-    } else if (method == "regression") {
-        coef.table <- summary(lm(observed ~ 0 + expected))$coeff
-        lambda <- coef.table["expected","Estimate"]
+    } else if (method %in% c("regression","robust")) {
+        if (method == "regression")
+            coef.table <- summary(lm(observed ~ 0 + expected))$coeff
+        else
+            coef.table <- summary(rlm(observed ~ 0 + expected))$coef
+        lambda <- coef.table["expected",1]
         se <- coef.table["expected", "Std. Error"]
     }
     list(method=method, estimate=lambda, se=se)
