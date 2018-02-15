@@ -21,7 +21,11 @@
 #' the resulting variables as covariates in a regression model (Default: TRUE).
 #' @param n.sv Number of surrogate variables to calculate (Default: NULL).
 #' @param winsorize.pct Apply all regression models to methylation levels
-#' winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05). 
+#' winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05).
+#' @param robust Test associations with the 'robust' option when \code{\link{limma::eBayes}}
+#' is called (Default: TRUE).
+#' @param rlm Test assocaitions with the 'robust' option when \code{\link{limma:lmFit}}
+#' is called (Default: FALSE).
 #' @param outlier.iqr.factor For each CpG site, prior to fitting regression models,
 #' set methylation levels less than
 #' \code{Q1 - outlier.iqr.factor * IQR} or more than
@@ -41,6 +45,8 @@ meffil.ewas <- function(beta, variable,
                         n.sv=NULL,
                         isva0=F,isva1=F, ## deprecated
                         winsorize.pct=0.05,
+                        robust=TRUE,
+                        rlm=FALSE,
                         outlier.iqr.factor=NA, ## typical value = 3
                         most.variable=min(nrow(beta), 50000),
                         featureset=NA,
@@ -179,7 +185,9 @@ meffil.ewas <- function(beta, variable,
              batch=batch,
              weights=weights,
              cell.counts=cell.counts,
-             winsorize.pct=winsorize.pct)
+             winsorize.pct=winsorize.pct, 
+             robust=robust, 
+             rlm=rlm)
     }, simplify=F)
 
     p.values <- sapply(analyses, function(analysis) analysis$table$p.value)
@@ -198,6 +206,8 @@ meffil.ewas <- function(beta, variable,
          variable=original.variable[sample.idx],
          covariates=original.covariates[sample.idx,,drop=F],
          winsorize.pct=winsorize.pct,
+         robust=robust,
+         rlm=rlm,
          outlier.iqr.factor=outlier.iqr.factor,
          most.variable=most.variable,
          p.value=p.values,
@@ -221,7 +231,7 @@ is.ewas.object <- function(object)
 #' The regression model is then modified in order to identify
 #' associations specifically in the selected cell type (PMID: 24000956).
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell.counts=NULL, winsorize.pct=0.05,
-                 verbose=F) {
+                 robust=TRUE, rlm=FALSE, verbose=F) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
     stopifnot(is.null(covariates) || nrow(covariates) == ncol(beta))
@@ -229,7 +239,10 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
     stopifnot(is.null(cell.counts)
               || length(cell.counts) == ncol(beta)
               && all(cell.counts >= 0 & cell.counts <= 1))
-
+  
+    method <- "ls"
+    if (rlm) method <- "robust"
+  
     if (is.null(covariates))
         design <- data.frame(intercept=1, variable=variable)
     else
@@ -262,7 +275,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
         corfit <- duplicateCorrelation(beta, design, block=batch, ndups=1)
         batch.cor <- corfit$consensus
         msg("Linear regression with batch as random effect", verbose=verbose)
-        tryCatch(fit <- lmFit(beta, design, block=batch, cor=batch.cor, weights=weights),
+        tryCatch(fit <- lmFit(beta, design, method=method, block=batch, cor=batch.cor, weights=weights),
                  error=function(e) {
                      print(e)
                      msg("lmFit failed with random effect batch variable, omitting", verbose=verbose)
@@ -271,14 +284,14 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
     if (is.null(fit)) {
         msg("Linear regression with only fixed effects", verbose=verbose)
         batch <- NULL
-        fit <- lmFit(beta, design, weights=weights)
+        fit <- lmFit(beta, design, method=method, weights=weights)
     }
     
     msg("Empirical Bayes", verbose=verbose)
-    if (is.numeric(winsorize.pct)) {
+    if (is.numeric(winsorize.pct) && robust) {
       fit.ebayes <- eBayes(fit, robust=T, winsor.tail.p=c(winsorize.pct, winsorize.pct))
-    } else { 
-      fit.ebayes <- eBayes(fit)
+    } else {
+      fit.ebayes <- eBayes(fit, robust=robust)
     }
 
     alpha <- 0.975
