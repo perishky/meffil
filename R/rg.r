@@ -28,6 +28,10 @@ read.idat <- function(filename, verbose=F) {
     illuminaio::readIDAT(filename)$Quants
 }
 
+exists.rg <- function(basename, verbose=F) {
+    file.exists(paste(basename, "_Grn.idat", sep = "")) && file.exists(paste(basename, "_Red.idat", sep=""))
+}
+
 is.rg <- function(rg) {
     is.list(rg) && "class" %in% names(rg) && rg$class == "rg"
 }
