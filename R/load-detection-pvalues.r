@@ -24,7 +24,7 @@ meffil.load.detection.pvalues <- function(qc.objects,
 
     feature.names <- meffil.get.features(featureset)$name
     
-    if (!all(sapply(qc.objects, function(qc.object) rg.exists(qc.object$basename))))
+    if (!all(sapply(qc.objects, function(qc.object) exists.rg(qc.object$basename))))
          stop("IDAT files are not accessible for all QC objects")
                           
     ret <- mcsapply.safe(qc.objects, function(qc.object) {
