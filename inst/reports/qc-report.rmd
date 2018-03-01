@@ -25,7 +25,7 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 This is a plot of the difference between median 
 chromosome Y and chromosome X probe intensities ("XY diff").
 Cutoff for sex detection was
-XY diff = `r qc.summary$parameters$sex.cutoff`. Mismatched samples are shown in red. The dashed lines represent `qc.summary$parameters$sex.outlier.sd` SD from  the mean xy difference. Samples that fall in this interval are denoted as outliers.
+XY diff = `r qc.summary$parameters$sex.cutoff`. Mismatched samples are shown in red. The dashed lines represent `r qc.summary$parameters$sex.outlier.sd` SD from  the mean xy difference. Samples that fall in this interval are denoted as outliers.
 
 ```{r,message=FALSE}
 
@@ -59,7 +59,7 @@ This is a plot of the methylation signals vs unmethylated signals
 
 ## Control probe means
 
-There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detected based on deviations from mean values for control probes. The 450k array contains control probe which can be used to evaluate the quality of specific sample processing steps (staining, extension,target removal, hybridization, bisulfate conversion etc.).  Control probes are grouped in 42 categories of control type. For each category a plot has been generated which shows the control means for each sample. Outliers are deviations from the mean. Some of the control probe categories have a very small number of probes. See Page 222 in this doc (https://support.illumina.com/content/dam/illumina-support/documents/documentation/chemistry_documentation/infinium_assays/infinium_hd_methylation/infinium-hd-methylation-guide-15019519-01.pdf)) The most important control probes are the bisulfate1 and bisulfate2 control probes. 
+There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detected based on deviations from mean values for control probes. The 450k array contains control probe which can be used to evaluate the quality of specific sample processing steps (staining, extension,target removal, hybridization, bisulfate conversion etc.).  Control probes are grouped in 42 categories of control type. For each category a plot has been generated which shows the control means for each sample. Outliers are deviations from the mean. Some of the control probe categories have a very small number of probes. See Page 222 in this doc: https://support.illumina.com/content/dam/illumina-support/documents/documentation/chemistry_documentation/infinium_assays/infinium_hd_methylation/infinium-hd-methylation-guide-15019519-01.pdf. The most important control probes are the bisulfate1 and bisulfate2 control probes. 
 
 ```{r}
 
