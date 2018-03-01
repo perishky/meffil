@@ -172,8 +172,9 @@ if (!is.null(qc.summary$cell.counts))
 ``` 
 
 ## SNP probe beta values
+
 The array contains 65 snp probes which can be used to identify sample swaps by comparing these genotypes to genotype calls from a genotype array. First you could check the quality of these snp probes before using them for sample quality.
-Distributions of SNP probe beta values are used to determine the quality of the snp probe and should show 3 peaks, one for each genotype probability. Plots should show 
+Distributions of SNP probe beta values are used to determine the quality of the snp probe and should show 3 peaks, one for each genotype probability.
 ```{r,message=FALSE}
 
 (qc.summary$genotype.summary$graphs$snp.beta)
