@@ -1,4 +1,25 @@
 There are
+`r sum(!qc.summary$genotype.summary$tabs$snp$is.concordant, na.rm=T)`
+SNP probes whose genotypes do not match their values on the microarray
+(concordance threshold = `r qc.summary$parameters$snp.concordance.threshold`). It is recommended to drop this SNP probe before calculating sample concordance.
+
+```{r}
+
+tab <- qc.summary$genotype.summary$tabs$snps
+tab <- tab[which(!tab$is.concordant),]
+if (nrow(tab) > 0) kable(tab,row.names=F)
+
+```
+
+SNP concordances are distributed as follows:
+
+```{r,message=FALSE}
+
+(qc.summary$genotype.summary$graphs$snp.concordance)
+
+```
+
+There are
 `r sum(!qc.summary$genotype.summary$tabs$samples$is.concordant, na.rm=T)`
 samples whose genotypes do not match the SNP probes on the microarray
 (concordance threshold = `r qc.summary$parameters$sample.genotype.concordance.threshold`).
@@ -18,23 +39,4 @@ Sample concordances are distributed as follows:
 
 ```
 
-There are
-`r sum(!qc.summary$genotype.summary$tabs$snp$is.concordant, na.rm=T)`
-SNP probes whose genotypes do not match their values on the microarray
-(concordance threshold = `r qc.summary$parameters$snp.concordance.threshold`).
 
-```{r}
-
-tab <- qc.summary$genotype.summary$tabs$snps
-tab <- tab[which(!tab$is.concordant),]
-if (nrow(tab) > 0) kable(tab,row.names=F)
-
-```
-
-SNP concordances are distributed as follows:
-
-```{r,message=FALSE}
-
-(qc.summary$genotype.summary$graphs$snp.concordance)
-
-```

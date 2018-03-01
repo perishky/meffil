@@ -12,6 +12,7 @@ qc.summary$parameters
 
 ## Sex mismatches
 
+To separate females and males, we use the difference of total median intensity for Y chromosome probes and X chromosome probes. This will give two distinct clusters of intensities. Females will be clustered on the left and males on the right. 
 There are `r sum(qc.summary$sex.summary$tab$outliers)` sex detection outliers, and `r sum(qc.summary$sex.summary$tab$sex.mismatch == "TRUE")` sex detection mismatches.
 
 ```{r}
@@ -24,7 +25,7 @@ if(nrow(tab) > 0) kable(tab,row.names=F)
 This is a plot of the difference between median 
 chromosome Y and chromosome X probe intensities ("XY diff").
 Cutoff for sex detection was
-XY diff = `r qc.summary$parameters$sex.cutoff`.
+XY diff = `r qc.summary$parameters$sex.cutoff`. Mismatched samples are shown in red. The dashed lines represent `qc.summary$parameters$sex.outlier.sd` SD from  the mean xy difference. Samples that fall in this interval are denoted as outliers.
 
 ```{r,message=FALSE}
 
@@ -34,7 +35,7 @@ XY diff = `r qc.summary$parameters$sex.cutoff`.
 
 
 ## Methylated vs unmethylated
-
+To explore the quality of the samples, it is useful to plot the median methylation intensity against the median unmethylation intensity with the option to color outliers by group.
 There are `r sum(qc.summary$meth.unmeth.summary$tab$outliers)` outliers from the meth vs unmeth comparison.
 Outliers are samples whose predicted median methylated signal is
 more than `r qc.summary$parameters$meth.unmeth.outlier.sd` standard deviations
@@ -58,7 +59,7 @@ This is a plot of the methylation signals vs unmethylated signals
 
 ## Control probe means
 
-There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detected based on deviations from mean values for control probes.
+There were `r sum(qc.summary$controlmeans.summary$tab$outliers)` outliers detected based on deviations from mean values for control probes. The 450k array contains control probe which can be used to evaluate the quality of specific sample processing steps (staining, extension,target removal, hybridization, bisulfate conversion etc.).  Control probes are grouped in 42 categories of control type. For each category a plot has been generated which shows the control means for each sample. Outliers are deviations from the mean. Some of the control probe categories have a very small number of probes. See Page 222 in this doc (https://support.illumina.com/content/dam/illumina-support/documents/documentation/chemistry_documentation/infinium_assays/infinium_hd_methylation/infinium-hd-methylation-guide-15019519-01.pdf)) The most important control probes are the bisulfate1 and bisulfate2 control probes. 
 
 ```{r}
 
@@ -78,6 +79,7 @@ The distribution of sample control means are plotted here:
 
 ## Sample detection p-values
 
+To further explore the quality of each sample the proportion of probes that didn't pass the detection pvalue has been calculated.
 There were `r sum(qc.summary$sample.detectionp.summary$tab$outliers)` samples
 with a high proportion of undetected probes
 (proportion of probes with
@@ -102,6 +104,8 @@ Distribution:
 
 ## Sample bead numbers
 
+
+To further assess the quality of each sample the proportion of probes that didn't pass the number of beads threshold has been calculated.
 There were `r sum(qc.summary$sample.beadnum.summary$tab$outliers)` samples
 with a high proportion of probes with low bead number
 (proportion of probes with
@@ -126,6 +130,7 @@ Distribution:
 
 ## CpG detection p-values
 
+To explore the quality of the probes, the proportion of samples that didn't pass the detection pvalue threshold has been calculated.
 There were `r sum(qc.summary$cpg.detectionp.summary$tab$outliers)`
 probes with only background signal in a high proportion of samples
 (proportion of samples with detection p-value > `r qc.summary$parameters$detection.threshold`
@@ -141,6 +146,7 @@ if (!is.null(qc.summary$cpg.detectionp.summary$graph))
 
 ## Low number of beads per CpG
 
+To further explore the quality of the probes, the proportion of samples that didn't pass the number of beads threshold has been calculated.
 There were `r sum(qc.summary$cpg.beadnum.summary$tab$outliers)` CpGs
 with low bead numbers in a high proportion of samples
 (proportion of samples with bead number < `r qc.summary$parameters$bead.threshold`
@@ -154,7 +160,7 @@ if (!is.null(qc.summary$cpg.beadnum.summary$graph))
 
 ```
 
-## Cell count estimates
+## Cellular composition estimates
 
 ```{r,message=FALSE}
 child.filename <- file.path(report.path, "missing.rmd")
@@ -166,8 +172,8 @@ if (!is.null(qc.summary$cell.counts))
 ``` 
 
 ## SNP probe beta values
-
-Distributions of SNP probe beta values.
+The array contains 65 snp probes which can be used to identify sample swaps by comparing these genotypes to genotype calls from a genotype array. First you could check the quality of these snp probes before using them for sample quality.
+Distributions of SNP probe beta values are used to determine the quality of the snp probe and should show 3 peaks, one for each genotype probability. Plots should show 
 ```{r,message=FALSE}
 
 (qc.summary$genotype.summary$graphs$snp.beta)

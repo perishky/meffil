@@ -1,6 +1,6 @@
 Cell counts were estimated using the `r qc.summary$cell.counts$reference` cell type methylation profile references.
 
-Plot compares methylation levels of CpG sites used to estimate cell counts
+Plot compares methylation levels of CpG sites used to estimate cellular composition
 for each sample and reference methylation profile.
 Methylation levels of samples should generally overlap with reference methylation levels
 otherwise estimation will have simply selected the cell type reference
@@ -12,7 +12,7 @@ with the nearest mean methylation level.
 
 ```
 
-Boxplot shows the distributions of estimated cell counts for each reference cell type across all samples.
+Boxplot shows the distributions of estimated cellular composition for each reference cell type across all samples.
 
 ```{r,message=FALSE}
 
