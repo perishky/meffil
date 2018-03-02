@@ -74,6 +74,10 @@ extract.controls <- function(rg, probes, verbose=F) {
     probs <- c(0.01, 0.5, 0.99)
     oob.G <- quantile(rg$G[with(probes.G, x.which(target == "OOB")),"Mean"], na.rm=T, probs=probs)
     oob.R <- quantile(rg$R[with(probes.R, x.which(target == "OOB")),"Mean"], na.rm=T, probs=probs)
+    
+    if (oob.R[["50%"]] < 1)
+        oob.R[["50%"]] <- 1
+    
     oob.ratio <- oob.G[["50%"]]/oob.R[["50%"]]
 
     c(bisulfite1=bisulfite1,
