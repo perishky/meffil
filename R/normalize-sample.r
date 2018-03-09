@@ -10,9 +10,15 @@
 meffil.normalize.sample <- function(norm.object, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
-    if (is.null(norm.object$featureset)) { ## backwards compatibility
+    ## begin backwards compatibility
+    if (any(c("chrX","chrY") %in% names(norm.object$quantiles))) {
+        idx <- which(names(norm.object$quantiles) %in% c("chrX","chrY"))
+        names(norm.object$quantiles)[idx] <- tolower(names(norm.object$quantiles)[idx])
+    }
+    if (is.null(norm.object$featureset)) {
         norm.object$chip <- norm.object$featureset <- "450k"
-    }   
+    }
+    ## end backwards compatibility
     
     probes <- meffil.probe.info(norm.object$chip, norm.object$featureset)
    
