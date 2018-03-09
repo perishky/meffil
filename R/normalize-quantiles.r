@@ -37,11 +37,17 @@ meffil.normalize.quantiles <- function(qc.objects,
             names(qc.objects[[i]]$quantiles)[idx] <- "chry"     
     }
 
-    ## a previous version of meffil created qc.objects missing basic attributes
+    ## backwards compatibility
+    ## - a previous version of meffil created qc.objects missing basic attributes
     ## fix these objects if they exist
     for (i in 1:length(qc.objects)) {
         if ("origin" %in% names(qc.objects[[i]])) 
             qc.objects[[i]]$featureset <- qc.objects[[i]]$chip <- "450k"
+
+        if (any(c("chrX","chrY") %in% names(qc.objects[[i]]$quantiles))) {
+            idx <- which(names(qc.objects[[i]]$quantiles) %in% c("chrX","chrY"))
+            names(qc.objects[[i]]$quantiles)[idx] <- tolower(names(qc.objects[[i]]$quantiles)[idx])
+        }
     }
             
     if (length(unique(sapply(qc.objects, function(object) object$featureset))) > 1)
