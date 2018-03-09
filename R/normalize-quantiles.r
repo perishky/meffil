@@ -26,17 +26,6 @@ meffil.normalize.quantiles <- function(qc.objects,
     stopifnot(all(sapply(qc.objects, is.qc.object)))
     stopifnot(number.pcs >= 1)
 
-    ## a previous version of meffil created qc.objects with slightly a different naming scheme
-    ## fix these objects if they exist
-    for (i in 1:length(qc.objects)) {
-        idx <- which(names(qc.objects[[i]]$quantiles) == "chrX")
-        if (length(idx) > 0)
-            names(qc.objects[[i]]$quantiles)[idx] <- "chrx"
-        idx <- which(names(qc.objects[[i]]$quantiles) == "chrY")
-        if (length(idx) > 0)
-            names(qc.objects[[i]]$quantiles)[idx] <- "chry"     
-    }
-
     ## backwards compatibility
     ## - a previous version of meffil created qc.objects missing basic attributes
     ## fix these objects if they exist
