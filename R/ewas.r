@@ -418,7 +418,6 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
 #' given most variable CpG sites (Default: 50000).
 #' @param featureset Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).
 #' @param random.seed Value with which to seed the pseudo random number generator for reproducible results
-#' @param phenotype.data data frame containing the variable and covariates to be used in the
 #' @param verbose Set to TRUE if status updates to be printed (Default: FALSE).
 #'
 #' @export
@@ -436,7 +435,6 @@ meffil.ewas.lm <- function(beta, variable,
 							most.variable=min(nrow(beta), 50000),
 							featureset=NA,
 							random.seed=20161123,
-							phenotype.data=NULL,
 							verbose=F) {
 	## depreciated Args
 	if (isva0 || isva1)
@@ -446,6 +444,8 @@ meffil.ewas.lm <- function(beta, variable,
 	if (is.na(featureset))
 		featureset <- guess.featureset(rownames(beta))
 	features <- meffil.get.features(featureset)
+	
+	phenotype.data <- cbind(variable,covariates)
 	
 	varName <- colnames(variable)
 	variable <- unlist(variable,use.names = F)
@@ -474,6 +474,7 @@ meffil.ewas.lm <- function(beta, variable,
 	
 	##!! removing missing values from NB phenotype.data !!##
 	##!! get rid ot phenotype.data and merge var/covar to data frame and pass to ewas.lm !!##
+	phenotype.data[sample.idx,,drop=F]
 	
 	if (!is.null(covariates))
 		sample.idx <- intersect(sample.idx, which(apply(!is.na(covariates), 1, all)))
@@ -548,7 +549,8 @@ meffil.ewas.lm <- function(beta, variable,
 		covariates <- covariate.sets[[name]]
 		if(!is.null(covariate.sets[[name]])){
 			phenotype.data <- cbind(phenotype.data,covariate.sets[[name]]) ##!!
-			#~phenotype.data <- cbind(variable,covariate.sets[[name]]) ##!! ??
+			#phenotype.data <- cbind(variable,covariate.sets[[name]]) ##!! ??
+			#colnames(phenotype.data) <- c(varName,colnames(covariates))
 		}
 		ewas.lm(variable=varName,
 				beta=beta,

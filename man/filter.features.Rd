@@ -4,7 +4,7 @@
 \alias{filter.features}
 \title{Get a subset of features from a predefined feature set.}
 \usage{
-filter.features(featureset, expr)
+\method{filter}{features}(featureset, expr)
 }
 \arguments{
 \item{featureset}{A name returned by \code{\link{meffil.list.featuresets()}}.}
