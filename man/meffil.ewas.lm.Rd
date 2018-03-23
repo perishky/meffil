@@ -8,7 +8,7 @@ meffil.ewas.lm(beta, variable, covariates = NULL, weights = NULL,
   family = NULL, isva = T, sva = T, n.sv = NULL, isva0 = F,
   isva1 = F, winsorize.pct = 0.05, outlier.iqr.factor = NA,
   most.variable = min(nrow(beta), 50000), featureset = NA,
-  random.seed = 20161123, phenotype.data = NULL, verbose = F)
+  random.seed = 20161123, verbose = F)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}
@@ -48,8 +48,6 @@ given most variable CpG sites (Default: 50000).}
 \item{featureset}{Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).}
 
 \item{random.seed}{Value with which to seed the pseudo random number generator for reproducible results}
-
-\item{phenotype.data}{data frame containing the variable and covariates to be used in the}
 
 \item{verbose}{Set to TRUE if status updates to be printed (Default: FALSE).}
 }
