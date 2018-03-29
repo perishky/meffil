@@ -29,5 +29,6 @@ Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 }
 \description{
 Estimate cell type ratios from methylation profiles of purified cell populations
-(Infinium HumanMethylation450 BeadChip).
+(Infinium HumanMethylation450 BeadChip) using the the Houseman algorithm
+(PMID 22568884).
 }

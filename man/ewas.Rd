@@ -13,7 +13,8 @@ The regression model is then modified in order to identify
 associations specifically in the selected cell type (PMID: 24000956).}
 \usage{
 ewas(variable, beta, covariates = NULL, batch = NULL, weights = NULL,
-  cell.counts = NULL, winsorize.pct = 0.05, verbose = F)
+  cell.counts = NULL, winsorize.pct = 0.05, robust = TRUE, rlm = FALSE,
+  verbose = F)
 }
 \description{
 Test associations between \code{variable} and each row of \code{beta}

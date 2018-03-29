@@ -1,7 +1,8 @@
 #' Estimate cell counts from a reference
 #'
 #' Estimate cell type ratios from methylation profiles of purified cell populations
-#' (Infinium HumanMethylation450 BeadChip).
+#' (Infinium HumanMethylation450 BeadChip) using the the Houseman algorithm
+#' (PMID 22568884).
 #'
 #' @param object An object created by \code{\link{meffil.create.qc.object}()}.
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
