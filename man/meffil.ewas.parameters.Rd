@@ -18,7 +18,7 @@ If NA, then threshold used will be 0.05 divided by the number of tests/probes.}
 and "sva" (surrogate variables) (Default: "none").}
 
 \item{qq.inflation.method}{Method for calculating genomic inflation lambda.
-Valid values are "median" or "regression" (Default: "median").}
+Valid values are "median", "regression" or "robust" (Default: "median").}
 }
 \value{
 List of parameter values

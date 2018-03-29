@@ -6,9 +6,9 @@
 \usage{
 meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
   weights = NULL, cell.counts = NULL, isva = T, sva = T, n.sv = NULL,
-  isva0 = F, isva1 = F, winsorize.pct = 0.05, outlier.iqr.factor = NA,
-  most.variable = min(nrow(beta), 50000), featureset = NA,
-  random.seed = 20161123, verbose = F)
+  isva0 = F, isva1 = F, winsorize.pct = 0.05, robust = TRUE,
+  rlm = FALSE, outlier.iqr.factor = NA, most.variable = min(nrow(beta),
+  50000), featureset = NA, random.seed = 20161123, verbose = F)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}
@@ -40,6 +40,12 @@ the resulting variables as covariates in a regression model (Default: TRUE).}
 
 \item{winsorize.pct}{Apply all regression models to methylation levels
 winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05).}
+
+\item{robust}{Test associations with the 'robust' option when \code{\link{limma::eBayes}}
+is called (Default: TRUE).}
+
+\item{rlm}{Test assocaitions with the 'robust' option when \code{\link{limma:lmFit}}
+is called (Default: FALSE).}
 
 \item{outlier.iqr.factor}{For each CpG site, prior to fitting regression models,
 set methylation levels less than

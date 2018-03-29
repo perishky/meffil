@@ -22,7 +22,7 @@ meffil.ewas.qq.plot(ewas.object, sig.threshold = 1e-07, sig.color = "red",
 \item{ylab}{Label for the y-axis (Default: -log_10(observed p-values)).}
 
 \item{lambda.method}{Method for calculating genomic inflation lambda.
-Valid values are "median" or "regression" (Default: "median").}
+Valid values are "median", "regression", or "robust" (Default: "median").}
 }
 \value{
 List of \code{\link{ggplot}} for each analysis in \code{ewas.object}.
