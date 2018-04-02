@@ -17,7 +17,11 @@
 #' to use for estimating cell counts. Estimates are not generated if set to NA (default).
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
-#' \code{\link{meffil.create.cell.type.reference}()}. 
+#' \code{\link{meffil.create.cell.type.reference}()}.
+#' @param background.correct Function for performing background correction.
+#' Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.
+#' @param dye.bias.correct  Function for performing dye bias correction.
+#' Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.
 #' @return List containing control probe information, probe summaries
 #' and quantiles.  We call this a "QC object".
 #'
@@ -31,7 +35,10 @@ meffil.create.qc.object <- function(samplesheet.row,
                                     sex.cutoff=-2,
                                     chip=NA,
                                     featureset=chip,
-                                    cell.type.reference=NA) {
+                                    cell.type.reference=NA,
+                                    background.correct=meffil.background.correct,
+                                    dye.bias.correct=meffil.dye.bias.correct) {
+    
     stopifnot(number.quantiles >= 100)
     stopifnot(dye.intensity >= 100)
     stopifnot(samplesheet.row$Sex %in% c(NA, "F", "M"))

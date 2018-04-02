@@ -7,7 +7,8 @@
 meffil.create.qc.object(samplesheet.row, number.quantiles = 500,
   dye.intensity = 5000, verbose = F, detection.threshold = 0.01,
   bead.threshold = 3, sex.cutoff = -2, chip = NA, featureset = chip,
-  cell.type.reference = NA)
+  cell.type.reference = NA, background.correct = meffil.background.correct,
+  dye.bias.correct = meffil.dye.bias.correct)
 }
 \arguments{
 \item{samplesheet.row}{Row from the data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} or \code{\link{meffil.create.samplesheet}}).}
@@ -35,6 +36,12 @@ to use for estimating cell counts. Estimates are not generated if set to NA (def
 See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.create.cell.type.reference}()}.}
+
+\item{background.correct}{Function for performing background correction.
+Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.}
+
+\item{dye.bias.correct}{Function for performing dye bias correction.
+Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.}
 }
 \value{
 List containing control probe information, probe summaries

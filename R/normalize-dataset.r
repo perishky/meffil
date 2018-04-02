@@ -19,6 +19,10 @@
 #' @param chip
 #' @param featureset
 #' @param cell.type.reference
+#' @param background.correct Function for performing background correction.
+#' Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.
+#' @param dye.bias.correct  Function for performing dye bias correction.
+#' Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.
 #'
 #' Argument to \code{\link{meffil.qc.summary}()}:
 #' @param qc.parameters (parameters)
@@ -69,6 +73,8 @@ meffil.normalize.dataset <- function(samplesheet,
                                      chip=NA,
                                      featureset=chip,
                                      cell.type.reference=NA,
+                                     background.correct=meffil.background.correct,
+                                     dye.bias.correct=meffil.dye.bias.correct,
                                      
                                      ## meffil.qc.summary
                                      qc.parameters=meffil.qc.parameters(),
@@ -105,7 +111,9 @@ meffil.normalize.dataset <- function(samplesheet,
                             sex.cutoff=sex.cutoff,
                             chip=chip,
                             featureset=featureset,
-                            cell.type.reference=cell.type.reference)
+                            cell.type.reference=cell.type.reference,
+                            background.correct=background.correct,
+                            dye.bias.correct=dye.bias.correct)
     
     qc.summary <- meffil.qc.summary(qc.objects,
                                     parameters=qc.parameters,
@@ -130,6 +138,8 @@ meffil.normalize.dataset <- function(samplesheet,
                                      pseudo=pseudo,
                                      just.beta=just.beta,
                                      cpglist.remove=qc.summary$bad.cpgs$name,
+                                     background.correct=background.correct,
+                                     dye.bias.correct=dye.bias.correct,
                                      verbose=verbose)
     if (just.beta)
         beta <- norm

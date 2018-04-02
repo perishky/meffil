@@ -4,7 +4,9 @@
 \alias{meffil.estimate.cell.counts}
 \title{Estimate cell counts from a reference}
 \usage{
-meffil.estimate.cell.counts(qc.object, cell.type.reference, verbose = T)
+meffil.estimate.cell.counts(qc.object, cell.type.reference,
+  background.correct = meffil.background.correct,
+  dye.bias.correct = meffil.dye.bias.correct, verbose = T)
 }
 \arguments{
 \item{cell.type.reference}{Character string name of the cell type reference
@@ -12,6 +14,12 @@ to use for estimating cell counts.
 See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.create.cell.type.reference}()}.}
+
+\item{background.correct}{Function for performing background correction.
+Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.}
+
+\item{dye.bias.correct}{Function for performing dye bias correction.
+Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}

@@ -3,11 +3,18 @@
 #' Normalize sample methylation data using normalized quantiles.
 #'
 #' @param norm.object An element of \code{\link{meffil.normalize.quantiles}()}.
+#' @param background.correct Function for performing background correction.
+#' Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.
+#' @param dye.bias.correct  Function for performing dye bias correction.
+#' Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing normalized methylated and unmethylated signals.
 #'
 #' @export
-meffil.normalize.sample <- function(norm.object, verbose=F) {
+meffil.normalize.sample <- function(norm.object,
+                                    background.correct=meffil.background.correct,
+                                    dye.bias.correct=meffil.dye.bias.correct,
+                                    verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
     ## begin backwards compatibility

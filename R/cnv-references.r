@@ -76,7 +76,7 @@ meffil.add.copynumber450k.references <- function(verbose=T) {
                    class="rg",
                    version=packageVersion("meffil"),
                    basename="RGcontrolSetEx")
-        rg <- meffil:::background.correct(rg, probes, verbose=verbose)
+        rg <- meffil.background.correct(rg, probes, verbose=verbose)
         mu <- meffil:::rg.to.mu(rg, probes)
         c(mu$M, mu$U)
     })

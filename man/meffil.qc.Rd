@@ -7,7 +7,8 @@
 meffil.qc(samplesheet, number.quantiles = 500, dye.intensity = 5000,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
   chip = NA, featureset = chip, cell.type.reference = NA,
-  max.bytes = 2^30 - 1, verbose = F, ...)
+  max.bytes = 2^30 - 1, background.correct = meffil.background.correct,
+  dye.bias.correct = meffil.dye.bias.correct, verbose = F, ...)
 }
 \arguments{
 \item{samplesheet}{Data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} pr \code{\link{meffil.create.samplesheet}}).}
@@ -33,6 +34,12 @@ to use for estimating cell counts. Estimates are not generated if set to NA (def
 See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.create.cell.type.reference}()}.}
+
+\item{background.correct}{Function for performing background correction.
+Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.}
+
+\item{dye.bias.correct}{Function for performing dye bias correction.
+Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }

@@ -7,7 +7,9 @@
 #' @param probes Output from \code{\link{meffil.probe.info}()} compatible with \code{rg}.
 #' @param intensity Intensity of both color channels after correct (Default: 5000).
 #' @return Cy5/Cy3 signals with average intensity equal to \code{intensity}.
-dye.bias.correct <- function(rg, probes, intensity=5000, verbose=F) {
+#'
+#' @export
+meffil.dye.bias.correct <- function(rg, probes, intensity=5000, verbose=F) {
     msg(verbose=verbose)
     stopifnot(is.rg(rg))
     stopifnot(intensity > 100)

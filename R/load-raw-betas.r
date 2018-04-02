@@ -5,6 +5,10 @@
 #' estimate more stable when calculating methylation levels (Default: 100).
 #' @param just.beta If \code{TRUE}, then return just the methylation levels; otherwise,
 #' return the methylated and unmethylated matrices (Default: TRUE).
+#' @param background.correct Function for performing background correction.
+#' Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.
+#' @param dye.bias.correct  Function for performing dye bias correction.
+#' Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.
 #' @param verbose If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).
 #' @param ... Arguments passed to \code{\link[parallel]{mclapply}()}.
 #' @return If \code{just.beta == TRUE}, the matrix of 
@@ -17,6 +21,8 @@ meffil.load.raw.data <- function(qc.objects,
                                  pseudo=100,
                                  just.beta=T,
                                  max.bytes=2^30-1,
+                                 background.correct=meffil.background.correct,
+                                 dye.bias.correct=meffil.dye.bias.correct,
                                  verbose=F,
                                  ...) {
     stopifnot(all(sapply(qc.objects, is.qc.object)))

@@ -18,6 +18,10 @@
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
 #' \code{\link{meffil.create.cell.type.reference}()}. 
+#' @param background.correct Function for performing background correction.
+#' Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.
+#' @param dye.bias.correct  Function for performing dye bias correction.
+#' Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing control probe information, probe summaries
 #' and quantiles.
@@ -29,6 +33,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
                       featureset=chip,
                       cell.type.reference=NA,
                       max.bytes=2^30-1, ## maximum number of bytes that can be returned by mclapply
+                      background.correct=meffil.background.correct,
+                      dye.bias.correct=meffil.dye.bias.correct,
                       verbose=F, ...) {
     check.samplesheet(samplesheet)
 
@@ -52,6 +58,8 @@ meffil.qc <- function(samplesheet, number.quantiles=500, dye.intensity=5000,
         featureset=featureset,
         chip=chip,
         cell.type.reference=cell.type.reference,
+        background.correct=background.correct,
+        dye.bias.correct=dye.bias.correct,
         ...,
         max.bytes=max.bytes)
 

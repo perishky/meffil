@@ -4,10 +4,18 @@
 \alias{meffil.normalize.sample}
 \title{Normalize Infinium HumanMethylation450 BeadChip}
 \usage{
-meffil.normalize.sample(norm.object, verbose = F)
+meffil.normalize.sample(norm.object,
+  background.correct = meffil.background.correct,
+  dye.bias.correct = meffil.dye.bias.correct, verbose = F)
 }
 \arguments{
 \item{norm.object}{An element of \code{\link{meffil.normalize.quantiles}()}.}
+
+\item{background.correct}{Function for performing background correction.
+Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.}
+
+\item{dye.bias.correct}{Function for performing dye bias correction.
+Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }

@@ -7,6 +7,8 @@
 meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
   chip = NA, featureset = chip, cell.type.reference = NA,
+  background.correct = meffil.background.correct,
+  dye.bias.correct = meffil.dye.bias.correct,
   qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
   author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
   fixed.effects = NULL, random.effects = NULL, pseudo = 100,
@@ -20,7 +22,13 @@ meffil.normalize.dataset(samplesheet, number.quantiles = 500,
 
 Arguments to \code{\link{meffil.qc}()}:}
 
-\item{cell.type.reference}{Argument to \code{\link{meffil.qc.summary}()}:}
+\item{background.correct}{Function for performing background correction.
+Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.}
+
+\item{dye.bias.correct}{Function for performing dye bias correction.
+Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.
+
+Argument to \code{\link{meffil.qc.summary}()}:}
 
 \item{qc.parameters}{(parameters)
 

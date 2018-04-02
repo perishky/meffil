@@ -11,7 +11,11 @@
 #' to use for estimating cell counts. 
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
-#' \code{\link{meffil.create.cell.type.reference}()}. 
+#' \code{\link{meffil.create.cell.type.reference}()}.
+#' @param background.correct Function for performing background correction.
+#' Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.
+#' @param dye.bias.correct  Function for performing dye bias correction.
+#' Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default. 
 #' @return A list:
 #' - \code{counts} Cell count estimates.
 #' - \code{beta} Normalized methylation levels of sites used to differentiate
@@ -21,7 +25,10 @@
 #' Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 #' 
 #' @export
-meffil.estimate.cell.counts <- function(qc.object, cell.type.reference, verbose=T) {
+meffil.estimate.cell.counts <- function(qc.object, cell.type.reference,
+                                        background.correct=meffil.background.correct,
+                                        dye.bias.correct=meffil.dye.bias.correct,
+                                        verbose=T) {
     stopifnot(is.qc.object(qc.object))
     stopifnot(is.character(cell.type.reference) && cell.type.reference %in% meffil.list.cell.type.references())
 

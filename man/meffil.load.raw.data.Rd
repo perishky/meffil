@@ -5,7 +5,8 @@
 \title{Load raw beta matrix}
 \usage{
 meffil.load.raw.data(qc.objects, pseudo = 100, just.beta = T,
-  max.bytes = 2^30 - 1, verbose = F, ...)
+  max.bytes = 2^30 - 1, background.correct = meffil.background.correct,
+  dye.bias.correct = meffil.dye.bias.correct, verbose = F, ...)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}
@@ -15,6 +16,12 @@ estimate more stable when calculating methylation levels (Default: 100).}
 
 \item{just.beta}{If \code{TRUE}, then return just the methylation levels; otherwise,
 return the methylated and unmethylated matrices (Default: TRUE).}
+
+\item{background.correct}{Function for performing background correction.
+Arguments are the same as \code{\link{meffil.background.correct}()} which is the default.}
+
+\item{dye.bias.correct}{Function for performing dye bias correction.
+Arguments are the same as \code{\link{meffil.dye.bias.correct}()} which is the default.}
 
 \item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
 
