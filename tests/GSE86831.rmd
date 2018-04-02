@@ -1,0 +1,104 @@
+```{r 450k-demo-init, echo=FALSE, message=F}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+```
+
+# Normalizing dataset GSE86831
+
+## Download example data set 
+
+```{r}
+acc <- "GSE86831"
+url <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE86nnn/GSE86831/suppl/GSE86831_RAW.tar"
+dir.create(path <- acc)    
+if (length(list.files(path, "*.idat$")) == 0) {
+    filename <-  file.path(path, basename(url))
+    download.file(url, filename)
+    cat(date(), "Extracting files from GEO archive.\n")
+    system(paste("cd", path, ";", "tar xvf", basename(filename)))
+    unlink(filename)
+    cat(date(), "Unzipping IDAT files.\n")
+    system(paste("cd", path, ";", "gunzip *.idat.gz"))
+
+    library(GEOquery)
+    geo <- getGEO(acc, GSEMatrix=F)
+    geo <- lapply(geo@gsms, function(gsm) unlist(gsm@header))
+    geo <- do.call(rbind, geo)
+    geo <- as.data.frame(geo, stringAsFactors=F)
+    write.csv(geo, file=file.path(path, "samples.csv"))
+}
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
+
+samplesheet <- meffil.create.samplesheet(path)
+
+options(mc.cores=3)
+```
+
+Parameters.
+```{r}
+doc.path <- paste(acc, "demo", sep="-")
+qc.file <- file.path(doc.path, "qc-report.html")
+author <- "Prickett, et al."
+study <- "Silver-Russell syndrome patients (GEO:GSE55491)"
+norm.file <- file.path(doc.path, "normalization-report.html")
+cell.type.reference <- "blood gse35069"
+```
+
+Generate quality control objects.
+```{r}
+qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+```
+
+QC report.
+```{r}
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+```
+
+Remove any low quality samples.
+```{r}
+if (nrow(qc.summary$bad.samples) > 0)
+    qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+```
+
+Check how many principal components to include.
+```{r, dev="CairoPNG"}
+print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+```
+
+Normalize dataset.
+```{r}
+number.pcs <- 2
+norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+norm.dataset <- meffil.normalize.samples(norm.objects,
+                                        just.beta=F, 
+                                        cpglist.remove=qc.summary$bad.cpgs$name,
+                                        verbose=T)
+```
+
+Generate normalization report.
+```{r}
+beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+pcs <- meffil.methylation.pcs(beta, verbose=T)
+
+parameters <- meffil.normalization.parameters(norm.objects)
+parameters$batch.threshold <- 0.01
+norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
+                                             parameters=parameters, verbose=T)
+meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+```
+
