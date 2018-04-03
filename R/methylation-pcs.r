@@ -12,13 +12,11 @@ meffil.methylation.pcs <- function (normalized.beta, probe.range = 5000, autosom
     if (is.matrix(normalized.beta))
         sites <- rownames(normalized.beta)
     else {
-        if (is.character(normalized.beta)) {
-            stopifnot(file.exists(normalized.beta))
-            gds.file <- openfn.gds(gds.filename)
-            on.exit(closefn.gds(gds.file))
-        }
-        else
-            gds.file <- normalized.beta
+        gds.filename <- normalized.beta
+        stopifnot(file.exists(gds.filename))
+        gds.file <- openfn.gds(gds.filename)
+        on.exit(closefn.gds(gds.file))
+        
         sites <- read.gdsn(index.gdsn(gds.file, "row.names"))
     }
     
