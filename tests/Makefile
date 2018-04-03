@@ -1,4 +1,4 @@
-all: 450k-demo.html epic-demo.html 450k-and-epic.html ewas.html cnv.html random.html minfi.html cord.html GSE86831.html
+all: 450k-demo.html epic-demo.html 450k-and-epic.html ewas.html cnv.html random.html minfi.html cord.html GSE86831.html gds.html
 
 %.html: %.rmd
 	Rscript knit.r $<
@@ -13,6 +13,7 @@ clean:
 		cnv cnv.{md,html} \
 		random random.{md,html} \
 		minfi minfi.{md,html} \
+		gds gds.{md,html} \
 		figure cache
 
 ## To check for any errors:
