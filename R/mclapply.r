@@ -108,7 +108,6 @@ mcsapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
 
 ## just like mcsapply but saves the matrix output to a GDS file
 mcsapply.gds <- function (X, FUN, ..., gds.filename, storage="float64",  max.bytes=2^30-1) {
-    browser()
     stopifnot(length(X) > 0)
 
     gds.file <- createfn.gds(gds.filename)
