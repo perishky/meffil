@@ -9,11 +9,17 @@
 #' return the normalized methylated and unmethylated matrices (Default: TRUE).
 #' @param cpglist.remove Optional list of CpGs to exclude from final output
 #' @param verbose If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).
+#' @param gds.filename If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
+#' This is for cases where the output is too large to fit into main memory.
+#' The GDS option assumes that argument \code{just.beta == TRUE}.
 #' @param ... Arguments passed to \code{\link[parallel]{mclapply}()}.
 #' @return If \code{just.beta == TRUE}, the normalized matrix of 
 #' methylation levels between between 0 and 1
 #' equal to methylated signal/(methylated + unmethylated signal + pseudo).
 #' Otherwise, a list containing two matrices, the normalized methylated and unmethylated signals.
+#' If \code{gds.filename} is not \code{NULL}, then the output is saved to the GDS file
+#' rather than retained in memory and returned to the caller.
+#' The library 'gdsfmt' must be installed.
 #' 
 #' @export
 meffil.normalize.samples <- function(norm.objects, 
@@ -21,10 +27,12 @@ meffil.normalize.samples <- function(norm.objects,
                                      just.beta=T,
                                      cpglist.remove=NULL,
                                      max.bytes=2^30-1, ## maximum number of bytes for mclapply
+                                     gds.filename=NULL,
                                      verbose=F,
                                      ...) {
     stopifnot(length(norm.objects) >= 2)
     stopifnot(all(sapply(norm.objects, is.normalized.object)))
+    stopifnot(is.null(gds.filename) || just.beta)
 
     if (length(unique(sapply(norm.objects, function(object) object$featureset))) > 1)
         stop(paste("Heterogeneous microarray formats included without a common featureset.",
@@ -39,29 +47,48 @@ meffil.normalize.samples <- function(norm.objects,
     sites <- meffil.get.sites(featureset)
     if(!is.null(cpglist.remove))
         sites <- setdiff(sites, cpglist.remove)
-    
-    ret <- mcsapply.safe(
-        norm.objects,
-        FUN=function(object) {
-            mu <- meffil.normalize.sample(object, verbose=verbose)
-            m.idx <- match(sites, names(mu$M))
-            u.idx <- match(sites, names(mu$U))
-            if (just.beta)
-                get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)
-            else
-                c(unname(mu$M[u.idx]), unname(mu$U[u.idx]))
-        },
-        ...,
-        max.bytes=max.bytes)
 
-    if (!just.beta) {
-        ret <- list(M=ret[1:length(sites),],
-                    U=ret[(length(sites)+1):nrow(ret),])
-        dimnames(ret$M) <- dimnames(ret$U) <- list(sites, names(norm.objects))
+    if (is.null(gds.filename)) {
+        ret <- mcsapply.safe(
+            norm.objects,
+            FUN=function(object) {
+                mu <- meffil.normalize.sample(object, verbose=verbose)
+                m.idx <- match(sites, names(mu$M))
+                u.idx <- match(sites, names(mu$U))
+                if (just.beta)
+                    get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)
+                else
+                    c(unname(mu$M[u.idx]), unname(mu$U[u.idx]))
+            },
+            ...,
+            max.bytes=max.bytes)
+
+        if (!just.beta) {
+            ret <- list(M=ret[1:length(sites),],
+                        U=ret[(length(sites)+1):nrow(ret),])
+            dimnames(ret$M) <- dimnames(ret$U) <- list(sites, names(norm.objects))
+        }
+        else
+            dimnames(ret) <- list(sites, names(norm.objects))
+        ret
+    } else {
+        require(gdsfmt)
+        mcsapply.gds(
+            norm.objects,
+            FUN=function(object) {
+                mu <- meffil.normalize.sample(object, verbose=verbose)
+                m.idx <- match(sites, names(mu$M))
+                u.idx <- match(sites, names(mu$U))
+                ret <- get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)
+                names(ret) <- sites
+                ret
+            },
+            ...,
+            gds.filename=gds.filename,
+            storage="float64",
+            max.bytes=max.bytes)
+        gds.filename
     }
-    else
-        dimnames(ret) <- list(sites, names(norm.objects))
-    ret
 }
 
 #' We use \code{\link[parallel]{mclapply}()} to reduce running time by taking advantage of the fact

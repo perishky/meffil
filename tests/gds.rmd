@@ -1,0 +1,115 @@
+```{r ewas-init, echo=FALSE, message=F}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+library(GEOquery)
+```
+
+# Using `gdsfmt` for large datasets
+
+## Download example data set 
+
+```{r child = 'dataset-450k-lead.rmd'}
+```
+
+```{r}
+path <- download.450k.lead.dataset()
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
+options(mc.cores=10)
+samplesheet <- meffil.create.samplesheet(path)
+
+samples <- read.csv(file.path(path, "samples.csv"), check.names=F, row.names=1)
+samplesheet <- data.frame(samplesheet,
+                          samples[match(samplesheet$Sample_Name, rownames(samples)),],
+                          stringsAsFactors=F, check.names=F)
+
+samplesheet <- samplesheet[which(samplesheet[["sample type"]] == "HM450K"),]
+```
+
+Parameters.
+```{r}
+qc.file <- "gds/qc-report.html"
+author <- "Sen, et al."
+study <- "Cord blood DNA methylation and lead exposure (GSE69633)"
+norm.file <- "gds/normalization-report.html"
+cell.type.reference <- "gervin and lyle cord blood"
+```
+
+Generate QC objects for each sample and QC report.
+```{r gds-qc, cache=T}
+qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+```
+
+Remove any low quality samples.
+```{r}
+if (nrow(qc.summary$bad.samples) > 0)
+    qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+
+samplesheet <- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
+```
+
+Check how many principal components to include.
+```{r, dev="CairoPNG"}
+print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+```
+
+Ten seems about right.
+```{r}
+number.pcs <- 10
+```
+
+Normalize dataset and generate normalization report.
+```{r gds-norm, cache=T}
+norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+beta <- meffil.normalize.samples(norm.objects,
+                                 just.beta=T, 
+                                 cpglist.remove=qc.summary$bad.cpgs$name,
+                                 verbose=T)
+```
+
+Normalize while saving to a GDS file.
+```{r}
+gds.filename <- "gds/beta.gds"
+if (!file.exists(gds.filename)) 
+    meffil.normalize.samples(norm.objects,
+                             just.beta=T, 
+                             cpglist.remove=qc.summary$bad.cpgs$name,
+                             gds.filename=gds.filename,
+                             verbose=T)
+```
+
+```{r}
+gds.file <- openfn.gds(gds.filename)
+matrix.node <- index.gdsn(gds.file, "matrix")
+beta.gds <- read.gdsn(matrix.node)
+rownames(beta.gds) <- read.gdsn(index.gdsn(gds.file, "row.names"))
+colnames(beta.gds) <- read.gdsn(index.gdsn(gds.file, "col.names"))
+closefn.gds(gds.file)
+```
+
+```{r}
+all(beta.gds == beta)
+identical(colnames(beta.gds), colnames(beta))
+identical(rownames(beta.gds), rownames(beta))
+```
+
+```{r}
+pcs <- meffil::meffil.methylation.pcs(beta)
+pcs.gds <- meffil.methylation.pcs(gds.file)
+
+all(pcs.gds == pcs)
+```
+
