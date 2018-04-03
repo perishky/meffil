@@ -91,6 +91,7 @@ if (!file.exists(gds.filename))
                              verbose=T)
 ```
 
+Load the matrix in the GDS file for comparison.
 ```{r}
 gds.file <- openfn.gds(gds.filename)
 matrix.node <- index.gdsn(gds.file, "matrix")
@@ -100,16 +101,44 @@ colnames(beta.gds) <- read.gdsn(index.gdsn(gds.file, "col.names"))
 closefn.gds(gds.file)
 ```
 
+It should be the same as the one generated the standard way.
 ```{r}
 all(beta.gds == beta)
 identical(colnames(beta.gds), colnames(beta))
 identical(rownames(beta.gds), rownames(beta))
 ```
 
+We've implemented an approach for generating principal components.
 ```{r}
-pcs <- meffil::meffil.methylation.pcs(beta)
+pcs <- meffil.methylation.pcs(beta)
 pcs.gds <- meffil.methylation.pcs(gds.file)
-
 all(pcs.gds == pcs)
 ```
 
+EWAS is not yet ready but here is the basic idea.
+```{r}
+cl <- makeCluster(getOption("mc.cores",1))
+clusterExport(cl, c("samplesheet"))
+system.time(p.gds <- clusterApply.gdsn(cl=cl,
+                           gds.fn=gds.filename,
+                           node.name="matrix",
+                           margin=1,
+                           as.is="double",
+                           FUN=function(x) {
+                               fit <- lm(x ~ lead + gender, data=data.frame(lead=samplesheet$pbconc, gender=samplesheet$gender))
+                               coef(summary(fit))["lead","Pr(>|t|)"]  
+                           }))
+```
+
+We test associations in the beta matrix.
+```{r}
+system.time(p <- unlist(mclapply(1:nrow(beta), function(i) {
+    fit <- lm(beta[i,] ~ lead + gender, data=data.frame(lead=samplesheet$pbconc, gender=samplesheet$gender))
+    coef(summary(fit))["lead","Pr(>|t|)"]
+})))
+```
+
+We obtain identical results.
+```{r}
+table(p < 1e-3, p.gds < 1e-3)
+```
