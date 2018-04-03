@@ -108,10 +108,14 @@ identical(colnames(beta.gds), colnames(beta))
 identical(rownames(beta.gds), rownames(beta))
 ```
 
-We've implemented an approach for generating principal components.
+We've implemented an approach for generating principal components
+that is equivalent to the standard approach.
 ```{r}
 pcs <- meffil.methylation.pcs(beta)
-pcs.gds <- meffil.methylation.pcs(gds.file)
+pcs.gds <- meffil.methylation.pcs(gds.filename)
+```
+
+```{r}
 all(pcs.gds == pcs)
 ```
 
