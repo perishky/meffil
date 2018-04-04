@@ -272,10 +272,10 @@ is.compatible.chip <- function(featureset, chip) {
     ret
 }
 
-#' select a compatible chip the \code{object}
-#' which may be an 'rg' object (see \code{\link{read.rg}()}
-#' or a matrix (typically beta or methylation or unmethylation matrices)
-#' with row names corresponding to feature/probe names.
+# select a compatible chip the \code{object}
+# which may be an 'rg' object (see \code{\link{read.rg}()}
+# or a matrix (typically beta or methylation or unmethylation matrices)
+# with row names corresponding to feature/probe names.
 guess.chip <- function(object, chip=NA) {
     stopifnot(is.character(chip) || is.na(chip))
     

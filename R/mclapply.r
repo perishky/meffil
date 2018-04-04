@@ -1,29 +1,29 @@
-#' mclapply without the 2Gb output memory bound.
-#'
-#' @param X Same as \code{\link[parallel]{mclapply}()}:
-#' A vector (atomic or list) or an expressions vector.
-#' Other objects (including classed objects) will be coerced by
-#' \code{\link{as.list}()}.
-#' @param FUN Same as \code{\link[parallel]{mclapply}()}:
-#' The function to be applied to each element of 'X'.
-#' @param ... Optional arguments to \code{FUN} and \code{\link[parallel]{mclapply}()}.
-#' @param max.bytes The size in memory of the largest object that can
-#' be returned by \code{\link[parallel]{mclapply}} (Default: 2Gb-1).
-#' @return Same as \code{\link[parallel]{mclapply}()},
-#' a list of the same length as 'X' and named by 'X'.
-#' Element i is equal to \code{FUN(X[[i]])}.
-#'
-#' mclapply() has another problem besides an output memory limit.
-#' If some magical process in linux called OOM (out of memory) decides
-#' that a fork is using too much memory, then it simply kills it without
-#' any warning or message.  In such cases, mclapply() will simply return NULL.
-#' 
-#' http://stackoverflow.com/questions/20674538/mclapply-returns-null-randomly
-#'
-#' In these functions, the output is tested for NULL return values.
-#' They are assumed to be due to memory errors so the FUN argument
-#' should not return NULL.
-#' 
+# mclapply without the 2Gb output memory bound.
+#
+# @param X Same as \code{\link[parallel]{mclapply}()}:
+# A vector (atomic or list) or an expressions vector.
+# Other objects (including classed objects) will be coerced by
+# \code{\link{as.list}()}.
+# @param FUN Same as \code{\link[parallel]{mclapply}()}:
+# The function to be applied to each element of 'X'.
+# @param ... Optional arguments to \code{FUN} and \code{\link[parallel]{mclapply}()}.
+# @param max.bytes The size in memory of the largest object that can
+# be returned by \code{\link[parallel]{mclapply}} (Default: 2Gb-1).
+# @return Same as \code{\link[parallel]{mclapply}()},
+# a list of the same length as 'X' and named by 'X'.
+# Element i is equal to \code{FUN(X[[i]])}.
+#
+# mclapply() has another problem besides an output memory limit.
+# If some magical process in linux called OOM (out of memory) decides
+# that a fork is using too much memory, then it simply kills it without
+# any warning or message.  In such cases, mclapply() will simply return NULL.
+# 
+# http://stackoverflow.com/questions/20674538/mclapply-returns-null-randomly
+#
+# In these functions, the output is tested for NULL return values.
+# They are assumed to be due to memory errors so the FUN argument
+# should not return NULL.
+# 
 mclapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     stopifnot(length(X) > 0)
 
@@ -55,9 +55,9 @@ mclapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     })))
 }
 
-#' yes, could be done with mclapply.safe but then
-#' when the list of vectors is merged into a matrix
-#' the same data would be using twice as much memory.
+# yes, could be done with mclapply.safe but then
+# when the list of vectors is merged into a matrix
+# the same data would be using twice as much memory.
 mcsapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     stopifnot(length(X) > 0)
 

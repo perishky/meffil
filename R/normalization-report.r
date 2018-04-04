@@ -222,15 +222,15 @@ meffil.plot.probe.batch <- function(norm.objects, pcs, variables=guess.batch.var
     ret
 }
 
-#' Tests associations between 
-#' between each column of y and each column of x.
-#' Each column of y must be numeric.
-#' In cases where a column of x contains factors,
-#' the y-values for each factor level is compared
-#' to the set of all y-values that are not outliers.
-#' Outliers are identified as those below 1.5
-#' times the inter-quartile range below the first quartile
-#' or 1.5 times the inter-quartile range above the third quartile.
+# Tests associations between 
+# between each column of y and each column of x.
+# Each column of y must be numeric.
+# In cases where a column of x contains factors,
+# the y-values for each factor level is compared
+# to the set of all y-values that are not outliers.
+# Outliers are identified as those below 1.5
+# times the inter-quartile range below the first quartile
+# or 1.5 times the inter-quartile range above the third quartile.
 test.pairwise.associations <- function(y,x) {
     stopifnot(nrow(x) == nrow(y))
     ret <- do.call(rbind, lapply(1:ncol(y), function(i) {

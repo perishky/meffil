@@ -1,7 +1,7 @@
-#' to impute missing values with row means
-#' x <- impute.matrix(x,1)
-#' to impute missing values with column means
-#' x <- impute.matrix(x,2)
+# to impute missing values with row means
+# x <- impute.matrix(x,1)
+# to impute missing values with column means
+# x <- impute.matrix(x,2)
 impute.matrix <- function(x, margin=1, fun=function(x) mean(x, na.rm=T)) {
     if (margin == 2) x <- t(x)
     

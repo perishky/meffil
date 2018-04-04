@@ -1,15 +1,15 @@
-#' Knit report using working environment
-#'
-#' @param rmd.filename RMD file.
-#' @param output.filename Markdown or HTML output file.  An HTML file
-#' is specified using the .htm, .html, .HTM or .HTML file extension.
-#' When html is specified, a similarly named markdown file is also
-#' generated.
-#' All output files including cache and figures will appear in the
-#' same folder as \code{output.filename}.
-#' 
-#' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
-#' @return NULL
+# Knit report using working environment
+#
+# @param rmd.filename RMD file.
+# @param output.filename Markdown or HTML output file.  An HTML file
+# is specified using the .htm, .html, .HTM or .HTML file extension.
+# When html is specified, a similarly named markdown file is also
+# generated.
+# All output files including cache and figures will appear in the
+# same folder as \code{output.filename}.
+# 
+# @param  ... Arguments to be passed to \code{\link{knitr::knit}}
+# @return NULL
 knit.report <- function(input.filename, output.filename, ...) {
     input.filename <- normalizePath(input.filename)
 

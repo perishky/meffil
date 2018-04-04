@@ -221,15 +221,15 @@ meffil.ewas <- function(beta, variable,
 is.ewas.object <- function(object)
     is.list(object) && "class" %in% names(object) && object$class == "ewas"
 
-#' Test associations between \code{variable} and each row of \code{beta}
-#' while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
-#' If \code{cell.counts} is not \code{NULL}, then it is assumed that
-#' the methylation data is derived from samples with two cell types.
-#' \code{cell.counts} should then be a vector of numbers
-#' between 0 and 1 of length equal to \code{variable} corresponding
-#' to the proportions of cell of a selected cell type in each sample.
-#' The regression model is then modified in order to identify
-#' associations specifically in the selected cell type (PMID: 24000956).
+# Test associations between \code{variable} and each row of \code{beta}
+# while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
+# If \code{cell.counts} is not \code{NULL}, then it is assumed that
+# the methylation data is derived from samples with two cell types.
+# \code{cell.counts} should then be a vector of numbers
+# between 0 and 1 of length equal to \code{variable} corresponding
+# to the proportions of cell of a selected cell type in each sample.
+# The regression model is then modified in order to identify
+# associations specifically in the selected cell type (PMID: 24000956).
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell.counts=NULL, winsorize.pct=0.05,
                  robust=TRUE, rlm=FALSE, verbose=F) {
     stopifnot(all(!is.na(variable)))
