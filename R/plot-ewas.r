@@ -1,10 +1,10 @@
-#' Remove points from a scatter plot where density is really high
-#' @param x x-coordinates vector
-#' @param y y-coordinates vector
-#' @param resolution number of partitions for the x and y-dimensions.
-#' @param max.per.cell maximum number of points per x-y partition.
-#' @return index into the points that omits points from x-y partitions
-#' so that each has at most \code{max.per.cell} points.
+# Remove points from a scatter plot where density is really high
+# @param x x-coordinates vector
+# @param y y-coordinates vector
+# @param resolution number of partitions for the x and y-dimensions.
+# @param max.per.cell maximum number of points per x-y partition.
+# @return index into the points that omits points from x-y partitions
+# so that each has at most \code{max.per.cell} points.
 scatter.thinning <- function(x,y,resolution=100,max.per.cell=100) {
     x.cell <- floor((resolution-1)*(x - min(x,na.rm=T))/diff(range(x,na.rm=T))) + 1
     y.cell <- floor((resolution-1)*(y - min(y,na.rm=T))/diff(range(y,na.rm=T))) + 1

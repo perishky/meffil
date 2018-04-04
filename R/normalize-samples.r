@@ -91,31 +91,31 @@ meffil.normalize.samples <- function(norm.objects,
     }
 }
 
-#' We use \code{\link[parallel]{mclapply}()} to reduce running time by taking advantage of the fact
-#' that each sample can be normalized independently of the others.
-#' Unfortuantely \code{\link[parallel]{mclapply}()} has two important limitations.
-#' The size in memory of the list returned may be at most 2Gb otherwise
-#' \code{\link[parallel]{mclapply}()} fails with the following error message:
-#'    Error in sendMaster(try(lapply(X = S, FUN = FUN, ...), silent = TRUE)) :
-#'    long vectors not supported ...
-#' 
-#' A non-elegant solution to this problem is to guess the size of each element
-#' in the returned list and then apply \code{\link[parallel]{mclapply}()} sequentially to a sequence
-#' appropriately sized input subsets.
-#' A solution for \code{lapply} is to allocate the final object (e.g. a matrix)
-#' prior to calling \code{lapply} and then populate the object during
-#' the call to \code{lapply} using the global assignment operator '<<-'.
-#' Unfortunately this is not a solution for \code{\link[parallel]{mclapply}()}
-#' because \code{\link[parallel]{mclapply}()} immediately
-#' duplicates the object, applies any modifications to the duplicate
-#' and then deletes it prior to completion losing all modifications.
-#' I'm not sure why the duplicate is not copied onto the original.
-#' This is a solution if the object is a \code{\link{bigmemory::big.matrix}}.
-#' However, we tried this but encountered random errors.
-#' Sometimes the function completed without incident but other times,
-#' with the same data, entire columns of the output matrix would be NA,
-#' implying that the meffil.normalize.sample() function failed.
-#' However, no errors were generated (tested with a tryCatch).
-#' It seems that mclapply and big.matrix do not play well together all the time.
-#' We have replaced this with the less elegant approach implemented in mcsapply().
+# We use \code{\link[parallel]{mclapply}()} to reduce running time by taking advantage of the fact
+# that each sample can be normalized independently of the others.
+# Unfortuantely \code{\link[parallel]{mclapply}()} has two important limitations.
+# The size in memory of the list returned may be at most 2Gb otherwise
+# \code{\link[parallel]{mclapply}()} fails with the following error message:
+#    Error in sendMaster(try(lapply(X = S, FUN = FUN, ...), silent = TRUE)) :
+#    long vectors not supported ...
+# 
+# A non-elegant solution to this problem is to guess the size of each element
+# in the returned list and then apply \code{\link[parallel]{mclapply}()} sequentially to a sequence
+# appropriately sized input subsets.
+# A solution for \code{lapply} is to allocate the final object (e.g. a matrix)
+# prior to calling \code{lapply} and then populate the object during
+# the call to \code{lapply} using the global assignment operator '<<-'.
+# Unfortunately this is not a solution for \code{\link[parallel]{mclapply}()}
+# because \code{\link[parallel]{mclapply}()} immediately
+# duplicates the object, applies any modifications to the duplicate
+# and then deletes it prior to completion losing all modifications.
+# I'm not sure why the duplicate is not copied onto the original.
+# This is a solution if the object is a \code{\link{bigmemory::big.matrix}}.
+# However, we tried this but encountered random errors.
+# Sometimes the function completed without incident but other times,
+# with the same data, entire columns of the output matrix would be NA,
+# implying that the meffil.normalize.sample() function failed.
+# However, no errors were generated (tested with a tryCatch).
+# It seems that mclapply and big.matrix do not play well together all the time.
+# We have replaced this with the less elegant approach implemented in mcsapply().
 

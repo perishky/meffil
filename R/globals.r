@@ -18,8 +18,8 @@ load.globals <- function() {
     load.env(system.file("cnv.rda", package="meffil"), cnv.globals)
 }
 
-#' called by ../data-raw/globals.r to save generated global variables to Rdata files
-#' for loading whenever the package is loaded.
+# called by ../data-raw/globals.r to save generated global variables to Rdata files
+# for loading whenever the package is loaded.
 save.globals <- function(dir) {
     require(devtools)
     save.env <- function(filename, env) {

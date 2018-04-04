@@ -1,8 +1,8 @@
-#' check that data frame \code{x} contains the required
-#' columns and types or contents.
-#' \code{columns} is a list whose names correspond to column names
-#' and the values of each item is either a type (e.g. "character", "numeric")
-#' or a vector of possible values.
+# check that data frame \code{x} contains the required
+# columns and types or contents.
+# \code{columns} is a list whose names correspond to column names
+# and the values of each item is either a type (e.g. "character", "numeric")
+# or a vector of possible values.
 check.data.frame <- function(x, columns) {
     stopifnot(is.data.frame(x))
     missing.columns <- setdiff(names(columns), colnames(x))

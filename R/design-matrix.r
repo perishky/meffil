@@ -84,20 +84,20 @@ meffil.control.matrix <- function(qc.objects, normalize=F,
     control.matrix
 }
 
-#' Given a partition of the QC objects into two sets,
-#' use the design matrix from one partition to predict the design
-#' matrix for the other partition.
-#' @param qc.objects A list of outputs from \code{\link{meffil.create.qc.object}()}.
-#' @param number.pcs Number of principal components to include in the design matrix (Default: all).
-#' @param new.idx Indices into \code{qc.objects} that identify the objects for which
-#' the design matrix will be predicted.  The initial design matrix will be derived from
-#' the other objects.
-#' @param fixed.effects Names of columns in samplesheet that should be included as fixed effects
-#' along with control matrix principal components (Default: NULL).
-#' @param random.effects Names of columns in samplesheet that should be included as random effects
-#' (Default: NULL).
-#' @return Design matrix with one column for the \code{new.idx} partition predicted from the
-#' first \code{number.pcs} prinicipal components of the objects. 
+# Given a partition of the QC objects into two sets,
+# use the design matrix from one partition to predict the design
+# matrix for the other partition.
+# @param qc.objects A list of outputs from \code{\link{meffil.create.qc.object}()}.
+# @param number.pcs Number of principal components to include in the design matrix (Default: all).
+# @param new.idx Indices into \code{qc.objects} that identify the objects for which
+# the design matrix will be predicted.  The initial design matrix will be derived from
+# the other objects.
+# @param fixed.effects Names of columns in samplesheet that should be included as fixed effects
+# along with control matrix principal components (Default: NULL).
+# @param random.effects Names of columns in samplesheet that should be included as random effects
+# (Default: NULL).
+# @return Design matrix with one column for the \code{new.idx} partition predicted from the
+# first \code{number.pcs} prinicipal components of the objects. 
 predict.design.matrix <- function (qc.objects, number.pcs, new.idx,
                                    fixed.effects = NULL,
                                    random.effects = NULL) {
@@ -124,8 +124,8 @@ predict.design.matrix <- function (qc.objects, number.pcs, new.idx,
 
 
 
-#' From PCA applied to the raw control matrix,
-#' derive the corresponding design matrix using the first \code{number.pcs} principal components.
+# From PCA applied to the raw control matrix,
+# derive the corresponding design matrix using the first \code{number.pcs} principal components.
 pca.to.design.matrix <- function(pca.ret, number.pcs, fixed.effects=NULL, random.effects=NULL) {
     if (class(pca.ret) != "matrix")
         pca.ret <- pca.ret$x

@@ -13,6 +13,8 @@ document("meffil")
 system("R CMD INSTALL meffil")
 reload(inst("meffil"))
 
+system("R CMD Rd2pdf")
+
 source("meffil/data-raw/globals.r",chdir=T)
 system("R CMD INSTALL meffil") 
 

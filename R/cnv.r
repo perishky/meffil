@@ -12,6 +12,8 @@
 #' @param chip Name returned by \code{\link{meffil.list.chips()}} (Default: NA).
 #' @param verbose Default = FALSE
 #' @param ... Extra parameters to be passed to \code{DNAcopy} for segmentation. See details.
+#'
+#' @return Dataframe of segmented results
 #' 
 #' @details
 #' The following default values are being used:
@@ -23,7 +25,6 @@
 #' - undo.SD = 2
 #'
 #' @export
-#' @return Dataframe of segmented results
 meffil.calculate.cnv <- function(samplesheet, cnv.reference, chip=NA, verbose=FALSE, ...) {
     cnv.reference <- meffil:::get.cnv.reference(cnv.reference)
     l1 <- meffil:::get.index.list(nrow(samplesheet), options("mc.cores")[[1]])
