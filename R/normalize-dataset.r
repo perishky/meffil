@@ -37,6 +37,9 @@
 #'
 #' Arguments to \code{\link{meffil.normalize.samples}()}:
 #' @param just.beta
+#' @param gds.filename If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
+#' This is for cases where the output is too large to fit into main memory.
+#' The GDS option assumes that argument \code{just.beta == TRUE}.
 #' @param pseudo
 #'
 #' Arguments to \code{\link{meffil.methylation.pcs}()}.
@@ -86,6 +89,7 @@ meffil.normalize.dataset <- function(samplesheet,
                                      ## meffil.normalize.samples
                                      pseudo=100,
                                      just.beta=T,
+                                     gds.filename=NULL,
 
                                      ## meffil.methylation.pcs
                                      probe.range=5000,
@@ -129,6 +133,7 @@ meffil.normalize.dataset <- function(samplesheet,
     norm <- meffil.normalize.samples(norm.objects,
                                      pseudo=pseudo,
                                      just.beta=just.beta,
+                                     gds.filename=gds.filename,
                                      cpglist.remove=qc.summary$bad.cpgs$name,
                                      verbose=verbose)
     if (just.beta)

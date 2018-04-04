@@ -5,7 +5,8 @@
 \title{Normalize Infinium HumanMethylation450 BeadChips}
 \usage{
 meffil.normalize.samples(norm.objects, pseudo = 100, just.beta = T,
-  cpglist.remove = NULL, max.bytes = 2^30 - 1, verbose = F, ...)
+  cpglist.remove = NULL, max.bytes = 2^30 - 1, gds.filename = NULL,
+  verbose = F, ...)
 }
 \arguments{
 \item{norm.objects}{The list or sublist of \code{\link{meffil.normalize.quantiles}()}.}
@@ -18,6 +19,10 @@ return the normalized methylated and unmethylated matrices (Default: TRUE).}
 
 \item{cpglist.remove}{Optional list of CpGs to exclude from final output}
 
+\item{gds.filename}{If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
+This is for cases where the output is too large to fit into main memory.
+The GDS option assumes that argument \code{just.beta == TRUE}.}
+
 \item{verbose}{If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).}
 
 \item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}.}
@@ -27,6 +32,9 @@ If \code{just.beta == TRUE}, the normalized matrix of
 methylation levels between between 0 and 1
 equal to methylated signal/(methylated + unmethylated signal + pseudo).
 Otherwise, a list containing two matrices, the normalized methylated and unmethylated signals.
+If \code{gds.filename} is not \code{NULL}, then the output is saved to the GDS file
+rather than retained in memory and returned to the caller.
+The library 'gdsfmt' must be installed.
 }
 \description{
 Normalize a set of samples using their normalized quality control objects.

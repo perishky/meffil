@@ -8,7 +8,8 @@ meffil.methylation.pcs(normalized.beta, probe.range = 5000, autosomal = T,
   verbose = F)
 }
 \arguments{
-\item{normalized.beta}{Output from \code{meffil.normalize.samples}}
+\item{normalized.beta}{Output from \code{\link{meffil.normalize.samples}()},
+either a matrix or a GDS filename.}
 
 \item{probe.range}{Default = 5000. How many probes to be used in calculating PCs}
 
