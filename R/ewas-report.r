@@ -60,8 +60,8 @@ meffil.ewas.summary <- function(ewas.object, beta,
     practical.idx <- which(p.values < parameters$practical.threshold)
     selected.idx <- match(selected.cpg.sites, rownames(ewas.object$p.value))    
 
-    significant.sites <- rownames(ewas.object$p.value)[sig.idx],
-    selected.sites <- rownames(ewas.object$p.value)[selected.idx],         
+    significant.sites <- rownames(ewas.object$p.value)[sig.idx]
+    selected.sites <- rownames(ewas.object$p.value)[selected.idx]
   
     cpg.idx <- union(sig.idx, union(practical.idx, selected.idx))
     cpg.sites <- rownames(ewas.object$p.value)[cpg.idx]
