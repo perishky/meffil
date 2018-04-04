@@ -10,7 +10,7 @@ meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
   author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
   fixed.effects = NULL, random.effects = NULL, pseudo = 100,
-  just.beta = T, probe.range = 5000, autosomal = T,
+  just.beta = T, gds.filename = NULL, probe.range = 5000, autosomal = T,
   norm.parameters = NULL, norm.file = "meffil-normalization-report.md",
   verbose = FALSE)
 }
@@ -39,6 +39,10 @@ along with control matrix principal components (Default: NULL).}
 Arguments to \code{\link{meffil.normalize.samples}()}:}
 
 \item{pseudo}{Arguments to \code{\link{meffil.methylation.pcs}()}.}
+
+\item{gds.filename}{If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
+This is for cases where the output is too large to fit into main memory.
+The GDS option assumes that argument \code{just.beta == TRUE}.}
 
 \item{probe.range}{(Default: 5000).}
 
