@@ -60,6 +60,9 @@ meffil.ewas.summary <- function(ewas.object, beta,
     practical.idx <- which(p.values < parameters$practical.threshold)
     selected.idx <- match(selected.cpg.sites, rownames(ewas.object$p.value))    
 
+    significant.sites <- rownames(ewas.object$p.value)[sig.idx],
+    selected.sites <- rownames(ewas.object$p.value)[selected.idx],         
+  
     cpg.idx <- union(sig.idx, union(practical.idx, selected.idx))
     cpg.sites <- rownames(ewas.object$p.value)[cpg.idx]
 
@@ -88,14 +91,24 @@ meffil.ewas.summary <- function(ewas.object, beta,
     covariate.associations <- meffil.ewas.covariate.associations(ewas.object)
 
     parameters$winsorize.pct <- ewas.object$winsorize.pct
-    
+   
+    ## order CpG sites and plots by the default model p-value
+    sort.by.p <- function(x) {
+      sites <- x
+      if (!is.character(x))
+        sites <- names(x)
+      idx <- match(sites, rownames(ewas.object$p.value))
+      p <- ewas.object$p.value[idx,parameters$model]
+      x[order(p)]
+    }
+  
     list(parameters=parameters,
          qq.plots=qq.plots,
          manhattan.plots=manhattan.plots,
          cpg.stats=cpg.stats,
-         cpg.plots=cpg.plots,
-         significant.sites=rownames(ewas.object$p.value)[sig.idx],
-         selected.sites=rownames(ewas.object$p.value)[selected.idx],         
+         cpg.plots=sort.by.p(cpg.plots),
+         significant.sites=sort.by.p(significant.sites),
+         selected.sites=sort.by.p(selected.sites),         
          sample.characteristics=sample.characteristics,
          covariate.associations=covariate.associations)         
 }
