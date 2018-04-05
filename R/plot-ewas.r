@@ -114,44 +114,54 @@ qq.lambda <- function(p.values, method="median", B=100) {
 #' @return \code{\link{ggplot}} showing the Manhattan plot. 
 #' @export
 meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
-                                       title="Manhattan plot") {
-    stopifnot(is.ewas.object(ewas.object))
-    
-    chromosomes <- paste("chr", c(1:22, "X","Y"), sep="")
-    sapply(names(ewas.object$analyses), function(name) {
-        stats <- ewas.object$analyses[[name]]$table
-        stats$chromosome <- factor(as.character(stats$chromosome), levels=chromosomes)
-        stats$chr.colour <- 0
-        stats$chr.colour[stats$chromosomes %in% chromosomes[seq(1,length(chromosomes),2)]] <- 1
-        p.values <- stats$p.value
-        p.values[which(p.values < .Machine$double.xmin)] <- .Machine$double.xmin
-        stats$stat <- -log(p.values,10) * sign(stats$coefficient)
-
-        stats <- stats[order(stats$stat, decreasing=T),]
-
-        chromosome.lengths <- sapply(chromosomes, function(chromosome)
-                                     max(stats$position[which(stats$chromosome == chromosome)]))
-        chromosome.lengths <- as.numeric(chromosome.lengths)
-        chromosome.starts <- c(1,cumsum(chromosome.lengths)+1)
-        names(chromosome.starts) <- c(chromosomes, "NA")
-        stats$global <- stats$position + chromosome.starts[stats$chromosome] - 1
-
-        selection.idx <- scatter.thinning(stats$global, stats$stat,
-                                          resolution=100, max.per.cell=100)
-        
-        (ggplot(stats[selection.idx,], aes(x=position, y=stat)) +
-         geom_point(aes(colour=chr.colour,size=stat,fill=chr.colour)) + ##!! edit - scaling points by -log10(p) !!##
-         facet_grid(. ~ chromosome, space="free_x", scales="free_x") +
-         theme(strip.text.x = element_text(angle = 90)) +
-         guides(colour=FALSE) +
-         labs(x="Position",
-              y=bquote(-log[10]("p-value") * sign(beta))) +             
-         geom_hline(yintercept=log(sig.threshold,10), colour="red") +
-         geom_hline(yintercept=-log(sig.threshold,10), colour="red") +
-         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-         ggtitle(paste(title, ": ", name, sep=""))) 
-    }, simplify=F)        
+									   title="Manhattan plot") {
+	stopifnot(is.ewas.object(ewas.object))
+	
+	chromosomes <- paste("chr", c(1:22, "X","Y"), sep="")
+	sapply(names(ewas.object$analyses), function(name) {
+		stats <- ewas.object$analyses[[name]]$table
+		stats$chromosome <- factor(as.character(stats$chromosome), levels=chromosomes)
+		stats$chr.colour <- 0
+		stats$chr.colour[stats$chromosome %in% chromosomes[seq(1,length(chromosomes),2)]] <- 1
+		##!! ^^ fixed typo "stats$chromosome__s__"!!#
+		stats$chr.colour <- as.factor(stats$chr.colour)
+		p.values <- stats$p.value
+		p.values[which(p.values < .Machine$double.xmin)] <- .Machine$double.xmin
+		stats$stat <- -log(p.values,10) * sign(stats$coefficient)
+		
+		stats <- stats[order(stats$stat, decreasing=T),]
+		
+		chromosome.lengths <- sapply(chromosomes, function(chromosome)
+			max(stats$position[which(stats$chromosome == chromosome)]))
+		chromosome.lengths <- as.numeric(chromosome.lengths)
+		chromosome.starts <- c(1,cumsum(chromosome.lengths)+1)
+		names(chromosome.starts) <- c(chromosomes, "NA")
+		stats$global <- stats$position + chromosome.starts[stats$chromosome] - 1
+		
+		selection.idx <- scatter.thinning(stats$global, stats$stat,
+										  resolution=100, max.per.cell=100)
+		
+		(ggplot(stats[selection.idx,], aes(x=position, y=stat)) +
+				geom_point(aes(size=abs(stat),
+								colour=chr.colour,
+								alpha = abs(stat)
+							)
+						) + ##!! edit - scaling points by -log10(p) !!##
+				scale_size(range = c(0.005,2)) + 
+				scale_alpha(range = c(0.01, 1)) +
+				#scale_color_manual(values = c("black","grey"))+
+				facet_grid(. ~ chromosome, space="free_x", scales="free_x") +
+				theme(strip.text.x = element_text(angle = 90)) +
+				guides(colour=FALSE,size=FALSE,alpha=FALSE) +
+				labs(x="Position",
+					 y=bquote(-log[10]("p-value") * sign(beta))) +             
+				geom_hline(yintercept=log(sig.threshold,10), colour="red") +
+				geom_hline(yintercept=-log(sig.threshold,10), colour="red") +
+				theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+				ggtitle(paste(title, ": ", name, sep=""))) 
+	}, simplify=F)        
 }
+
 
 
 #' Scatter plots for a CpG site in an EWAS
