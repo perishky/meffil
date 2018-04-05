@@ -140,7 +140,7 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
                                           resolution=100, max.per.cell=100)
         
         (ggplot(stats[selection.idx,], aes(x=position, y=stat)) +
-         geom_point(aes(colour=chr.colour)) +
+         geom_point(aes(colour=chr.colour,size=stat,fill=chr.colour)) + ##!! edit - scaling points by -log10(p) !!##
          facet_grid(. ~ chromosome, space="free_x", scales="free_x") +
          theme(strip.text.x = element_text(angle = 90)) +
          guides(colour=FALSE) +
