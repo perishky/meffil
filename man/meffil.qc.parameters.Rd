@@ -16,23 +16,23 @@ meffil.qc.parameters(colour.code = NULL, control.categories = NULL,
 
 \item{control.categories}{Default value = control.probe.categories() <what param does>}
 
-\item{sex.outlier.sd}{Default value = 3 <what param does>}
+\item{sex.outlier.sd}{Sets the standard deviation multiple at which sex outliers are identified. Default value = 3.}
 
-\item{meth.unmeth.outlier.sd}{Default value = 3 <what param does>}
+\item{meth.unmeth.outlier.sd}{Sets the standard deviation multiple at which methylated/unmethylated signal outliers are identified. Default value = 3.}
 
-\item{control.means.outlier.sd}{Default value = 5 <what param does>}
+\item{control.means.outlier.sd}{Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5 <what param does>}
 
-\item{detectionp.samples.threshold}{Default value = 0.05 <what param does>}
+\item{detectionp.samples.threshold}{Detection p-value threshold.  Probes with values above this are considered undetected. Default value = 0.05}
 
-\item{beadnum.samples.threshold}{Default value = 0.05 <what param does>}
+\item{beadnum.samples.threshold}{A sample is excluded if the given proportion of probes has low bead number. Default value = 0.05}
 
-\item{detectionp.cpgs.threshold}{Default value = 0.05 <what param does>}
+\item{detectionp.cpgs.threshold}{A sample is excluded if the given proporition of probes are undetected. Default value = 0.05}
 
-\item{beadnum.cpgs.threshold}{Default value = 0.05 <what param does>}
+\item{beadnum.cpgs.threshold}{A probe is excluded if the given proportion of samples have low bead number. Default value = 0.05}
 
-\item{snp.concordance.threshold}{Default value = 0.99 <what param does>}
+\item{snp.concordance.threshold}{Minimum required concordance between supplied genotypes and genotypes estimated from a SNP probe. Default value = 0.99}
 
-\item{sample.genotype.concordance.threshold}{Default value = 0.9 <what param does>}
+\item{sample.genotype.concordance.threshold}{Minimum required concordance between supplied genotypes and genotypes estimated from SNP probes for a given individual. Default value = 0.9 <what param does>}
 }
 \value{
 List of parameter values
