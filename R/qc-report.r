@@ -716,15 +716,15 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
 #' 
 #' @param  colour.code Default value = NULL <what param does>
 #' @param  control.categories Default value = control.probe.categories() <what param does>
-#' @param  sex.outlier.sd Default value = 3 <what param does>
-#' @param  meth.unmeth.outlier.sd Default value = 3 <what param does>
-#' @param  control.means.outlier.sd Default value = 5 <what param does>
-#' @param  detectionp.samples.threshold Default value = 0.05 <what param does>
-#' @param  beadnum.samples.threshold Default value = 0.05 <what param does>
-#' @param  detectionp.cpgs.threshold Default value = 0.05 <what param does>
-#' @param  beadnum.cpgs.threshold Default value = 0.05 <what param does>
-#' @param  snp.concordance.threshold Default value = 0.99 <what param does>
-#' @param  sample.genotype.concordance.threshold Default value = 0.9 <what param does>
+#' @param  sex.outlier.sd Sets the standard deviation multiple at which sex outliers are identified. Default value = 3.
+#' @param  meth.unmeth.outlier.sd Sets the standard deviation multiple at which methylated/unmethylated signal outliers are identified. Default value = 3.
+#' @param  control.means.outlier.sd Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5 <what param does>
+#' @param  detectionp.samples.threshold Detection p-value threshold.  Probes with values above this are considered undetected. Default value = 0.05
+#' @param  beadnum.samples.threshold A sample is excluded if the given proportion of probes has low bead number. Default value = 0.05
+#' @param  detectionp.cpgs.threshold A sample is excluded if the given proporition of probes are undetected. Default value = 0.05
+#' @param  beadnum.cpgs.threshold A probe is excluded if the given proportion of samples have low bead number. Default value = 0.05
+#' @param  snp.concordance.threshold Minimum required concordance between supplied genotypes and genotypes estimated from a SNP probe. Default value = 0.99
+#' @param  sample.genotype.concordance.threshold Minimum required concordance between supplied genotypes and genotypes estimated from SNP probes for a given individual. Default value = 0.9 <what param does>
 #' @export
 #' @return List of parameter values
 #' @examples \dontrun{
