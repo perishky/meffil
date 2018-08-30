@@ -122,7 +122,7 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
         stats <- ewas.object$analyses[[name]]$table
         stats$chromosome <- factor(as.character(stats$chromosome), levels=chromosomes)
         stats$chr.colour <- 0
-        stats$chr.colour[stats$chromosomes %in% chromosomes[seq(1,length(chromosomes),2)]] <- 1
+        stats$chr.colour[stats$chromosome %in% chromosomes[seq(1,length(chromosomes),2)]] <- 1
         p.values <- stats$p.value
         p.values[which(p.values < .Machine$double.xmin)] <- .Machine$double.xmin
         stats$stat <- -log(p.values,10) * sign(stats$coefficient)
