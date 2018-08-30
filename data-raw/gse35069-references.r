@@ -24,14 +24,15 @@ retrieve.gse35069 <- function(dir) {
 
     #' GEO does not have the IDAT files
     #' (http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE35069);
-    #' however, the `FlowSorted.Blood.450k` R package
-    #' contains the following code to download these
-    #' files from another website as well as the sample
-    #' information (see `getKereData.R` script).
+    #' however, the Reinius publication ( https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0041361)
+    ## provides this link: http://publications.scilifelab.se/kere_j/methylation
     
     cat("Downloading data ...\n")
-    download.file("http://publications.scilifelab.se/f742bd8a08ad42c3921ccaaaf0e3997a/file/sample_sheet_IDAT.csv", destfile="samplesheet.csv", quiet=T)
-    download.file("http://publications.scilifelab.se/f742bd8a08ad42c3921ccaaaf0e3997a/file/idat_files.zip", destfile="idat-files.zip",quiet=T)
+
+    download.file("https://www.dropbox.com/sh/4s1kkzd6r9c644n/AAAhUDflenepQ7SiqHwS4nFEa/sample_sheet_IDAT.csv?raw=1", destfile="samplesheet.csv", quiet=T)
+    download.file("https://www.dropbox.com/sh/4s1kkzd6r9c644n/AADSQeh4x2DbJ-etEhTU46vaa/idat_files.zip?raw=1", destfile="idat-files.zip", quiet=T)
+    ## download.file("http://publications.scilifelab.se/f742bd8a08ad42c3921ccaaaf0e3997a/file/sample_sheet_IDAT.csv", destfile="samplesheet.csv", quiet=T)
+    ## download.file("http://publications.scilifelab.se/f742bd8a08ad42c3921ccaaaf0e3997a/file/idat_files.zip", destfile="idat-files.zip",quiet=T)
 
     cat("Unzipping data ...\n")
     unzip("idat-files.zip")
