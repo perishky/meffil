@@ -9,8 +9,9 @@ meffil.snp.concordance(snp.betas, genotypes, snp.threshold = 0.99,
 }
 \value{
 Returns a list of two vectors:
-one providing concordances between genotypes and SNP betas for matched samples,
-a second providing concordances between genotypes and SNP betas for matched SNPs.
+    - one providing concordances between genotypes and SNP betas for matched samples,
+    - a second providing concordances between genotypes and SNP betas for matched SNPs.
+as well as the genotype matrix derived from 'snp.betas'.
 }
 \description{
 genotypes <- meffil.extract.genotypes(raw.filenames)

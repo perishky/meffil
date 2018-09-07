@@ -5,9 +5,9 @@
 #' meffil.snp.concordance(snp.betas, genotypes[rownames(snp.betas),colnames(snp.betas)])
 #'
 #' @return Returns a list of two vectors:
-#' one providing concordances between genotypes and SNP betas for matched samples,
-#' a second providing concordances between genotypes and SNP betas for matched SNPs.
-#' 
+#'     - one providing concordances between genotypes and SNP betas for matched samples,
+#'     - a second providing concordances between genotypes and SNP betas for matched SNPs.
+#' as well as the genotype matrix derived from 'snp.betas'.
 #' @export
 meffil.snp.concordance <- function(snp.betas, genotypes,
                                    snp.threshold=0.99,
@@ -68,7 +68,8 @@ meffil.snp.concordance <- function(snp.betas, genotypes,
     }
     
     list(sample=sample.concordance,
-         snp=snp.concordance)
+         snp=snp.concordance,
+         beta.genotypes=beta.genotypes)
 }
 
 calculate.beta.genotypes <- function(snp.betas, centers=c(0.2,0.5,0.8)) {
