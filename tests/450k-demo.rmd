@@ -101,3 +101,16 @@ for (cell.type in colnames(counts.meffil)) {
     cat(cell.type, cor(counts.meffil[,cell.type], counts.beta[,cell.type]), "\n")
 }
 ```
+
+
+Generate counts for saliva and see how they compare.
+```{r}
+counts.saliva <- mclapply(qc.objects, meffil.estimate.cell.counts, cell.type.reference="saliva gse48472", verbose=T)
+
+counts.saliva <- t(sapply(counts.saliva, function(x) x$counts))
+
+diag(cor(counts.saliva, counts.meffil)[colnames(counts.meffil), colnames(counts.meffil)])
+quantile(counts.saliva[,"Buccal"])
+cor(counts.saliva, counts.meffil)["Buccal",]
+cor(counts.saliva)["Buccal",]
+```
