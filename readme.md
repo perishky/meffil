@@ -1,4 +1,9 @@
 # meffil
+
+> Min JL, Hemani G, Davey Smith G, Relton C, Suderman M.
+> [Meffil: efficient normalization and analysis of very large DNA methylation datasets](https://www.ncbi.nlm.nih.gov/pubmed/29931280).
+> Bioinformatics. 2018 Jun 21.
+
 Efficient algorithms for analyzing DNA methylation data
 generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
 
@@ -14,11 +19,6 @@ generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
 
 Examples using many of these features can be found in the
 [tests/](tests) directory.
-
-The `minfi` version consists of a single function call that requires
-access to all data. The `meffil` version splits the method up into
-several functions in order to allow parallelization and to reduce the
-amount of data that needs to be loaded.
 
 ## Installation
 
