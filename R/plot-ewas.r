@@ -119,6 +119,7 @@ meffil.ewas.manhattan.plot <- function(ewas.object, sig.threshold=1e-7,
     
     chromosomes <- paste("chr", c(1:22, "X","Y"), sep="")
     sapply(names(ewas.object$analyses), function(name) {
+        chromosomes <- intersect(chromosomes, ewas.object$analyses[[name]]$table$chromosome)
         stats <- ewas.object$analyses[[name]]$table
         stats$chromosome <- factor(as.character(stats$chromosome), levels=chromosomes)
         stats$chr.colour <- 0
