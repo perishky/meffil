@@ -138,6 +138,30 @@ meffil.ewas.report(ewas.summary,
 
 
 
+```{r}
+idx <- sample(order(ewas.ret$analyses$sva$table$p.value)[1:1000],100)
+sub.sites <- rownames(beta)[idx]
+sub.covariates <- cbind(covariates, with(ewas.ret$analyses$sva, design[,grep("^X[0-9]+$", colnames(design))]))
+
+ewas.sub.ret <- meffil.ewas(beta[sub.sites,],
+                            variable=variable,
+                            covariates=sub.covariates,
+                            sva=F, isva=F, 
+                            verbose=T)
+
+ewas.parameters <- meffil.ewas.parameters(sig.threshold=0.05/length(sub.sites),max.plots=10)
+ewas.summary <- meffil.ewas.summary(ewas.sub.ret,
+                                    beta[sub.sites,],
+                                    selected.cpg.sites=sub.sites,
+                                    parameters=ewas.parameters, verbose=T)
+
+meffil.ewas.report(ewas.summary,
+                   output.file="ewas/ewas-gestational-age-report-100.html",
+                   author=ewas.author,
+                   study=ewas.study)
+```
+
+
 
 
 
