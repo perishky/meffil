@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>EWAS in meffil</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<div id="toc">
+<div id="toc_header">Table of Contents</div>
+<ul>
+<li>
+<a href="#toc_0">EWAS in meffil</a>
+<ul>
+<li>
+<a href="#toc_1">Download example data set</a>
+</li>
+<li>
+<a href="#toc_2">Normalize dataset</a>
+</li>
+<li>
+<a href="#toc_3">Test associations with gestational age</a>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+<h1 id="toc_0">EWAS in meffil</h1>
+
+<h2 id="toc_1">Download example data set</h2>
+
+<blockquote>
+<p>Sen A, Cingolani P, Senut MC, Land S et al. Lead exposure induces
+changes in 5-hydroxymethylcytosine clusters in CpG islands in human
+embryonic stem cells and umbilical cord blood. Epigenetics
+2015;10(7):607-21. PMID: 26046694</p>
+</blockquote>
+
+<p>Retrieve the data from the Gene Expression Omnibus (GEO) website
+(<a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69633">http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69633</a>).</p>
+
+<pre><code class="r">download.450k.lead.dataset &lt;- function() {
+    dir.create(path &lt;- &quot;data-450k-lead&quot;)
+
+    if (length(list.files(path, &quot;*.idat$&quot;)) == 0) {
+        filename &lt;-  file.path(path, &quot;gse69633.tar&quot;)
+        download.file(&quot;http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE69633&amp;format=file&quot;, filename)
+        cat(date(), &quot;Extracting files from GEO archive.\n&quot;)
+        system(paste(&quot;cd&quot;, path, &quot;;&quot;, &quot;tar xvf&quot;, basename(filename)))
+        unlink(filename)
+        cat(date(), &quot;Unzipping IDAT files.\n&quot;)
+        system(paste(&quot;cd&quot;, path, &quot;;&quot;, &quot;gunzip *.idat.gz&quot;))
+
+        library(GEOquery)
+        geo &lt;- getGEO(&quot;GSE69633&quot;, GSEMatrix=F)
+        ## this output from geo is really messed up.
+        geo &lt;- geo@gsms[[1]]@header
+        characteristics &lt;- matrix(geo$characteristics_ch1, nrow=length(geo$title), byrow=T)
+        colnames(characteristics) &lt;- sub(&quot;([^:]+):.*&quot;, &quot;\\1&quot;, characteristics[1,])
+        rownames(characteristics) &lt;- geo$geo_accession
+        characteristics &lt;- apply(characteristics, 2, function(x) sub(&quot;[^:]+: (.*)&quot;, &quot;\\1&quot;, x))
+        characteristics &lt;- as.data.frame(characteristics, stringsAsFactors=F)
+        for (name in c(&quot;socioeconomic score&quot;, &quot;gestational age&quot;, &quot;birth weight&quot;, &quot;pbconc (ng/dl)&quot;))
+            characteristics[[name]] &lt;- as.numeric(characteristics[[name]])
+        write.csv(characteristics, file=file.path(path, &quot;samples.csv&quot;))
+    }
+
+    path
+}
+</code></pre>
+
+<pre><code class="r">path &lt;- download.450k.lead.dataset()
+</code></pre>
+
+<h2 id="toc_2">Normalize dataset</h2>
+
+<p>Create samplesheet</p>
+
+<pre><code class="r">library(meffil)
+</code></pre>
+
+<pre><code>## Loading required package: illuminaio
+</code></pre>
+
+<pre><code>## Loading required package: MASS
+</code></pre>
+
+<pre><code>## Loading required package: limma
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;limma&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:BiocGenerics&#39;:
+## 
+##     plotMA
+</code></pre>
+
+<pre><code>## Loading required package: sva
+</code></pre>
+
+<pre><code>## Loading required package: mgcv
+</code></pre>
+
+<pre><code>## Loading required package: nlme
+</code></pre>
+
+<pre><code>## This is mgcv 1.8-24. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
+</code></pre>
+
+<pre><code>## Loading required package: genefilter
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;genefilter&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:MASS&#39;:
+## 
+##     area
+</code></pre>
+
+<pre><code>## Loading required package: BiocParallel
+</code></pre>
+
+<pre><code>## Loading required package: ggplot2
+</code></pre>
+
+<pre><code>## Loading required package: plyr
+</code></pre>
+
+<pre><code>## Loading required package: reshape2
+</code></pre>
+
+<pre><code>## Loading required package: gridExtra
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;gridExtra&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:Biobase&#39;:
+## 
+##     combine
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:BiocGenerics&#39;:
+## 
+##     combine
+</code></pre>
+
+<pre><code>## Loading required package: matrixStats
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;matrixStats&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:plyr&#39;:
+## 
+##     count
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:genefilter&#39;:
+## 
+##     rowSds, rowVars
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:Biobase&#39;:
+## 
+##     anyMissing, rowMedians
+</code></pre>
+
+<pre><code>## Loading required package: multcomp
+</code></pre>
+
+<pre><code>## Loading required package: mvtnorm
+</code></pre>
+
+<pre><code>## Loading required package: TH.data
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;TH.data&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:MASS&#39;:
+## 
+##     geyser
+</code></pre>
+
+<pre><code>## Loading required package: lme4
+</code></pre>
+
+<pre><code>## Loading required package: Matrix
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;lme4&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:nlme&#39;:
+## 
+##     lmList
+</code></pre>
+
+<pre><code>## Loading required package: fastICA
+</code></pre>
+
+<pre><code>## Loading required package: DNAcopy
+</code></pre>
+
+<pre><code>## Loading required package: quadprog
+</code></pre>
+
+<pre><code>## Loading required package: statmod
+</code></pre>
+
+<pre><code>## Loading required package: gdsfmt
+</code></pre>
+
+<pre><code class="r">options(mc.cores=10)
+samplesheet &lt;- meffil.create.samplesheet(path)
+
+samples &lt;- read.csv(file.path(path, &quot;samples.csv&quot;), check.names=F, row.names=1)
+samplesheet &lt;- data.frame(samplesheet,
+                          samples[match(samplesheet$Sample_Name, rownames(samples)),],
+                          stringsAsFactors=F, check.names=F)
+
+samplesheet &lt;- samplesheet[which(samplesheet[[&quot;sample type&quot;]] == &quot;HM450K&quot;),]
+</code></pre>
+
+<p>Parameters.</p>
+
+<pre><code class="r">qc.file &lt;- &quot;ewas/qc-report.html&quot;
+author &lt;- &quot;Sen, et al.&quot;
+study &lt;- &quot;Cord blood DNA methylation and lead exposure (GSE69633)&quot;
+norm.file &lt;- &quot;ewas/normalization-report.html&quot;
+cell.type.reference &lt;- &quot;gervin and lyle cord blood&quot;
+</code></pre>
+
+<p>Generate QC objects for each sample and QC report.</p>
+
+<pre><code class="r">qc.objects &lt;- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+</code></pre>
+
+<pre><code>## [read.idat] Tue Nov 27 18:11:10 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
+## [read.idat] Tue Nov 27 18:11:12 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
+## [extract.detection.pvalues] Tue Nov 27 18:11:15 2018  
+## [extract.beadnum] Tue Nov 27 18:11:19 2018  
+## [extract.snp.betas] Tue Nov 27 18:11:22 2018  
+## [extract.controls] Tue Nov 27 18:11:23 2018  
+## [background.correct] Tue Nov 27 18:11:25 2018 background correction for dye = R 
+## [background.correct] Tue Nov 27 18:11:29 2018 background correction for dye = G 
+## [dye.bias.correct] Tue Nov 27 18:11:32 2018  
+## [FUN] Tue Nov 27 18:11:41 2018 predicting sex
+</code></pre>
+
+<pre><code class="r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.qc.summary] Tue Nov 27 18:14:35 2018 Sex summary TRUE 
+## [meffil.qc.summary] Tue Nov 27 18:14:36 2018 Meth vs unmeth summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:36 2018 Control means summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:36 2018 Sample detection summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:39 2018 CpG detection summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:42 2018 Sample bead numbers summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:45 2018 CpG bead numbers summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:46 2018 Cell count summary 
+## [meffil.qc.summary] Tue Nov 27 18:14:46 2018 Genotype concordance
+</code></pre>
+
+<pre><code class="r">meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+</code></pre>
+
+<pre><code>## [meffil.qc.report] Tue Nov 27 18:14:46 2018 Writing report as html file to ewas/qc-report.html
+</code></pre>
+
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+</code></pre>
+
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+</code></pre>
+
+<p>Remove any low quality samples.</p>
+
+<pre><code class="r">if (nrow(qc.summary$bad.samples) &gt; 0)
+    qc.objects &lt;- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+
+samplesheet &lt;- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
+</code></pre>
+
+<p>Check how many principal components to include.</p>
+
+<pre><code class="r">print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+</code></pre>
+
+<p><img src="data:image/png;base64,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waDX650xY0a804kgkXdgQu29LVu2HDhwYNasWcbiQw89lFD7rU56jz/+eOLsuiQFHbMBAKBGUh4yAwBAW4CCCAAANaAgAgBADSiIAABQAwoiiAWGw3lNmTKlT58+dYJnZGRkZGSYzeZ+/fp98skn4X9avXr18OHDMzMzs7OzH374YYYDj4OUBFeZQSxgzOybhjH2+/2iKNYPHgwGV69ePWXKlNLSUoTQ1q1bb7755rfffnvEiBGlpaU33HDD1Vdf/ec//5lJGiAlQQsRNA1j/Pbbbw8fPjwrK+vvf/87OrvFZzzGGD/00EM5OTlPPPHEn//854KCgoyMjKeffjq82qOPPpqTk1NUVHTgwIEDBw6MHDmyc+fOY8aMOXLkSDjO66+/fs4554RfUlFRcfvtt+fm5nbt2vWOO+6oqKj4zW9+gxAaOXJkxDy9Xq/D4Qjn9uSTTz7//PPnnXceISQnJ+eVV17JyMhACC1evDgnJ6djx47z589nup9A8ovXTdQgiSCEnn/+eUrpl19+qSiK8UztfzX+v3Llyn379iGEFi5cGAqFvvjiC1mWw+s89dRTuq7PmjXriiuuGDNmzPvvv6/r+qeffjpq1KjwOg899NCJEyfCkSdMmDBlyhS/3x8IBP7whz/ceeeddd46/MKw3r17f/rpp8bzHTp0KC8vr785GRkZ+/btO3jw4OWXX85oD4EUAYfMoGkYY6fTacwTZByf1j4EDj9jHMlijIPBoDFLVHg1jPGhQ4d69OhRXl7es2dP424K4+UZGRmVlZXGOqdPn649hVNWVta+ffvat2+PECorKxswYEBZWVn9o++GjsezsrL279+fmZlpLFJK3W63yWT63e9+5/P5br/99uuvvz4B5wMAcQSHzCAqDc2a5nQ6w4/D5/UamTOPECIIgs1mKykpoZRqmlZ7XJZGJrQjhGia1qycCwsL169fH17csmVLXl4eQuiDDz7405/+9MEHH1x55ZXNCghSHhRE0BKSJG3atAkhtGjRoihf8vbbb1NKX3rppdGjR1922WVLlizRdf2ll16aPn16Qy+54oornnzyyWAwGAwGn3jiiebWr1mzZs2YMeOLL77QNO3IkSP333//nXfeiTHu06dP375958yZs23btmYFBKkvXsfqIImgemcM586dm5mZOXTo0MWLF6NfziE2tLLx4C9/+UtOTs5FF1107NixsrKyyy+/PCsr64ILLjh69Gj9FxrOnDlz22235eTk5OTk3H777cYJwfqrNfI1/vDDDwsLC61Wa25u7sMPP+z3+ymlL730Urt27Tp37rxo0aKW7A6QuuAcIgAA1IBDZgAAqAEFEQAAakBBBACAGlAQAQCgBhREAACoAQURAABqQEEEAIAa/x+QYuviJwW1owAAAABJRU5ErkJggg==" alt="plot of chunk unnamed-chunk-6"/></p>
+
+<p>Ten seems about right.</p>
+
+<pre><code class="r">number.pcs &lt;- 10
+</code></pre>
+
+<p>Normalize dataset and generate normalization report.</p>
+
+<pre><code class="r">norm.objects &lt;- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.normalize.quantiles] Tue Nov 27 18:16:15 2018 selecting dye correction reference 
+## [meffil.normalize.quantiles] Tue Nov 27 18:16:15 2018 creating control matrix 
+## [meffil.normalize.quantiles] Tue Nov 27 18:16:15 2018 normalizing quantiles 
+## [FUN] Tue Nov 27 18:16:15 2018 genomic.iG M 
+## [FUN] Tue Nov 27 18:16:15 2018 genomic.iG U 
+## [FUN] Tue Nov 27 18:16:16 2018 genomic.iR M 
+## [FUN] Tue Nov 27 18:16:16 2018 genomic.iR U 
+## [FUN] Tue Nov 27 18:16:16 2018 genomic.ii M 
+## [FUN] Tue Nov 27 18:16:16 2018 genomic.ii U 
+## [FUN] Tue Nov 27 18:16:16 2018 autosomal.iG M 
+## [FUN] Tue Nov 27 18:16:16 2018 autosomal.iG U 
+## [FUN] Tue Nov 27 18:16:17 2018 autosomal.iR M 
+## [FUN] Tue Nov 27 18:16:17 2018 autosomal.iR U 
+## [FUN] Tue Nov 27 18:16:17 2018 autosomal.ii M 
+## [FUN] Tue Nov 27 18:16:17 2018 autosomal.ii U 
+## [FUN] Tue Nov 27 18:16:18 2018 not.y.iG M 
+## [FUN] Tue Nov 27 18:16:18 2018 not.y.iG U 
+## [FUN] Tue Nov 27 18:16:18 2018 not.y.iR M 
+## [FUN] Tue Nov 27 18:16:18 2018 not.y.iR U 
+## [FUN] Tue Nov 27 18:16:18 2018 not.y.ii M 
+## [FUN] Tue Nov 27 18:16:18 2018 not.y.ii U 
+## [FUN] Tue Nov 27 18:16:19 2018 sex M 
+## [FUN] Tue Nov 27 18:16:20 2018 sex U 
+## [FUN] Tue Nov 27 18:16:20 2018 chrx M 
+## [FUN] Tue Nov 27 18:16:20 2018 chrx U 
+## [FUN] Tue Nov 27 18:16:20 2018 chry M 
+## [FUN] Tue Nov 27 18:16:20 2018 chry U
+</code></pre>
+
+<pre><code class="r">norm.dataset &lt;- meffil.normalize.samples(norm.objects,
+                                         just.beta=F, 
+                                         cpglist.remove=qc.summary$bad.cpgs$name,
+                                         verbose=T)
+</code></pre>
+
+<pre><code>## [read.idat] Tue Nov 27 18:16:21 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
+## [read.idat] Tue Nov 27 18:16:22 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
+## [background.correct] Tue Nov 27 18:16:24 2018 background correction for dye = R 
+## [background.correct] Tue Nov 27 18:16:26 2018 background correction for dye = G 
+## [dye.bias.correct] Tue Nov 27 18:16:29 2018  
+## [meffil.normalize.sample] Tue Nov 27 18:16:32 2018 Normalizing methylated and unmethylated signals.
+</code></pre>
+
+<pre><code class="r">beta &lt;- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+pcs &lt;- meffil.methylation.pcs(beta, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.methylation.pcs] Tue Nov 27 18:18:42 2018 Calculating variances 
+## [meffil.methylation.pcs] Tue Nov 27 18:18:44 2018 Calculating beta PCs
+</code></pre>
+
+<pre><code class="r">parameters &lt;- meffil.normalization.parameters(norm.objects)
+norm.summary &lt;- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
+                                             parameters=parameters, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.plot.control.batch] Tue Nov 27 18:18:44 2018 Extracting batch variables 
+## [meffil.plot.control.batch] Tue Nov 27 18:18:44 2018 Testing associations 
+## [meffil.plot.probe.batch] Tue Nov 27 18:19:04 2018 Extracting batch variables 
+## [meffil.plot.probe.batch] Tue Nov 27 18:19:04 2018 Testing associations
+</code></pre>
+
+<pre><code class="r">meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+</code></pre>
+
+<pre><code>## [meffil.normalization.report] Tue Nov 27 18:19:24 2018 Writing report as html file to ewas/normalization-report.html
+</code></pre>
+
+<h2 id="toc_3">Test associations with gestational age</h2>
+
+<p>Parameters.</p>
+
+<pre><code class="r">ewas.variable.name &lt;- &quot;gestational age&quot;
+ewas.covariate.names &lt;- c(&quot;socioeconomic score&quot;,&quot;gender&quot;,&quot;smoke ever&quot;,&quot;birth weight&quot;)
+ewas.output.file &lt;- &quot;ewas/ewas-gestational-age-report.html&quot;
+ewas.author &lt;- &quot;Me&quot;
+ewas.study &lt;- &quot;Gestational age in cord blood DNA methylation (GEO:GSE69633)&quot;
+ewas.cpg.sites &lt;- c(&quot;cg08943494&quot;, &quot;cg11932158&quot;,&quot;cg16725984&quot;, &quot;cg20334115&quot;, &quot;cg18623216&quot;) 
+## PMID: 25869828 (top 5)
+</code></pre>
+
+<p>Perform EWAS.</p>
+
+<pre><code class="r">variable &lt;- samplesheet[[ewas.variable.name]]
+covariates &lt;- data.frame(t(meffil.cell.count.estimates(qc.objects)),
+                         samplesheet[,ewas.covariate.names],
+                         stringsAsFactors=F)
+
+ewas.ret &lt;- meffil.ewas(beta,
+                        variable=variable,
+                        covariates=covariates,
+                        most.variable=50000,
+                        verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.ewas] Tue Nov 27 18:23:30 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Tue Nov 27 18:23:30 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Tue Nov 27 18:23:31 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Tue Nov 27 18:23:31 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Tue Nov 27 18:24:25 2018 ISVA. 
+## [isvaFn] Tue Nov 27 18:24:27 2018 Number of candidate ISVs = 26 
+## [isvaFn] Tue Nov 27 18:24:43 2018 Built ISV 1 
+## [isvaFn] Tue Nov 27 18:24:44 2018 Built ISV 2 
+## [isvaFn] Tue Nov 27 18:24:44 2018 Built ISV 3 
+## [isvaFn] Tue Nov 27 18:24:44 2018 Built ISV 4 
+## [isvaFn] Tue Nov 27 18:24:45 2018 Built ISV 5 
+## [isvaFn] Tue Nov 27 18:24:52 2018 Built ISV 6 
+## [isvaFn] Tue Nov 27 18:24:52 2018 Built ISV 7 
+## [isvaFn] Tue Nov 27 18:24:53 2018 Built ISV 8 
+## [isvaFn] Tue Nov 27 18:24:53 2018 Built ISV 9 
+## [isvaFn] Tue Nov 27 18:24:53 2018 Built ISV 10 
+## [isvaFn] Tue Nov 27 18:24:54 2018 Built ISV 11 
+## [isvaFn] Tue Nov 27 18:24:54 2018 Built ISV 12 
+## [isvaFn] Tue Nov 27 18:24:54 2018 Built ISV 13 
+## [isvaFn] Tue Nov 27 18:24:55 2018 Built ISV 14 
+## [isvaFn] Tue Nov 27 18:24:55 2018 Built ISV 15 
+## [isvaFn] Tue Nov 27 18:24:56 2018 Built ISV 16 
+## [isvaFn] Tue Nov 27 18:24:57 2018 Built ISV 17 
+## [isvaFn] Tue Nov 27 18:24:57 2018 Built ISV 18 
+## [isvaFn] Tue Nov 27 18:24:58 2018 Built ISV 19 
+## [isvaFn] Tue Nov 27 18:24:58 2018 Built ISV 20 
+## [isvaFn] Tue Nov 27 18:24:59 2018 Built ISV 21 
+## [isvaFn] Tue Nov 27 18:24:59 2018 Built ISV 22 
+## [isvaFn] Tue Nov 27 18:24:59 2018 Built ISV 23 
+## [isvaFn] Tue Nov 27 18:25:00 2018 Built ISV 24 
+## [isvaFn] Tue Nov 27 18:25:00 2018 Built ISV 25 
+## [isvaFn] Tue Nov 27 18:25:00 2018 Built ISV 26 
+## 
+## [meffil.ewas] Tue Nov 27 18:25:00 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Tue Nov 27 18:26:01 2018 EWAS for covariate set none 
+## [FUN] Tue Nov 27 18:26:14 2018 EWAS for covariate set all 
+## [FUN] Tue Nov 27 18:26:49 2018 EWAS for covariate set isva 
+## [FUN] Tue Nov 27 18:28:56 2018 EWAS for covariate set sva
+</code></pre>
+
+<p>Generate EWAS report.</p>
+
+<pre><code class="r">ewas.parameters &lt;- meffil.ewas.parameters(sig.threshold=1e-5,max.plots=10)
+ewas.summary &lt;- meffil.ewas.summary(ewas.ret,
+                                    beta,
+                                    selected.cpg.sites=ewas.cpg.sites,
+                                    parameters=ewas.parameters, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.ewas.summary] Thu Nov 29 09:06:07 2018 QQ plots 
+## [meffil.ewas.summary] Thu Nov 29 09:06:46 2018 Manhattan plots 
+## [meffil.ewas.summary] Thu Nov 29 09:06:55 2018 CpG site plots: 15 
+## [FUN] Thu Nov 29 09:06:55 2018 Plotting cg21887373
+</code></pre>
+
+<pre><code>## Loading required package: betareg
+</code></pre>
+
+<pre><code>## Loading required package: lmtest
+</code></pre>
+
+<pre><code>## Loading required package: zoo
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric
+</code></pre>
+
+<pre><code>## [FUN] Thu Nov 29 09:07:13 2018 Plotting cg09866743 
+## [FUN] Thu Nov 29 09:07:14 2018 Plotting cg08594681 
+## [FUN] Thu Nov 29 09:07:14 2018 Plotting cg03958883 
+## [FUN] Thu Nov 29 09:07:15 2018 Plotting cg00431924 
+## [FUN] Thu Nov 29 09:07:16 2018 Plotting cg01824284 
+## [FUN] Thu Nov 29 09:07:16 2018 Plotting cg07787614 
+## [FUN] Thu Nov 29 09:07:17 2018 Plotting cg12654199 
+## [FUN] Thu Nov 29 09:07:17 2018 Plotting cg12036924 
+## [FUN] Thu Nov 29 09:07:18 2018 Plotting cg05822633 
+## [FUN] Thu Nov 29 09:07:18 2018 Plotting cg08943494 
+## [FUN] Thu Nov 29 09:07:19 2018 Plotting cg11932158 
+## [FUN] Thu Nov 29 09:07:19 2018 Plotting cg16725984 
+## [FUN] Thu Nov 29 09:07:20 2018 Plotting cg20334115 
+## [FUN] Thu Nov 29 09:07:20 2018 Plotting cg18623216 
+## [meffil.ewas.summary] Thu Nov 29 09:07:21 2018 Sample characteristics 
+## [meffil.ewas.sample.characteristics] Thu Nov 29 09:07:21 2018 summarizing variables 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 variable of interest 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 Bcell 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 CD14 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 CD4T 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 CD8T 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 Gran 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 NK 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 socioeconomic.score 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 gender 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 smoke.ever 
+## [summarize.variable] Thu Nov 29 09:07:21 2018 birth.weight 
+## [meffil.ewas.covariate.associations] Thu Nov 29 09:07:21 2018 covariate associations 
+## [FUN] Thu Nov 29 09:07:21 2018 Bcell 
+## [FUN] Thu Nov 29 09:07:21 2018 CD14 
+## [FUN] Thu Nov 29 09:07:21 2018 CD4T 
+## [FUN] Thu Nov 29 09:07:21 2018 CD8T 
+## [FUN] Thu Nov 29 09:07:21 2018 Gran 
+## [FUN] Thu Nov 29 09:07:21 2018 NK 
+## [FUN] Thu Nov 29 09:07:22 2018 socioeconomic.score 
+## [FUN] Thu Nov 29 09:07:22 2018 gender 
+## [FUN] Thu Nov 29 09:07:22 2018 smoke.ever 
+## [FUN] Thu Nov 29 09:07:22 2018 birth.weight
+</code></pre>
+
+<pre><code class="r">meffil.ewas.report(ewas.summary,
+                   output.file=ewas.output.file,
+                   author=ewas.author,
+                   study=ewas.study)
+</code></pre>
+
+<pre><code>## [meffil.ewas.report] Thu Nov 29 09:07:22 2018 Writing report as html file to ewas/ewas-gestational-age-report.html
+</code></pre>
+
+<pre><code class="r">idx &lt;- sample(order(ewas.ret$analyses$sva$table$p.value)[1:1000],100)
+sub.sites &lt;- rownames(beta)[idx]
+sub.covariates &lt;- cbind(covariates, with(ewas.ret$analyses$sva, design[,grep(&quot;^X[0-9]+$&quot;, colnames(design))]))
+
+ewas.sub.ret &lt;- meffil.ewas(beta[sub.sites,],
+                            variable=variable,
+                            covariates=sub.covariates,
+                            sva=F, isva=F, 
+                            verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.ewas] Thu Nov 29 09:09:36 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 09:09:36 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 09:09:36 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 09:09:36 2018 0.05 - winsorizing the beta matrix. 
+## [FUN] Thu Nov 29 09:09:36 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 09:09:36 2018 EWAS for covariate set all
+</code></pre>
+
+<pre><code class="r">ewas.parameters &lt;- meffil.ewas.parameters(sig.threshold=0.05/length(sub.sites),max.plots=10)
+ewas.summary &lt;- meffil.ewas.summary(ewas.sub.ret,
+                                    beta[sub.sites,],
+                                    selected.cpg.sites=sub.sites,
+                                    parameters=ewas.parameters, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.ewas.summary] Thu Nov 29 09:09:38 2018 QQ plots 
+## [meffil.ewas.summary] Thu Nov 29 09:09:38 2018 Manhattan plots 
+## [meffil.ewas.summary] Thu Nov 29 09:09:38 2018 CpG site plots: 100 
+## [FUN] Thu Nov 29 09:09:38 2018 Plotting cg12137450 
+## [FUN] Thu Nov 29 09:09:39 2018 Plotting cg05898092 
+## [FUN] Thu Nov 29 09:09:39 2018 Plotting cg01721313 
+## [FUN] Thu Nov 29 09:09:39 2018 Plotting cg00117965 
+## [FUN] Thu Nov 29 09:09:40 2018 Plotting cg26189303 
+## [FUN] Thu Nov 29 09:09:40 2018 Plotting cg01907106 
+## [FUN] Thu Nov 29 09:09:40 2018 Plotting cg07505433 
+## [FUN] Thu Nov 29 09:09:41 2018 Plotting cg07787614 
+## [FUN] Thu Nov 29 09:09:41 2018 Plotting cg14592065 
+## [FUN] Thu Nov 29 09:09:41 2018 Plotting cg21119074 
+## [FUN] Thu Nov 29 09:09:41 2018 Plotting cg09167976 
+## [FUN] Thu Nov 29 09:09:43 2018 Plotting ch.7.3356624R 
+## [FUN] Thu Nov 29 09:09:43 2018 Plotting cg13077562 
+## [FUN] Thu Nov 29 09:09:44 2018 Plotting cg17121197 
+## [FUN] Thu Nov 29 09:09:46 2018 Plotting cg07712444 
+## [FUN] Thu Nov 29 09:09:48 2018 Plotting cg14958080 
+## [FUN] Thu Nov 29 09:09:48 2018 Plotting cg12115928 
+## [FUN] Thu Nov 29 09:09:48 2018 Plotting cg09580965 
+## [FUN] Thu Nov 29 09:09:49 2018 Plotting cg22853855 
+## [FUN] Thu Nov 29 09:09:49 2018 Plotting cg27227029 
+## [FUN] Thu Nov 29 09:09:49 2018 Plotting cg04060551 
+## [FUN] Thu Nov 29 09:09:50 2018 Plotting cg21177821 
+## [FUN] Thu Nov 29 09:09:50 2018 Plotting cg27366532 
+## [FUN] Thu Nov 29 09:09:50 2018 Plotting cg02864626 
+## [FUN] Thu Nov 29 09:09:51 2018 Plotting cg11111132 
+## [FUN] Thu Nov 29 09:09:51 2018 Plotting cg05883195 
+## [FUN] Thu Nov 29 09:09:52 2018 Plotting cg06812844 
+## [FUN] Thu Nov 29 09:09:52 2018 Plotting cg24667758 
+## [FUN] Thu Nov 29 09:09:52 2018 Plotting cg26791399 
+## [FUN] Thu Nov 29 09:09:52 2018 Plotting cg11147155 
+## [FUN] Thu Nov 29 09:09:53 2018 Plotting cg17554896 
+## [FUN] Thu Nov 29 09:09:53 2018 Plotting cg14585797 
+## [FUN] Thu Nov 29 09:09:54 2018 Plotting cg03692708 
+## [FUN] Thu Nov 29 09:09:55 2018 Plotting cg13411149 
+## [FUN] Thu Nov 29 09:09:55 2018 Plotting cg08785985 
+## [FUN] Thu Nov 29 09:09:56 2018 Plotting cg03281561 
+## [FUN] Thu Nov 29 09:09:56 2018 Plotting cg06288788 
+## [FUN] Thu Nov 29 09:09:57 2018 Plotting cg18505959 
+## [FUN] Thu Nov 29 09:09:57 2018 Plotting cg03697024 
+## [FUN] Thu Nov 29 09:09:59 2018 Plotting cg26665035 
+## [FUN] Thu Nov 29 09:09:59 2018 Plotting cg14042308 
+## [FUN] Thu Nov 29 09:10:00 2018 Plotting cg08067998 
+## [FUN] Thu Nov 29 09:10:00 2018 Plotting cg13787850 
+## [FUN] Thu Nov 29 09:10:01 2018 Plotting cg22916593 
+## [FUN] Thu Nov 29 09:10:01 2018 Plotting cg09089053 
+## [FUN] Thu Nov 29 09:10:02 2018 Plotting cg00575090 
+## [FUN] Thu Nov 29 09:10:02 2018 Plotting cg07525221 
+## [FUN] Thu Nov 29 09:10:02 2018 Plotting cg08952407 
+## [FUN] Thu Nov 29 09:10:03 2018 Plotting cg24251942 
+## [FUN] Thu Nov 29 09:10:03 2018 Plotting cg21856784 
+## [FUN] Thu Nov 29 09:10:03 2018 Plotting cg24081553 
+## [FUN] Thu Nov 29 09:10:05 2018 Plotting cg22888850 
+## [FUN] Thu Nov 29 09:10:05 2018 Plotting cg06139099 
+## [FUN] Thu Nov 29 09:10:08 2018 Plotting cg26222042 
+## [FUN] Thu Nov 29 09:10:08 2018 Plotting cg00740510 
+## [FUN] Thu Nov 29 09:10:08 2018 Plotting cg09483763 
+## [FUN] Thu Nov 29 09:10:09 2018 Plotting cg00024443 
+## [FUN] Thu Nov 29 09:10:09 2018 Plotting cg10981907 
+## [FUN] Thu Nov 29 09:10:10 2018 Plotting cg11821039 
+## [FUN] Thu Nov 29 09:10:10 2018 Plotting cg08753560 
+## [FUN] Thu Nov 29 09:10:10 2018 Plotting cg02433593 
+## [FUN] Thu Nov 29 09:10:12 2018 Plotting cg21853296 
+## [FUN] Thu Nov 29 09:10:13 2018 Plotting cg18363008 
+## [FUN] Thu Nov 29 09:10:13 2018 Plotting cg01109337 
+## [FUN] Thu Nov 29 09:10:13 2018 Plotting cg17505469 
+## [FUN] Thu Nov 29 09:10:13 2018 Plotting cg17326771 
+## [FUN] Thu Nov 29 09:10:15 2018 Plotting ch.11.939596F 
+## [FUN] Thu Nov 29 09:10:15 2018 Plotting cg21266178 
+## [FUN] Thu Nov 29 09:10:16 2018 Plotting cg10149836 
+## [FUN] Thu Nov 29 09:10:17 2018 Plotting cg09446329 
+## [FUN] Thu Nov 29 09:10:18 2018 Plotting cg01128574 
+## [FUN] Thu Nov 29 09:10:18 2018 Plotting cg17750572 
+## [FUN] Thu Nov 29 09:10:18 2018 Plotting cg16456087 
+## [FUN] Thu Nov 29 09:10:18 2018 Plotting cg00015286 
+## [FUN] Thu Nov 29 09:10:19 2018 Plotting cg20652954 
+## [FUN] Thu Nov 29 09:10:19 2018 Plotting cg09987663 
+## [FUN] Thu Nov 29 09:10:19 2018 Plotting cg18453576 
+## [FUN] Thu Nov 29 09:10:19 2018 Plotting cg16209860 
+## [FUN] Thu Nov 29 09:10:21 2018 Plotting cg06883544 
+## [FUN] Thu Nov 29 09:10:22 2018 Plotting ch.1.159013533R 
+## [FUN] Thu Nov 29 09:10:22 2018 Plotting cg12975330 
+## [FUN] Thu Nov 29 09:10:24 2018 Plotting cg10317175 
+## [FUN] Thu Nov 29 09:10:24 2018 Plotting cg15970595 
+## [FUN] Thu Nov 29 09:10:24 2018 Plotting cg09043294 
+## [FUN] Thu Nov 29 09:10:26 2018 Plotting cg17529058 
+## [FUN] Thu Nov 29 09:10:26 2018 Plotting cg17321385 
+## [FUN] Thu Nov 29 09:10:27 2018 Plotting cg21857668 
+## [FUN] Thu Nov 29 09:10:28 2018 Plotting cg00004192 
+## [FUN] Thu Nov 29 09:10:29 2018 Plotting cg10068301 
+## [FUN] Thu Nov 29 09:10:29 2018 Plotting cg00793227 
+## [FUN] Thu Nov 29 09:10:30 2018 Plotting cg12097191 
+## [FUN] Thu Nov 29 09:10:30 2018 Plotting cg20201957 
+## [FUN] Thu Nov 29 09:10:30 2018 Plotting cg06658067 
+## [FUN] Thu Nov 29 09:10:30 2018 Plotting cg03603018 
+## [FUN] Thu Nov 29 09:10:31 2018 Plotting cg18529246 
+## [FUN] Thu Nov 29 09:10:31 2018 Plotting cg26407544 
+## [FUN] Thu Nov 29 09:10:32 2018 Plotting cg22638471 
+## [FUN] Thu Nov 29 09:10:32 2018 Plotting cg03989987 
+## [FUN] Thu Nov 29 09:10:32 2018 Plotting cg04788993 
+## [FUN] Thu Nov 29 09:10:32 2018 Plotting cg06303744 
+## [meffil.ewas.summary] Thu Nov 29 09:10:33 2018 Sample characteristics 
+## [meffil.ewas.sample.characteristics] Thu Nov 29 09:10:33 2018 summarizing variables 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 variable of interest 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 Bcell 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 CD14 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 CD4T 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 CD8T 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 Gran 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 NK 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 socioeconomic.score 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 gender 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 smoke.ever 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 birth.weight 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X1 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X2 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X3 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X4 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X5 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X6 
+## [summarize.variable] Thu Nov 29 09:10:33 2018 X7 
+## [meffil.ewas.covariate.associations] Thu Nov 29 09:10:33 2018 covariate associations 
+## [FUN] Thu Nov 29 09:10:33 2018 Bcell 
+## [FUN] Thu Nov 29 09:10:33 2018 CD14 
+## [FUN] Thu Nov 29 09:10:33 2018 CD4T 
+## [FUN] Thu Nov 29 09:10:33 2018 CD8T 
+## [FUN] Thu Nov 29 09:10:33 2018 Gran 
+## [FUN] Thu Nov 29 09:10:33 2018 NK 
+## [FUN] Thu Nov 29 09:10:33 2018 socioeconomic.score 
+## [FUN] Thu Nov 29 09:10:33 2018 gender 
+## [FUN] Thu Nov 29 09:10:33 2018 smoke.ever 
+## [FUN] Thu Nov 29 09:10:33 2018 birth.weight 
+## [FUN] Thu Nov 29 09:10:33 2018 X1 
+## [FUN] Thu Nov 29 09:10:33 2018 X2 
+## [FUN] Thu Nov 29 09:10:33 2018 X3 
+## [FUN] Thu Nov 29 09:10:33 2018 X4 
+## [FUN] Thu Nov 29 09:10:33 2018 X5 
+## [FUN] Thu Nov 29 09:10:33 2018 X6 
+## [FUN] Thu Nov 29 09:10:33 2018 X7
+</code></pre>
+
+<pre><code class="r">meffil.ewas.report(ewas.summary,
+                   output.file=&quot;ewas/ewas-gestational-age-report-100.html&quot;,
+                   author=ewas.author,
+                   study=ewas.study)
+</code></pre>
+
+<pre><code>## [meffil.ewas.report] Thu Nov 29 09:10:33 2018 Writing report as html file to ewas/ewas-gestational-age-report-100.html
+</code></pre>
+
+<p>How well does SVA and ISVA capture batch effects
+that are not explicitly included in the model?</p>
+
+<pre><code class="r">slide &lt;- model.matrix(~ 0 + Slide, samplesheet)
+row &lt;- model.matrix(~ 0 + sentrix_row, samplesheet)
+
+sv &lt;- ewas.ret$analyses$sva$design
+sv &lt;- sv[,grep(&quot;X&quot;, colnames(sv))]
+
+isv &lt;- ewas.ret$analyses$isva$design
+isv &lt;- isv[,grep(&quot;X&quot;, colnames(isv))]
+
+library(penalized)
+
+prediction.accuracy &lt;- function(v, p) {
+    fit &lt;- optL1(response=v, penalized=p, fold=10, standardize=T, maxiter=1000, model=&quot;logistic&quot;)
+    sum((fit$predictions &gt; 0.5) == (v == 1))/length(v)
+}
+
+cbind(isva=apply(row, 2, prediction.accuracy, isv),
+      sva =apply(row, 2, prediction.accuracy, sv))
+</code></pre>
+
+<pre><code>## lambda= 4.463354     12345678910cvl= -26.22065 
+## lambda= 7.221859     12345678910cvl= -28.92696 
+## lambda= 2.758505     12345678910cvl= -27.92454 
+## lambda= 4.737111     12345678910cvl= -26.26229 
+## lambda= 4.469555     12345678910cvl= -26.22135 
+## lambda= 3.81216  12345678910cvl= -26.35646 
+## lambda= 4.0927   12345678910cvl= -26.23454 
+## lambda= 4.325268     12345678910cvl= -26.21649 
+## lambda= 4.367748     12345678910cvl= -26.21538 
+## lambda= 4.368679     12345678910cvl= -26.21537 
+## lambda= 4.378629     12345678910cvl= -26.21531 
+## lambda= 4.410991     12345678910cvl= -26.21536 
+## lambda= 4.390982     12345678910cvl= -26.21528 
+## lambda= 4.390972     12345678910cvl= -26.21528 
+## lambda= 4.384939     12345678910cvl= -26.21529 
+## lambda= 4.388668     12345678910cvl= -26.21528 
+## lambda= 4.389829     12345678910cvl= -26.21528 
+## lambda= 4.390406     12345678910cvl= -26.21528 
+## lambda= 0.9108814    12345678910cvl= -8.674526 
+## lambda= 1.473837     12345678910cvl= -9.499194 
+## lambda= 0.5629557    12345678910cvl= -7.887809 
+## lambda= 0.3479257    12345678910cvl= -7.57576 
+## lambda= 0.2150299    12345678910cvl= -7.646126 
+## lambda= 0.3279824    12345678910cvl= -7.566069 
+## lambda= 0.3109274    12345678910cvl= -7.561745 
+## lambda= 0.2742978    12345678910cvl= -7.572504 
+## lambda= 0.3070185    12345678910cvl= -7.561736 
+## lambda= 0.308879     12345678910cvl= -7.561616 
+## lambda= 0.3089385    12345678910cvl= -7.561613 
+## lambda= 0.3096982    12345678910cvl= -7.561582 
+## lambda= 0.3101677    12345678910cvl= -7.561642 
+## lambda= 0.309408     12345678910cvl= -7.56159 
+## lambda= 0.3098775    12345678910cvl= -7.561604 
+## lambda= 0.3095988    12345678910cvl= -7.561582 
+## lambda= 0.3096786    12345678910cvl= -7.561579 
+## lambda= 0.3096485    12345678910cvl= -7.56158 
+## lambda= 3.494182     12345678910cvl= -30.80327 
+## lambda= 5.653705     12345678910cvl= -31.91057 
+## lambda= 2.159523     12345678910cvl= -31.71793 
+## lambda= 3.826217     12345678910cvl= -30.76236 
+## lambda= 3.84287  12345678910cvl= -30.76068 
+## lambda= 4.534547     12345678910cvl= -30.97438 
+## lambda= 4.107067     12345678910cvl= -30.7563 
+## lambda= 4.002594     12345678910cvl= -30.75441 
+## lambda= 4.013106     12345678910cvl= -30.7543 
+## lambda= 4.025018     12345678910cvl= -30.75428 
+## lambda= 4.021466     12345678910cvl= -30.75427 
+## lambda= 4.021471     12345678910cvl= -30.75427 
+## lambda= 4.018273     12345678910cvl= -30.75428 
+## lambda= 4.019875     12345678910cvl= -30.75427 
+## lambda= 4.020673     12345678910cvl= -30.75427 
+## lambda= 0.9339713    12345678910cvl= -10.71504 
+## lambda= 1.511197     12345678910cvl= -9.587975 
+## lambda= 1.867943     12345678910cvl= -9.391886 
+## lambda= 1.872538     12345678910cvl= -9.389359 
+## lambda= 2.091263     12345678910cvl= -9.332612 
+## lambda= 2.081644     12345678910cvl= -9.333707 
+## lambda= 2.168145     12345678910cvl= -9.330717 
+## lambda= 2.273959     12345678910cvl= -9.316126 
+## lambda= 2.339355     12345678910cvl= -9.304834 
+## lambda= 2.379772     12345678910cvl= -9.298987 
+## lambda= 2.404751     12345678910cvl= -9.295789 
+## lambda= 2.420189     12345678910cvl= -9.294255 
+## lambda= 2.429731     12345678910cvl= -9.293546 
+## lambda= 2.435627     12345678910cvl= -9.293109 
+## lambda= 2.439272     12345678910cvl= -9.292839 
+## lambda= 2.441524     12345678910cvl= -9.292673 
+## lambda= 2.442916     12345678910cvl= -9.29257 
+## lambda= 2.443777     12345678910cvl= -9.292506 
+## lambda= 2.444308     12345678910cvl= -9.292467 
+## lambda= 2.444637     12345678910cvl= -9.292443 
+## lambda= 3.778149     12345678910cvl= -28.07358 
+## lambda= 6.113173     12345678910cvl= -30.897 
+## lambda= 2.335024     12345678910cvl= -28.21818 
+## lambda= 3.201142     12345678910cvl= -27.90716 
+## lambda= 3.168239     12345678910cvl= -27.90562 
+## lambda= 3.12539  12345678910cvl= -27.90491 
+## lambda= 3.126301     12345678910cvl= -27.90489 
+## lambda= 3.1388   12345678910cvl= -27.90478 
+## lambda= 3.150045     12345678910cvl= -27.90504 
+## lambda= 3.135712     12345678910cvl= -27.90472 
+## lambda= 3.134023     12345678910cvl= -27.9047 
+## lambda= 3.131074     12345678910cvl= -27.90477 
+## lambda= 3.134037     12345678910cvl= -27.9047 
+## lambda= 3.134868     12345678910cvl= -27.90471 
+## lambda= 3.134355     12345678910cvl= -27.9047 
+## lambda= 0.9713909    12345678910cvl= -8.578377 
+## lambda= 1.571744     12345678910cvl= -9.351536 
+## lambda= 0.6003526    12345678910cvl= -7.885962 
+## lambda= 0.3710383    12345678910cvl= -7.955661 
+## lambda= 0.5277383    12345678910cvl= -7.756749 
+## lambda= 0.497126     12345678910cvl= -7.729867 
+## lambda= 0.4621443    12345678910cvl= -7.725553 
+## lambda= 0.4742764    12345678910cvl= -7.724393 
+## lambda= 0.4731998    12345678910cvl= -7.724493 
+## lambda= 0.4830042    12345678910cvl= -7.724821 
+## lambda= 0.4769424    12345678910cvl= -7.724293 
+## lambda= 0.4768863    12345678910cvl= -7.724293 
+## lambda= 0.4756094    12345678910cvl= -7.724317 
+## lambda= 0.4763986    12345678910cvl= -7.724297 
+## lambda= 0.4766705    12345678910cvl= -7.724294 
+## lambda= 0.4768065    12345678910cvl= -7.724293 
+## lambda= 3.546632     12345678910cvl= -25.54767 
+## lambda= 5.738571     12345678910cvl= -29.38947 
+## lambda= 2.191939     12345678910cvl= -24.89051 
+## lambda= 2.190657     12345678910cvl= -24.89077 
+## lambda= 2.387758     12345678910cvl= -24.86818 
+## lambda= 2.830408     12345678910cvl= -24.97809 
+## lambda= 2.42391  12345678910cvl= -24.86737 
+## lambda= 2.433977     12345678910cvl= -24.86736 
+## lambda= 2.42984  12345678910cvl= -24.86736 
+## lambda= 2.429847     12345678910cvl= -24.86736 
+## lambda= 2.427575     12345678910cvl= -24.86736 
+## lambda= 2.428745     12345678910cvl= -24.86736 
+## lambda= 2.429296     12345678910cvl= -24.86736 
+## lambda= 1.237779     12345678910cvl= -10.11791 
+## lambda= 2.002769     12345678910cvl= -9.190357 
+## lambda= 2.475559     12345678910cvl= -9.286127 
+## lambda= 2.150572     12345678910cvl= -9.214503 
+## lambda= 1.710569     12345678910cvl= -9.677632 
+## lambda= 1.891159     12345678910cvl= -9.365386 
+## lambda= 2.059225     12345678910cvl= -9.190972 
+## lambda= 2.027734     12345678910cvl= -9.182488 
+## lambda= 2.030471     12345678910cvl= -9.183233 
+## lambda= 2.022684     12345678910cvl= -9.181109 
+## lambda= 2.015077     12345678910cvl= -9.179023 
+## lambda= 2.010376     12345678910cvl= -9.178856 
+## lambda= 2.011813     12345678910cvl= -9.178124 
+## lambda= 2.01262  12345678910cvl= -9.178347 
+## lambda= 2.011823     12345678910cvl= -9.178127 
+## lambda= 2.011264     12345678910cvl= -9.177973 
+## lambda= 2.010925     12345678910cvl= -9.178028 
+## lambda= 2.011369     12345678910cvl= -9.178002
+</code></pre>
+
+<pre><code>##                    isva       sva
+## sentrix_row01 0.7045455 0.5909091
+## sentrix_row02 0.9318182 0.9545455
+## sentrix_row04 0.5681818 0.7954545
+## sentrix_row05 0.9545455 0.9545455
+</code></pre>
+
+<pre><code class="r">cbind(isva=apply(slide, 2, prediction.accuracy, isv),
+      sva =apply(slide, 2, prediction.accuracy, sv))
+</code></pre>
+
+<pre><code>## lambda= 1.87039  12345678910cvl= -14.69175 
+## lambda= 3.026354     12345678910cvl= -14.274 
+## lambda= 3.740779     12345678910cvl= -14.28987 
+## lambda= 3.329438     12345678910cvl= -14.2658 
+## lambda= 3.290914     12345678910cvl= -14.26555 
+## lambda= 3.284986     12345678910cvl= -14.26558 
+## lambda= 3.297332     12345678910cvl= -14.26554 
+## lambda= 3.297342     12345678910cvl= -14.26554 
+## lambda= 3.309602     12345678910cvl= -14.26558 
+## lambda= 3.302025     12345678910cvl= -14.26555 
+## lambda= 3.299607     12345678910cvl= -14.26554 
+## lambda= 3.298453     12345678910cvl= -14.26554 
+## lambda= 3.297892     12345678910cvl= -14.26554 
+## lambda= 1.651235     12345678910cvl= -15.0502 
+## lambda= 2.671754     12345678910cvl= -14.7944 
+## lambda= 3.30247  12345678910cvl= -14.60726 
+## lambda= 3.692274     12345678910cvl= -14.44188 
+## lambda= 3.933186     12345678910cvl= -14.37507 
+## lambda= 4.082078     12345678910cvl= -14.322 
+## lambda= 4.174098     12345678910cvl= -14.28872 
+## lambda= 4.230969     12345678910cvl= -14.26966 
+## lambda= 4.266118     12345678910cvl= -14.25904 
+## lambda= 4.287841     12345678910cvl= -14.25251 
+## lambda= 4.301267     12345678910cvl= -14.24848 
+## lambda= 4.309564     12345678910cvl= -14.24608 
+## lambda= 4.314692     12345678910cvl= -14.2457 
+## lambda= 4.314366     12345678910cvl= -14.24573 
+## lambda= 4.317861     12345678910cvl= -14.24548 
+## lambda= 4.31982  12345678910cvl= -14.24533 
+## lambda= 4.321031     12345678910cvl= -14.24525 
+## lambda= 4.321779     12345678910cvl= -14.24519 
+## lambda= 4.322241     12345678910cvl= -14.24516 
+## lambda= 1.504787     12345678910cvl= -18.42854 
+## lambda= 2.434797     12345678910cvl= -16.39201 
+## lambda= 3.009574     12345678910cvl= -15.33521 
+## lambda= 3.364806     12345678910cvl= -14.77001 
+## lambda= 3.584352     12345678910cvl= -14.50304 
+## lambda= 3.720038     12345678910cvl= -14.39085 
+## lambda= 3.803897     12345678910cvl= -14.32258 
+## lambda= 3.855725     12345678910cvl= -14.29216 
+## lambda= 3.887756     12345678910cvl= -14.27414 
+## lambda= 3.907552     12345678910cvl= -14.26303 
+## lambda= 3.919787     12345678910cvl= -14.25617 
+## lambda= 3.927349     12345678910cvl= -14.25194 
+## lambda= 3.932022     12345678910cvl= -14.24933 
+## lambda= 3.93491  12345678910cvl= -14.24772 
+## lambda= 3.936695     12345678910cvl= -14.24672 
+## lambda= 3.937799     12345678910cvl= -14.2461 
+## lambda= 3.93848  12345678910cvl= -14.24572 
+## lambda= 3.938902     12345678910cvl= -14.24549 
+## lambda= 2.123743     12345678910cvl= -15.2389 
+## lambda= 3.436288     12345678910cvl= -15.71645 
+## lambda= 1.312545     12345678910cvl= -15.92998 
+## lambda= 2.462235     12345678910cvl= -15.35647 
+## lambda= 1.813893     12345678910cvl= -15.36074 
+## lambda= 2.140949     12345678910cvl= -15.23887 
+## lambda= 2.132981     12345678910cvl= -15.2383 
+## lambda= 2.132433     12345678910cvl= -15.23833 
+## lambda= 2.134606     12345678910cvl= -15.23821 
+## lambda= 2.137029     12345678910cvl= -15.23823 
+## lambda= 2.135565     12345678910cvl= -15.23821 
+## lambda= 2.135149     12345678910cvl= -15.23821 
+## lambda= 2.136089     12345678910cvl= -15.23821 
+## lambda= 2.135619     12345678910cvl= -15.23821 
+## lambda= 1.943832     12345678910cvl= -14.39101 
+## lambda= 3.145186     12345678910cvl= -15.03689 
+## lambda= 1.201354     12345678910cvl= -13.77121 
+## lambda= 0.7424778    12345678910cvl= -14.67982 
+## lambda= 1.394456     12345678910cvl= -13.67881 
+## lambda= 1.397995     12345678910cvl= -13.67876 
+## lambda= 1.399206     12345678910cvl= -13.67875 
+## lambda= 1.400855     12345678910cvl= -13.67875 
+## lambda= 1.400859     12345678910cvl= -13.67875 
+## lambda= 1.400032     12345678910cvl= -13.67875 
+## lambda= 1.40054  12345678910cvl= -13.67875 
+## lambda= 1.631303     12345678910cvl= -16.9992 
+## lambda= 2.639504     12345678910cvl= -15.69293 
+## lambda= 3.262606     12345678910cvl= -15.04077 
+## lambda= 3.647704     12345678910cvl= -14.62474 
+## lambda= 3.885708     12345678910cvl= -14.41699 
+## lambda= 4.032803     12345678910cvl= -14.32099 
+## lambda= 4.123712     12345678910cvl= -14.26716 
+## lambda= 4.179897     12345678910cvl= -14.23528 
+## lambda= 4.214622     12345678910cvl= -14.21609 
+## lambda= 4.236082     12345678910cvl= -14.20443 
+## lambda= 4.249346     12345678910cvl= -14.19729 
+## lambda= 4.257543     12345678910cvl= -14.19291 
+## lambda= 4.262609     12345678910cvl= -14.19022 
+## lambda= 4.265741     12345678910cvl= -14.18856 
+## lambda= 4.267676     12345678910cvl= -14.18753 
+## lambda= 4.268872     12345678910cvl= -14.18707 
+## lambda= 4.269611     12345678910cvl= -14.18683 
+## lambda= 4.270068     12345678910cvl= -14.18669 
+## lambda= 2.006573     12345678910cvl= -10.53269 
+## lambda= 3.246703     12345678910cvl= -11.844 
+## lambda= 1.24013  12345678910cvl= -10.01865 
+## lambda= 0.7664427    12345678910cvl= -9.822501 
+## lambda= 0.4736876    12345678910cvl= -9.863364 
+## lambda= 0.7166755    12345678910cvl= -9.794607 
+## lambda= 0.6442882    12345678910cvl= -9.77469 
+## lambda= 0.6215914    12345678910cvl= -9.774868 
+## lambda= 0.6342612    12345678910cvl= -9.77437 
+## lambda= 0.6341938    12345678910cvl= -9.77437 
+## lambda= 0.6279263    12345678910cvl= -9.774491 
+## lambda= 0.6317998    12345678910cvl= -9.774387 
+## lambda= 0.6330305    12345678910cvl= -9.774374 
+## lambda= 0.6336458    12345678910cvl= -9.774371 
+## lambda= 0.6339535    12345678910cvl= -9.77437 
+## lambda= 0.6341073    12345678910cvl= -9.77437 
+## lambda= 2.114349     12345678910cvl= -16.12633 
+## lambda= 3.421088     12345678910cvl= -16.27272 
+## lambda= 1.306739     12345678910cvl= -16.74937 
+## lambda= 2.633666     12345678910cvl= -16.41338 
+## lambda= 1.805869     12345678910cvl= -16.17623 
+## lambda= 2.437264     12345678910cvl= -16.35743 
+## lambda= 2.237691     12345678910cvl= -16.23 
+## lambda= 1.994955     12345678910cvl= -16.1017 
+## lambda= 2.001665     12345678910cvl= -16.10083 
+## lambda= 2.020058     12345678910cvl= -16.09906 
+## lambda= 2.056074     12345678910cvl= -16.09819 
+## lambda= 2.047182     12345678910cvl= -16.09808 
+## lambda= 2.047196     12345678910cvl= -16.09808 
+## lambda= 2.036821     12345678910cvl= -16.09823 
+## lambda= 2.043224     12345678910cvl= -16.0981 
+## lambda= 2.045342     12345678910cvl= -16.09809 
+## lambda= 2.046293     12345678910cvl= -16.09808 
+## lambda= 2.046745     12345678910cvl= -16.09808 
+## lambda= 1.223055     12345678910cvl= -31.39887 
+## lambda= 1.978945     12345678910cvl= -32.59694 
+## lambda= 0.7558898    12345678910cvl= -33.24968 
+## lambda= 1.426256     12345678910cvl= -34.45872 
+## lambda= 1.091073     12345678910cvl= -35.3635 
+## lambda= 1.300671     12345678910cvl= -36.42053 
+## lambda= 1.172643     12345678910cvl= -37.38476 
+## lambda= 1.252702     12345678910cvl= -38.4072 
+## lambda= 1.203799     12345678910cvl= -39.39337 
+## lambda= 1.234379     12345678910cvl= -40.40207 
+## lambda= 1.2157   12345678910cvl= -41.39677 
+## lambda= 1.227381     12345678910cvl= -42.40009 
+## lambda= 1.220246     12345678910cvl= -43.39807 
+## lambda= 1.224707     12345678910cvl= -44.39933 
+## lambda= 1.221982     12345678910cvl= -45.39856 
+## lambda= 1.223686     12345678910cvl= -46.39904 
+## lambda= 1.222645     12345678910cvl= -47.39875 
+## lambda= 1.223296     12345678910cvl= -48.39893 
+## lambda= 1.222899     12345678910cvl= -49.39882 
+## lambda= 1.161698     12345678910cvl= -8.390496 
+## lambda= 1.879668     12345678910cvl= -9.593512 
+## lambda= 0.7179691    12345678910cvl= -6.535982 
+## lambda= 0.4437293    12345678910cvl= -5.72955 
+## lambda= 0.2742398    12345678910cvl= -5.479636 
+## lambda= 0.1358479    12345678910cvl= -5.536238 
+## lambda= 0.2384716    12345678910cvl= -5.459742 
+## lambda= 0.2267872    12345678910cvl= -5.456144 
+## lambda= 0.1920515    12345678910cvl= -5.455618 
+## lambda= 0.2082191    12345678910cvl= -5.453824 
+## lambda= 0.2083049    12345678910cvl= -5.453824 
+## lambda= 0.2079295    12345678910cvl= -5.453823 
+## lambda= 0.207915     12345678910cvl= -5.453823 
+## lambda= 0.1999905    12345678910cvl= -5.454262 
+## lambda= 0.2048881    12345678910cvl= -5.453886 
+## lambda= 0.2064088    12345678910cvl= -5.453839 
+## lambda= 0.2071692    12345678910cvl= -5.453827 
+## lambda= 0.2075494    12345678910cvl= -5.453824 
+## lambda= 0.2077395    12345678910cvl= -5.453824 
+## lambda= 0.2078345    12345678910cvl= -5.453823 
+## lambda= 0.207882     12345678910cvl= -5.453823 
+## lambda= 1.14621  12345678910cvl= -8.965462 
+## lambda= 1.854607     12345678910cvl= -9.433542 
+## lambda= 0.7083966    12345678910cvl= -8.118336 
+## lambda= 0.4378132    12345678910cvl= -7.960792 
+## lambda= 0.4206456    12345678910cvl= -7.984234 
+## lambda= 0.5300947    12345678910cvl= -7.927904 
+## lambda= 0.5982   12345678910cvl= -7.979407 
+## lambda= 0.5096414    12345678910cvl= -7.917126 
+## lambda= 0.498444     12345678910cvl= -7.913347 
+## lambda= 0.4752851    12345678910cvl= -7.925058 
+## lambda= 0.497167     12345678910cvl= -7.913717 
+## lambda= 0.5006864    12345678910cvl= -7.913982 
+## lambda= 0.4986951    12345678910cvl= -7.913415 
+## lambda= 0.4982001    12345678910cvl= -7.913353 
+## lambda= 0.4983428    12345678910cvl= -7.913319 
+## lambda= 0.4983221    12345678910cvl= -7.913309 
+## lambda= 0.4982755    12345678910cvl= -7.913327 
+## lambda= 2.05611  12345678910cvl= -9.450094 
+## lambda= 3.326856     12345678910cvl= -12.60105 
+## lambda= 1.270746     12345678910cvl= -8.495813 
+## lambda= 0.6755766    12345678910cvl= -8.309699 
+## lambda= 0.7339577    12345678910cvl= -8.238557 
+## lambda= 0.9183523    12345678910cvl= -8.149942 
+## lambda= 0.9051993    12345678910cvl= -8.149884 
+## lambda= 0.910989     12345678910cvl= -8.149807 
+## lambda= 0.9108445    12345678910cvl= -8.149807 
+## lambda= 0.9080942    12345678910cvl= -8.149825 
+## lambda= 0.9095416    12345678910cvl= -8.149811 
+## lambda= 0.9102653    12345678910cvl= -8.149808 
+## lambda= 0.9106272    12345678910cvl= -8.149807 
+## lambda= 3.031413     12345678910cvl= -8.209966 
+## lambda= 4.904929     12345678910cvl= -11.51289 
+## lambda= 1.873516     12345678910cvl= -6.406009 
+## lambda= 1.157897     12345678910cvl= -5.954361 
+## lambda= 0.8778186    12345678910cvl= -6.077749 
+## lambda= 1.222515     12345678910cvl= -5.951479 
+## lambda= 1.209621     12345678910cvl= -5.951219 
+## lambda= 1.208013     12345678910cvl= -5.951197 
+## lambda= 1.18887  12345678910cvl= -5.951587 
+## lambda= 1.193344     12345678910cvl= -5.951264 
+## lambda= 1.202729     12345678910cvl= -5.95114 
+## lambda= 1.199144     12345678910cvl= -5.951116 
+## lambda= 1.196929     12345678910cvl= -5.951128 
+## lambda= 1.199311     12345678910cvl= -5.951117 
+## lambda= 1.198638     12345678910cvl= -5.951114 
+## lambda= 1.197985     12345678910cvl= -5.951112 
+## lambda= 1.197455     12345678910cvl= -5.95112 
+## lambda= 1.198234     12345678910cvl= -5.951112 
+## lambda= 1.197845     12345678910cvl= -5.951114 
+## lambda= 2.409926     12345678910cvl= -12.51698 
+## lambda= 3.899343     12345678910cvl= -14.0943 
+## lambda= 1.489416     12345678910cvl= -11.75566 
+## lambda= 0.9205099    12345678910cvl= -11.84302 
+## lambda= 1.321575     12345678910cvl= -11.65395 
+## lambda= 1.245501     12345678910cvl= -11.64688 
+## lambda= 1.261451     12345678910cvl= -11.64597 
+## lambda= 1.264897     12345678910cvl= -11.64589 
+## lambda= 1.269322     12345678910cvl= -11.64586 
+## lambda= 1.269382     12345678910cvl= -11.64587 
+## lambda= 1.267175     12345678910cvl= -11.64587 
+## lambda= 1.268502     12345678910cvl= -11.64586 
+## lambda= 1.269009     12345678910cvl= -11.64586 
+## lambda= 1.269203     12345678910cvl= -11.64586 
+## lambda= 1.133099     12345678910cvl= -15.88562 
+## lambda= 1.833393     12345678910cvl= -14.82608 
+## lambda= 2.266198     12345678910cvl= -14.4539 
+## lambda= 2.795823     12345678910cvl= -14.22257 
+## lambda= 2.593524     12345678910cvl= -14.2824 
+## lambda= 2.718552     12345678910cvl= -14.24019 
+## lambda= 2.861013     12345678910cvl= -14.20833 
+## lambda= 2.901302     12345678910cvl= -14.19981 
+## lambda= 2.926202     12345678910cvl= -14.19464 
+## lambda= 2.941592     12345678910cvl= -14.19149 
+## lambda= 2.951103     12345678910cvl= -14.18955 
+## lambda= 2.956981     12345678910cvl= -14.18836 
+## lambda= 2.960614     12345678910cvl= -14.18763 
+## lambda= 2.962859     12345678910cvl= -14.18718 
+## lambda= 2.964246     12345678910cvl= -14.1869 
+## lambda= 2.965104     12345678910cvl= -14.18673 
+## lambda= 2.965634     12345678910cvl= -14.18662 
+## lambda= 2.965962     12345678910cvl= -14.18655 
+## lambda= 2.069245     12345678910cvl= -15.29962 
+## lambda= 3.348108     12345678910cvl= -15.7792 
+## lambda= 1.278864     12345678910cvl= -17.20549 
+## lambda= 2.569428     12345678910cvl= -15.17212 
+## lambda= 2.47689  12345678910cvl= -15.12512 
+## lambda= 2.387451     12345678910cvl= -15.09127 
+## lambda= 2.265907     12345678910cvl= -15.0639 
+## lambda= 2.171729     12345678910cvl= -15.14088 
+## lambda= 2.312333     12345678910cvl= -15.07178 
+## lambda= 2.229934     12345678910cvl= -15.08027 
+## lambda= 2.277932     12345678910cvl= -15.06563 
+## lambda= 2.252167     12345678910cvl= -15.06392 
+## lambda= 2.259177     12345678910cvl= -15.06302 
+## lambda= 2.259079     12345678910cvl= -15.06301 
+## lambda= 2.256439     12345678910cvl= -15.06269 
+## lambda= 2.254807     12345678910cvl= -15.06249 
+## lambda= 2.253799     12345678910cvl= -15.06276 
+## lambda= 2.255213     12345678910cvl= -15.06254 
+## lambda= 2.254422     12345678910cvl= -15.06245 
+## lambda= 2.254184     12345678910cvl= -15.06248 
+## lambda= 1.433349     12345678910cvl= -16.68947 
+## lambda= 2.319208     12345678910cvl= -15.15613 
+## lambda= 2.866698     12345678910cvl= -14.60051 
+## lambda= 3.205066     12345678910cvl= -14.37992 
+## lambda= 3.414189     12345678910cvl= -14.30115 
+## lambda= 3.68423  12345678910cvl= -14.20844 
+## lambda= 3.581083     12345678910cvl= -14.24272 
+## lambda= 3.644831     12345678910cvl= -14.22137 
+## lambda= 3.710328     12345678910cvl= -14.19997 
+## lambda= 3.726458     12345678910cvl= -14.19478 
+## lambda= 3.736427     12345678910cvl= -14.19159 
+## lambda= 3.742588     12345678910cvl= -14.18962 
+## lambda= 3.746396     12345678910cvl= -14.18841 
+## lambda= 3.748749     12345678910cvl= -14.18766 
+## lambda= 3.750203     12345678910cvl= -14.1872 
+## lambda= 3.751102     12345678910cvl= -14.18691 
+## lambda= 3.751658     12345678910cvl= -14.18673 
+## lambda= 1.789884     12345678910cvl= -14.23473 
+## lambda= 2.896093     12345678910cvl= -13.96215 
+## lambda= 3.579768     12345678910cvl= -14.03586 
+## lambda= 2.965536     12345678910cvl= -14.00314 
+## lambda= 2.473559     12345678910cvl= -13.84436 
+## lambda= 2.464732     12345678910cvl= -13.84916 
+## lambda= 2.61174  12345678910cvl= -13.78326 
+## lambda= 2.720353     12345678910cvl= -13.84617 
+## lambda= 2.596072     12345678910cvl= -13.78462 
+## lambda= 2.618806     12345678910cvl= -13.78706 
+## lambda= 2.60548  12345678910cvl= -13.78062 
+## lambda= 2.604708     12345678910cvl= -13.78095 
+## lambda= 2.606848     12345678910cvl= -13.78065 
+## lambda= 2.606003     12345678910cvl= -13.78041 
+## lambda= 2.606149     12345678910cvl= -13.78034 
+## lambda= 2.606416     12345678910cvl= -13.78041 
+## lambda= 1.569003     12345678910cvl= -16.39859 
+## lambda= 2.5387   12345678910cvl= -16.0953 
+## lambda= 3.138006     12345678910cvl= -16.01387 
+## lambda= 3.441005     12345678910cvl= -16.01396 
+## lambda= 3.288516     12345678910cvl= -16.01328 
+## lambda= 3.284098     12345678910cvl= -16.01328 
+## lambda= 3.282843     12345678910cvl= -16.01328 
+## lambda= 3.282784     12345678910cvl= -16.01328 
+## lambda= 3.283441     12345678910cvl= -16.01328 
+## lambda= 1.135142     12345678910cvl= -15.66981 
+## lambda= 1.836698     12345678910cvl= -13.99333 
+## lambda= 2.270284     12345678910cvl= -13.50289 
+## lambda= 2.563595     12345678910cvl= -13.32628 
+## lambda= 2.719531     12345678910cvl= -13.29474 
+## lambda= 2.755162     12345678910cvl= -13.28723 
+## lambda= 2.837926     12345678910cvl= -13.27296 
+## lambda= 2.889077     12345678910cvl= -13.26696 
+## lambda= 2.92069  12345678910cvl= -13.26332 
+## lambda= 2.940228     12345678910cvl= -13.2611 
+## lambda= 2.952303     12345678910cvl= -13.25974 
+## lambda= 2.959765     12345678910cvl= -13.2589 
+## lambda= 2.964378     12345678910cvl= -13.25838 
+## lambda= 2.967228     12345678910cvl= -13.25806 
+## lambda= 2.96899  12345678910cvl= -13.25786 
+## lambda= 2.970079     12345678910cvl= -13.25774 
+## lambda= 2.970752     12345678910cvl= -13.25766 
+## lambda= 2.971168     12345678910cvl= -13.25762 
+## lambda= 1.27749  12345678910cvl= -14.64674 
+## lambda= 2.067022     12345678910cvl= -14.58673 
+## lambda= 2.55498  12345678910cvl= -14.45745 
+## lambda= 2.856554     12345678910cvl= -14.35947 
+## lambda= 3.042937     12345678910cvl= -14.27529 
+## lambda= 3.158129     12345678910cvl= -14.22306 
+## lambda= 3.229321     12345678910cvl= -14.19751 
+## lambda= 3.27332  12345678910cvl= -14.19323 
+## lambda= 3.272705     12345678910cvl= -14.19329 
+## lambda= 3.300513     12345678910cvl= -14.19062 
+## lambda= 3.317319     12345678910cvl= -14.18902 
+## lambda= 3.327706     12345678910cvl= -14.18803 
+## lambda= 3.334125     12345678910cvl= -14.18743 
+## lambda= 3.338092     12345678910cvl= -14.18705 
+## lambda= 3.340544     12345678910cvl= -14.18682 
+## lambda= 3.34206  12345678910cvl= -14.18668 
+## lambda= 3.342996     12345678910cvl= -14.18659 
+## lambda= 3.343575     12345678910cvl= -14.18654 
+## lambda= 3.343933     12345678910cvl= -14.1865 
+## lambda= 0.4095572    12345678910cvl= -31.93141 
+## lambda= 0.6626775    12345678910cvl= -32.84629 
+## lambda= 0.2531203    12345678910cvl= -34.09338 
+## lambda= 0.4936639    12345678910cvl= -34.88779 
+## lambda= 0.3498036    12345678910cvl= -35.97304 
+## lambda= 0.4416831    12345678910cvl= -36.91551 
+## lambda= 0.3867334    12345678910cvl= -37.94443 
+## lambda= 0.4218282    12345678910cvl= -38.92592 
+## lambda= 0.4008393    12345678910cvl= -39.93563 
+## lambda= 0.4142443    12345678910cvl= -40.92927 
+## lambda= 0.4062272    12345678910cvl= -41.93296 
+## lambda= 0.4113475    12345678910cvl= -42.93058 
+## lambda= 0.4082853    12345678910cvl= -43.932 
+## lambda= 0.410241     12345678910cvl= -44.93109 
+## lambda= 0.4090714    12345678910cvl= -45.93163 
+## lambda= 0.4098184    12345678910cvl= -46.93128 
+## lambda= 0.4093716    12345678910cvl= -47.93149 
+## lambda= 0.409657     12345678910cvl= -48.93136 
+## lambda= 0.4094863    12345678910cvl= -49.93144 
+## lambda= 1.123982     12345678910cvl= -9.274212 
+## lambda= 1.818641     12345678910cvl= -9.472567 
+## lambda= 0.6946589    12345678910cvl= -8.498936 
+## lambda= 0.4293228    12345678910cvl= -8.19165 
+## lambda= 0.2653361    12345678910cvl= -8.433374 
+## lambda= 0.4675434    12345678910cvl= -8.203359 
+## lambda= 0.4310367    12345678910cvl= -8.19176 
+## lambda= 0.4253343    12345678910cvl= -8.191576 
+## lambda= 0.4261621    12345678910cvl= -8.19157 
+## lambda= 0.4261682    12345678910cvl= -8.191576 
+## lambda= 0.4257512    12345678910cvl= -8.191572 
+## lambda= 0.4260051    12345678910cvl= -8.19157 
+## lambda= 0.4260867    12345678910cvl= -8.19157 
+## lambda= 1.1285   12345678910cvl= -9.704491 
+## lambda= 1.825952     12345678910cvl= -9.549052 
+## lambda= 2.257    12345678910cvl= -9.353335 
+## lambda= 2.523403     12345678910cvl= -9.371577 
+## lambda= 2.344502     12345678910cvl= -9.351808 
+## lambda= 2.318918     12345678910cvl= -9.349638 
+## lambda= 2.306033     12345678910cvl= -9.350255 
+## lambda= 2.319416     12345678910cvl= -9.349643 
+## lambda= 2.317834     12345678910cvl= -9.349625 
+## lambda= 2.313326     12345678910cvl= -9.349845 
+## lambda= 2.316112     12345678910cvl= -9.349692 
+## lambda= 2.317177     12345678910cvl= -9.349634 
+## lambda= 2.317979     12345678910cvl= -9.349627 
+## lambda= 2.317578     12345678910cvl= -9.349622 
+## lambda= 3.098083     12345678910cvl= -7.180927 
+## lambda= 5.012803     12345678910cvl= -11.11911 
+## lambda= 1.91472  12345678910cvl= -5.195846 
+## lambda= 1.183362     12345678910cvl= -4.201118 
+## lambda= 0.7313582    12345678910cvl= -3.42228 
+## lambda= 0.4520042    12345678910cvl= -2.666679 
+## lambda= 0.279354     12345678910cvl= -2.039848 
+## lambda= 0.1726502    12345678910cvl= -1.536753 
+## lambda= 0.1067037    12345678910cvl= -1.107709 
+## lambda= 0.06594652   12345678910cvl= -0.7926884 
+## lambda= 0.04075719   12345678910cvl= -0.5652577 
+## lambda= 0.02518933   12345678910cvl= -0.3982253 
+## lambda= 0.01556786   12345678910cvl= -0.2728231 
+## lambda= 0.009621468  12345678910cvl= -0.185821 
+## lambda= 0.005946394  12345678910cvl= -0.1263392 
+## lambda= 0.003675074  12345678910cvl= -0.08593507 
+## lambda= 0.002271321  12345678910cvl= -0.05870767 
+## lambda= 0.001403753  12345678910cvl= -0.04015119 
+## lambda= 0.0008675672     12345678910cvl= -0.02761242 
+## lambda= 0.000536186  12345678910cvl= -0.01916853 
+## lambda= 0.0003313812     12345678910cvl= -0.0134278 
+## lambda= 0.0002048048     12345678910cvl= -0.009485472 
+## lambda= 0.0001265764     12345678910cvl= -0.006752077 
+## lambda= 7.822849e-05     12345678910cvl= -0.004840081 
+## lambda= 4.834787e-05     12345678910cvl= -0.003491889 
+## lambda= 2.988062e-05     12345678910cvl= -0.002534333 
+## lambda= 1.846724e-05     12345678910cvl= -0.001849675 
+## lambda= 1.141338e-05     12345678910cvl= -0.001357073 
+## lambda= 7.053858e-06     12345678910cvl= -0.001000543 
+## lambda= 4.359524e-06     12345678910cvl= -0.0007410295 
+## lambda= 2.694334e-06     12345678910cvl= -0.000551144 
+## lambda= 1.66519e-06  12345678910cvl= -0.0004115087 
+## lambda= 1.029144e-06     12345678910cvl= -0.0003083446 
+## lambda= 6.36046e-07  12345678910cvl= -0.0002317969 
+## lambda= 3.930981e-07     12345678910cvl= -0.0001747737 
+## lambda= 2.42948e-07  12345678910cvl= -0.000132141 
+## lambda= 1.501501e-07     12345678910cvl= -0.0001001594 
+## lambda= 9.279786e-08     12345678910cvl= -7.609012e-05 
+## lambda= 5.735223e-08     12345678910cvl= -5.793219e-05 
+## lambda= 3.544563e-08     12345678910cvl= -4.419727e-05 
+## lambda= 2.19066e-08  12345678910cvl= -3.378261e-05 
+## lambda= 1.353903e-08     12345678910cvl= -2.586767e-05 
+## lambda= 8.367578e-09     12345678910cvl= -1.983975e-05 
+## lambda= 5.171448e-09     12345678910cvl= -1.523989e-05 
+## lambda= 3.19613e-09  12345678910cvl= -1.172331e-05 
+## lambda= 1.975317e-09     12345678910cvl= -9.030244e-06 
+## lambda= 1.220813e-09     12345678910cvl= -6.9645e-06 
+## lambda= 7.545041e-10     12345678910cvl= -5.378079e-06 
+## lambda= 4.663091e-10     12345678910cvl= -4.156786e-06 
+## lambda= 2.881949e-10     12345678910cvl= -3.216584e-06 
+## lambda= 1.781142e-10     12345678910cvl= -2.505706e-06 
+## lambda= 1.930095     12345678910cvl= -12.6399 
+## lambda= 3.122959     12345678910cvl= -14.46679 
+## lambda= 1.192864     12345678910cvl= -10.8858 
+## lambda= 0.7372305    12345678910cvl= -9.502625 
+## lambda= 0.4556335    12345678910cvl= -8.999649 
+## lambda= 0.281597     12345678910cvl= -9.252866 
+## lambda= 0.4708841    12345678910cvl= -9.007825 
+## lambda= 0.4377762    12345678910cvl= -8.996156 
+## lambda= 0.4371937    12345678910cvl= -8.996121 
+## lambda= 0.4334376    12345678910cvl= -8.996023 
+## lambda= 0.4336405    12345678910cvl= -8.996023 
+## lambda= 0.4336567    12345678910cvl= -8.996062 
+## lambda= 0.4335472    12345678910cvl= -8.996023
+</code></pre>
+
+<pre><code>##                      isva       sva
+## Slide5815073001 0.9090909 0.9090909
+## Slide5815073007 0.9090909 0.9090909
+## Slide5815073008 0.9090909 0.9090909
+## Slide5815073009 0.9090909 0.9090909
+## Slide5815073011 0.9090909 0.9090909
+## Slide5815073012 0.9090909 0.9090909
+## Slide5815073020 0.9318182 0.9318182
+## Slide5815073029 0.9090909 0.9090909
+## Slide5815129020 0.9772727 0.9772727
+## Slide5815129025 0.9545455 0.9545455
+## Slide5815129026 0.9545455 0.9545455
+## Slide5815233016 0.8863636 1.0000000
+## Slide5815233019 0.9318182 0.9318182
+</code></pre>
+
+<p>How much do the different EWAS models agree?</p>
+
+<pre><code class="r">sapply(ewas.ret$analyses, function(a) 
+       sapply(ewas.ret$analyses, function(b) 
+              length(intersect(rownames(a$table)[which(a$table$p.value &lt; 0.0001)],
+                               rownames(b$table)[which(b$table$p.value &lt; 0.0001)]))))
+</code></pre>
+
+<pre><code>##      none all isva sva
+## none   83   7    0   2
+## all     7  39    0   7
+## isva    0   0   48   0
+## sva     2   7    0  60
+</code></pre>
+
+<pre><code class="r">sapply(ewas.ret$analyses, function(a) 
+       sapply(ewas.ret$analyses, function(b) {
+           a &lt;- rownames(a$table)[which(a$table$p.value &lt; 0.0001)]
+           b &lt;- rownames(b$table)[which(b$table$p.value &lt; 0.0001)]
+           length(intersect(a,b))/length(union(a,b))
+       }))
+</code></pre>
+
+<pre><code>##            none        all isva        sva
+## none 1.00000000 0.06086957    0 0.01418440
+## all  0.06086957 1.00000000    0 0.07608696
+## isva 0.00000000 0.00000000    1 0.00000000
+## sva  0.01418440 0.07608696    0 1.00000000
+</code></pre>
+
+<pre><code class="r">sapply(ewas.ret$analyses, function(a) 
+       sapply(ewas.ret$analyses, function(b) {
+           idx &lt;- which(a$table$p.value &lt; 0.01)
+           cor(a$table$coefficient[idx], b$table$coefficient[idx])
+       }))
+</code></pre>
+
+<pre><code>##           none       all      isva       sva
+## none 1.0000000 0.9215330 0.7050599 0.8251335
+## all  0.9197390 1.0000000 0.8417669 0.9623897
+## isva 0.7120665 0.8791319 1.0000000 0.9002785
+## sva  0.8250615 0.9685513 0.8458807 1.0000000
+</code></pre>
+
+<p>Compare meffil EWAS to EWAS &#39;done by hand&#39;.</p>
+
+<pre><code class="r">## EWAS by meffil
+test.ret &lt;- meffil.ewas(beta,
+                        variable=variable,
+                        covariates=covariates,
+                        isva=F,sva=T,
+                        most.variable=50000,
+                        random.seed=20161123,
+                        verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.ewas] Thu Nov 29 09:16:29 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 09:16:29 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 09:16:31 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 09:16:31 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 09:17:28 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 09:18:31 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 09:18:45 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 09:19:21 2018 EWAS for covariate set sva
+</code></pre>
+
+<pre><code class="r">test.ret$sv &lt;- test.ret$analyses$sva$design
+test.ret$sv &lt;- test.ret$sv[,grep(&quot;X&quot;, colnames(test.ret$sv))]
+
+## EWAS by hand
+beta.win &lt;- meffil:::winsorize(beta)
+beta.sva &lt;- beta.win
+beta.sva &lt;- beta.sva[which(rownames(beta.sva) %in% meffil.get.autosomal.sites()),]
+beta.sva &lt;- beta.sva[order(rowVars(beta.sva), decreasing=T)[1:50000],]
+mod0 &lt;- model.matrix(~ ., covariates)
+mod &lt;- cbind(mod0, variable)
+set.seed(20161123)
+sva.ret &lt;- sva(dat=beta.sva, mod=mod, mod0=mod0)
+</code></pre>
+
+<pre><code>## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5
+</code></pre>
+
+<pre><code class="r">apply(abs(cor(test.ret$sv, sva.ret$sv)), 2, max)
+</code></pre>
+
+<pre><code>## [1] 1 1 1 1 1 1 1
+</code></pre>
+
+<pre><code class="r">mod &lt;- cbind(mod, sva.ret$sv)
+fit &lt;- lm.fit(mod, t(beta.win))
+
+cor(fit$coefficients[&quot;variable&quot;,], ewas.ret$analyses$sva$table$coefficient)
+</code></pre>
+
+<pre><code>## [1] 1
+</code></pre>
+
+<p>Check to see how outliers are being handled:</p>
+
+<pre><code class="r">test.ret &lt;- meffil.ewas(beta,
+                        variable=variable,
+                        covariates=covariates,
+                        isva=F,sva=F,
+                        winsorize=NA,
+                        outlier.iqr.factor=3,
+                        verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.ewas] Thu Nov 29 09:22:24 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 09:22:24 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 09:22:24 2018 Removing 0 covariates with no variance. 
+## [FUN] Thu Nov 29 09:23:05 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 09:24:42 2018 EWAS for covariate set all
+</code></pre>
+
+<pre><code class="r">outlier.mask &lt;- beta
+outlier.mask[] &lt;- F
+outlier.mask[test.ret$too.lo] &lt;- T
+outlier.mask[test.ret$too.hi] &lt;- T
+
+q13 &lt;- rowQuantiles(beta, probs=c(0.25, 0.75))
+factor &lt;- 3*(q13[,2] - q13[,1])
+lo.threshold &lt;- q13[,1] - factor
+hi.threshold &lt;- q13[,2] + factor
+all((beta &lt; lo.threshold | beta &gt; hi.threshold)
+    == outlier.mask)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+</body>
+
+</html>

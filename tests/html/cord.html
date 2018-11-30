@@ -1,0 +1,3338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>EWAS using different cell type references</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<div id="toc">
+<div id="toc_header">Table of Contents</div>
+<ul>
+<li>
+<a href="#toc_0">EWAS using different cell type references</a>
+<ul>
+<li>
+<a href="#toc_1">Download example data set</a>
+</li>
+<li>
+<a href="#toc_2">Normalize dataset</a>
+</li>
+<li>
+<a href="#toc_3">Estimate cell counts using all available references</a>
+</li>
+<li>
+<a href="#toc_4">Compare counts between references</a>
+</li>
+<li>
+<a href="#toc_5">Variables of interest</a>
+</li>
+<li>
+<a href="#toc_6">Test associations</a>
+</li>
+<li>
+<a href="#toc_7">Previously identified associations</a>
+</li>
+<li>
+<a href="#toc_8">EWAS reports</a>
+</li>
+<li>
+<a href="#toc_9">Association overlaps between different analyses</a>
+</li>
+<li>
+<a href="#toc_10">Significance ranks of previously identified associations</a>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+<h1 id="toc_0">EWAS using different cell type references</h1>
+
+<h2 id="toc_1">Download example data set</h2>
+
+<blockquote>
+<p>Sen A, Cingolani P, Senut MC, Land S et al. Lead exposure induces
+changes in 5-hydroxymethylcytosine clusters in CpG islands in human
+embryonic stem cells and umbilical cord blood. Epigenetics
+2015;10(7):607-21. PMID: 26046694</p>
+</blockquote>
+
+<p>Retrieve the data from the Gene Expression Omnibus (GEO) website
+(<a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69633">http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE69633</a>).</p>
+
+<pre><code class="r">download.450k.lead.dataset &lt;- function() {
+    dir.create(path &lt;- &quot;data-450k-lead&quot;)
+
+    if (length(list.files(path, &quot;*.idat$&quot;)) == 0) {
+        filename &lt;-  file.path(path, &quot;gse69633.tar&quot;)
+        download.file(&quot;http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE69633&amp;format=file&quot;, filename)
+        cat(date(), &quot;Extracting files from GEO archive.\n&quot;)
+        system(paste(&quot;cd&quot;, path, &quot;;&quot;, &quot;tar xvf&quot;, basename(filename)))
+        unlink(filename)
+        cat(date(), &quot;Unzipping IDAT files.\n&quot;)
+        system(paste(&quot;cd&quot;, path, &quot;;&quot;, &quot;gunzip *.idat.gz&quot;))
+
+        library(GEOquery)
+        geo &lt;- getGEO(&quot;GSE69633&quot;, GSEMatrix=F)
+        ## this output from geo is really messed up.
+        geo &lt;- geo@gsms[[1]]@header
+        characteristics &lt;- matrix(geo$characteristics_ch1, nrow=length(geo$title), byrow=T)
+        colnames(characteristics) &lt;- sub(&quot;([^:]+):.*&quot;, &quot;\\1&quot;, characteristics[1,])
+        rownames(characteristics) &lt;- geo$geo_accession
+        characteristics &lt;- apply(characteristics, 2, function(x) sub(&quot;[^:]+: (.*)&quot;, &quot;\\1&quot;, x))
+        characteristics &lt;- as.data.frame(characteristics, stringsAsFactors=F)
+        for (name in c(&quot;socioeconomic score&quot;, &quot;gestational age&quot;, &quot;birth weight&quot;, &quot;pbconc (ng/dl)&quot;))
+            characteristics[[name]] &lt;- as.numeric(characteristics[[name]])
+        write.csv(characteristics, file=file.path(path, &quot;samples.csv&quot;))
+    }
+
+    path
+}
+</code></pre>
+
+<pre><code class="r">path &lt;- download.450k.lead.dataset()
+</code></pre>
+
+<h2 id="toc_2">Normalize dataset</h2>
+
+<p>Create samplesheet</p>
+
+<pre><code class="r">library(meffil)
+</code></pre>
+
+<pre><code>## Loading required package: illuminaio
+</code></pre>
+
+<pre><code>## Loading required package: MASS
+</code></pre>
+
+<pre><code>## Loading required package: limma
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;limma&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:BiocGenerics&#39;:
+## 
+##     plotMA
+</code></pre>
+
+<pre><code>## Loading required package: sva
+</code></pre>
+
+<pre><code>## Loading required package: mgcv
+</code></pre>
+
+<pre><code>## Loading required package: nlme
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;nlme&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:Biostrings&#39;:
+## 
+##     collapse
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:IRanges&#39;:
+## 
+##     collapse
+</code></pre>
+
+<pre><code>## This is mgcv 1.8-24. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
+</code></pre>
+
+<pre><code>## Loading required package: genefilter
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;genefilter&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:MASS&#39;:
+## 
+##     area
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:matrixStats&#39;:
+## 
+##     rowSds, rowVars
+</code></pre>
+
+<pre><code>## Loading required package: BiocParallel
+</code></pre>
+
+<pre><code>## Loading required package: ggplot2
+</code></pre>
+
+<pre><code>## Loading required package: plyr
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;plyr&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:XVector&#39;:
+## 
+##     compact
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:matrixStats&#39;:
+## 
+##     count
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:IRanges&#39;:
+## 
+##     desc
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:S4Vectors&#39;:
+## 
+##     rename
+</code></pre>
+
+<pre><code>## Loading required package: reshape2
+</code></pre>
+
+<pre><code>## Loading required package: gridExtra
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;gridExtra&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:minfi&#39;:
+## 
+##     combine
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:Biobase&#39;:
+## 
+##     combine
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:BiocGenerics&#39;:
+## 
+##     combine
+</code></pre>
+
+<pre><code>## Loading required package: multcomp
+</code></pre>
+
+<pre><code>## Loading required package: mvtnorm
+</code></pre>
+
+<pre><code>## Loading required package: survival
+</code></pre>
+
+<pre><code>## Loading required package: TH.data
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;TH.data&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:MASS&#39;:
+## 
+##     geyser
+</code></pre>
+
+<pre><code>## Loading required package: lme4
+</code></pre>
+
+<pre><code>## Loading required package: Matrix
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;Matrix&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:S4Vectors&#39;:
+## 
+##     expand
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;lme4&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:nlme&#39;:
+## 
+##     lmList
+</code></pre>
+
+<pre><code>## Loading required package: fastICA
+</code></pre>
+
+<pre><code>## Loading required package: DNAcopy
+</code></pre>
+
+<pre><code>## Loading required package: quadprog
+</code></pre>
+
+<pre><code>## Loading required package: statmod
+</code></pre>
+
+<pre><code>## Loading required package: gdsfmt
+</code></pre>
+
+<pre><code class="r">options(mc.cores=5)
+samplesheet &lt;- meffil.create.samplesheet(path)
+
+samples &lt;- read.csv(file.path(path, &quot;samples.csv&quot;), check.names=F, row.names=1)
+samplesheet &lt;- data.frame(samplesheet,
+                          samples[match(samplesheet$Sample_Name, rownames(samples)),],
+                          stringsAsFactors=F, check.names=F)
+
+samplesheet &lt;- samplesheet[which(samplesheet[[&quot;sample type&quot;]] == &quot;HM450K&quot;),]
+</code></pre>
+
+<p>Parameters.</p>
+
+<pre><code class="r">qc.file &lt;- &quot;cord/qc-report.html&quot;
+author &lt;- &quot;Sen, et al.&quot;
+study &lt;- &quot;Cord blood DNA methylation and lead exposure (GSE69633)&quot;
+norm.file &lt;- &quot;cord/normalization-report.html&quot;
+cell.type.reference &lt;- &quot;gervin and lyle cord blood&quot;
+</code></pre>
+
+<p>Generate QC objects for each sample and QC report.</p>
+
+<pre><code class="r">qc.objects &lt;- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
+</code></pre>
+
+<pre><code>## [read.idat] Thu Nov 29 11:26:24 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
+## [read.idat] Thu Nov 29 11:26:24 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
+## [extract.detection.pvalues] Thu Nov 29 11:26:27 2018  
+## [extract.beadnum] Thu Nov 29 11:26:30 2018  
+## [extract.snp.betas] Thu Nov 29 11:26:32 2018  
+## [extract.controls] Thu Nov 29 11:26:33 2018  
+## [background.correct] Thu Nov 29 11:26:35 2018 background correction for dye = R 
+## [background.correct] Thu Nov 29 11:26:36 2018 background correction for dye = G 
+## [dye.bias.correct] Thu Nov 29 11:26:38 2018  
+## [FUN] Thu Nov 29 11:26:42 2018 predicting sex
+</code></pre>
+
+<pre><code class="r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.qc.summary] Thu Nov 29 11:29:41 2018 Sex summary TRUE 
+## [meffil.qc.summary] Thu Nov 29 11:29:41 2018 Meth vs unmeth summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:41 2018 Control means summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:42 2018 Sample detection summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:44 2018 CpG detection summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:44 2018 Sample bead numbers summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:46 2018 CpG bead numbers summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:47 2018 Cell count summary 
+## [meffil.qc.summary] Thu Nov 29 11:29:47 2018 Genotype concordance
+</code></pre>
+
+<pre><code class="r">meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+</code></pre>
+
+<pre><code>## [meffil.qc.report] Thu Nov 29 11:29:47 2018 Writing report as html file to cord/qc-report.html
+</code></pre>
+
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+</code></pre>
+
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+</code></pre>
+
+<p>Remove any low quality samples.</p>
+
+<pre><code class="r">if (nrow(qc.summary$bad.samples) &gt; 0)
+    qc.objects &lt;- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+
+samplesheet &lt;- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
+</code></pre>
+
+<p>Check how many principal components to include.</p>
+
+<pre><code class="r">print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
+</code></pre>
+
+<p><img src="data:image/png;base64,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7lWn6zNLQ+rAAyEUHsHPMj///PPbt2//f//v/z377LOff/758ePHw1xWl9eH52f37H7f6TOrbDU3JtojXQ5CUe1bp7rXFdIhplxRGma3tvuNggeirusDBw4sKiratm3b7bffnp+f/+ijj7b7PVBQtzsSPqute/D7spGKnI6X4CDUvIdOnvqqJqROAMbYLB/bc9r9RsEDsX+AZ+YAACAASURBVGfPngsXLrzoooteeOGF7Ozs06dPt/sNUAueS+s59tCx35WWreyXjifyEWrOM73TQ99CbDip6zrDMKEPch88EGfPnj1r1qx7771X1/WRI0fOmTMnxOZQmySx7IL0nrccO7W4vHJKN0eky0EoSg2xyIOlNt+skpOTs3nz5oKCgg8++GDgwIGhvCR4IF533XUAwLL1fXH/9re/nT59elurQaEYb7Xc4Uh4+sy5sVZLnhim+5MQigd///vfza06nuf//ve/h/KS4IEYuPCwtrb2lVdecThw46UT/alX9w1O9d6Tpasz+woM7jojREdBQcGOHTva9JJWrkO02Wz333//Sy+91IGqUCsUhlmY3vM7j/e5c3ivJEKR1PqF2Rs2bDh69GgYSolnIxT5t8mOeecrNjnVSNeCUPwKvsvc8KpuURTxpEoYPNQ9eV2da/qp79dl97Myrf9QIYSoa+UYIgobjpCF6b0uLTn2xPdn/5LWnhEXEeqqmLZsIrRp5kZa30JsCIOyU+WIwmM9Ux77/ux4m/XqDlxtj1AX0+7+DdsqeJTOnz9/6tSpZ86cKSsrmzJlynPPPYd93oTHlG6O8VbLA6fPnMNxVxAKu+CBuGjRogULFvTo0aN79+4LFix49dVXw1xW3CIAL6T19AP85Vx5pGtBKO4E32WuqqoK9Dqr63pFRUXQ2Wpra6dPn/76668DwOnTpxctWsQwjK7r06ZNAwBak/E2kkEqz11qtWxX8XQzQuEWPBAnTJhwzz33/N///R8APPLII4WFhU3n+fbbb997773KykpzcvHixRMnTiwoKNi4cePixYsBgNbkU0891RlLHs1yJfHj2joDAK/SRiismnaObRhGZWXl5MmTU1JSEhMTb7755rKysqCzGYZxzTXXmA9uueUWl8tlGIaqqrfeeivFSbP9sWPH5ufnFxcXN1dJV/LOufOwdv0RVY10IQhR5vP5Il1CS4JvISYmJrb1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" alt="plot of chunk unnamed-chunk-6"/></p>
+
+<p>Ten seems about right.</p>
+
+<pre><code class="r">number.pcs &lt;- 10
+</code></pre>
+
+<p>Normalize dataset and generate normalization report.</p>
+
+<pre><code class="r">norm.objects &lt;- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.normalize.quantiles] Thu Nov 29 11:30:28 2018 selecting dye correction reference 
+## [meffil.normalize.quantiles] Thu Nov 29 11:30:28 2018 creating control matrix 
+## [meffil.normalize.quantiles] Thu Nov 29 11:30:28 2018 normalizing quantiles 
+## [FUN] Thu Nov 29 11:30:28 2018 genomic.iG M 
+## [FUN] Thu Nov 29 11:30:28 2018 genomic.iG U 
+## [FUN] Thu Nov 29 11:30:28 2018 genomic.iR M 
+## [FUN] Thu Nov 29 11:30:29 2018 genomic.iR U 
+## [FUN] Thu Nov 29 11:30:29 2018 genomic.ii M 
+## [FUN] Thu Nov 29 11:30:29 2018 genomic.ii U 
+## [FUN] Thu Nov 29 11:30:30 2018 autosomal.iG M 
+## [FUN] Thu Nov 29 11:30:30 2018 autosomal.iG U 
+## [FUN] Thu Nov 29 11:30:30 2018 autosomal.iR M 
+## [FUN] Thu Nov 29 11:30:30 2018 autosomal.iR U 
+## [FUN] Thu Nov 29 11:30:30 2018 autosomal.ii M 
+## [FUN] Thu Nov 29 11:30:30 2018 autosomal.ii U 
+## [FUN] Thu Nov 29 11:30:31 2018 not.y.iG M 
+## [FUN] Thu Nov 29 11:30:31 2018 not.y.iG U 
+## [FUN] Thu Nov 29 11:30:31 2018 not.y.iR M 
+## [FUN] Thu Nov 29 11:30:31 2018 not.y.iR U 
+## [FUN] Thu Nov 29 11:30:31 2018 not.y.ii M 
+## [FUN] Thu Nov 29 11:30:31 2018 not.y.ii U 
+## [FUN] Thu Nov 29 11:30:32 2018 sex M 
+## [FUN] Thu Nov 29 11:30:32 2018 sex U 
+## [FUN] Thu Nov 29 11:30:32 2018 chrx M 
+## [FUN] Thu Nov 29 11:30:32 2018 chrx U 
+## [FUN] Thu Nov 29 11:30:32 2018 chry M 
+## [FUN] Thu Nov 29 11:30:32 2018 chry U
+</code></pre>
+
+<pre><code class="r">norm.dataset &lt;- meffil.normalize.samples(norm.objects,
+                                        just.beta=F, 
+                                        cpglist.remove=qc.summary$bad.cpgs$name,
+                                        verbose=T)
+</code></pre>
+
+<pre><code>## [read.idat] Thu Nov 29 11:30:33 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
+## [read.idat] Thu Nov 29 11:30:33 2018 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
+## [background.correct] Thu Nov 29 11:30:34 2018 background correction for dye = R 
+## [background.correct] Thu Nov 29 11:30:35 2018 background correction for dye = G 
+## [dye.bias.correct] Thu Nov 29 11:30:37 2018  
+## [meffil.normalize.sample] Thu Nov 29 11:30:40 2018 Normalizing methylated and unmethylated signals.
+</code></pre>
+
+<pre><code class="r">beta &lt;- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+pcs &lt;- meffil.methylation.pcs(beta, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.methylation.pcs] Thu Nov 29 11:32:16 2018 Calculating variances 
+## [meffil.methylation.pcs] Thu Nov 29 11:32:17 2018 Calculating beta PCs
+</code></pre>
+
+<pre><code class="r">parameters &lt;- meffil.normalization.parameters(norm.objects)
+norm.summary &lt;- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
+                                             parameters=parameters, verbose=T)
+</code></pre>
+
+<pre><code>## [meffil.plot.control.batch] Thu Nov 29 11:32:17 2018 Extracting batch variables 
+## [meffil.plot.control.batch] Thu Nov 29 11:32:17 2018 Testing associations 
+## [meffil.plot.probe.batch] Thu Nov 29 11:32:31 2018 Extracting batch variables 
+## [meffil.plot.probe.batch] Thu Nov 29 11:32:31 2018 Testing associations
+</code></pre>
+
+<pre><code class="r">meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+</code></pre>
+
+<pre><code>## [meffil.normalization.report] Thu Nov 29 11:32:43 2018 Writing report as html file to cord/normalization-report.html
+</code></pre>
+
+<h2 id="toc_3">Estimate cell counts using all available references</h2>
+
+<pre><code class="r">counts &lt;- sapply(meffil.list.cell.type.references(), function(reference) {
+    cat(date(), reference, &quot;\n&quot;)
+    do.call(rbind, mclapply(qc.objects, function(qc.object) {
+        meffil.estimate.cell.counts(qc.object, cell.type.reference=reference)$counts
+    }))
+}, simplify=F)
+</code></pre>
+
+<pre><code>## Thu Nov 29 11:34:06 2018 andrews and bakulski cord blood 
+## Thu Nov 29 11:35:20 2018 blood gse35069 
+## Thu Nov 29 11:36:31 2018 blood gse35069 chen 
+## Thu Nov 29 11:37:43 2018 blood gse35069 complete 
+## Thu Nov 29 11:38:54 2018 cord blood gse68456 
+## Thu Nov 29 11:40:08 2018 gervin and lyle cord blood 
+## Thu Nov 29 11:41:16 2018 saliva gse48472
+</code></pre>
+
+<h2 id="toc_4">Compare counts between references</h2>
+
+<pre><code class="r">r &lt;- sapply(names(counts), function(n1)
+       sapply(names(counts), function(n2) {
+           sapply(intersect(colnames(counts[[n1]]), colnames(counts[[n2]])),
+                  function(type) cor(counts[[n1]][,type], counts[[n2]][,type]))
+       }))
+</code></pre>
+
+<pre><code class="r">types &lt;- unique(unlist(lapply(counts, function(counts) colnames(counts))))
+for (type in types) {
+    cat(&quot;Cell type&quot;, type, &quot;-----------------\n&quot;)
+    for (n1 in colnames(r))
+        for (n2 in rownames(r)) 
+            if (n1 &lt; n2 &amp;&amp; type %in% names(r[n1,n2][[1]]))
+                cat(r[n1,n2][[1]][[type]], n1, &quot;--&quot;, n2, &quot;\n&quot;)    
+}
+</code></pre>
+
+<pre><code>## Cell type Bcell -----------------
+## 0.7320961 andrews and bakulski cord blood -- blood gse35069 
+## 0.6882443 andrews and bakulski cord blood -- blood gse35069 chen 
+## 0.7388463 andrews and bakulski cord blood -- blood gse35069 complete 
+## 0.9222809 andrews and bakulski cord blood -- cord blood gse68456 
+## 0.6286834 andrews and bakulski cord blood -- gervin and lyle cord blood 
+## 0.7468512 andrews and bakulski cord blood -- saliva gse48472 
+## 0.6572276 blood gse35069 -- blood gse35069 chen 
+## 0.99326 blood gse35069 -- blood gse35069 complete 
+## 0.4985467 blood gse35069 -- cord blood gse68456 
+## 0.9619068 blood gse35069 -- gervin and lyle cord blood 
+## 0.9924158 blood gse35069 -- saliva gse48472 
+## 0.6913443 blood gse35069 chen -- blood gse35069 complete 
+## 0.6247752 blood gse35069 chen -- cord blood gse68456 
+## 0.6229087 blood gse35069 chen -- gervin and lyle cord blood 
+## 0.662963 blood gse35069 chen -- saliva gse48472 
+## 0.5056697 blood gse35069 complete -- cord blood gse68456 
+## 0.9667665 blood gse35069 complete -- gervin and lyle cord blood 
+## 0.9933404 blood gse35069 complete -- saliva gse48472 
+## 0.370461 cord blood gse68456 -- gervin and lyle cord blood 
+## 0.5110402 cord blood gse68456 -- saliva gse48472 
+## 0.9541537 gervin and lyle cord blood -- saliva gse48472 
+## Cell type CD4T -----------------
+## 0.8493954 andrews and bakulski cord blood -- blood gse35069 
+## 0.8052387 andrews and bakulski cord blood -- blood gse35069 chen 
+## 0.8586418 andrews and bakulski cord blood -- blood gse35069 complete 
+## 0.948346 andrews and bakulski cord blood -- cord blood gse68456 
+## 0.8140324 andrews and bakulski cord blood -- gervin and lyle cord blood 
+## 0.895356 andrews and bakulski cord blood -- saliva gse48472 
+## 0.8406206 blood gse35069 -- blood gse35069 chen 
+## 0.9906903 blood gse35069 -- blood gse35069 complete 
+## 0.8345671 blood gse35069 -- cord blood gse68456 
+## 0.784578 blood gse35069 -- gervin and lyle cord blood 
+## 0.9749741 blood gse35069 -- saliva gse48472 
+## 0.8268984 blood gse35069 chen -- blood gse35069 complete 
+## 0.7513654 blood gse35069 chen -- cord blood gse68456 
+## 0.7039019 blood gse35069 chen -- gervin and lyle cord blood 
+## 0.8419537 blood gse35069 chen -- saliva gse48472 
+## 0.8428084 blood gse35069 complete -- cord blood gse68456 
+## 0.7867865 blood gse35069 complete -- gervin and lyle cord blood 
+## 0.9629324 blood gse35069 complete -- saliva gse48472 
+## 0.7483267 cord blood gse68456 -- gervin and lyle cord blood 
+## 0.8703618 cord blood gse68456 -- saliva gse48472 
+## 0.8029532 gervin and lyle cord blood -- saliva gse48472 
+## Cell type CD8T -----------------
+## 0.3315972 andrews and bakulski cord blood -- blood gse35069 
+## 0.5620297 andrews and bakulski cord blood -- blood gse35069 chen 
+## 0.3617071 andrews and bakulski cord blood -- blood gse35069 complete 
+## 0.5761808 andrews and bakulski cord blood -- cord blood gse68456 
+## 0.5681097 andrews and bakulski cord blood -- gervin and lyle cord blood 
+## 0.3897305 andrews and bakulski cord blood -- saliva gse48472 
+## 0.384296 blood gse35069 -- blood gse35069 chen 
+## 0.9914529 blood gse35069 -- blood gse35069 complete 
+## 0.8235556 blood gse35069 -- cord blood gse68456 
+## 0.009902409 blood gse35069 -- gervin and lyle cord blood 
+## 0.9574848 blood gse35069 -- saliva gse48472 
+## 0.3685629 blood gse35069 chen -- blood gse35069 complete 
+## 0.4451916 blood gse35069 chen -- cord blood gse68456 
+## 0.3205142 blood gse35069 chen -- gervin and lyle cord blood 
+## 0.4602431 blood gse35069 chen -- saliva gse48472 
+## 0.8243925 blood gse35069 complete -- cord blood gse68456 
+## 0.01233793 blood gse35069 complete -- gervin and lyle cord blood 
+## 0.9448567 blood gse35069 complete -- saliva gse48472 
+## 0.2023403 cord blood gse68456 -- gervin and lyle cord blood 
+## 0.8428573 cord blood gse68456 -- saliva gse48472 
+## 0.0596231 gervin and lyle cord blood -- saliva gse48472 
+## Cell type Gran -----------------
+## 0.9501389 andrews and bakulski cord blood -- blood gse35069 
+## 0.9930841 andrews and bakulski cord blood -- cord blood gse68456 
+## 0.9458931 andrews and bakulski cord blood -- gervin and lyle cord blood 
+## 0.9768667 andrews and bakulski cord blood -- saliva gse48472 
+## 0.9238253 blood gse35069 -- cord blood gse68456 
+## 0.9655002 blood gse35069 -- gervin and lyle cord blood 
+## 0.9686651 blood gse35069 -- saliva gse48472 
+## 0.9266525 cord blood gse68456 -- gervin and lyle cord blood 
+## 0.9622823 cord blood gse68456 -- saliva gse48472 
+## 0.9746954 gervin and lyle cord blood -- saliva gse48472 
+## Cell type Mono -----------------
+## 0.8114459 andrews and bakulski cord blood -- blood gse35069 
+## 0.5551357 andrews and bakulski cord blood -- blood gse35069 chen 
+## 0.7252522 andrews and bakulski cord blood -- blood gse35069 complete 
+## 0.8454823 andrews and bakulski cord blood -- cord blood gse68456 
+## 0.7380195 andrews and bakulski cord blood -- saliva gse48472 
+## 0.7255561 blood gse35069 -- blood gse35069 chen 
+## 0.8910264 blood gse35069 -- blood gse35069 complete 
+## 0.6526806 blood gse35069 -- cord blood gse68456 
+## 0.8564055 blood gse35069 -- saliva gse48472 
+## 0.8046305 blood gse35069 chen -- blood gse35069 complete 
+## 0.4990773 blood gse35069 chen -- cord blood gse68456 
+## 0.8013164 blood gse35069 chen -- saliva gse48472 
+## 0.5244022 blood gse35069 complete -- cord blood gse68456 
+## 0.9589719 blood gse35069 complete -- saliva gse48472 
+## 0.5769456 cord blood gse68456 -- saliva gse48472 
+## Cell type NK -----------------
+## 0.6472597 andrews and bakulski cord blood -- blood gse35069 
+## 0.5437872 andrews and bakulski cord blood -- blood gse35069 chen 
+## 0.6225261 andrews and bakulski cord blood -- blood gse35069 complete 
+## 0.6187533 andrews and bakulski cord blood -- cord blood gse68456 
+## 0.5941204 andrews and bakulski cord blood -- gervin and lyle cord blood 
+## 0.6908324 andrews and bakulski cord blood -- saliva gse48472 
+## 0.6336867 blood gse35069 -- blood gse35069 chen 
+## 0.9951402 blood gse35069 -- blood gse35069 complete 
+## 0.5929074 blood gse35069 -- cord blood gse68456 
+## 0.9667948 blood gse35069 -- gervin and lyle cord blood 
+## 0.9865246 blood gse35069 -- saliva gse48472 
+## 0.6319216 blood gse35069 chen -- blood gse35069 complete 
+## 0.2779218 blood gse35069 chen -- cord blood gse68456 
+## 0.6760378 blood gse35069 chen -- gervin and lyle cord blood 
+## 0.6606572 blood gse35069 chen -- saliva gse48472 
+## 0.608911 blood gse35069 complete -- cord blood gse68456 
+## 0.9726871 blood gse35069 complete -- gervin and lyle cord blood 
+## 0.9816446 blood gse35069 complete -- saliva gse48472 
+## 0.5843128 cord blood gse68456 -- gervin and lyle cord blood 
+## 0.6448506 cord blood gse68456 -- saliva gse48472 
+## 0.9434688 gervin and lyle cord blood -- saliva gse48472 
+## Cell type nRBC -----------------
+## Cell type Eos -----------------
+## 0.5802125 blood gse35069 chen -- blood gse35069 complete 
+## Cell type Neu -----------------
+## 0.9656465 blood gse35069 chen -- blood gse35069 complete 
+## Cell type RBC -----------------
+## Cell type CD14 -----------------
+## Cell type Buccal -----------------
+</code></pre>
+
+<h2 id="toc_5">Variables of interest</h2>
+
+<p>We will test associations with gender, gestational age, birth weight and blood lead levels.
+The following list provides the names of potential confounders to be included
+in EWAS regression models.</p>
+
+<pre><code class="r">covariate.names &lt;- list(&quot;gender&quot;=c(&quot;socioeconomic score&quot;,&quot;gestational age&quot;,&quot;smoke ever&quot;,&quot;birth weight&quot;),
+                        &quot;gestational age&quot;=c(&quot;socioeconomic score&quot;,&quot;gender&quot;,&quot;smoke ever&quot;,&quot;birth weight&quot;),
+                        &quot;birth weight&quot;=c(&quot;socioeconomic score&quot;,&quot;gestational age&quot;,&quot;smoke ever&quot;,&quot;gender&quot;),
+                        &quot;pbconc (ng/dl)&quot;=c(&quot;socioeconomic score&quot;,&quot;gestational age&quot;,&quot;smoke ever&quot;,&quot;birth weight&quot;,&quot;gender&quot;))
+</code></pre>
+
+<p>For the gender EWAS, we will test only CpG sites on autosomes.</p>
+
+<pre><code class="r">features &lt;- meffil.featureset(&quot;450k&quot;)
+autosomal &lt;- features[which(!(features$chromosome %in% c(&quot;chrX&quot;,&quot;chrY&quot;))),]
+</code></pre>
+
+<h2 id="toc_6">Test associations</h2>
+
+<p>Test associations for each variable of interest (4)
+and each cell type reference.</p>
+
+<pre><code class="r">results &lt;- sapply(names(covariate.names), function(variable.name) {
+    variable &lt;- samplesheet[[variable.name]]
+    sapply(names(counts), function(reference) {
+        covariates &lt;- data.frame(counts[[reference]],
+                                 samplesheet[,covariate.names[[variable.name]]],
+                                 stringsAsFactors=F)
+        cat(date(), &quot;ewas&quot;, variable.name, reference, &quot;\n&quot;)
+        if (variable.name == &quot;gender&quot;)
+            beta &lt;- beta[which(rownames(beta) %in% autosomal$name),]
+        meffil.ewas(beta, variable=variable, covariates=covariates,
+                    most.variable=50000,verbose=T)
+    }, simplify=F)
+}, simplify=F)
+</code></pre>
+
+<pre><code>## Thu Nov 29 11:42:31 2018 ewas gender andrews and bakulski cord blood 
+## [meffil.ewas] Thu Nov 29 11:42:32 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 11:42:32 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 11:42:33 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 11:42:33 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 11:43:10 2018 ISVA. 
+## [isvaFn] Thu Nov 29 11:43:11 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 11:43:28 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 11:43:28 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 11:43:28 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 11:43:29 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 11:43:29 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 11:43:32 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 11:43:33 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 11:43:33 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 11:43:33 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 11:43:33 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 11:43:34 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 11:43:34 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 11:43:34 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 11:43:35 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 11:43:35 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 11:43:35 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 11:43:36 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 11:43:36 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 11:43:37 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 11:43:37 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 11:43:38 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 11:43:38 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 11:43:38 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 11:43:39 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 11:43:39 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 11:43:39 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 11:43:39 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 11:44:28 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 11:44:37 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 11:45:04 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 11:46:36 2018 EWAS for covariate set sva 
+## Thu Nov 29 11:47:20 2018 ewas gender blood gse35069 
+## [meffil.ewas] Thu Nov 29 11:47:21 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 11:47:21 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 11:47:22 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 11:47:22 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 11:48:01 2018 ISVA. 
+## [isvaFn] Thu Nov 29 11:48:02 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 11:48:17 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 11:48:17 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 11:48:17 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 11:48:18 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 11:48:18 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 11:48:22 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 11:48:23 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 11:48:23 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 11:48:23 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 11:48:24 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 11:48:24 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 11:48:24 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 11:48:24 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 11:48:25 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 11:48:25 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 11:48:26 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 11:48:26 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 11:48:26 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 11:48:27 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 11:48:27 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 11:48:27 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 11:48:28 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 11:48:28 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 11:48:28 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 11:48:28 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 11:48:29 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 11:48:29 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 11:49:19 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 11:49:28 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 11:49:51 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 11:51:13 2018 EWAS for covariate set sva 
+## Thu Nov 29 11:51:59 2018 ewas gender blood gse35069 chen 
+## [meffil.ewas] Thu Nov 29 11:52:00 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 11:52:00 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 11:52:02 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 11:52:02 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 11:52:34 2018 ISVA. 
+## [isvaFn] Thu Nov 29 11:52:35 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 11:52:48 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 11:52:48 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 11:52:49 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 11:52:49 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 11:52:49 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 11:52:52 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 11:52:52 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 11:52:53 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 11:52:53 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 11:52:53 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 11:52:53 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 11:52:54 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 11:52:54 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 11:52:54 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 11:52:55 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 11:52:55 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 11:52:55 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 11:52:55 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 11:52:56 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 11:52:56 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 11:52:56 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 11:52:57 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 11:52:58 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 11:52:58 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 11:52:58 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 11:52:59 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 11:52:59 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 11:53:49 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 11:54:00 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 11:54:34 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 11:56:03 2018 EWAS for covariate set sva 
+## Thu Nov 29 11:57:04 2018 ewas gender blood gse35069 complete 
+## [meffil.ewas] Thu Nov 29 11:57:05 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 11:57:05 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 11:57:06 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 11:57:06 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 11:57:49 2018 ISVA. 
+## [isvaFn] Thu Nov 29 11:57:51 2018 Number of candidate ISVs = 25 
+## [isvaFn] Thu Nov 29 11:58:03 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 11:58:03 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 11:58:04 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 11:58:04 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 11:58:04 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 11:58:04 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 11:58:05 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 11:58:05 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 11:58:05 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 11:58:06 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 11:58:10 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 11:58:10 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 11:58:11 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 11:58:11 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 11:58:12 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 11:58:12 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 11:58:12 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 11:58:12 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 11:58:13 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 11:58:13 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 11:58:13 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 11:58:13 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 11:58:14 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 11:58:14 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 11:58:14 2018 Built ISV 25 
+## 
+## [meffil.ewas] Thu Nov 29 11:58:14 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 11:58:58 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 11:59:10 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 11:59:43 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:01:31 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:02:25 2018 ewas gender cord blood gse68456 
+## [meffil.ewas] Thu Nov 29 12:02:26 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:02:26 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:02:28 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:02:28 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:03:18 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:03:19 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:03:29 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:03:29 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:03:30 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:03:30 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:03:30 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:03:30 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:03:31 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:03:31 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:03:31 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:03:35 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:03:35 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:03:35 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:03:35 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:03:36 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:03:36 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:03:36 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:03:36 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:03:37 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:03:37 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:03:37 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:03:37 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:03:38 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:03:38 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:03:38 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:03:39 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:03:39 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:03:39 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:04:27 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:04:35 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:05:17 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:07:08 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:07:53 2018 ewas gender gervin and lyle cord blood 
+## [meffil.ewas] Thu Nov 29 12:07:54 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:07:54 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:07:55 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:07:55 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:08:41 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:08:42 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:08:55 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:08:56 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:08:56 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:08:56 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:08:56 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:08:57 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:08:57 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:08:57 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:08:58 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:08:58 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:08:58 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:08:58 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:08:59 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:08:59 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:09:02 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:09:02 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:09:02 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:09:03 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:09:03 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:09:04 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:09:04 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:09:04 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:09:04 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:09:05 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:09:05 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:09:05 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:09:05 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:09:53 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:10:00 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:10:25 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:12:10 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:13:02 2018 ewas gender saliva gse48472 
+## [meffil.ewas] Thu Nov 29 12:13:04 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:13:04 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:13:05 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:13:05 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:13:51 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:13:52 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:14:12 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:14:12 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:14:13 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:14:13 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:14:13 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:14:16 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:14:17 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:14:17 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:14:17 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:14:18 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:14:18 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:14:18 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:14:19 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:14:19 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:14:20 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:14:20 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:14:20 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:14:21 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:14:21 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:14:21 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:14:22 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:14:22 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:14:22 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:14:23 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:14:23 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:14:23 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:14:23 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:15:11 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:15:23 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:15:48 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:17:39 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:18:23 2018 ewas gestational age andrews and bakulski cord blood 
+## [meffil.ewas] Thu Nov 29 12:18:23 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:18:23 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:18:24 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:18:24 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:19:04 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:19:05 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:19:23 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:19:24 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:19:24 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:19:24 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:19:24 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:19:28 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:19:28 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:19:29 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:19:29 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:19:29 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:19:30 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:19:30 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:19:31 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:19:31 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:19:31 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:19:31 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:19:33 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:19:33 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:19:33 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:19:34 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:19:34 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:19:35 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:19:35 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:19:35 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:19:36 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:19:36 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:19:36 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:20:34 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:20:43 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:21:14 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:23:06 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:23:54 2018 ewas gestational age blood gse35069 
+## [meffil.ewas] Thu Nov 29 12:23:54 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:23:54 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:23:55 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:23:55 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:24:33 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:24:34 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:24:50 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:24:50 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:24:51 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:24:51 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:24:51 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:24:56 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:24:56 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:24:56 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:24:57 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:24:57 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:24:57 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:24:58 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:24:58 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:24:59 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:24:59 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:24:59 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:24:59 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:25:00 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:25:00 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:25:00 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:25:01 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:25:01 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:25:01 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:25:02 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:25:02 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:25:02 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:25:02 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:25:57 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:26:07 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:26:34 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:28:12 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:29:11 2018 ewas gestational age blood gse35069 chen 
+## [meffil.ewas] Thu Nov 29 12:29:12 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:29:12 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:29:13 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:29:13 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:29:50 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:29:51 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:30:00 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:30:01 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:30:01 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:30:01 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:30:01 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:30:02 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:30:02 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:30:02 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:30:02 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:30:05 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:30:05 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:30:05 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:30:06 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:30:06 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:30:06 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:30:06 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:30:06 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:30:07 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:30:07 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:30:07 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:30:07 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:30:08 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:30:08 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:30:08 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:30:08 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:30:09 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:30:09 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:31:04 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:31:14 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:31:45 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:33:26 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:34:27 2018 ewas gestational age blood gse35069 complete 
+## [meffil.ewas] Thu Nov 29 12:34:28 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:34:28 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:34:29 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:34:29 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:35:14 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:35:14 2018 Number of candidate ISVs = 25 
+## [isvaFn] Thu Nov 29 12:35:27 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:35:27 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:35:28 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:35:28 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:35:28 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:35:29 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:35:29 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:35:29 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:35:29 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:35:30 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:35:33 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:35:33 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:35:33 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:35:34 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:35:34 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:35:34 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:35:34 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:35:35 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:35:35 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:35:35 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:35:36 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:35:36 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:35:36 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:35:37 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:35:37 2018 Built ISV 25 
+## 
+## [meffil.ewas] Thu Nov 29 12:35:37 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:36:27 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:36:41 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:37:14 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:39:00 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:39:59 2018 ewas gestational age cord blood gse68456 
+## [meffil.ewas] Thu Nov 29 12:39:59 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:39:59 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:40:00 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:40:00 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:40:43 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:40:44 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:40:57 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:40:57 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:40:57 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:40:58 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:40:58 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:40:59 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:40:59 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:40:59 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:41:00 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:41:03 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:41:03 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:41:03 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:41:03 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:41:04 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:41:04 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:41:04 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:41:04 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:41:05 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:41:05 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:41:05 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:41:05 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:41:06 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:41:06 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:41:06 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:41:07 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:41:07 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:41:07 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:41:57 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:42:09 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:42:41 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:44:29 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:45:22 2018 ewas gestational age gervin and lyle cord blood 
+## [meffil.ewas] Thu Nov 29 12:45:23 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:45:23 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:45:24 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:45:24 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:46:14 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:46:15 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:46:26 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:46:26 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:46:27 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:46:27 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:46:27 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:46:27 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:46:28 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:46:28 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:46:28 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:46:29 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:46:29 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:46:29 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:46:30 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:46:30 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:46:32 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:46:32 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:46:32 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:46:33 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:46:33 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:46:33 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:46:33 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:46:34 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:46:34 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:46:34 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:46:35 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:46:35 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:46:35 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:47:28 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:47:39 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:48:07 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:49:51 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:50:46 2018 ewas gestational age saliva gse48472 
+## [meffil.ewas] Thu Nov 29 12:50:46 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:50:46 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:50:47 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:50:47 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:51:28 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:51:29 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:51:40 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:51:41 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:51:41 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:51:41 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:51:41 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:51:45 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:51:45 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:51:46 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:51:46 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:51:46 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:51:46 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:51:47 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:51:47 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:51:47 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:51:47 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:51:48 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:51:48 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:51:48 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:51:48 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:51:49 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:51:49 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:51:50 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:51:50 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:51:50 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:51:50 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:51:51 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:51:51 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:52:42 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:52:58 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:53:30 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 12:55:22 2018 EWAS for covariate set sva 
+## Thu Nov 29 12:56:08 2018 ewas birth weight andrews and bakulski cord blood 
+## [meffil.ewas] Thu Nov 29 12:56:08 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 12:56:08 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 12:56:09 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 12:56:09 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 12:57:02 2018 ISVA. 
+## [isvaFn] Thu Nov 29 12:57:03 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 12:57:22 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 12:57:22 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 12:57:22 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 12:57:22 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 12:57:23 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 12:57:26 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 12:57:27 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 12:57:27 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 12:57:27 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 12:57:27 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 12:57:28 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 12:57:28 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 12:57:28 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 12:57:28 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 12:57:29 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 12:57:29 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 12:57:30 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 12:57:30 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 12:57:31 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 12:57:31 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 12:57:31 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 12:57:32 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 12:57:32 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 12:57:32 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 12:57:33 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 12:57:33 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 12:57:33 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 12:58:24 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 12:58:39 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 12:59:13 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:01:16 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:02:04 2018 ewas birth weight blood gse35069 
+## [meffil.ewas] Thu Nov 29 13:02:04 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:02:04 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:02:05 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:02:05 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:02:47 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:02:48 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:03:04 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:03:04 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:03:04 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:03:05 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:03:05 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:03:10 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:03:10 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:03:11 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:03:11 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:03:11 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:03:12 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:03:12 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:03:12 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:03:12 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:03:13 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:03:13 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:03:14 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:03:14 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:03:14 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:03:15 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:03:15 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:03:15 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:03:15 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:03:16 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:03:16 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:03:16 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:03:16 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:04:07 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:04:23 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:04:50 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:06:27 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:07:14 2018 ewas birth weight blood gse35069 chen 
+## [meffil.ewas] Thu Nov 29 13:07:14 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:07:14 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:07:15 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:07:15 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:07:52 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:07:55 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:08:05 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:08:05 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:08:06 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:08:06 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:08:07 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:08:07 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:08:07 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:08:07 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:08:07 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:08:10 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:08:10 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:08:10 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:08:11 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:08:11 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:08:11 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:08:11 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:08:11 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:08:12 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:08:12 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:08:12 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:08:12 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:08:13 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:08:13 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:08:13 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:08:14 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:08:14 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:08:14 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:09:02 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:09:12 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:09:43 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:11:21 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:12:13 2018 ewas birth weight blood gse35069 complete 
+## [meffil.ewas] Thu Nov 29 13:12:14 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:12:14 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:12:14 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:12:14 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:12:55 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:12:56 2018 Number of candidate ISVs = 25 
+## [isvaFn] Thu Nov 29 13:13:06 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:13:06 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:13:07 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:13:07 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:13:07 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:13:08 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:13:08 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:13:08 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:13:09 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:13:09 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:13:13 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:13:13 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:13:13 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:13:14 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:13:14 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:13:14 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:13:14 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:13:14 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:13:15 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:13:15 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:13:15 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:13:16 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:13:16 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:13:16 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:13:17 2018 Built ISV 25 
+## 
+## [meffil.ewas] Thu Nov 29 13:13:17 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:14:06 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:14:16 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:14:45 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:16:24 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:17:12 2018 ewas birth weight cord blood gse68456 
+## [meffil.ewas] Thu Nov 29 13:17:12 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:17:12 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:17:13 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:17:13 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:17:57 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:17:58 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:18:19 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:18:20 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:18:20 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:18:20 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:18:21 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:18:23 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:18:23 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:18:23 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:18:24 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:18:24 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:18:24 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:18:25 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:18:25 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:18:25 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:18:26 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:18:26 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:18:26 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:18:26 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:18:27 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:18:27 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:18:27 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:18:28 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:18:28 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:18:29 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:18:29 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:18:29 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:18:29 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:19:18 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:19:26 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:19:53 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:21:40 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:22:31 2018 ewas birth weight gervin and lyle cord blood 
+## [meffil.ewas] Thu Nov 29 13:22:31 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:22:31 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:22:32 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:22:32 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:23:06 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:23:07 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:23:16 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:23:16 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:23:17 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:23:17 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:23:17 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:23:18 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:23:18 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:23:19 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:23:19 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:23:19 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:23:20 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:23:20 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:23:20 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:23:20 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:23:23 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:23:24 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:23:24 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:23:24 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:23:25 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:23:25 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:23:25 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:23:25 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:23:26 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:23:26 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:23:26 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:23:27 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:23:27 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:24:23 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:24:31 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:24:56 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:26:28 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:27:17 2018 ewas birth weight saliva gse48472 
+## [meffil.ewas] Thu Nov 29 13:27:17 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:27:17 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:27:18 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:27:18 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:27:55 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:27:56 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:28:08 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:28:09 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:28:09 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:28:09 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:28:09 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:28:14 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:28:14 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:28:14 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:28:14 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:28:15 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:28:15 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:28:15 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:28:16 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:28:16 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:28:16 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:28:17 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:28:17 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:28:17 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:28:17 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:28:18 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:28:18 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:28:19 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:28:19 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:28:19 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:28:21 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:28:22 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:28:22 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:29:10 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:29:18 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:29:49 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:31:19 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:32:04 2018 ewas pbconc (ng/dl) andrews and bakulski cord blood 
+## [meffil.ewas] Thu Nov 29 13:32:05 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:32:05 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:32:05 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:32:05 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:32:48 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:32:49 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:33:03 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:33:04 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:33:04 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:33:04 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:33:04 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:33:07 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:33:07 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:33:08 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:33:08 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:33:09 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:33:09 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:33:09 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:33:10 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:33:10 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:33:11 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:33:11 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:33:12 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:33:12 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:33:12 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:33:13 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:33:13 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:33:13 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:33:14 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:33:14 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:33:14 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:33:15 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:33:15 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:34:01 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:34:09 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:34:37 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:36:23 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:37:12 2018 ewas pbconc (ng/dl) blood gse35069 
+## [meffil.ewas] Thu Nov 29 13:37:13 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:37:13 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:37:13 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:37:13 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:37:52 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:37:52 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:38:10 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:38:11 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:38:11 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:38:11 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:38:11 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:38:15 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:38:15 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:38:15 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:38:16 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:38:16 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:38:16 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:38:17 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:38:17 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:38:17 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:38:18 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:38:18 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:38:18 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:38:19 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:38:19 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:38:19 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:38:20 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:38:20 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:38:20 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:38:20 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:38:21 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:38:21 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:38:21 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:39:07 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:39:16 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:39:44 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:41:51 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:42:44 2018 ewas pbconc (ng/dl) blood gse35069 chen 
+## [meffil.ewas] Thu Nov 29 13:42:44 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:42:44 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:42:44 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:42:44 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:43:26 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:43:27 2018 Number of candidate ISVs = 27 
+## [isvaFn] Thu Nov 29 13:43:44 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:43:44 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:43:45 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:43:45 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:43:45 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:43:45 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:43:46 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:43:46 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:43:47 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:43:47 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:43:50 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:43:50 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:43:50 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:43:51 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:43:51 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:43:51 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:43:51 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:43:52 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:43:52 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:43:53 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:43:53 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:43:54 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:43:55 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:43:55 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:43:56 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:43:56 2018 Built ISV 26 
+## [isvaFn] Thu Nov 29 13:43:56 2018 Built ISV 27 
+## 
+## [meffil.ewas] Thu Nov 29 13:43:56 2018 SVA. 
+## Number of significant surrogate variables is:  7 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:44:51 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:45:01 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:45:28 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:47:03 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:48:03 2018 ewas pbconc (ng/dl) blood gse35069 complete 
+## [meffil.ewas] Thu Nov 29 13:48:03 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:48:03 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:48:04 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:48:04 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:48:48 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:48:49 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:49:09 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:49:09 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:49:09 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:49:09 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:49:10 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:49:13 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:49:14 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:49:14 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:49:14 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:49:14 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:49:15 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:49:15 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:49:15 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:49:15 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:49:16 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:49:16 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:49:16 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:49:16 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:49:17 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:49:17 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:49:17 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:49:18 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:49:18 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:49:18 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:49:19 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:49:19 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 13:49:19 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:50:11 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:50:22 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:50:56 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:52:46 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:53:36 2018 ewas pbconc (ng/dl) cord blood gse68456 
+## [meffil.ewas] Thu Nov 29 13:53:37 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:53:37 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:53:37 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:53:37 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:54:17 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:54:18 2018 Number of candidate ISVs = 27 
+## [isvaFn] Thu Nov 29 13:54:30 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:54:31 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:54:31 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:54:31 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:54:31 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:54:32 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:54:32 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:54:32 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:54:33 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 13:54:33 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 13:54:35 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 13:54:36 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 13:54:36 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 13:54:36 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 13:54:37 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 13:54:37 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 13:54:37 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 13:54:38 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 13:54:38 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 13:54:39 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 13:54:39 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 13:54:39 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 13:54:40 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 13:54:40 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 13:54:40 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 13:54:41 2018 Built ISV 26 
+## [isvaFn] Thu Nov 29 13:54:41 2018 Built ISV 27 
+## 
+## [meffil.ewas] Thu Nov 29 13:54:41 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 13:55:34 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 13:55:48 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 13:56:19 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 13:58:06 2018 EWAS for covariate set sva 
+## Thu Nov 29 13:58:58 2018 ewas pbconc (ng/dl) gervin and lyle cord blood 
+## [meffil.ewas] Thu Nov 29 13:58:59 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 13:58:59 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 13:59:00 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 13:59:00 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 13:59:44 2018 ISVA. 
+## [isvaFn] Thu Nov 29 13:59:45 2018 Number of candidate ISVs = 26 
+## [isvaFn] Thu Nov 29 13:59:56 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 13:59:56 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 13:59:56 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 13:59:56 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 13:59:57 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 13:59:57 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 13:59:57 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 13:59:58 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 13:59:58 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 14:00:00 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 14:00:03 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 14:00:03 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 14:00:04 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 14:00:04 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 14:00:04 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 14:00:04 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 14:00:04 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 14:00:05 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 14:00:05 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 14:00:05 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 14:00:05 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 14:00:06 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 14:00:06 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 14:00:06 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 14:00:06 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 14:00:07 2018 Built ISV 26 
+## 
+## [meffil.ewas] Thu Nov 29 14:00:07 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 14:01:01 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 14:01:18 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 14:01:44 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 14:03:21 2018 EWAS for covariate set sva 
+## Thu Nov 29 14:04:07 2018 ewas pbconc (ng/dl) saliva gse48472 
+## [meffil.ewas] Thu Nov 29 14:04:08 2018 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Nov 29 14:04:08 2018 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Nov 29 14:04:09 2018 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Nov 29 14:04:09 2018 0.05 - winsorizing the beta matrix. 
+## [meffil.ewas] Thu Nov 29 14:04:54 2018 ISVA. 
+## [isvaFn] Thu Nov 29 14:04:55 2018 Number of candidate ISVs = 27 
+## [isvaFn] Thu Nov 29 14:05:08 2018 Built ISV 1 
+## [isvaFn] Thu Nov 29 14:05:08 2018 Built ISV 2 
+## [isvaFn] Thu Nov 29 14:05:08 2018 Built ISV 3 
+## [isvaFn] Thu Nov 29 14:05:08 2018 Built ISV 4 
+## [isvaFn] Thu Nov 29 14:05:09 2018 Built ISV 5 
+## [isvaFn] Thu Nov 29 14:05:09 2018 Built ISV 6 
+## [isvaFn] Thu Nov 29 14:05:09 2018 Built ISV 7 
+## [isvaFn] Thu Nov 29 14:05:10 2018 Built ISV 8 
+## [isvaFn] Thu Nov 29 14:05:10 2018 Built ISV 9 
+## [isvaFn] Thu Nov 29 14:05:10 2018 Built ISV 10 
+## [isvaFn] Thu Nov 29 14:05:16 2018 Built ISV 11 
+## [isvaFn] Thu Nov 29 14:05:16 2018 Built ISV 12 
+## [isvaFn] Thu Nov 29 14:05:16 2018 Built ISV 13 
+## [isvaFn] Thu Nov 29 14:05:17 2018 Built ISV 14 
+## [isvaFn] Thu Nov 29 14:05:17 2018 Built ISV 15 
+## [isvaFn] Thu Nov 29 14:05:18 2018 Built ISV 16 
+## [isvaFn] Thu Nov 29 14:05:18 2018 Built ISV 17 
+## [isvaFn] Thu Nov 29 14:05:18 2018 Built ISV 18 
+## [isvaFn] Thu Nov 29 14:05:19 2018 Built ISV 19 
+## [isvaFn] Thu Nov 29 14:05:19 2018 Built ISV 20 
+## [isvaFn] Thu Nov 29 14:05:19 2018 Built ISV 21 
+## [isvaFn] Thu Nov 29 14:05:19 2018 Built ISV 22 
+## [isvaFn] Thu Nov 29 14:05:20 2018 Built ISV 23 
+## [isvaFn] Thu Nov 29 14:05:21 2018 Built ISV 24 
+## [isvaFn] Thu Nov 29 14:05:21 2018 Built ISV 25 
+## [isvaFn] Thu Nov 29 14:05:21 2018 Built ISV 26 
+## [isvaFn] Thu Nov 29 14:05:22 2018 Built ISV 27 
+## 
+## [meffil.ewas] Thu Nov 29 14:05:22 2018 SVA. 
+## Number of significant surrogate variables is:  6 
+## Iteration (out of 5 ):1  2  3  4  5  
+## [FUN] Thu Nov 29 14:06:10 2018 EWAS for covariate set none 
+## [FUN] Thu Nov 29 14:06:18 2018 EWAS for covariate set all 
+## [FUN] Thu Nov 29 14:06:46 2018 EWAS for covariate set isva 
+## [FUN] Thu Nov 29 14:08:35 2018 EWAS for covariate set sva
+</code></pre>
+
+<h2 id="toc_7">Previously identified associations</h2>
+
+<p>For generating the EWAS reports,
+previously identified associations are provided
+for comparison with previous analyses.
+Only the lead (&ldquo;pbconc&rdquo;) list of associations is from the dataset
+used here.</p>
+
+<pre><code class="r">published.hits &lt;- list(&quot;gender&quot;=c(&quot;cg03691818&quot;, &quot;cg26921482&quot;, &quot;cg17743279&quot;, &quot;cg07852945&quot;, &quot;cg26355737&quot;, &quot;cg25568337&quot;, &quot;cg05100634&quot;, &quot;cg03608000&quot;, &quot;cg02325951&quot;, &quot;cg17612569&quot;, &quot;cg04874129&quot;, &quot;cg08906898&quot;, &quot;cg04946709&quot;, &quot;cg02989351&quot;, &quot;cg12204423&quot;, &quot;cg25304146&quot;, &quot;cg22345911&quot;, &quot;cg01906879&quot;, &quot;cg06152526&quot;, &quot;cg04190002&quot;, &quot;cg06644124&quot;, &quot;cg07628841&quot;, &quot;cg23001456&quot;, &quot;cg26213873&quot;, &quot;cg25438440&quot;, &quot;cg07816873&quot;, &quot;cg24016844&quot;, &quot;cg11841231&quot;, &quot;cg13323902&quot;, &quot;cg12900929&quot;), ## PMID: 26553366 (top 30)
+                       &quot;gestational age&quot;=c(&quot;cg08943494&quot;, &quot;cg11932158&quot;, &quot;cg16725984&quot;, &quot;cg20334115&quot;, &quot;cg18623216&quot;, &quot;cg07835443&quot;, &quot;cg00220721&quot;, &quot;cg04685228&quot;, &quot;cg16103712&quot;, &quot;cg27518892&quot;, &quot;cg22117805&quot;, &quot;cg21926626&quot;, &quot;cg04347477&quot;, &quot;cg08817867&quot;, &quot;cg27448161&quot;, &quot;cg01154283&quot;, &quot;cg02001279&quot;, &quot;cg02430430&quot;, &quot;cg06870470&quot;, &quot;cg13924996&quot;, &quot;cg07136133&quot;, &quot;cg00481600&quot;, &quot;cg13675859&quot;, &quot;cg11934771&quot;, &quot;cg19744173&quot;, &quot;cg12713583&quot;, &quot;cg11360522&quot;, &quot;cg16834726&quot;, &quot;cg18608055&quot;, &quot;cg05283597&quot;), ## PMID: 25869828 (top 30)
+                       &quot;birth weight&quot;=c(&quot;cg20076442&quot;, &quot;cg25953130&quot;, &quot;cg04521626&quot;, &quot;cg14097568&quot;, &quot;cg17133774&quot;, &quot;cg00654448&quot;, &quot;cg00442282&quot;, &quot;cg13696490&quot;, &quot;cg12044213&quot;, &quot;cg08817867&quot;, &quot;cg00382138&quot;, &quot;cg06870470&quot;, &quot;cg25557739&quot;, &quot;cg24324628&quot;, &quot;cg15783941&quot;, &quot;cg14597739&quot;, &quot;cg22962123&quot;, &quot;cg05851442&quot;, &quot;cg23387597&quot;, &quot;cg24973755&quot;, &quot;cg16219283&quot;, &quot;cg25799241&quot;, &quot;cg06658067&quot;), ## PMID: 25869828 (bonferroni p &lt; 0.05)
+                       &quot;pbconc (ng/dl)&quot;=c(&quot;cg01105385&quot;, &quot;cg07208333&quot;, &quot;cg08945395&quot;, &quot;cg20439288&quot;, &quot;cg20474370&quot;))## PMID: 26046694, all sites in chr5:67584213-67584451
+</code></pre>
+
+<h2 id="toc_8">EWAS reports</h2>
+
+<p>Generate a report for each EWAS.
+Significance thresholds are selected so that the top 100 associations
+are plotted in the report.
+The reports can be found in the &ldquo;cord&rdquo; directory
+under the name of the variable of interest (e.g. &ldquo;cord/gender&rdquo;).</p>
+
+<pre><code class="r">for (variable.name in names(results)) {
+    for (reference in names(results[[variable.name]])) {
+        cat(date(), &quot;EWAS report&quot;, variable.name, reference, &quot;\n&quot;)
+
+        ewas.ret &lt;- results[[variable.name]][[reference]]
+
+        ewas.parameters &lt;- meffil.ewas.parameters(max.plots=10)
+
+        ewas.summary &lt;- meffil.ewas.summary(ewas.ret,
+                                            beta,
+                                            selected.cpg.sites=published.hits[[variable.name]],
+                                            parameters=ewas.parameters, verbose=T)
+        meffil.ewas.report(ewas.summary,
+                           output.file=file.path(&quot;cord&quot;, sub(&quot; \\(.*&quot;, &quot;&quot;, variable.name),
+                               reference, &quot;report.html&quot;),
+                           author=&quot;Me&quot;,
+                           study=paste(variable.name,
+                               &quot; in cord blood DNA methylation (GEO:GSE69633)&quot;,
+                               &quot; adjusted with the &#39;&quot;, reference, &quot;&#39; cell type reference&quot;, sep=&quot;&quot;))
+    }
+}
+</code></pre>
+
+<h2 id="toc_9">Association overlaps between different analyses</h2>
+
+<p>Show size of overlap between analyses using different cell type references.
+For each, we use the results obtained using confounders obtained using &ldquo;ISVA&rdquo;
+(all potential confounders listed above plus independent surrogate variables).</p>
+
+<pre><code class="r">compare.top &lt;- function(results, top=100, method) {
+    sites &lt;- lapply(results, function(ewas) {
+        idx &lt;- order(ewas$p.value[,method], decreasing=F)[1:top]
+        rownames(ewas$p.value)[idx]
+    })
+    sapply(sites, function(x) sapply(sites, function(y) length(intersect(x,y))))
+}
+comparison.table &lt;- function(results, method) {
+    comparisons &lt;- lapply(results, compare.top, method=method)
+    for (name in names(results)) {
+        comparisons[[name]] &lt;- as.data.frame(comparisons[[name]])
+        comparisons[[name]]$reference &lt;- rownames(comparisons[[name]])
+        comparisons[[name]]$variable &lt;- name
+    }
+    comparisons &lt;- do.call(rbind, comparisons)
+}
+knitr:::kable(comparison.table(results, &quot;isva&quot;), row.names=F)
+</code></pre>
+
+<table><thead>
+<tr>
+<th align="right">andrews and bakulski cord blood</th>
+<th align="right">blood gse35069</th>
+<th align="right">blood gse35069 chen</th>
+<th align="right">blood gse35069 complete</th>
+<th align="right">cord blood gse68456</th>
+<th align="right">gervin and lyle cord blood</th>
+<th align="right">saliva gse48472</th>
+<th align="left">reference</th>
+<th align="left">variable</th>
+</tr>
+</thead><tbody>
+<tr>
+<td align="right">100</td>
+<td align="right">34</td>
+<td align="right">32</td>
+<td align="right">39</td>
+<td align="right">29</td>
+<td align="right">36</td>
+<td align="right">40</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">34</td>
+<td align="right">100</td>
+<td align="right">22</td>
+<td align="right">32</td>
+<td align="right">24</td>
+<td align="right">28</td>
+<td align="right">32</td>
+<td align="left">blood gse35069</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">32</td>
+<td align="right">22</td>
+<td align="right">100</td>
+<td align="right">29</td>
+<td align="right">21</td>
+<td align="right">25</td>
+<td align="right">31</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">39</td>
+<td align="right">32</td>
+<td align="right">29</td>
+<td align="right">100</td>
+<td align="right">31</td>
+<td align="right">36</td>
+<td align="right">40</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">29</td>
+<td align="right">24</td>
+<td align="right">21</td>
+<td align="right">31</td>
+<td align="right">100</td>
+<td align="right">31</td>
+<td align="right">30</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">36</td>
+<td align="right">28</td>
+<td align="right">25</td>
+<td align="right">36</td>
+<td align="right">31</td>
+<td align="right">100</td>
+<td align="right">36</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">40</td>
+<td align="right">32</td>
+<td align="right">31</td>
+<td align="right">40</td>
+<td align="right">30</td>
+<td align="right">36</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="right">0</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+</tbody></table>
+
+<p>Similarly for SVA EWAS:</p>
+
+<pre><code class="r">knitr:::kable(comparison.table(results, &quot;sva&quot;), row.names=F)
+</code></pre>
+
+<table><thead>
+<tr>
+<th align="right">andrews and bakulski cord blood</th>
+<th align="right">blood gse35069</th>
+<th align="right">blood gse35069 chen</th>
+<th align="right">blood gse35069 complete</th>
+<th align="right">cord blood gse68456</th>
+<th align="right">gervin and lyle cord blood</th>
+<th align="right">saliva gse48472</th>
+<th align="left">reference</th>
+<th align="left">variable</th>
+</tr>
+</thead><tbody>
+<tr>
+<td align="right">100</td>
+<td align="right">95</td>
+<td align="right">92</td>
+<td align="right">96</td>
+<td align="right">95</td>
+<td align="right">95</td>
+<td align="right">94</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">95</td>
+<td align="right">100</td>
+<td align="right">92</td>
+<td align="right">97</td>
+<td align="right">98</td>
+<td align="right">97</td>
+<td align="right">96</td>
+<td align="left">blood gse35069</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">92</td>
+<td align="right">92</td>
+<td align="right">100</td>
+<td align="right">93</td>
+<td align="right">92</td>
+<td align="right">92</td>
+<td align="right">91</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">96</td>
+<td align="right">97</td>
+<td align="right">93</td>
+<td align="right">100</td>
+<td align="right">98</td>
+<td align="right">97</td>
+<td align="right">96</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">95</td>
+<td align="right">98</td>
+<td align="right">92</td>
+<td align="right">98</td>
+<td align="right">100</td>
+<td align="right">98</td>
+<td align="right">96</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">95</td>
+<td align="right">97</td>
+<td align="right">92</td>
+<td align="right">97</td>
+<td align="right">98</td>
+<td align="right">100</td>
+<td align="right">97</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">94</td>
+<td align="right">96</td>
+<td align="right">91</td>
+<td align="right">96</td>
+<td align="right">96</td>
+<td align="right">97</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">15</td>
+<td align="right">14</td>
+<td align="right">24</td>
+<td align="right">24</td>
+<td align="right">5</td>
+<td align="right">19</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">15</td>
+<td align="right">100</td>
+<td align="right">12</td>
+<td align="right">32</td>
+<td align="right">26</td>
+<td align="right">22</td>
+<td align="right">15</td>
+<td align="left">blood gse35069</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td align="right">12</td>
+<td align="right">100</td>
+<td align="right">9</td>
+<td align="right">22</td>
+<td align="right">8</td>
+<td align="right">9</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">24</td>
+<td align="right">32</td>
+<td align="right">9</td>
+<td align="right">100</td>
+<td align="right">32</td>
+<td align="right">11</td>
+<td align="right">25</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">24</td>
+<td align="right">26</td>
+<td align="right">22</td>
+<td align="right">32</td>
+<td align="right">100</td>
+<td align="right">13</td>
+<td align="right">24</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td align="right">22</td>
+<td align="right">8</td>
+<td align="right">11</td>
+<td align="right">13</td>
+<td align="right">100</td>
+<td align="right">6</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">19</td>
+<td align="right">15</td>
+<td align="right">9</td>
+<td align="right">25</td>
+<td align="right">24</td>
+<td align="right">6</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">36</td>
+<td align="right">11</td>
+<td align="right">35</td>
+<td align="right">40</td>
+<td align="right">23</td>
+<td align="right">22</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">36</td>
+<td align="right">100</td>
+<td align="right">9</td>
+<td align="right">46</td>
+<td align="right">44</td>
+<td align="right">22</td>
+<td align="right">36</td>
+<td align="left">blood gse35069</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td align="right">9</td>
+<td align="right">100</td>
+<td align="right">12</td>
+<td align="right">10</td>
+<td align="right">18</td>
+<td align="right">7</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">35</td>
+<td align="right">46</td>
+<td align="right">12</td>
+<td align="right">100</td>
+<td align="right">41</td>
+<td align="right">26</td>
+<td align="right">44</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">40</td>
+<td align="right">44</td>
+<td align="right">10</td>
+<td align="right">41</td>
+<td align="right">100</td>
+<td align="right">19</td>
+<td align="right">30</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">23</td>
+<td align="right">22</td>
+<td align="right">18</td>
+<td align="right">26</td>
+<td align="right">19</td>
+<td align="right">100</td>
+<td align="right">19</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">22</td>
+<td align="right">36</td>
+<td align="right">7</td>
+<td align="right">44</td>
+<td align="right">30</td>
+<td align="right">19</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">100</td>
+<td align="right">32</td>
+<td align="right">19</td>
+<td align="right">43</td>
+<td align="right">42</td>
+<td align="right">30</td>
+<td align="right">30</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">32</td>
+<td align="right">100</td>
+<td align="right">17</td>
+<td align="right">42</td>
+<td align="right">45</td>
+<td align="right">40</td>
+<td align="right">34</td>
+<td align="left">blood gse35069</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">19</td>
+<td align="right">17</td>
+<td align="right">100</td>
+<td align="right">19</td>
+<td align="right">19</td>
+<td align="right">15</td>
+<td align="right">18</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">43</td>
+<td align="right">42</td>
+<td align="right">19</td>
+<td align="right">100</td>
+<td align="right">48</td>
+<td align="right">42</td>
+<td align="right">52</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">42</td>
+<td align="right">45</td>
+<td align="right">19</td>
+<td align="right">48</td>
+<td align="right">100</td>
+<td align="right">47</td>
+<td align="right">36</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">30</td>
+<td align="right">40</td>
+<td align="right">15</td>
+<td align="right">42</td>
+<td align="right">47</td>
+<td align="right">100</td>
+<td align="right">33</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">30</td>
+<td align="right">34</td>
+<td align="right">18</td>
+<td align="right">52</td>
+<td align="right">36</td>
+<td align="right">33</td>
+<td align="right">100</td>
+<td align="left">saliva gse48472</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+</tbody></table>
+
+<h2 id="toc_10">Significance ranks of previously identified associations</h2>
+
+<p>Below we show the p-value ranks in our analyses of each previously identified association.
+First for ISVA EWAS:</p>
+
+<pre><code class="r">compare.p.value.ranks &lt;- function(results, method) {
+    ranks &lt;- sapply(names(results), function(variable.name) {
+        do.call(rbind, lapply(results[[variable.name]], function(ewas) {
+            idx &lt;- match(published.hits[[variable.name]], rownames(ewas$p.value))
+            r &lt;- rank(ewas$p.value[,method])[idx]
+            p &lt;- wilcox.test(ewas$p.value[idx,method],
+                             ewas$p.value[-idx,method],
+                             alternative=&quot;less&quot;)$p.value
+            c(quantile(r), p=p)
+        }))
+    }, simplify=F)
+    for (name in names(results)) {
+        ranks[[name]] &lt;- as.data.frame(ranks[[name]])
+        ranks[[name]]$reference &lt;- rownames(ranks[[name]])
+        ranks[[name]]$variable &lt;- name
+    }
+    ranks &lt;- do.call(rbind, ranks)
+}
+knitr:::kable(compare.p.value.ranks(results, &quot;isva&quot;), row.names=F)
+</code></pre>
+
+<table><thead>
+<tr>
+<th align="right">0%</th>
+<th align="right">25%</th>
+<th align="right">50%</th>
+<th align="right">75%</th>
+<th align="right">100%</th>
+<th align="right">p</th>
+<th align="left">reference</th>
+<th align="left">variable</th>
+</tr>
+</thead><tbody>
+<tr>
+<td align="right">7</td>
+<td align="right">192.75</td>
+<td align="right">2442.0</td>
+<td align="right">18548.00</td>
+<td align="right">125655</td>
+<td align="right">0.0000000</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">26</td>
+<td align="right">723.75</td>
+<td align="right">3100.0</td>
+<td align="right">27712.25</td>
+<td align="right">405696</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td align="right">532.50</td>
+<td align="right">4218.5</td>
+<td align="right">19683.75</td>
+<td align="right">214832</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">38</td>
+<td align="right">214.50</td>
+<td align="right">2171.0</td>
+<td align="right">17993.75</td>
+<td align="right">191910</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">22</td>
+<td align="right">299.75</td>
+<td align="right">3594.5</td>
+<td align="right">15145.25</td>
+<td align="right">285204</td>
+<td align="right">0.0000000</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">28</td>
+<td align="right">271.25</td>
+<td align="right">2828.0</td>
+<td align="right">36584.00</td>
+<td align="right">253217</td>
+<td align="right">0.0000000</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">31</td>
+<td align="right">194.25</td>
+<td align="right">1942.5</td>
+<td align="right">12320.25</td>
+<td align="right">117454</td>
+<td align="right">0.0000000</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">12234</td>
+<td align="right">45721.50</td>
+<td align="right">114043.5</td>
+<td align="right">236681.75</td>
+<td align="right">406822</td>
+<td align="right">0.0003980</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">1283</td>
+<td align="right">58027.50</td>
+<td align="right">161007.0</td>
+<td align="right">298310.75</td>
+<td align="right">460556</td>
+<td align="right">0.0078001</td>
+<td align="left">blood gse35069</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">10338</td>
+<td align="right">64269.25</td>
+<td align="right">109248.5</td>
+<td align="right">232505.75</td>
+<td align="right">396210</td>
+<td align="right">0.0001289</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">177</td>
+<td align="right">22381.00</td>
+<td align="right">91863.5</td>
+<td align="right">178920.25</td>
+<td align="right">442687</td>
+<td align="right">0.0000003</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">8480</td>
+<td align="right">23908.50</td>
+<td align="right">60617.5</td>
+<td align="right">140013.00</td>
+<td align="right">462843</td>
+<td align="right">0.0000000</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">48981</td>
+<td align="right">131239.25</td>
+<td align="right">269030.0</td>
+<td align="right">376249.50</td>
+<td align="right">484544</td>
+<td align="right">0.7179448</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">1485</td>
+<td align="right">30116.50</td>
+<td align="right">82370.5</td>
+<td align="right">348112.50</td>
+<td align="right">479850</td>
+<td align="right">0.0032829</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">776</td>
+<td align="right">95167.50</td>
+<td align="right">155669.0</td>
+<td align="right">319268.50</td>
+<td align="right">447680</td>
+<td align="right">0.0527359</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">2972</td>
+<td align="right">82198.00</td>
+<td align="right">179610.0</td>
+<td align="right">242495.50</td>
+<td align="right">462954</td>
+<td align="right">0.0330726</td>
+<td align="left">blood gse35069</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">55365</td>
+<td align="right">179043.00</td>
+<td align="right">293722.0</td>
+<td align="right">371021.00</td>
+<td align="right">462997</td>
+<td align="right">0.8008455</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">36592</td>
+<td align="right">107230.50</td>
+<td align="right">198444.0</td>
+<td align="right">350261.00</td>
+<td align="right">461561</td>
+<td align="right">0.3404307</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">22959</td>
+<td align="right">107311.50</td>
+<td align="right">179294.0</td>
+<td align="right">287008.00</td>
+<td align="right">464826</td>
+<td align="right">0.1044564</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">1980</td>
+<td align="right">43442.50</td>
+<td align="right">186581.0</td>
+<td align="right">290818.00</td>
+<td align="right">484971</td>
+<td align="right">0.0482836</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">779</td>
+<td align="right">24995.00</td>
+<td align="right">172645.0</td>
+<td align="right">263261.50</td>
+<td align="right">404958</td>
+<td align="right">0.0083492</td>
+<td align="left">saliva gse48472</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">196570</td>
+<td align="right">271686.00</td>
+<td align="right">275279.0</td>
+<td align="right">354918.00</td>
+<td align="right">374359</td>
+<td align="right">0.7961235</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">193487</td>
+<td align="right">231357.00</td>
+<td align="right">323902.0</td>
+<td align="right">407015.00</td>
+<td align="right">409760</td>
+<td align="right">0.8694424</td>
+<td align="left">blood gse35069</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">56202</td>
+<td align="right">278496.00</td>
+<td align="right">297732.0</td>
+<td align="right">399229.00</td>
+<td align="right">436276</td>
+<td align="right">0.7916868</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">132310</td>
+<td align="right">245025.00</td>
+<td align="right">251880.0</td>
+<td align="right">409032.00</td>
+<td align="right">445391</td>
+<td align="right">0.8057686</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">248205</td>
+<td align="right">249025.00</td>
+<td align="right">250058.0</td>
+<td align="right">371325.00</td>
+<td align="right">401903</td>
+<td align="right">0.8364851</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">138614</td>
+<td align="right">232777.00</td>
+<td align="right">248328.0</td>
+<td align="right">419574.00</td>
+<td align="right">426973</td>
+<td align="right">0.7901556</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">74614</td>
+<td align="right">258605.00</td>
+<td align="right">297755.0</td>
+<td align="right">372147.00</td>
+<td align="right">422131</td>
+<td align="right">0.7504969</td>
+<td align="left">saliva gse48472</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+</tbody></table>
+
+<p>Second for SVA EWAS:</p>
+
+<pre><code class="r">knitr:::kable(compare.p.value.ranks(results, &quot;sva&quot;), row.names=F)
+</code></pre>
+
+<table><thead>
+<tr>
+<th align="right">0%</th>
+<th align="right">25%</th>
+<th align="right">50%</th>
+<th align="right">75%</th>
+<th align="right">100%</th>
+<th align="right">p</th>
+<th align="left">reference</th>
+<th align="left">variable</th>
+</tr>
+</thead><tbody>
+<tr>
+<td align="right">33</td>
+<td align="right">75.00</td>
+<td align="right">177.5</td>
+<td align="right">950.00</td>
+<td align="right">93595</td>
+<td align="right">0.0000000</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">29</td>
+<td align="right">83.25</td>
+<td align="right">203.0</td>
+<td align="right">1870.00</td>
+<td align="right">153218</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">29</td>
+<td align="right">79.75</td>
+<td align="right">181.0</td>
+<td align="right">988.00</td>
+<td align="right">191862</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">25</td>
+<td align="right">85.25</td>
+<td align="right">195.5</td>
+<td align="right">2139.75</td>
+<td align="right">196405</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">26</td>
+<td align="right">82.25</td>
+<td align="right">172.5</td>
+<td align="right">783.50</td>
+<td align="right">310713</td>
+<td align="right">0.0000000</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">20</td>
+<td align="right">82.25</td>
+<td align="right">225.5</td>
+<td align="right">1327.00</td>
+<td align="right">201883</td>
+<td align="right">0.0000000</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">28</td>
+<td align="right">83.75</td>
+<td align="right">190.5</td>
+<td align="right">1042.50</td>
+<td align="right">81889</td>
+<td align="right">0.0000000</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gender</td>
+</tr>
+<tr>
+<td align="right">8948</td>
+<td align="right">48493.00</td>
+<td align="right">82888.0</td>
+<td align="right">145063.75</td>
+<td align="right">340867</td>
+<td align="right">0.0000002</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">1684</td>
+<td align="right">7094.00</td>
+<td align="right">22457.0</td>
+<td align="right">54294.50</td>
+<td align="right">245959</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">616</td>
+<td align="right">8982.00</td>
+<td align="right">39507.0</td>
+<td align="right">99850.25</td>
+<td align="right">477410</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">1627</td>
+<td align="right">21207.25</td>
+<td align="right">31791.5</td>
+<td align="right">75650.25</td>
+<td align="right">309195</td>
+<td align="right">0.0000000</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">1704</td>
+<td align="right">8870.75</td>
+<td align="right">18627.0</td>
+<td align="right">47184.50</td>
+<td align="right">341735</td>
+<td align="right">0.0000000</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">6615</td>
+<td align="right">20145.75</td>
+<td align="right">58831.0</td>
+<td align="right">123055.50</td>
+<td align="right">400556</td>
+<td align="right">0.0000000</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">2874</td>
+<td align="right">35821.50</td>
+<td align="right">57838.0</td>
+<td align="right">171477.75</td>
+<td align="right">354779</td>
+<td align="right">0.0000002</td>
+<td align="left">saliva gse48472</td>
+<td align="left">gestational age</td>
+</tr>
+<tr>
+<td align="right">8333</td>
+<td align="right">44729.00</td>
+<td align="right">150778.0</td>
+<td align="right">258990.00</td>
+<td align="right">438202</td>
+<td align="right">0.0045658</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">5414</td>
+<td align="right">67388.50</td>
+<td align="right">127519.0</td>
+<td align="right">283290.50</td>
+<td align="right">402825</td>
+<td align="right">0.0062827</td>
+<td align="left">blood gse35069</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">12017</td>
+<td align="right">69400.50</td>
+<td align="right">168178.0</td>
+<td align="right">364243.00</td>
+<td align="right">483967</td>
+<td align="right">0.1636071</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">7229</td>
+<td align="right">39721.50</td>
+<td align="right">133057.0</td>
+<td align="right">320094.00</td>
+<td align="right">447138</td>
+<td align="right">0.0268025</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">19080</td>
+<td align="right">61714.50</td>
+<td align="right">154145.0</td>
+<td align="right">230598.00</td>
+<td align="right">456851</td>
+<td align="right">0.0018292</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">7130</td>
+<td align="right">73066.50</td>
+<td align="right">198198.0</td>
+<td align="right">317324.00</td>
+<td align="right">473060</td>
+<td align="right">0.1515708</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">9747</td>
+<td align="right">37839.00</td>
+<td align="right">111590.0</td>
+<td align="right">308578.50</td>
+<td align="right">430170</td>
+<td align="right">0.0066438</td>
+<td align="left">saliva gse48472</td>
+<td align="left">birth weight</td>
+</tr>
+<tr>
+<td align="right">57722</td>
+<td align="right">220461.00</td>
+<td align="right">393511.0</td>
+<td align="right">417982.00</td>
+<td align="right">442166</td>
+<td align="right">0.8452481</td>
+<td align="left">andrews and bakulski cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">45798</td>
+<td align="right">265031.00</td>
+<td align="right">352929.0</td>
+<td align="right">379142.00</td>
+<td align="right">419286</td>
+<td align="right">0.7863844</td>
+<td align="left">blood gse35069</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">88534</td>
+<td align="right">336474.00</td>
+<td align="right">361432.0</td>
+<td align="right">389384.00</td>
+<td align="right">441185</td>
+<td align="right">0.9011438</td>
+<td align="left">blood gse35069 chen</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">46008</td>
+<td align="right">353280.00</td>
+<td align="right">368020.0</td>
+<td align="right">465443.00</td>
+<td align="right">467961</td>
+<td align="right">0.9400575</td>
+<td align="left">blood gse35069 complete</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">52232</td>
+<td align="right">276485.00</td>
+<td align="right">376106.0</td>
+<td align="right">439524.00</td>
+<td align="right">442515</td>
+<td align="right">0.8833447</td>
+<td align="left">cord blood gse68456</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">69911</td>
+<td align="right">292789.00</td>
+<td align="right">345466.0</td>
+<td align="right">414322.00</td>
+<td align="right">467439</td>
+<td align="right">0.8852518</td>
+<td align="left">gervin and lyle cord blood</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+<tr>
+<td align="right">67686</td>
+<td align="right">263013.00</td>
+<td align="right">338815.0</td>
+<td align="right">370172.00</td>
+<td align="right">391480</td>
+<td align="right">0.7564505</td>
+<td align="left">saliva gse48472</td>
+<td align="left">pbconc (ng/dl)</td>
+</tr>
+</tbody></table>
+
+<p>It&#39;s not clear from the table above if using any specific cell type reference
+provides lower ranks (i.e. stronger p-values) than any other reference.</p>
+
+</body>
+
+</html>
