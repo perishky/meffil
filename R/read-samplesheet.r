@@ -50,7 +50,7 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 		dataheader <- grep("^\\[DATA\\]", readLines(file), ignore.case = TRUE)
 		if(length(dataheader) == 0)
 			dataheader <- 0
-		df <- read.csv(file, stringsAsFactor = FALSE, skip = dataheader)
+		df <- read.csv(file, stringsAsFactor = FALSE, skip = dataheader, na.strings=c("NA","NaN", " "))
 		if(length(nam <- grep("Sentrix_Position", names(df), ignore.case = TRUE, value = TRUE)) == 1) {
 			df$Array <- df[, nam]
 			df[, nam] <- NULL
