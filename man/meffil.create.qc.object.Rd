@@ -6,8 +6,8 @@
 \usage{
 meffil.create.qc.object(samplesheet.row, number.quantiles = 500,
   dye.intensity = 5000, verbose = F, detection.threshold = 0.01,
-  bead.threshold = 3, sex.cutoff = -2, chip = NA, featureset = chip,
-  cell.type.reference = NA)
+  bead.threshold = 3, sex.cutoff = -2, chip = NA,
+  featureset = chip, cell.type.reference = NA)
 }
 \arguments{
 \item{samplesheet.row}{Row from the data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} or \code{\link{meffil.create.samplesheet}}).}

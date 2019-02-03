@@ -4,8 +4,8 @@
 \alias{meffil.methylation.pcs}
 \title{Compute principal components of a methylation matrix.}
 \usage{
-meffil.methylation.pcs(normalized.beta, probe.range = 5000, autosomal = T,
-  verbose = F)
+meffil.methylation.pcs(normalized.beta, probe.range = 5000,
+  autosomal = T, verbose = F)
 }
 \arguments{
 \item{normalized.beta}{Output from \code{\link{meffil.normalize.samples}()},

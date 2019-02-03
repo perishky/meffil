@@ -4,8 +4,8 @@
 \alias{meffil.create.samplesheet}
 \title{Create sample sheet if an Illumina one isn't available}
 \usage{
-meffil.create.samplesheet(path, basenames = meffil.basenames(path, recursive),
-  recursive = FALSE, delim = "_")
+meffil.create.samplesheet(path, basenames = meffil.basenames(path,
+  recursive), recursive = FALSE, delim = "_")
 }
 \arguments{
 \item{basenames}{Output from \code{\link{meffil.basenames}}}

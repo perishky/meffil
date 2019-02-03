@@ -4,9 +4,11 @@
 \alias{meffil.ewas.qq.plot}
 \title{QQ plot for EWAS}
 \usage{
-meffil.ewas.qq.plot(ewas.object, sig.threshold = 1e-07, sig.color = "red",
-  title = "QQ plot", xlab = bquote(-log[10]("expected p-values")),
-  ylab = bquote(-log[10]("observed p-values")), lambda.method = "median")
+meffil.ewas.qq.plot(ewas.object, sig.threshold = 1e-07,
+  sig.color = "red", title = "QQ plot",
+  xlab = bquote(-log[10]("expected p-values")),
+  ylab = bquote(-log[10]("observed p-values")),
+  lambda.method = "median")
 }
 \arguments{
 \item{ewas.object}{Return object from \code{\link{meffil.ewas()}}.}

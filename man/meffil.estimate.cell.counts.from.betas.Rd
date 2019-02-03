@@ -4,7 +4,8 @@
 \alias{meffil.estimate.cell.counts.from.betas}
 \title{Estimate cell counts for a beta matrix from a reference}
 \usage{
-meffil.estimate.cell.counts.from.betas(beta, cell.type.reference, verbose = F)
+meffil.estimate.cell.counts.from.betas(beta, cell.type.reference,
+  verbose = F)
 }
 \arguments{
 \item{beta}{Matrix of Illumina 450K methylation levels (rows = CpG sites, columns = subjects).}

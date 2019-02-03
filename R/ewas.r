@@ -19,6 +19,9 @@
 #' @param sva Apply Surrogate Variable Analysis (SVA) to the
 #' methylation levels and covariates and include
 #' the resulting variables as covariates in a regression model (Default: TRUE).
+#' @param smartsva Apply the SmartSVA algorithm to the
+#' methylation levels and include the resulting variables as covariates in a
+#' regression model (Default: FALSE).  
 #' @param n.sv Number of surrogate variables to calculate (Default: NULL).
 #' @param winsorize.pct Apply all regression models to methylation levels
 #' winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05).
@@ -41,7 +44,7 @@
 meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL, weights=NULL,
                         cell.counts=NULL,
-                        isva=T, sva=T, ## cate?
+                        isva=T, sva=T, smartsva=F, ## cate?
                         n.sv=NULL,
                         isva0=F,isva1=F, ## deprecated
                         winsorize.pct=0.05,
@@ -132,16 +135,17 @@ meffil.ewas <- function(beta, variable,
         if (nrow(too.lo) > 0) beta[too.lo] <- NA
     }
 
-    if (isva || sva) {
+    if (isva || sva || smartsva) {
         beta.sva <- beta
         
         autosomal.sites <- meffil.get.autosomal.sites(featureset)
         autosomal.sites <- intersect(autosomal.sites, rownames(beta.sva))
-        if (length(autosomal.sites) < most.variable) {
-          warning("Probes from the sex chromosomes will be used to calculate surrogate variables.")
-        } else {
-          beta.sva <- beta.sva[autosomal.sites,]
-        }
+
+        if (is.null(most.variable))
+            most.variable <- length(autosomal.sites)
+
+        beta.sva <- beta.sva[autosomal.sites,]
+
         var.idx <- order(rowVars(beta.sva, na.rm=T), decreasing=T)[1:most.variable]
         beta.sva <- impute.matrix(beta.sva[var.idx,,drop=F])
         
@@ -174,6 +178,21 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$sva <- as.data.frame(sva.ret$sv)
             cat("\n")
         }
+
+        if (smartsva) {
+            msg("smartSVA.", verbose=verbose)
+            set.seed(random.seed)
+            if (is.null(n.sv)) {
+                beta.res <- t(resid(lm(t(beta.sva) ~ ., data=as.data.frame(mod))))
+                n.sv <- EstDimRMT(beta.res, FALSE)$dim + 1
+            }
+            smartsva.ret <- smartsva.cpp(beta.sva, mod=mod, mod0=mod0, n.sv=n.sv)                
+            if (!is.null(covariates))
+                covariate.sets$smartsva <- data.frame(covariates, smartsva.ret$sv, stringsAsFactors=F)
+            else
+                covariate.sets$smartsva <- as.data.frame(smartsva.ret$sv)
+            cat("\n")
+        }            
     }
 
     analyses <- sapply(names(covariate.sets), function(name) {

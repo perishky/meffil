@@ -30,7 +30,8 @@ Depends: illuminaio,
 	  DNAcopy,
 	  quadprog,
 	  statmod,
-	  gdsfmt
+	  gdsfmt,
+	  SmartSVA
 Suggests: betareg, 
 	  minfi, 
 	  CopyNumber450kData
@@ -39,4 +40,4 @@ URL: https://github.com/perishky/meffil
 LazyData: yes
 biocViews: DNAMethylation, Microarray, TwoChannel, DataImport, Preprocessing,
     QualityControl
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0

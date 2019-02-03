@@ -7,12 +7,13 @@
 meffil.normalize.dataset(samplesheet, number.quantiles = 500,
   detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
   chip = NA, featureset = chip, cell.type.reference = NA,
-  qc.parameters = meffil.qc.parameters(), qc.file = "meffil-qc-report.md",
-  author = "Analyst", study = "IlluminaHuman450 data", number.pcs = 2,
+  qc.parameters = meffil.qc.parameters(),
+  qc.file = "meffil-qc-report.md", author = "Analyst",
+  study = "IlluminaHuman450 data", number.pcs = 2,
   fixed.effects = NULL, random.effects = NULL, pseudo = 100,
-  just.beta = T, gds.filename = NULL, probe.range = 5000, autosomal = T,
-  norm.parameters = NULL, norm.file = "meffil-normalization-report.md",
-  verbose = FALSE)
+  just.beta = T, gds.filename = NULL, probe.range = 5000,
+  autosomal = T, norm.parameters = NULL,
+  norm.file = "meffil-normalization-report.md", verbose = FALSE)
 }
 \arguments{
 \item{samplesheet}{Output from \code{\link{meffil.read.samplesheet}()} or
