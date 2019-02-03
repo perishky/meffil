@@ -4,8 +4,8 @@
 \alias{meffil.load.detection.pvalues}
 \title{Load detection p-value matrix}
 \usage{
-meffil.load.detection.pvalues(qc.objects, max.bytes = 2^30 - 1, verbose = F,
-  ...)
+meffil.load.detection.pvalues(qc.objects, max.bytes = 2^30 - 1,
+  verbose = F, ...)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}

@@ -5,10 +5,11 @@
 \title{Epigenome-wide association study}
 \usage{
 meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
-  weights = NULL, cell.counts = NULL, isva = T, sva = T, n.sv = NULL,
-  isva0 = F, isva1 = F, winsorize.pct = 0.05, robust = TRUE,
-  rlm = FALSE, outlier.iqr.factor = NA, most.variable = min(nrow(beta),
-  50000), featureset = NA, random.seed = 20161123, verbose = F)
+  weights = NULL, cell.counts = NULL, isva = T, sva = T,
+  smartsva = F, n.sv = NULL, isva0 = F, isva1 = F,
+  winsorize.pct = 0.05, robust = TRUE, rlm = FALSE,
+  outlier.iqr.factor = NA, most.variable = min(nrow(beta), 50000),
+  featureset = NA, random.seed = 20161123, verbose = F)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}
@@ -35,6 +36,10 @@ regression model (Default: TRUE).}
 \item{sva}{Apply Surrogate Variable Analysis (SVA) to the
 methylation levels and covariates and include
 the resulting variables as covariates in a regression model (Default: TRUE).}
+
+\item{smartsva}{Apply the SmartSVA algorithm to the
+methylation levels and include the resulting variables as covariates in a
+regression model (Default: FALSE).}
 
 \item{n.sv}{Number of surrogate variables to calculate (Default: NULL).}
 

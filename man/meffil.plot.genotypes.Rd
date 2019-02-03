@@ -4,8 +4,8 @@
 \alias{meffil.plot.genotypes}
 \title{Plot SNP beta and sample genotype concordances}
 \usage{
-meffil.plot.genotypes(qc.objects, genotypes = NULL, sample.threshold = 0.9,
-  snp.threshold = 0.99)
+meffil.plot.genotypes(qc.objects, genotypes = NULL,
+  sample.threshold = 0.9, snp.threshold = 0.99)
 }
 \arguments{
 \item{qc.objects}{Output from \code{\link{meffil.qc}()}.}

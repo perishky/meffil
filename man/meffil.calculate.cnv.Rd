@@ -4,8 +4,8 @@
 \alias{meffil.calculate.cnv}
 \title{Calculate CNVs from IDAT files}
 \usage{
-meffil.calculate.cnv(samplesheet, cnv.reference, chip = NA, verbose = FALSE,
-  ...)
+meffil.calculate.cnv(samplesheet, cnv.reference, chip = NA,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{samplesheet}{Output from \code{meffil.create.samplesheet}}
