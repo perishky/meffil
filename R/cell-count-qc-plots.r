@@ -21,7 +21,11 @@ meffil.cell.count.qc.plots <- function(count.objects) {
     reference <- count.objects[[1]]$reference
     reference.object <- get.cell.type.reference(reference)
 
-    beta <- sapply(count.objects, function(object) object$beta)
+    sites <- unlist(lapply(count.objects, function(object) names(object$beta)))
+    site.freq <- table(sites)
+    common.sites <- names(site.freq)[which(site.freq == max(site.freq))]
+    
+    beta <- sapply(count.objects, function(object) object$beta[common.sites])
     common.sites <- intersect(rownames(reference.object$beta), rownames(beta)) ## for backwards compatibility
     beta <- cbind(reference.object$beta[common.sites,], beta[common.sites,])
     
