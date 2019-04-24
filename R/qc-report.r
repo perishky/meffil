@@ -614,7 +614,7 @@ meffil.plot.beadnum.cpgs <- function(qc.objects, threshold = 0.05)
 #'
 #' @param qc.objects Output from \code{\link{meffil.qc}()}.
 #' @param reference Object describing methylation profiles of purified cell populations
-#' obtained from \code{\link{meffil.create.cell.type.reference}()}.
+#' obtained from \code{\link{meffil.add.cell.type.reference}()}.
 #' @return Two \link{ggplot2} boxplot objects:
 #' - \code{betas} Contains one box per sample or reference cell type
 #' representing the distribution of methylation levels for the CpG sites used to
