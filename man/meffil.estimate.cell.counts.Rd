@@ -11,7 +11,7 @@ meffil.estimate.cell.counts(qc.object, cell.type.reference, verbose = T)
 to use for estimating cell counts. 
 See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
-\code{\link{meffil.create.cell.type.reference}()}.}
+\code{\link{meffil.add.cell.type.reference}()}.}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}

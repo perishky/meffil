@@ -17,7 +17,7 @@
 #' to use for estimating cell counts. Estimates are not generated if set to NA (default).
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
-#' \code{\link{meffil.create.cell.type.reference}()}. 
+#' \code{\link{meffil.add.cell.type.reference}()}. 
 #' @return List containing control probe information, probe summaries
 #' and quantiles.  We call this a "QC object".
 #'

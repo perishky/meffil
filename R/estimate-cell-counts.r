@@ -11,7 +11,7 @@
 #' to use for estimating cell counts. 
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
-#' \code{\link{meffil.create.cell.type.reference}()}. 
+#' \code{\link{meffil.add.cell.type.reference}()}. 
 #' @return A list:
 #' - \code{counts} Cell count estimates.
 #' - \code{beta} Normalized methylation levels of sites used to differentiate
@@ -134,7 +134,7 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
 #' to use for estimating cell counts. 
 #' See \code{\link{meffil.list.cell.type.references}()} for a list of available
 #' references.  New references can be created using
-#' \code{\link{meffil.create.cell.type.reference}()}. 
+#' \code{\link{meffil.add.cell.type.reference}()}. 
 #' @return A matrix of cell count estimates.
 #'
 #' Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
