@@ -73,7 +73,29 @@ meffil.control.matrix <- function(qc.objects, normalize=F,
 
     if (normalize) {
         control.matrix <- meffil:::impute.matrix(control.matrix, margin = 2)
+
+        ## check for zero-variance control matrix variables
+        cv <- colVars(control.matrix,na.rm=T)
+        zero.idx <- which(cv < 2e-16)
+        
+        ## normalize the control matrix
         control.matrix <- scale(control.matrix)
+
+        ## add noise to zero variance columns
+        if (length(zero.idx) > 0) {
+            warning(paste("Some control matrix variables have zero variance:",
+                          paste(colnames(control.matrix)[zero.idx], collapse=", ")))
+            if (length(zero.idx) == ncol(control.matrix))
+                stop("All control matrix variables have zero variance.")
+            for (idx in zero.idx) 
+                control.matrix[,idx] <- rnorm(nrow(control.matrix), mean=0, sd=4e-16)
+
+            ## remove 'scale' attributes from control.matrix now that we have
+            ## changed the sd of some columns so that prcomp which uses these attributes
+            ## to identify zero-variance columns doesn't get confused!
+            control.matrix <- control.matrix[,] 
+        }
+
         control.matrix[control.matrix > 3] <- 3
         control.matrix[control.matrix < -3] <- -3
         if (!is.null(fixed.effects) || !is.null(random.effects)) {
