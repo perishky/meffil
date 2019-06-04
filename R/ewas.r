@@ -54,6 +54,7 @@ meffil.ewas <- function(beta, variable,
                         most.variable=min(nrow(beta), 50000),
                         featureset=NA,
                         random.seed=20161123,
+                        lmfit.safer=F,
                         verbose=F) {
 
     if (isva0 || isva1)
@@ -207,6 +208,7 @@ meffil.ewas <- function(beta, variable,
              winsorize.pct=winsorize.pct, 
              robust=robust, 
              rlm=rlm, 
+             lmfit.safer=lmfit.safer,
              verbose=verbose)
     }, simplify=F)
 
@@ -251,7 +253,7 @@ is.ewas.object <- function(object)
 # The regression model is then modified in order to identify
 # associations specifically in the selected cell type (PMID: 24000956).
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell.counts=NULL, winsorize.pct=0.05,
-                 robust=TRUE, rlm=FALSE, verbose=F) {
+                 robust=TRUE, rlm=FALSE, lmfit.safer=F, verbose=F) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
     stopifnot(is.null(covariates) || nrow(covariates) == ncol(beta))
@@ -304,7 +306,10 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
     if (is.null(fit)) {
         msg("Linear regression with only fixed effects", verbose=verbose)
         batch <- NULL
-        fit <- lmFit(beta, design, method=method, weights=weights)
+        if (!lmfit.safer)
+           fit <- lmFit(beta, design, method=method, weights=weights)
+        else
+           fit <- lmfit.safer(beta, design, method=method, weights=weights, verbose=verbose)
     }
     
     msg("Empirical Bayes", verbose=verbose)
@@ -331,9 +336,28 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
              coefficient.ci.high=fit.ebayes$coefficient[,"variable"] + margin.error,
              coefficient.ci.low=fit.ebayes$coefficient[,"variable"] - margin.error,
              coefficient.se=std.error,
-             n=n))             
+             n=n))
 }
 
-
+## apply lmFit to subsets of the methylation matrix to hopefully avoid 
+## out-of-memory errors (mainly for really large datasets or low memory servers)
+lmfit.safer <- function(beta, design, method, weights, n.partitions=8, verbose=F) {
+  partitions <- sample(1:n.partitions, nrow(beta), replace=T)
+  fits <- lapply(1:n.partitions, function(part) {
+    msg("Applying limma::lmFit to partition ", part, " of ", n.partitions, ".", verbose=verbose)
+    idx <- which(partitions == part)
+    lmFit(beta[idx,], design, method=method, weights=weights)
+  })
+  idx <- unlist(lapply(1:n.partitions, function(part) which(partitions==part)))
+  idx <- match(1:nrow(beta), idx)
+  fit <- fits[[1]]
+  for (item in c("coefficients", "stdev.unscaled")) {
+      fit[[item]] <- do.call(rbind, lapply(fits, function(fit) fit[[item]]))[idx,]
+  }
+  for (item in c("df.residual", "sigma", "Amean")) {
+     fit[[item]] <- do.call(c, lapply(fits, function(fit) fit[[item]]))[idx]
+  }
+  fit
+}
 
 
