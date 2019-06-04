@@ -206,7 +206,8 @@ meffil.ewas <- function(beta, variable,
              cell.counts=cell.counts,
              winsorize.pct=winsorize.pct, 
              robust=robust, 
-             rlm=rlm)
+             rlm=rlm, 
+             verbose=verbose)
     }, simplify=F)
 
     p.values <- sapply(analyses, function(analysis) analysis$table$p.value)
