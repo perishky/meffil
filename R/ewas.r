@@ -322,7 +322,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
     alpha <- 0.975
     std.error <- (sqrt(fit.ebayes$s2.post) * fit.ebayes$stdev.unscaled[,"variable"])
     margin.error <- (std.error * qt(alpha, df=fit.ebayes$df.total))
-    n <- rowSums(!is.na(beta))
+    n <- apply(beta, 1, function(v) sum(!is.na(v)))
 
     list(design=design,
          batch=batch,
