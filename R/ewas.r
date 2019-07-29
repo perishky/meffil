@@ -158,6 +158,8 @@ meffil.ewas <- function(beta, variable,
             mod0 <- matrix(1, ncol=1, nrow=length(variable))
         mod <- cbind(mod0, variable)
 
+        surrogates.ret <- NULL 
+      
         if (isva) {
             msg("ISVA.", verbose=verbose)
             set.seed(random.seed)
@@ -166,6 +168,7 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
             else
                 covariate.sets$isva <- as.data.frame(isva.ret$isv)
+            surrogates.ret <- isva.ret
             cat("\n")
         }
         
@@ -177,6 +180,7 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
             else
                 covariate.sets$sva <- as.data.frame(sva.ret$sv)
+            surrogates.ret <- sva.ret
             cat("\n")
         }
 
@@ -192,6 +196,7 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$smartsva <- data.frame(covariates, smartsva.ret$sv, stringsAsFactors=F)
             else
                 covariate.sets$smartsva <- as.data.frame(smartsva.ret$sv)
+            surrogates.ret <- smartsva.ret
             cat("\n")
         }            
     }
@@ -236,6 +241,7 @@ meffil.ewas <- function(beta, variable,
          coefficient=coefficients,
          analyses=analyses,
          random.seed=random.seed,
+         sva.ret=surrogates.ret,
          too.hi=too.hi,
          too.lo=too.lo)
 }
