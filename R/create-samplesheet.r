@@ -20,8 +20,8 @@ meffil.create.samplesheet <- function(path, basenames=meffil.basenames(path,recu
     sentrixpos <- grep("^R[0-9][0-9]C[0-9][0-9]$", as.character(unlist(dat[1,])))
     if(length(sentrixpos)==1) {
         temp <- do.call(rbind, strsplit(as.character(dat[,sentrixpos]), split="C"))
-        dat$sentrix_row <- gsub("R", "", temp[,1])
-        dat$sentrix_col <- temp[,2]
+        dat$Sentrix_Position <- gsub("R", "", temp[,1])
+        dat$Sentrix_ID <- temp[,2]
         dat <- dat[,-sentrixpos]
     }
     
