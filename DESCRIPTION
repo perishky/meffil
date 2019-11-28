@@ -31,7 +31,8 @@ Depends: illuminaio,
 	  quadprog,
 	  statmod,
 	  gdsfmt,
-	  SmartSVA
+	  SmartSVA,
+	  preprocessCore
 Suggests: betareg, 
 	  minfi, 
 	  CopyNumber450kData
