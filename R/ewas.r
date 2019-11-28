@@ -54,6 +54,7 @@ meffil.ewas <- function(beta, variable,
                         most.variable=min(nrow(beta), 50000),
                         featureset=NA,
                         random.seed=20161123,
+                        lmfit.safer=F,
                         verbose=F) {
 
     if (isva0 || isva1)
@@ -157,6 +158,8 @@ meffil.ewas <- function(beta, variable,
             mod0 <- matrix(1, ncol=1, nrow=length(variable))
         mod <- cbind(mod0, variable)
 
+        surrogates.ret <- NULL 
+      
         if (isva) {
             msg("ISVA.", verbose=verbose)
             set.seed(random.seed)
@@ -165,6 +168,7 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
             else
                 covariate.sets$isva <- as.data.frame(isva.ret$isv)
+            surrogates.ret <- isva.ret
             cat("\n")
         }
         
@@ -176,6 +180,7 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
             else
                 covariate.sets$sva <- as.data.frame(sva.ret$sv)
+            surrogates.ret <- sva.ret
             cat("\n")
         }
 
@@ -191,6 +196,7 @@ meffil.ewas <- function(beta, variable,
                 covariate.sets$smartsva <- data.frame(covariates, smartsva.ret$sv, stringsAsFactors=F)
             else
                 covariate.sets$smartsva <- as.data.frame(smartsva.ret$sv)
+            surrogates.ret <- smartsva.ret
             cat("\n")
         }            
     }
@@ -206,7 +212,9 @@ meffil.ewas <- function(beta, variable,
              cell.counts=cell.counts,
              winsorize.pct=winsorize.pct, 
              robust=robust, 
-             rlm=rlm)
+             rlm=rlm, 
+             lmfit.safer=lmfit.safer,
+             verbose=verbose)
     }, simplify=F)
 
     p.values <- sapply(analyses, function(analysis) analysis$table$p.value)
@@ -233,6 +241,7 @@ meffil.ewas <- function(beta, variable,
          coefficient=coefficients,
          analyses=analyses,
          random.seed=random.seed,
+         sva.ret=surrogates.ret,
          too.hi=too.hi,
          too.lo=too.lo)
 }
@@ -250,7 +259,7 @@ is.ewas.object <- function(object)
 # The regression model is then modified in order to identify
 # associations specifically in the selected cell type (PMID: 24000956).
 ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell.counts=NULL, winsorize.pct=0.05,
-                 robust=TRUE, rlm=FALSE, verbose=F) {
+                 robust=TRUE, rlm=FALSE, lmfit.safer=F, verbose=F) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
     stopifnot(is.null(covariates) || nrow(covariates) == ncol(beta))
@@ -303,7 +312,10 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
     if (is.null(fit)) {
         msg("Linear regression with only fixed effects", verbose=verbose)
         batch <- NULL
-        fit <- lmFit(beta, design, method=method, weights=weights)
+        if (!lmfit.safer)
+           fit <- lmFit(beta, design, method=method, weights=weights)
+        else
+           fit <- lmfit.safer(beta, design, method=method, weights=weights, verbose=verbose)
     }
     
     msg("Empirical Bayes", verbose=verbose)
@@ -316,7 +328,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
     alpha <- 0.975
     std.error <- (sqrt(fit.ebayes$s2.post) * fit.ebayes$stdev.unscaled[,"variable"])
     margin.error <- (std.error * qt(alpha, df=fit.ebayes$df.total))
-    n <- rowSums(!is.na(beta))
+    n <- apply(beta, 1, function(v) sum(!is.na(v)))
 
     list(design=design,
          batch=batch,
@@ -330,9 +342,28 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
              coefficient.ci.high=fit.ebayes$coefficient[,"variable"] + margin.error,
              coefficient.ci.low=fit.ebayes$coefficient[,"variable"] - margin.error,
              coefficient.se=std.error,
-             n=n))             
+             n=n))
 }
 
-
+## apply lmFit to subsets of the methylation matrix to hopefully avoid 
+## out-of-memory errors (mainly for really large datasets or low memory servers)
+lmfit.safer <- function(beta, design, method, weights, n.partitions=8, verbose=F) {
+  partitions <- sample(1:n.partitions, nrow(beta), replace=T)
+  fits <- lapply(1:n.partitions, function(part) {
+    msg("Applying limma::lmFit to partition ", part, " of ", n.partitions, ".", verbose=verbose)
+    idx <- which(partitions == part)
+    lmFit(beta[idx,], design, method=method, weights=weights)
+  })
+  idx <- unlist(lapply(1:n.partitions, function(part) which(partitions==part)))
+  idx <- match(1:nrow(beta), idx)
+  fit <- fits[[1]]
+  for (item in c("coefficients", "stdev.unscaled")) {
+      fit[[item]] <- do.call(rbind, lapply(fits, function(fit) fit[[item]]))[idx,]
+  }
+  for (item in c("df.residual", "sigma", "Amean")) {
+     fit[[item]] <- do.call(c, lapply(fits, function(fit) fit[[item]]))[idx]
+  }
+  fit
+}
 
 
