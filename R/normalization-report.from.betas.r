@@ -37,7 +37,6 @@ meffil.normalization.report.from.betas <- function(
 #'
 #' @param  pcs Output from \code{\link{meffil.methylation.pcs}()}
 #' applied to the normalized methylation matrix
-#' corresponding to \code{norm.objects}.
 #' @param  parameters Default = meffil.normalization.parameters.from.betas(). Report parameters.
 #' @param  samplesheet Default = NULL. Data frame of variables to compare to
 #' principal components (\code{pcs}).  Must contain \code{nrow(pcs) == nrow(samplesheet)} rows.
