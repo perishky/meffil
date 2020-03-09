@@ -75,10 +75,9 @@ meffil.normalization.summary.from.betas <- function(pcs, parameters = meffil.nor
 #'
 #' @param  pcs Output from \code{\link{meffil.methylation.pcs}()}
 #' applied to the normalized methylation matrix
-#' corresponding to \code{norm.objects}.
 #' @param  variables Which variables in sample sheet to test
 #' @param samplesheet. Data frame containing variables to test for association
-#' with control matrix PCs. Must have \code{nrow(pcs) == nrow(samplesheet)}.
+#' with PCs. Must have \code{nrow(pcs) == nrow(samplesheet)}.
 #' @param  verbose=T Print progress messages?
 #' @return List of table of results and graph
 #' @examples \dontrun{
