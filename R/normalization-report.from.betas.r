@@ -1,3 +1,19 @@
+#' Generate report on normalization performance
+#'
+#' Generate HTML file that summarises the normalization. 
+#'
+#' @param  normalization.summary Output from \code{meffil.normalization.summary.from.betas}.
+#' @param  output.file Default = "meffil-normalization-report.html".
+#' If the file extension is not .htm, .html, .HTM or .HTML then
+#' output will be in markdown format.
+#' @param  author Default = "Analyst". Author name to be specified on report.
+#' @param  study Default = "Illumina methylation data". Study name to be specified on report.
+#' @param  ... Arguments to be passed to \code{\link{knitr::knit}}
+#' @export
+#' @return NULL
+#' @examples \dontrun{
+#'
+#'}
 meffil.normalization.report.from.betas <- function(
     normalization.summary,
     output.file = "normalization-report.md",
@@ -33,7 +49,6 @@ meffil.normalization.report.from.betas <- function(
 #' @examples \dontrun{
 #'
 #'}
-
 meffil.normalization.summary.from.betas <- function(pcs, parameters = meffil.normalization.parameters.from.betas(), samplesheet=samplesheet,variables=variables,verbose=TRUE)
 {
     
@@ -92,7 +107,6 @@ meffil.plot.probe.batch.from.betas <- function(samplesheet,variables,pcs, batch.
     ret$tab <- res
     ret
 }
-
 
 plot.pcs.from.betas <- function(pcs, samplesheet,variables,cols=NULL) {
     stopifnot(is.matrix(pcs) && nrow(pcs) == nrow(samplesheet))
