@@ -1,0 +1,87 @@
+# Normalization performance report
+- study: `r study`
+- author: `r author`
+- date: `r format(Sys.time(), '%d %B, %Y')`
+
+## Parameters used to test normalization
+
+```{r, results="markup"}
+normalization.summary$parameters
+```
+
+The following plots show regression coefficients when
+each principal component is regressed against each batch variable level
+along with 95% confidence intervals.
+Cases significantly different from zero are coloured red
+(p < `r normalization.summary$parameters$batch.threshold`, t-test).
+
+## Principal components of the normalized betas
+
+The following plots show the first 3 principal components of the
+`r normalization.summary$parameters$probe.range` most variable
+probes colored by batch variables.
+Batch variables with more than 10 levels are omitted.
+
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$probe.batch$pc.plots)
+    out <- c(out, knit_child(file.path(report.path, "wide-plot.rmd")))
+```
+
+```{r,results="asis"}
+cat(out, sep="\n\n")
+```
+
+## Normalized probe associations with measured batch variables
+
+The most variable normalized probes were extracted, decomposed into
+principal components and each component regressed against each batch
+variable. If the normalization has performed well then there will be
+no associations between normalized probe PCs and batch
+variables. Horizontal dotted line denotes $p = 0.05$ in log-scale.
+
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$probe.batch$fplots)
+    out <- c(out, knit_child(file.path(report.path, "wide-plot.rmd")))
+```
+
+```{r,results="asis"}
+cat(out, sep="\n\n")
+```
+
+The following plots show regression coefficients when
+each principal component is regressed against each batch variable level
+along with 95% confidence intervals.
+Cases significantly different from zero are coloured red
+(p < `r normalization.summary$parameters$batch.threshold`, t-test).
+
+```{r,include=FALSE,message=F}
+out <- NULL
+for (plot in normalization.summary$probe.batch$cplots)
+    out <- c(out, knit_child(file.path(report.path, "plot.rmd")))
+```
+
+```{r,results="asis"}
+cat(out, sep="\n\n")
+```
+
+```{r}
+tab <- normalization.summary$probe.batch$tab
+tab <- tab[which(tab$p.value < normalization.summary$parameters$batch.threshold),]
+for (i in 1:ncol(tab)) {
+    if (is.numeric(tab[,i])) {
+        tab[,i] <- format(tab[,i], digits=3)
+        tab[,i] <- sub("^[ ]*NA$", "", tab[,i])
+    }
+    if (any(is.na(tab[,i])))
+        tab[which(is.na(tab[,i])),i] <- ""
+}
+if(nrow(tab) > 0) kable(tab,row.names=F)
+```
+
+## R session information
+
+```{r, results="markup"}
+sessionInfo()
+```
