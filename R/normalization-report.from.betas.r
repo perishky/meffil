@@ -73,7 +73,6 @@ meffil.normalization.summary.from.betas <- function(pcs, parameters = meffil.nor
 #'
 #' Performs association of each of \code{n} PCs calculated from most variable CpG sites (after normalization) against each of \code{m} measured batch variables
 #'
-#' @param  norm.objects Output from \code{\link{meffil.normalize.quantiles}()}.
 #' @param  pcs Output from \code{\link{meffil.methylation.pcs}()}
 #' applied to the normalized methylation matrix
 #' corresponding to \code{norm.objects}.
