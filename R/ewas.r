@@ -136,6 +136,7 @@ meffil.ewas <- function(beta, variable,
         if (nrow(too.lo) > 0) beta[too.lo] <- NA
     }
 
+    surrogates.ret <- NULL 
     if (isva || sva || smartsva) {
         beta.sva <- beta
         
@@ -157,8 +158,6 @@ meffil.ewas <- function(beta, variable,
         else
             mod0 <- matrix(1, ncol=1, nrow=length(variable))
         mod <- cbind(mod0, variable)
-
-        surrogates.ret <- NULL 
       
         if (isva) {
             msg("ISVA.", verbose=verbose)
