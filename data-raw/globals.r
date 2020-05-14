@@ -42,6 +42,9 @@ create.andrews.bakulski.reference()
 source("saliva-reference.r")
 create.saliva.reference()
 
+source("dlpfc-reference.r")
+create.dlpfc.reference()
+
 ## save the global variables so they can be loaded by the package
 meffil:::save.globals("../inst") ## see ../R/globals.r
 
