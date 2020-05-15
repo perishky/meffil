@@ -1,7 +1,8 @@
 
 
 
-#' Defines cell type reference "cord blood gse68456" 
+#' Defines cell type reference "cord blood gse68456"
+#' from the GEO repository GSE68456
 #' for estimating cord blood cell counts.
 #' The first is based on
 #' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran, RBC.
