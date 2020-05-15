@@ -1,9 +1,12 @@
-## Searching for buccal samples in GEO:
-##  https://gbnci-abcc.ncifcrf.gov/geo/gsm.php
-##  search for GPL acc is equal to GPL13534
-##             Supplementary File contains idat
-##             Characteristics Ch1 contains buccal
-
+#' Create a reference for saliva
+#' by combining a white blood cell type reference (GEO: GSE35069)
+#' and a buccal cell type reference (GEO: GSE48472).
+#' 
+#' Searched for buccal samples in GEO as follows:
+#'  https://gbnci-abcc.ncifcrf.gov/geo/gsm.php
+#'  search for GPL acc is equal to GPL13534
+#'             Supplementary File contains idat
+#'             Characteristics Ch1 contains buccal
 retrieve.gse48472 <- function(dir) {
     source("geo.r")
     samples <- geo.samples("GSE48472")

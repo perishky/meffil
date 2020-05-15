@@ -39,6 +39,9 @@ create.gervin.lyle.reference("~/work/data/gervin-lyle-cord-blood-reference")
 source("andrews-bakulski-reference.r")
 create.andrews.bakulski.reference()
 
+source("combined-cord-reference.r")
+create.combined.cord.reference()
+
 source("saliva-reference.r")
 create.saliva.reference()
 

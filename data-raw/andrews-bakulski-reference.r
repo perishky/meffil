@@ -1,3 +1,4 @@
+## recreate the FlowSorted.CordBlood.450k reference in meffil
 create.andrews.bakulski.reference <- function(verbose=T) {
     source("http://bioconductor.org/biocLite.R")
     if (!require("FlowSorted.CordBlood.450k")) 
