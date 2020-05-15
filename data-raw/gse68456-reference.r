@@ -4,11 +4,6 @@
 #' Defines cell type reference "cord blood gse68456"
 #' from the GEO repository GSE68456
 #' for estimating cord blood cell counts.
-#' The first is based on
-#' six cell types: CD4T, CD8T, Mono, Bcell, NK, Gran, RBC.
-#' The second is based on 
-#' the same cell types but with Gran replaced by Neu and Eos.
-
 retrieve.gse68456 <- function(dir) {
     wd <- getwd()
     on.exit(setwd(wd))
