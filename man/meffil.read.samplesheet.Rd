@@ -4,8 +4,13 @@
 \alias{meffil.read.samplesheet}
 \title{Function to read Illumina "Sample Sheet" adapted from \code{read.450k.sheet} in \code{R/minfi}}
 \usage{
-meffil.read.samplesheet(base, pattern = "csv$", ignore.case = TRUE,
-  recursive = TRUE, verbose = TRUE)
+meffil.read.samplesheet(
+  base,
+  pattern = "csv$",
+  ignore.case = TRUE,
+  recursive = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{base}{The base directory from which the search is started.}

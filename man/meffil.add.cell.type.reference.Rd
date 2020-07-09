@@ -4,10 +4,20 @@
 \alias{meffil.add.cell.type.reference}
 \title{Create a cell type reference object}
 \usage{
-meffil.add.cell.type.reference(name, M, U, cell.types, chip = NA,
-  featureset = chip, number.sites = 50, specific.sites = NULL,
-  number.quantiles = 500, subsets = NULL, object = NULL,
-  verbose = F)
+meffil.add.cell.type.reference(
+  name,
+  M,
+  U,
+  cell.types,
+  chip = NA,
+  featureset = chip,
+  number.sites = 50,
+  specific.sites = NULL,
+  number.quantiles = 500,
+  subsets = NULL,
+  object = NULL,
+  verbose = F
+)
 }
 \arguments{
 \item{name}{Character string providing the name of the reference.}

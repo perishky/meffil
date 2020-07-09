@@ -4,8 +4,12 @@
 \alias{meffil.cell.type.specific.methylation}
 \title{Reduce methylation profiles to most cell-type specific sites}
 \usage{
-meffil.cell.type.specific.methylation(beta, cell.types,
-  number.sites = 50, verbose = F)
+meffil.cell.type.specific.methylation(
+  beta,
+  cell.types,
+  number.sites = 50,
+  verbose = F
+)
 }
 \arguments{
 \item{beta}{Numeric matrix (values = 0..1; rows = CpG sites; columns = samples).}

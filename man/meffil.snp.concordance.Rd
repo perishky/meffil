@@ -4,8 +4,12 @@
 \alias{meffil.snp.concordance}
 \title{Concordance between genotypes and SNP betas}
 \usage{
-meffil.snp.concordance(snp.betas, genotypes, snp.threshold = 0.99,
-  sample.threshold = 0.9)
+meffil.snp.concordance(
+  snp.betas,
+  genotypes,
+  snp.threshold = 0.99,
+  sample.threshold = 0.9
+)
 }
 \value{
 Returns a list of two vectors:

@@ -4,8 +4,11 @@
 \alias{meffil.plot.detectionp.samples}
 \title{Plot detection p values from idat files}
 \usage{
-meffil.plot.detectionp.samples(qc.objects, threshold = 0.05,
-  colour.code = NULL)
+meffil.plot.detectionp.samples(
+  qc.objects,
+  threshold = 0.05,
+  colour.code = NULL
+)
 }
 \arguments{
 \item{qc.objects}{From \code{meffil.qc}}

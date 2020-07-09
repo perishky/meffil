@@ -4,8 +4,12 @@
 \alias{meffil.plot.controlmeans}
 \title{Plot the means of control probes for each sample and for each control probe type}
 \usage{
-meffil.plot.controlmeans(qc.objects, control.categories = NULL,
-  colour.code = NULL, outlier.sd = 5)
+meffil.plot.controlmeans(
+  qc.objects,
+  control.categories = NULL,
+  colour.code = NULL,
+  outlier.sd = 5
+)
 }
 \arguments{
 \item{qc.objects}{From \code{meffil.qc}}

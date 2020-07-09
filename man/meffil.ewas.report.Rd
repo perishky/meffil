@@ -4,8 +4,13 @@
 \alias{meffil.ewas.report}
 \title{Generate EWAS report.}
 \usage{
-meffil.ewas.report(ewas.summary, output.file = "ewas-report.html",
-  author = "Analyst", study = "Illumina methylation data", ...)
+meffil.ewas.report(
+  ewas.summary,
+  output.file = "ewas-report.html",
+  author = "Analyst",
+  study = "Illumina methylation data",
+  ...
+)
 }
 \arguments{
 \item{ewas.summary}{Output from \code{meffil.ewas.summary}.}

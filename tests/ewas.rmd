@@ -274,3 +274,16 @@ hi.threshold <- q13[,2] + factor
 all((beta < lo.threshold | beta > hi.threshold)
     == outlier.mask)
 ```
+
+View EWAS effect estimates next to genes and other genomic landmarks
+by generating genome browser tracks and uploading them
+to https://genome.ucsc.edu/cgi-bin/hgCustom.
+```{r}
+meffil.ewas.bedgraph(ewas.ret, "ewas/sva.bed", "sva", name="ga", description=ewas.study)
+header <- paste0("track type=bedGraph name='ga-custom' description='",
+                 ewas.study,
+                 "' visibility=full color=200,100,0 altColor=0,100,200 priority=20")
+meffil.ewas.bedgraph(ewas.ret, "ewas/sva-custom.bed", "sva", header=header)
+meffil.ewas.bedgraph(ewas.ret, "ewas/sva-minimal.bed", "sva")                    
+```
+

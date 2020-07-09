@@ -4,8 +4,11 @@
 \alias{meffil.ewas.manhattan.plot}
 \title{Manhattan plot for EWAS}
 \usage{
-meffil.ewas.manhattan.plot(ewas.object, sig.threshold = 1e-07,
-  title = "Manhattan plot")
+meffil.ewas.manhattan.plot(
+  ewas.object,
+  sig.threshold = 1e-07,
+  title = "Manhattan plot"
+)
 }
 \arguments{
 \item{ewas.object}{Return object from \code{\link{meffil.ewas()}}.}

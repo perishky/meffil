@@ -4,8 +4,13 @@
 \alias{meffil.normalize.quantiles}
 \title{Normalize microarray quantiles}
 \usage{
-meffil.normalize.quantiles(qc.objects, number.pcs = 2,
-  fixed.effects = NULL, random.effects = NULL, verbose = F)
+meffil.normalize.quantiles(
+  qc.objects,
+  number.pcs = 2,
+  fixed.effects = NULL,
+  random.effects = NULL,
+  verbose = F
+)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}

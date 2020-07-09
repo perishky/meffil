@@ -4,8 +4,7 @@
 \alias{meffil.plot.beadnum.samples}
 \title{Plot number of beads per sample}
 \usage{
-meffil.plot.beadnum.samples(qc.objects, threshold = 0.05,
-  colour.code = NULL)
+meffil.plot.beadnum.samples(qc.objects, threshold = 0.05, colour.code = NULL)
 }
 \arguments{
 \item{qc.objects}{From \code{meffil.qc}}

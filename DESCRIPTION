@@ -41,4 +41,4 @@ URL: https://github.com/perishky/meffil
 LazyData: yes
 biocViews: DNAMethylation, Microarray, TwoChannel, DataImport, Preprocessing,
     QualityControl
-RoxygenNote: 6.1.0
+RoxygenNote: 7.0.2

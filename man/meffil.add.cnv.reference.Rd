@@ -4,8 +4,15 @@
 \alias{meffil.add.cnv.reference}
 \title{Create a copy number reference object}
 \usage{
-meffil.add.cnv.reference(name, M, U, chip = NA, featureset = chip,
-  object = NULL, verbose = T)
+meffil.add.cnv.reference(
+  name,
+  M,
+  U,
+  chip = NA,
+  featureset = chip,
+  object = NULL,
+  verbose = T
+)
 }
 \arguments{
 \item{name}{Character string providing the name of the reference.}
