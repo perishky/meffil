@@ -4,12 +4,29 @@
 \alias{meffil.ewas}
 \title{Epigenome-wide association study}
 \usage{
-meffil.ewas(beta, variable, covariates = NULL, batch = NULL,
-  weights = NULL, cell.counts = NULL, isva = T, sva = T,
-  smartsva = F, n.sv = NULL, isva0 = F, isva1 = F,
-  winsorize.pct = 0.05, robust = TRUE, rlm = FALSE,
-  outlier.iqr.factor = NA, most.variable = min(nrow(beta), 50000),
-  featureset = NA, random.seed = 20161123, verbose = F)
+meffil.ewas(
+  beta,
+  variable,
+  covariates = NULL,
+  batch = NULL,
+  weights = NULL,
+  cell.counts = NULL,
+  isva = T,
+  sva = T,
+  smartsva = F,
+  n.sv = NULL,
+  isva0 = F,
+  isva1 = F,
+  winsorize.pct = 0.05,
+  robust = TRUE,
+  rlm = FALSE,
+  outlier.iqr.factor = NA,
+  most.variable = min(nrow(beta), 50000),
+  featureset = NA,
+  random.seed = 20161123,
+  lmfit.safer = F,
+  verbose = F
+)
 }
 \arguments{
 \item{beta}{Methylation levels matrix, one row per CpG site, one column per sample.}

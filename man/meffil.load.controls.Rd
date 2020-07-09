@@ -4,8 +4,13 @@
 \alias{meffil.load.controls}
 \title{Load control probes}
 \usage{
-meffil.load.controls(samplesheet, chip = NA, featureset = chip,
-  verbose = F, ...)
+meffil.load.controls(
+  samplesheet,
+  chip = NA,
+  featureset = chip,
+  verbose = F,
+  ...
+)
 }
 \arguments{
 \item{samplesheet}{Sample info (see \code{\link{meffil.read.samplesheet}} or \code{\link{meffil.create.samplesheet}}).}

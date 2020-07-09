@@ -4,8 +4,13 @@
 \alias{meffil.qc.report}
 \title{Generate QC report}
 \usage{
-meffil.qc.report(qc.summary, output.file = "qc-report.html",
-  author = "Analyst", study = "Illumina methylation data", ...)
+meffil.qc.report(
+  qc.summary,
+  output.file = "qc-report.html",
+  author = "Analyst",
+  study = "Illumina methylation data",
+  ...
+)
 }
 \arguments{
 \item{qc.summary}{Output from \code{meffil.qc.summary}.}

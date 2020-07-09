@@ -15,10 +15,10 @@ download.450k.lead.dataset <- function() {
         library(GEOquery)
         geo <- getGEO("GSE69633", GSEMatrix=F)
         ## this output from geo is really messed up.
-        geo <- geo@gsms[[1]]@header
-        characteristics <- matrix(geo$characteristics_ch1, nrow=length(geo$title), byrow=T)
+        xx <- lapply(geo@gsms, function(x) x@header)
+        characteristics <- t(sapply(xx, function(x) x$characteristics_ch1))
         colnames(characteristics) <- sub("([^:]+):.*", "\\1", characteristics[1,])
-        rownames(characteristics) <- geo$geo_accession
+        rownames(characteristics) <- names(xx)
         characteristics <- apply(characteristics, 2, function(x) sub("[^:]+: (.*)", "\\1", x))
         characteristics <- as.data.frame(characteristics, stringsAsFactors=F)
         for (name in c("socioeconomic score", "gestational age", "birth weight", "pbconc (ng/dl)"))

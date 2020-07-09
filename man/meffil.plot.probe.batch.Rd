@@ -4,9 +4,15 @@
 \alias{meffil.plot.probe.batch}
 \title{Test normalized betas for association with known batch variables}
 \usage{
-meffil.plot.probe.batch(norm.objects, pcs,
-  variables = guess.batch.vars(norm.objects), additional = NULL,
-  batch.threshold = 1e-50, cols = NULL, verbose = T)
+meffil.plot.probe.batch(
+  norm.objects,
+  pcs,
+  variables = guess.batch.vars(norm.objects),
+  additional = NULL,
+  batch.threshold = 1e-50,
+  cols = NULL,
+  verbose = T
+)
 }
 \arguments{
 \item{norm.objects}{Output from \code{\link{meffil.normalize.quantiles}()}.}

@@ -4,9 +4,13 @@
 \alias{meffil.normalization.summary}
 \title{Perform tests to check normalization performance}
 \usage{
-meffil.normalization.summary(norm.objects, pcs,
+meffil.normalization.summary(
+  norm.objects,
+  pcs,
   parameters = meffil.normalization.parameters(norm.objects),
-  variables = NULL, verbose = TRUE)
+  variables = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{norm.objects}{Output from \link{meffil.normalize.quantiles}}

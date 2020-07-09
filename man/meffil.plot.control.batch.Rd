@@ -4,9 +4,15 @@
 \alias{meffil.plot.control.batch}
 \title{Test for association of control matrix probes with known batch variables}
 \usage{
-meffil.plot.control.batch(norm.objects, npcs = 1:10,
-  variables = guess.batch.vars(norm.objects), additional = NULL,
-  batch.threshold = 1e-50, cols = NULL, verbose = TRUE)
+meffil.plot.control.batch(
+  norm.objects,
+  npcs = 1:10,
+  variables = guess.batch.vars(norm.objects),
+  additional = NULL,
+  batch.threshold = 1e-50,
+  cols = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{norm.objects}{From \code{meffil.normalize.quantiles}}

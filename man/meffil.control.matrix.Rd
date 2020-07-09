@@ -4,8 +4,12 @@
 \alias{meffil.control.matrix}
 \title{Infinium HumanMethylation450 BeadChip control matrix}
 \usage{
-meffil.control.matrix(qc.objects, normalize = F, fixed.effects = NULL,
-  random.effects = NULL)
+meffil.control.matrix(
+  qc.objects,
+  normalize = F,
+  fixed.effects = NULL,
+  random.effects = NULL
+)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}

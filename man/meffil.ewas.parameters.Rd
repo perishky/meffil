@@ -4,8 +4,12 @@
 \alias{meffil.ewas.parameters}
 \title{Specify parameters for QC}
 \usage{
-meffil.ewas.parameters(sig.threshold = NA, max.plots = 10,
-  model = "none", qq.inflation.method = "median")
+meffil.ewas.parameters(
+  sig.threshold = NA,
+  max.plots = 10,
+  model = "none",
+  qq.inflation.method = "median"
+)
 }
 \arguments{
 \item{sig.threshold}{P-value threshold for significance (Default: NA).

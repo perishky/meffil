@@ -4,9 +4,14 @@
 \alias{meffil.normalization.parameters}
 \title{Specify parameters for testing normalization}
 \usage{
-meffil.normalization.parameters(norm.objects,
-  variables = guess.batch.vars(norm.objects), control.pcs = 1:10,
-  batch.pcs = 1:10, batch.threshold = 1e-50, colours = NULL)
+meffil.normalization.parameters(
+  norm.objects,
+  variables = guess.batch.vars(norm.objects),
+  control.pcs = 1:10,
+  batch.pcs = 1:10,
+  batch.threshold = 1e-50,
+  colours = NULL
+)
 }
 \arguments{
 \item{norm.objects}{Output from \link{meffil.normalize.quantiles}}

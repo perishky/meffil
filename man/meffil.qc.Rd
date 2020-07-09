@@ -4,10 +4,20 @@
 \alias{meffil.qc}
 \title{Perform QC on HumanMethylation450 idat files}
 \usage{
-meffil.qc(samplesheet, number.quantiles = 500, dye.intensity = 5000,
-  detection.threshold = 0.01, bead.threshold = 3, sex.cutoff = -2,
-  chip = NA, featureset = chip, cell.type.reference = NA,
-  max.bytes = 2^30 - 1, verbose = F, ...)
+meffil.qc(
+  samplesheet,
+  number.quantiles = 500,
+  dye.intensity = 5000,
+  detection.threshold = 0.01,
+  bead.threshold = 3,
+  sex.cutoff = -2,
+  chip = NA,
+  featureset = chip,
+  cell.type.reference = NA,
+  max.bytes = 2^30 - 1,
+  verbose = F,
+  ...
+)
 }
 \arguments{
 \item{samplesheet}{Data frame containing IDAT file and sample info (see \code{\link{meffil.read.samplesheet}} pr \code{\link{meffil.create.samplesheet}}).}

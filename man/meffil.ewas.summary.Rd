@@ -4,8 +4,13 @@
 \alias{meffil.ewas.summary}
 \title{Summarize EWAS results.}
 \usage{
-meffil.ewas.summary(ewas.object, beta, selected.cpg.sites = character(0),
-  parameters = meffil.ewas.parameters(), verbose = T)
+meffil.ewas.summary(
+  ewas.object,
+  beta,
+  selected.cpg.sites = character(0),
+  parameters = meffil.ewas.parameters(),
+  verbose = T
+)
 }
 \arguments{
 \item{ewas.object}{From \code{\link{meffil.ewas}()}.}

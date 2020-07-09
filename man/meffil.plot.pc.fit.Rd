@@ -4,8 +4,13 @@
 \alias{meffil.plot.pc.fit}
 \title{Number of control matrix principal components}
 \usage{
-meffil.plot.pc.fit(qc.objects, fixed.effects = NULL,
-  random.effects = NULL, n.cross = 10, name = "autosomal.ii")
+meffil.plot.pc.fit(
+  qc.objects,
+  fixed.effects = NULL,
+  random.effects = NULL,
+  n.cross = 10,
+  name = "autosomal.ii"
+)
 }
 \arguments{
 \item{qc.objects}{A list of outputs from \code{\link{meffil.create.qc.object}()}.}
