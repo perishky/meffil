@@ -128,6 +128,8 @@ meffil.read.samplesheet <- function(base, pattern = "csv$", ignore.case = TRUE, 
 	if(length(nam <- grep("Sex", names(df), ignore.case = TRUE)) == 1)
 	{
 		names(df)[nam] <- "Sex"
+		if (is.logical(df[[nam]]))
+		  df[[nam]] <- substring(as.character(df[[name]]), 1, 1)
 	} else {
 		warning("There should be one 'Sex' column")
                 df$Sex <- NA
