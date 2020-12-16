@@ -3,77 +3,11 @@
 Maarten M. van Iterson, Erik W. van Zwet, The Bios Consortium, P. Eline Slagboom, Bastiaan T. Heijmans. Controlling bias and inflation in epigenome- and transcriptome-wide association studies using the empirical null distribution. 
 http://biorxiv.org/content/early/2016/05/27/055772
 
-2. Should our 'objects' be S4 classes? 
-I have two objects to S4 classes:
-1. They are difficult to debug because they only be accessed using 
-functions rather than just typing the function name.
-2. They require so much typing.  A simple function requires 
-5 lines of code before the function even begins.
-With all the meta-functions for handling functions and argments 
-in R, I would have thought you would just need to 'register' 
-a function with a class, one step.
+2. Give a warning when a idat is not found during the cnv extraction. It now gives a mclapply warning.
 
-objects:
- annotation
- qc.object
- norm.object
- cell.type.reference
- rg
- mu
- qc.summary
- norm.summary
- ewas
+3. Regional localization plots.
 
-
-setClass("annotation",
-         representation(probes="data.frame"),
-         validity=function(object) {
-             errors <- c()
-
-             columns <- list("type"=c("i","ii","control"),
-                             "target"="character",
-                             "dye"=c("R","G"),
-                             "address"="character",
-                             "name"="character",
-                             "chromosome"=paste("chr", c(1:22,"X","Y"), sep=""),
-                             "position"="integer",
-                             "cpg.island.name"="character",
-                             "relation.to.island"="character",
-                             "snp.exclude"="logical")
-             
-             missing.columns <- setdiff(names(columns), colnames(object@probes))
-             if (length(missing.columns) > 0)
-                 errors <- c(errors, paste("Annotation missing columns:",
-                                           paste(missing.columns, collapse=", ")))
-             
-             for (column in names(columns)) {
-                 if (length(columns[[column]]) == 1) {
-                     if (!is(object@probes[[column]], columns[[column]]))
-                         errors <- c(errors, paste("Column", column, "is not of type", columns[[column]]))
-                 }
-                 else {
-                     if (!all(na.omit(object@probes[[column]]) %in% columns[[column]]))
-                         errors <- c(errors, paste("Column", column, "valid values:",
-                                                   paste(columns[[column]], collapse=",")))
-                 }
-             }
-             
-             if (length(errors) == 0)
-                 TRUE
-             else
-                 errors
-         })
-## e.g. annotation.450k <- new("annotation", probes=probes.450k)
-
-setGeneric("meffil.get.autosomal.sites",
-           function(object) standardGeneric("meffil.get.autosomal.sites"))
-setMethod("meffil.get.autosomal.sites",
-          signature("annotation"),
-          function(object) {
-              probe.idx <- which(probes$chromosome %in% paste0("chr", 1:22))
-              unique(object@probes$name[probe.idx])
-          })
-
-3. Give a warning when a idat is not found during the cnv extraction. It now gives a mclapply warning.
-
-4. Regional localization plots.
+4. Add additional cell count references/algorithms:
+    - Middleton et al. Saliva cell type DNA methylation reference panel for epidemiology studies in children. medRxiv 2020.09.14.20191361
+    - Salas et al. An optimized library for reference-based deconvolution of whole-blood biospecimens assayed using the Illumina HumanMethylationEPIC BeadArray. Genome Biol 19, 64 (2018).
+    - Zheng, S.C., Breeze, C.E., Beck, S. et al. Identification of differentially methylated cell types in epigenome-wide association studies. Nat Methods 15, 1059–1066 (2018).
