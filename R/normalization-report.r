@@ -243,13 +243,16 @@ test.pairwise.associations <- function(y,x) {
             if (!is.numeric(x)) x <- as.factor(x)
             pval <- NA
             fstat <- NA
+            r2 <- NA
             try({
-                fstat <- summary(lm(y ~ x))$fstatistic
+                fit <- summary(lm(y~x))
+                fstat <- fit$fstatistic
                 if (is.null(fstat)) fstat <- NA
                 pval <- pf(fstat["value"], df1=fstat["numdf"], df2=fstat["dendf"], lower.tail=F)#
+                r2 <- fit$r.squared
             }, silent=TRUE)
             ret <- data.frame(x=x.name, l=NA, y=y.name, test="F-test",
-                              p.value=pval, estimate=fstat["value"], lower=NA, upper=NA)
+                              p.value=pval, estimate=fstat["value"], lower=NA, upper=NA, r2=r2)
             if (is.factor(x) && length(levels(x)) > 1) {
                 q1 <- quantile(y, probs=0.25)
                 q3 <- quantile(y, probs=0.75)
@@ -270,6 +273,13 @@ test.pairwise.associations <- function(y,x) {
                         coef["level","Pr(>|t|)"]
                     else NA
                 })
+
+                r2s <- sapply(fits, function(fit) {
+                    fit <- summary(fit)
+                    if (class(fit) == "summary.lm")
+                        fit$r.squared
+                    else NA
+                })
                                 
                 confint <- t(sapply(fits, function(fit) {
                     coef <- coefficients(summary(fit))
@@ -286,7 +296,8 @@ test.pairwise.associations <- function(y,x) {
                                         y=y.name,
                                         test="t-test",
                                         p.value=pvals,
-                                        confint))
+                                        confint,
+                                        r2=r2s))
             }
             ret
         }))
