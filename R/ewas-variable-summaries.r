@@ -79,7 +79,7 @@ meffil.ewas.covariate.associations <- function(ewas.object) {
                            covariate=ewas.object$covariates[,i])
         for (j in colnames(vars)) {
             if (!is.numeric(vars[[j]])
-                && length(unique(na.omit(vars[[j]]))) <= 2)
+                && length(unique(na.omit(vars[[j]]))) >= 2)
                 vars[[j]] <- as.factor(vars[[j]])
         }
         colnames(vars)[2] <- colnames(ewas.object$covariates)[i]
