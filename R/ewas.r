@@ -60,6 +60,8 @@ meffil.ewas <- function(beta, variable,
     if (isva0 || isva1)
         stop("isva0 and isva1 are deprecated and superceded by isva and sva")
     
+    stopifnot(is.matrix(beta))
+      
     if (is.na(featureset))
         featureset <- guess.featureset(rownames(beta))
     features <- meffil.get.features(featureset)
