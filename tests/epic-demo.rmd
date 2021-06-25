@@ -63,7 +63,7 @@ beta.meffil <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
 
 Compute principal components of the normalized methylation matrix.
 ```{r epic-demo-pcs, cache=T}
-pcs <- meffil.methylation.pcs(beta.meffil, verbose=T)
+pcs <- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites("epic"), verbose=T)
 ```
 
 Normalization report.

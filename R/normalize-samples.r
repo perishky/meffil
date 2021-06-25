@@ -73,7 +73,7 @@ meffil.normalize.samples <- function(norm.objects,
         ret
     } else {
         require(gdsfmt)
-        mcsapply.gds(
+        mcsapply.to.gds(
             norm.objects,
             FUN=function(object) {
                 mu <- meffil.normalize.sample(object, verbose=verbose)

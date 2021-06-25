@@ -35,7 +35,10 @@ meffil.ewas.report <- function(ewas.summary,
 #' plots of the strongest associations and plots of selected CpG sites.
 #'
 #' @param ewas.object From \code{\link{meffil.ewas}()}.
-#' @param beta Matrix of methylation levels used in the analysis.
+#' @param beta Methylation levels used in the analysis,
+#' either a matrix with
+#' one row per CpG site and one column per sample
+#' or the filename of a GDS file (Genomic Data Structure).
 #' @param selected.cpg.sites Vector of CpG site names to plot (Default: character(0)).
 #' @param parameters Default = meffil.ewas.parameters(). List of parameter values. See \code{\link{meffil.ewas.parameters}()}.
 #' @export
@@ -81,6 +84,8 @@ meffil.ewas.summary <- function(ewas.object, beta,
 
     plot.sites <- rownames(ewas.object$p.value)[union(practical.idx, selected.idx)]
     msg("CpG site plots:", length(plot.sites), verbose=T)
+    if (is.character(beta)) 
+        beta <- retrieve.gds.methylation(beta, sites=plot.sites, samples=NULL)
     cpg.plots <- sapply(plot.sites, function(cpg) {
         msg("Plotting", cpg, verbose=T)
         meffil.ewas.cpg.plot(ewas.object, cpg=cpg, beta=beta)
@@ -91,6 +96,11 @@ meffil.ewas.summary <- function(ewas.object, beta,
     covariate.associations <- meffil.ewas.covariate.associations(ewas.object)
 
     parameters$winsorize.pct <- ewas.object$winsorize.pct
+    parameters$outlier.iqr.factor <- ewas.object$outlier.iqr.factor
+    parameters$rlm <- ewas.object$rlm
+    parameters$most.variable <- ewas.object$most.variable
+    parameters$random.seed <- ewas.object$random.seed
+    parameters$sample.size <- length(ewas.object$samples)
    
     ## order CpG sites and plots by the default model p-value
     sort.by.p <- function(x) {

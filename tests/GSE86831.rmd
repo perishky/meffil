@@ -1,4 +1,4 @@
-```{r 450k-demo-init, echo=FALSE, message=F}
+```{r GSE86831-init, echo=FALSE, message=F}
 library(knitr)
 library(Cairo)
 opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
@@ -89,7 +89,7 @@ norm.dataset <- meffil.normalize.samples(norm.objects,
 Generate normalization report.
 ```{r}
 beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
-pcs <- meffil.methylation.pcs(beta, verbose=T)
+pcs <- meffil.methylation.pcs(beta, sites=meffil.get.autosomal.sites("450k"), verbose=T)
 
 parameters <- meffil.normalization.parameters(norm.objects)
 parameters$batch.threshold <- 0.01
