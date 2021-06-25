@@ -16,6 +16,7 @@ generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
 * Copy number estimation.
 * Report generation summarizing all steps.
 * A manual can be found [here](https://github.com/perishky/meffil/wiki)
+* **Normalization to** and **epigenome-wide-studies and report generation for** methylation matrices stored in [Genomic Data Structure files](https://bioconductor.org/packages/release/bioc/html/gdsfmt.html). *The methylation matrix never needs to be loaded into memory*.
 
 Examples using many of these features can be found in the
 [tests/](tests) directory.

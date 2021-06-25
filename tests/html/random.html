@@ -275,6 +275,24 @@ Mar;134(3):317-32. PMID: 25563730</p>
 <pre><code>## Loading required package: MASS
 </code></pre>
 
+<pre><code>## Loading required package: lmtest
+</code></pre>
+
+<pre><code>## Loading required package: zoo
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric
+</code></pre>
+
+<pre><code>## Loading required package: sandwich
+</code></pre>
+
 <pre><code>## Loading required package: limma
 </code></pre>
 
@@ -296,7 +314,7 @@ Mar;134(3):317-32. PMID: 25563730</p>
 <pre><code>## Loading required package: nlme
 </code></pre>
 
-<pre><code>## This is mgcv 1.8-24. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
+<pre><code>## This is mgcv 1.8-28. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
 </code></pre>
 
 <pre><code>## Loading required package: genefilter
@@ -413,6 +431,33 @@ Mar;134(3):317-32. PMID: 25563730</p>
 <pre><code>## Loading required package: gdsfmt
 </code></pre>
 
+<pre><code>## Loading required package: SmartSVA
+</code></pre>
+
+<pre><code>## Loading required package: isva
+</code></pre>
+
+<pre><code>## Loading required package: qvalue
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;qvalue&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
+## 
+##     qplot
+</code></pre>
+
+<pre><code>## Loading required package: JADE
+</code></pre>
+
+<pre><code>## Loading required package: RSpectra
+</code></pre>
+
+<pre><code>## Loading required package: preprocessCore
+</code></pre>
+
 <pre><code class="r">samplesheet &lt;- meffil.create.samplesheet(path)
 </code></pre>
 
@@ -458,11 +503,11 @@ cell.type.reference &lt;- &quot;blood gse35069&quot;
 <pre><code class="r">beta.raw &lt;- meffil.load.raw.data(data.default$norm.objects,verbose=T)
 </code></pre>
 
-<pre><code>## [read.idat] Thu Nov 29 10:27:28 2018 Reading data-450k-demo/GSM1338100_6057825094_R01C01_Grn.idat 
-## [read.idat] Thu Nov 29 10:27:28 2018 Reading data-450k-demo/GSM1338100_6057825094_R01C01_Red.idat 
-## [background.correct] Thu Nov 29 10:27:29 2018 background correction for dye = R 
-## [background.correct] Thu Nov 29 10:27:31 2018 background correction for dye = G 
-## [dye.bias.correct] Thu Nov 29 10:27:33 2018
+<pre><code>## [read.idat] Fri Jun 25 00:08:48 2021 Reading data-450k-demo/GSM1338100_6057825094_R01C01_Grn.idat 
+## [read.idat] Fri Jun 25 00:08:48 2021 Reading data-450k-demo/GSM1338100_6057825094_R01C01_Red.idat 
+## [background.correct] Fri Jun 25 00:08:48 2021 background correction for dye = R 
+## [background.correct] Fri Jun 25 00:08:50 2021 background correction for dye = G 
+## [dye.bias.correct] Fri Jun 25 00:08:52 2021
 </code></pre>
 
 <pre><code class="r">beta.raw &lt;- meffil:::impute.matrix(beta.raw)
@@ -594,34 +639,34 @@ quantile(p.raw)
 </code></pre>
 
 <pre><code>##           0%          25%          50%          75%         100% 
-## 6.523205e-07 2.683019e-01 5.055309e-01 7.457692e-01 9.999996e-01
+## 6.523206e-07 2.683018e-01 5.055309e-01 7.457692e-01 9.999996e-01
 </code></pre>
 
 <pre><code class="r">sort(p.raw)[1:10]
 </code></pre>
 
-<pre><code>##   cg26226555   cg05929882   cg24867279   cg20021784   cg02450725 
-## 1.623190e-15 1.458213e-09 9.345397e-07 4.473571e-06 4.500262e-06 
-##   cg02547035   cg24547575   cg13089318   cg19356347   cg03274739 
-## 1.099079e-05 1.337171e-05 1.429057e-05 1.550819e-05 1.685667e-05
+<pre><code>##   cg26226555   cg05929882   cg24867279   cg20021784   cg02450725   cg02547035 
+## 1.623190e-15 1.458213e-09 9.345397e-07 4.473571e-06 4.500262e-06 1.099079e-05 
+##   cg24547575   cg13089318   cg19356347   cg03274739 
+## 1.337171e-05 1.429057e-05 1.550819e-05 1.685667e-05
 </code></pre>
 
 <pre><code class="r">sort(p.default)[1:10]
 </code></pre>
 
-<pre><code>##   cg24867279   cg05388057   cg16101278   cg10094624   cg02450725 
-## 1.113425e-06 2.003959e-06 2.188385e-06 3.305641e-06 4.822631e-06 
-##   cg12504415   cg08653114   cg18232980   cg13946487   cg00254095 
-## 6.480481e-06 1.146915e-05 1.230163e-05 1.251651e-05 1.519183e-05
+<pre><code>##   cg24867279   cg05388057   cg16101278   cg10094624   cg02450725   cg12504415 
+## 1.113425e-06 2.003959e-06 2.188385e-06 3.305641e-06 4.822631e-06 6.480481e-06 
+##   cg08653114   cg18232980   cg13946487   cg00254095 
+## 1.146915e-05 1.230163e-05 1.251651e-05 1.519183e-05
 </code></pre>
 
 <pre><code class="r">sort(p.random)[1:10]
 </code></pre>
 
-<pre><code>##   cg24867279   cg16101278   cg02450725   cg12504415   cg00254095 
-## 6.523205e-07 6.958706e-06 7.519007e-06 1.943527e-05 1.976959e-05 
-##   cg02292066   cg21673175   cg07654871   cg01966791   cg11751434 
-## 2.592821e-05 3.452596e-05 3.630413e-05 3.981770e-05 4.217769e-05
+<pre><code>##   cg24867279   cg16101278   cg02450725   cg12504415   cg00254095   cg02292066 
+## 6.523206e-07 6.958706e-06 7.519008e-06 1.943527e-05 1.976959e-05 2.592821e-05 
+##   cg21673175   cg07654871   cg01966791   cg11751434 
+## 3.452595e-05 3.630411e-05 3.981768e-05 4.217769e-05
 </code></pre>
 
 </body>

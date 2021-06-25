@@ -86,7 +86,7 @@ norm.dataset <- meffil.normalize.samples(norm.objects,
                                         verbose=T)
 
 beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
-pcs <- meffil.methylation.pcs(beta, verbose=T)
+pcs <- meffil.methylation.pcs(beta, sites=meffil.get.autosomal.sites("450k"), verbose=T)
 
 parameters <- meffil.normalization.parameters(norm.objects)
 norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
@@ -213,7 +213,7 @@ for (variable.name in names(results)) {
                            author="Me",
                            study=paste(variable.name,
                                " in cord blood DNA methylation (GEO:GSE69633)",
-                               " adjusted with the '", reference, "' cell type reference", sep=""))
+                               " adjusted with the '", reference, "' cell type reference.", sep=""))
     }
 }
 ```
@@ -221,8 +221,8 @@ for (variable.name in names(results)) {
 ## Association overlaps between different analyses
 
 Show size of overlap between analyses using different cell type references.
-For each, we use the results obtained using confounders obtained using "ISVA"
-(all potential confounders listed above plus independent surrogate variables).
+For each, we use the results obtained using confounders obtained using "smartsva"
+(all potential confounders listed above plus surrogate variables).
 ```{r, results="asis"}
 compare.top <- function(results, top=100, method) {
     sites <- lapply(results, function(ewas) {
@@ -240,18 +240,12 @@ comparison.table <- function(results, method) {
     }
     comparisons <- do.call(rbind, comparisons)
 }
-knitr:::kable(comparison.table(results, "isva"), row.names=F)
-```
-
-Similarly for SVA EWAS:
-```{r, results="asis"}
-knitr:::kable(comparison.table(results, "sva"), row.names=F)
+knitr:::kable(comparison.table(results, "smartsva"), row.names=F)
 ```
 
 ## Significance ranks of previously identified associations 
 
 Below we show the p-value ranks in our analyses of each previously identified association.
-First for ISVA EWAS:
 ```{r, results="asis"}
 compare.p.value.ranks <- function(results, method) {
     ranks <- sapply(names(results), function(variable.name) {
@@ -271,12 +265,7 @@ compare.p.value.ranks <- function(results, method) {
     }
     ranks <- do.call(rbind, ranks)
 }
-knitr:::kable(compare.p.value.ranks(results, "isva"), row.names=F)
-```
-
-Second for SVA EWAS:
-```{r, results="asis"}
-knitr:::kable(compare.p.value.ranks(results, "sva"), row.names=F)
+knitr:::kable(compare.p.value.ranks(results, "smartsva"), row.names=F)
 ```
 
 It's not clear from the table above if using any specific cell type reference
