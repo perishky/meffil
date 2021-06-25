@@ -118,6 +118,7 @@ covariates <- data.frame(t(meffil.cell.count.estimates(qc.objects)),
 ewas.ret <- meffil.ewas(beta,
                         variable=variable,
                         covariates=covariates,
+                        isva=F, sva=F, smartsva=T,
                         most.variable=50000,
                         verbose=T)
 ```

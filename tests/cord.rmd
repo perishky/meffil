@@ -167,6 +167,7 @@ results <- sapply(names(covariate.names), function(variable.name) {
         if (variable.name == "gender")
             beta <- beta[which(rownames(beta) %in% autosomal$name),]
         meffil.ewas(beta, variable=variable, covariates=covariates,
+                    isva=F, sva=F, smartsva=T,
                     most.variable=50000,verbose=T)
     }, simplify=F)
 }, simplify=F)
