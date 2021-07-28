@@ -4,11 +4,12 @@
 #' either a matrix or a GDS filename.
 #' @param  probe.range Default = 5000. How many probes to be used in calculating PCs
 #' @param  autosomal Default = TRUE. If true, remove probes on sex chromosomes.  
+#' @param  full.obj Default = FALSE.  If true, then return the full `prcomp` object rather than just the PCs.
 #' @param  verbose=T Print progress messages?
 #' @return the principal components of \code{normalized.beta}.
 #'
 #' @export
-meffil.methylation.pcs <- function (normalized.beta, probe.range = 5000, autosomal = T, verbose = F) {
+meffil.methylation.pcs <- function (normalized.beta, probe.range = 5000, autosomal = T, full.obj=F, verbose = F) {
     if (is.matrix(normalized.beta))
         sites <- rownames(normalized.beta)
     else {
@@ -55,6 +56,9 @@ meffil.methylation.pcs <- function (normalized.beta, probe.range = 5000, autosom
                         read.gdsn(matrix.node, start=c(idx,1), count=c(1,-1))))
     }
         
-    prcomp(t(meffil:::impute.matrix(mat, margin = 1)))$x
+    ret <- prcomp(t(meffil:::impute.matrix(mat, margin = 1)))
+    if (!full.obj)
+        ret <- ret$x
+    ret
 }
 
