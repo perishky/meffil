@@ -46,6 +46,9 @@ meffil.ewas.summary <- function(ewas.object, beta,
                                 selected.cpg.sites=character(0),
                                 parameters=meffil.ewas.parameters(),
                                 verbose=T) {
+    if (is.data.frame(beta))
+        beta <- as.matrix(beta)
+    stopifnot(is.matrix(beta))
     stopifnot(parameters$model %in% colnames(ewas.object$p.value))
     stopifnot(parameters$max.plots < nrow(ewas.object$p.value))
     stopifnot(all(selected.cpg.sites %in% rownames(ewas.object$p.value)))
