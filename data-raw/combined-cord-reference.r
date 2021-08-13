@@ -1,3 +1,7 @@
+## Gervin, K., Salas, L.A., Bakulski, K.M. et al. Systematic evaluation and validation of reference 
+## and library selection methods for deconvolution of cord blood DNA methylation data. 
+## Clin Epigenet 11, 125 (2019). https://doi.org/10.1186/s13148-019-0717-y
+
 ## recreate the FlowSorted.CordBloodCombined.450k reference in meffil
 create.combined.cord.reference <- function(verbose=T) {
     if (!requireNamespace("BiocManager", quietly = TRUE))
