@@ -15,7 +15,10 @@ meffil.ewas.summary(
 \arguments{
 \item{ewas.object}{From \code{\link{meffil.ewas}()}.}
 
-\item{beta}{Matrix of methylation levels used in the analysis.}
+\item{beta}{Methylation levels used in the analysis,
+either a matrix with
+one row per CpG site and one column per sample
+or the filename of a GDS file (Genomic Data Structure).}
 
 \item{selected.cpg.sites}{Vector of CpG site names to plot (Default: character(0)).}
 

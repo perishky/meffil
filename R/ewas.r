@@ -2,33 +2,47 @@
 #'
 #' Test association with each CpG site.
 #'
-#' @param beta Methylation levels matrix, one row per CpG site, one column per sample.
+#' @param beta Methylation levels matrix,
+#' one row per CpG site, one column per sample
+#' or the filename of GDS (Genomic Data Structure) output from
+#' \code{\link{meffil.normalize.samples}}.
 #' @param variable Independent variable vector.
 #' @param covariates Covariates data frame to include in regression model,
 #' one row per sample, one column per covariate (Default: NULL).
-#' @param batch Batch vector to be included as a random effect (Default: NULL).
+#' @param batch Batch vector to be included as a random effect (Default: NULL). Ignored if \code{beta} is a GDS filename.
 #' @param weights Non-negative observation weights.
 #' Can be a numeric matrix of individual weights of same dimension as \code{beta},
 #' or a numeric vector of weights with length \code{ncol(beta)},
 #' or a numeric vector of weights with length \code{nrow(beta)}. 
+#' @param sites Restrict the EWAS to the given CpG sites -- must match row names of \code{beta} (Default: NULL).
+#' @param samples Restrict the EWAS to the given samples -- must match column names of \code{beta} (Default: NULL). 
 #' @param cell.counts Proportion of cell counts for one cell type in cases
-#' where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL).
+#' where the samples are mainly composed of two cell types (e.g. saliva) (Default: NULL). Ignored if \code{beta} is a GDS filename.
 #' @param isva Apply Independent Surrogate Variable Analysis (ISVA) to the
 #' methylation levels and include the resulting variables as covariates in a
-#' regression model (Default: TRUE).  
+#' regression model (Default: FALSE).  
 #' @param sva Apply Surrogate Variable Analysis (SVA) to the
 #' methylation levels and covariates and include
 #' the resulting variables as covariates in a regression model (Default: TRUE).
 #' @param smartsva Apply the SmartSVA algorithm to the
 #' methylation levels and include the resulting variables as covariates in a
-#' regression model (Default: FALSE).  
+#' regression model (Default: FALSE).
+#' @param smartsva.alpha alpha argument to SmartSVA providing the
+#' initial point for optimization.  Smaller values
+#' reduce the number of iterations needed to reach convergence.
+#' Setting this 1 will produce exactly the outputs as SVA. (Default: 0.5).
 #' @param n.sv Number of surrogate variables to calculate (Default: NULL).
 #' @param winsorize.pct Apply all regression models to methylation levels
 #' winsorized to the given level. Set to NA to avoid winsorizing (Default: 0.05).
 #' @param robust Test associations with the 'robust' option when \code{\link{limma::eBayes}}
-#' is called (Default: TRUE).
-#' @param rlm Test assocaitions with the 'robust' option when \code{\link{limma:lmFit}}
-#' is called (Default: FALSE).
+#' is called (Default: TRUE). Ignored if \code{beta} is a GDS filename.
+#' @param rlm If \code{beta} is a matrix, then test associations with
+#' the 'robust' option when \code{\link{limma:lmFit}} is called.
+#' If \code{beta} is a GDS filename, then test associations
+#' using robust regression using \code{\link{MASS::rlm}}
+#' and calculate statistical significance using \code{\link{lmtest::coeftest}}
+#' with \code{vcov=\link{sandwich::vcovHC}(fit, type="HC0")}
+#' (Default: FALSE).
 #' @param outlier.iqr.factor For each CpG site, prior to fitting regression models,
 #' set methylation levels less than
 #' \code{Q1 - outlier.iqr.factor * IQR} or more than
@@ -43,40 +57,64 @@
 #' @export
 meffil.ewas <- function(beta, variable,
                         covariates=NULL, batch=NULL, weights=NULL,
+                        sites=NULL, samples=NULL,
                         cell.counts=NULL,
-                        isva=T, sva=T, smartsva=F, ## cate?
+                        isva=F, sva=T, smartsva=F, ## cate?
+                        smartsva.alpha=0.5,
                         n.sv=NULL,
-                        isva0=F,isva1=F, ## deprecated
                         winsorize.pct=0.05,
-                        robust=TRUE,
+                        robust=FALSE,
                         rlm=FALSE,
                         outlier.iqr.factor=NA, ## typical value = 3
-                        most.variable=min(nrow(beta), 50000),
+                        most.variable=50000,
                         featureset=NA,
                         random.seed=20161123,
                         lmfit.safer=F,
                         verbose=F) {
 
-    if (isva0 || isva1)
-        stop("isva0 and isva1 are deprecated and superceded by isva and sva")
-    
-    stopifnot(is.matrix(beta))
-      
-    if (is.na(featureset))
-        featureset <- guess.featureset(rownames(beta))
-    features <- meffil.get.features(featureset)
-          
-    stopifnot(length(rownames(beta)) > 0 && all(rownames(beta) %in% features$name))
-    stopifnot(ncol(beta) == length(variable))
-    stopifnot(is.null(covariates) || is.data.frame(covariates) && nrow(covariates) == ncol(beta))
-    stopifnot(is.null(batch) || length(batch) == ncol(beta))
-    stopifnot(is.null(weights)
-              || is.numeric(weights) && (is.matrix(weights) && nrow(weights) == nrow(beta) && ncol(weights) == ncol(beta)
-                                         || is.vector(weights) && length(weights) == nrow(beta)
-                                         || is.vector(weights) && length(weights) == ncol(beta)))
-    stopifnot(most.variable > 1 && most.variable <= nrow(beta))
-    stopifnot(!is.numeric(winsorize.pct) || winsorize.pct > 0 && winsorize.pct < 0.5)
+    if (is.matrix(beta)) {
+        all.sites <- rownames(beta)
+        all.samples <- colnames(beta)
+    }
+    else {
+        beta.dims <- meffil:::retrieve.gds.dims(beta)
+        all.sites <- beta.dims[[1]]
+        all.samples <- beta.dims[[2]]
 
+        if (!is.null(batch))
+            stop("'batch' is ignored when 'beta' is a GDS filename")
+        if (!is.null(cell.counts))
+            stop("'cell.counts' is ignored when 'beta' is a GDS filename")
+        if (robust)
+            warning("'robust' is ignored when 'beta' is a GDS filename")
+    }
+    
+    if (is.na(featureset))
+        featureset <- guess.featureset(all.sites)
+    features <- meffil.get.features(featureset)
+
+    if (!is.null(sites))
+        sites <- intersect(all.sites, sites)
+    else
+        sites <- all.sites
+
+    stopifnot(length(sites) > 1 && all(sites %in% features$name))
+    
+    if (is.null(samples))
+        samples <- all.samples
+        
+    stopifnot(length(samples) > 1 && all(samples %in% all.samples))
+
+    stopifnot(length(all.samples) == length(variable))
+    stopifnot(is.null(covariates) || is.data.frame(covariates) && nrow(covariates) == length(all.samples))
+    stopifnot(is.null(weights)
+              || (is.numeric(weights)
+                  && is.vector(weights)
+                  && length(weights) == length(all.samples)))
+    stopifnot(is.null(batch) || length(batch) == length(all.samples))
+    stopifnot(most.variable > 1)
+    stopifnot(!is.numeric(winsorize.pct) || winsorize.pct > 0 && winsorize.pct < 0.5)
+    
     original.variable <- variable
     original.covariates <- covariates
     if (is.character(variable))
@@ -84,24 +122,21 @@ meffil.ewas <- function(beta, variable,
     
     stopifnot(!is.factor(variable) || is.ordered(variable) || length(levels(variable)) == 2)
     
-    msg("Simplifying any categorical variables.", verbose=verbose)
-    variable <- simplify.variable(variable)
+    meffil:::msg("Simplifying any categorical variables.", verbose=verbose)
+    variable <- meffil:::simplify.variable(variable)
     if (!is.null(covariates))
-        covariates <- do.call(cbind, lapply(covariates, simplify.variable))
+        covariates <- do.call(cbind, lapply(covariates, meffil:::simplify.variable))
 
-    sample.idx <- which(!is.na(variable))
+    sample.idx <- which(!is.na(variable) & all.samples %in% samples)
     if (!is.null(covariates))
         sample.idx <- intersect(sample.idx, which(apply(!is.na(covariates), 1, all)))
     
-    msg("Removing", ncol(beta) - length(sample.idx), "missing case(s).", verbose=verbose)
-
-    if (is.matrix(weights))
-        weights <- weights[,sample.idx]
-    if (is.vector(weights) && length(weights) == ncol(beta))
-        weights <- weights[sample.idx]
-    
-    beta <- beta[,sample.idx]
+    meffil:::msg("Removing", length(samples) - length(sample.idx), "missing case(s).", verbose=verbose)
+    weights <- weights[sample.idx]    
+    samples <- all.samples[sample.idx]
     variable <- variable[sample.idx]
+    original.variable <- original.variable[sample.idx]
+    original.covariates <- original.covariates[sample.idx,,drop=F]
 
     if (!is.null(covariates))
         covariates <- covariates[sample.idx,,drop=F]
@@ -114,7 +149,7 @@ meffil.ewas <- function(beta, variable,
 
     if (!is.null(covariates)) {
         pos.var.idx <- which(apply(covariates, 2, var, na.rm=T) > 0)
-        msg("Removing", ncol(covariates) - length(pos.var.idx), "covariates with no variance.",
+        meffil:::msg("Removing", ncol(covariates) - length(pos.var.idx), "covariates with no variance.",
             verbose=verbose)
         covariates <- covariates[,pos.var.idx, drop=F]
     }
@@ -122,101 +157,41 @@ meffil.ewas <- function(beta, variable,
     covariate.sets <- list(none=NULL)
     if (!is.null(covariates))
         covariate.sets$all <- covariates
-
-    if (is.numeric(winsorize.pct))  {
-        msg(winsorize.pct, "- winsorizing the beta matrix.", verbose=verbose)
-        beta <- winsorize(beta, pct=winsorize.pct)
-    }
-
-    too.hi <- too.lo <- NULL
-    if (is.numeric(outlier.iqr.factor)) {
-        q <- rowQuantiles(beta, probs = c(0.25, 0.75), na.rm = T)
-        iqr <- q[,2] - q[,1]
-        too.hi <- which(beta > q[,2] + outlier.iqr.factor * iqr, arr.ind=T)
-        too.lo <- which(beta < q[,1] - outlier.iqr.factor * iqr, arr.ind=T)
-        if (nrow(too.hi) > 0) beta[too.hi] <- NA
-        if (nrow(too.lo) > 0) beta[too.lo] <- NA
-    }
-
-    surrogates.ret <- NULL 
+    
+    surrogates.ret <- NULL
     if (isva || sva || smartsva) {
-        beta.sva <- beta
-        
-        autosomal.sites <- meffil.get.autosomal.sites(featureset)
-        autosomal.sites <- intersect(autosomal.sites, rownames(beta.sva))
-
-        if (is.null(most.variable))
-            most.variable <- length(autosomal.sites)
-
-        beta.sva <- beta.sva[autosomal.sites,]
-
-        var.idx <- order(rowVars(beta.sva, na.rm=T), decreasing=T)[1:most.variable]
-        beta.sva <- impute.matrix(beta.sva[var.idx,,drop=F])
-        
-        if (!is.null(covariates)) {
-            cov.frame <- model.frame(~., data.frame(covariates, stringsAsFactors=F), na.action=na.pass)
-            mod0 <- model.matrix(~., cov.frame)
-        }
-        else
-            mod0 <- matrix(1, ncol=1, nrow=length(variable))
-        mod <- cbind(mod0, variable)
-      
-        if (isva) {
-            msg("ISVA.", verbose=verbose)
-            set.seed(random.seed)
-            isva.ret <- isva(beta.sva, mod, ncomp=n.sv, verbose=verbose)
-            if (!is.null(covariates))
-                covariate.sets$isva <- data.frame(covariates, isva.ret$isv, stringsAsFactors=F)
-            else
-                covariate.sets$isva <- as.data.frame(isva.ret$isv)
-            surrogates.ret <- isva.ret
-            cat("\n")
-        }
-        
-        if (sva) {
-            msg("SVA.", verbose=verbose)
-            set.seed(random.seed)
-            sva.ret <- sva(beta.sva, mod=mod, mod0=mod0, n.sv=n.sv)
-            if (!is.null(covariates))
-                covariate.sets$sva <- data.frame(covariates, sva.ret$sv, stringsAsFactors=F)
-            else
-                covariate.sets$sva <- as.data.frame(sva.ret$sv)
-            surrogates.ret <- sva.ret
-            cat("\n")
-        }
-
-        if (smartsva) {
-            msg("smartSVA.", verbose=verbose)
-            set.seed(random.seed)
-            if (is.null(n.sv)) {
-                beta.res <- t(resid(lm(t(beta.sva) ~ ., data=as.data.frame(mod))))
-                n.sv <- EstDimRMT(beta.res, FALSE)$dim + 1
-            }
-            smartsva.ret <- smartsva.cpp(beta.sva, mod=mod, mod0=mod0, n.sv=n.sv)                
-            if (!is.null(covariates))
-                covariate.sets$smartsva <- data.frame(covariates, smartsva.ret$sv, stringsAsFactors=F)
-            else
-                covariate.sets$smartsva <- as.data.frame(smartsva.ret$sv)
-            surrogates.ret <- smartsva.ret
-            cat("\n")
-        }            
+        meffil:::msg("Computing surrogate variables ...", verbose=verbose)
+        sva.sites <- intersect(sites, meffil:::autosomal.sites(beta))
+        sva.sets <- add.surrogate.variables(
+            beta, sva.sites, samples,
+            most.variable,
+            variable, covariates,
+            winsorize.pct, outlier.iqr.factor,
+            random.seed, isva, sva, smartsva, n.sv,
+            smartsva.alpha, verbose)
+        surrogates.ret <- sva.sets$last
+        covariate.sets <- c(covariate.sets, sva.sets$sets)
     }
 
-    analyses <- sapply(names(covariate.sets), function(name) {
-        msg("EWAS for covariate set", name, verbose=verbose)
-        covariates <- covariate.sets[[name]]
-        ewas(variable,
-             beta=beta,
-             covariates=covariates,
-             batch=batch,
-             weights=weights,
-             cell.counts=cell.counts,
-             winsorize.pct=winsorize.pct, 
-             robust=robust, 
-             rlm=rlm, 
-             lmfit.safer=lmfit.safer,
-             verbose=verbose)
-    }, simplify=F)
+    msg("Starting EWAS ...", verbose=verbose)
+
+    if (is.matrix(beta)) {
+        analyses <- meffil:::ewas.by.matrix(
+            variable, beta, sites, samples,
+            covariate.sets,
+            batch, weights, cell.counts,
+            winsorize.pct, outlier.iqr.factor,
+            robust, rlm, lmfit.safer, verbose)
+    }
+    else {
+        analyses <- meffil:::ewas.by.gds(
+            variable, beta, sites, samples,
+            covariate.sets, weights,
+            winsorize.pct, outlier.iqr.factor,
+            rlm, verbose)
+    }
+
+    msg("Finished EWAS.", verbose=verbose)
 
     p.values <- sapply(analyses, function(analysis) analysis$table$p.value)
     coefficients <- sapply(analyses, function(analysis) analysis$table$coefficient)
@@ -230,25 +205,76 @@ meffil.ewas <- function(beta, variable,
 
     list(class="ewas",
          version=packageVersion("meffil"),
-         samples=sample.idx,
-         variable=original.variable[sample.idx],
-         covariates=original.covariates[sample.idx,,drop=F],
+         samples=samples,
+         variable=original.variable,
+         covariates=original.covariates,
          winsorize.pct=winsorize.pct,
+         batch=batch,
          robust=robust,
          rlm=rlm,
+         weights=weights,
          outlier.iqr.factor=outlier.iqr.factor,
          most.variable=most.variable,
          p.value=p.values,
          coefficient=coefficients,
          analyses=analyses,
          random.seed=random.seed,
-         sva.ret=surrogates.ret,
-         too.hi=too.hi,
-         too.lo=too.lo)
+         sva.ret=surrogates.ret)
 }
 
 is.ewas.object <- function(object)
-    is.list(object) && "class" %in% names(object) && object$class == "ewas"
+    is.list(object) && all(c("class","version","samples","variable","covariates",
+                             "winsorize.pct","outlier.iqr.factor",
+                             "analyses","random.seed")
+                           %in% names(object))
+
+ewas.by.matrix <- function(variable, beta, sites, samples,
+                           covariate.sets, batch, weights, cell.counts,
+                           winsorize.pct, outlier.iqr.factor,
+                           robust, rlm, lmfit.safer, verbose) {
+
+    stopifnot(all(!is.na(variable)))
+    stopifnot(length(variable) == length(samples))
+    stopifnot(is.null(batch) || length(batch) == length(samples))
+    stopifnot(is.null(weights) || length(weights) == length(variable))
+    stopifnot(is.null(cell.counts)
+              || length(cell.counts) == length(samples)
+              && all(cell.counts >= 0 & cell.counts <= 1))
+    stopifnot(length(sites) > 1 && all(sites %in% rownames(beta)))
+    stopifnot(length(samples) > 1 && all(samples %in% colnames(beta)))
+    stopifnot(all(sapply(covariate.sets, function(set) is.null(set) || nrow(set) == length(samples))))
+    stopifnot(is.logical(robust))
+    stopifnot(is.logical(rlm))
+    stopifnot(is.logical(lmfit.safer))
+
+    beta <- beta[sites,samples]
+    
+    if (is.numeric(winsorize.pct) || is.numeric(outlier.iqr.factor)) {
+        meffil:::msg("Handling methylation outliers", verbose=verbose) 
+        beta <- meffil.handle.outliers(
+            beta,
+            winsorize.pct,
+            outlier.iqr.factor)       
+    }
+    
+    sapply(names(covariate.sets), function(name) {
+        meffil:::msg("EWAS for covariate set", name, verbose=verbose)
+        covariates <- covariate.sets[[name]]
+        meffil:::ewas.limma(
+            variable,
+            beta=beta,
+            covariates=covariates,
+            batch=batch,
+            weights=weights,
+            cell.counts=cell.counts,
+            winsorize.pct=winsorize.pct, 
+            robust=robust, 
+            rlm=rlm, 
+            lmfit.safer=lmfit.safer,
+            verbose=verbose)
+    }, simplify=F)
+}
+
 
 # Test associations between \code{variable} and each row of \code{beta}
 # while adjusting for \code{covariates} (fixed effects) and \code{batch} (random effect).
@@ -259,8 +285,10 @@ is.ewas.object <- function(object)
 # to the proportions of cell of a selected cell type in each sample.
 # The regression model is then modified in order to identify
 # associations specifically in the selected cell type (PMID: 24000956).
-ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell.counts=NULL, winsorize.pct=0.05,
-                 robust=TRUE, rlm=FALSE, lmfit.safer=F, verbose=F) {
+ewas.limma <- function(variable, beta, covariates,
+                       batch, weights, cell.counts,
+                       winsorize.pct,
+                       robust, rlm, lmfit.safer, verbose) {
     stopifnot(all(!is.na(variable)))
     stopifnot(length(variable) == ncol(beta))
     stopifnot(is.null(covariates) || nrow(covariates) == ncol(beta))
@@ -296,22 +324,25 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
                         typeB=design * (1-cell.counts))
     }
 
-    msg("Linear regression with limma::lmFit", verbose=verbose)
+    meffil:::msg("Linear regression with limma::lmFit", verbose=verbose)
     fit <- NULL
     batch.cor <- NULL
     if (!is.null(batch)) {
-        msg("Adjusting for batch effect", verbose=verbose)
+        meffil:::msg("Adjusting for batch effect", verbose=verbose)
         corfit <- duplicateCorrelation(beta, design, block=batch, ndups=1)
         batch.cor <- corfit$consensus
-        msg("Linear regression with batch as random effect", verbose=verbose)
-        tryCatch(fit <- lmFit(beta, design, method=method, block=batch, cor=batch.cor, weights=weights),
-                 error=function(e) {
-                     print(e)
-                     msg("lmFit failed with random effect batch variable, omitting", verbose=verbose)
-                 })
+        meffil:::msg("Linear regression with batch as random effect", verbose=verbose)
+        tryCatch({
+            fit <- lmFit(
+                beta, design, method=method,
+                block=batch, cor=batch.cor, weights=weights)
+        }, error=function(e) {
+            print(e)
+            meffil:::msg("lmFit failed with random effect batch variable, omitting", verbose=verbose)
+        })
     }
     if (is.null(fit)) {
-        msg("Linear regression with only fixed effects", verbose=verbose)
+        meffil:::msg("Linear regression with only fixed effects", verbose=verbose)
         batch <- NULL
         if (!lmfit.safer)
            fit <- lmFit(beta, design, method=method, weights=weights)
@@ -319,7 +350,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
            fit <- lmfit.safer(beta, design, method=method, weights=weights, verbose=verbose)
     }
     
-    msg("Empirical Bayes", verbose=verbose)
+    meffil:::msg("Empirical Bayes", verbose=verbose)
     if (is.numeric(winsorize.pct) && robust) {
       fit.ebayes <- eBayes(fit, robust=T, winsor.tail.p=c(winsorize.pct, winsorize.pct))
     } else {
@@ -351,7 +382,7 @@ ewas <- function(variable, beta, covariates=NULL, batch=NULL, weights=NULL, cell
 lmfit.safer <- function(beta, design, method, weights, n.partitions=8, verbose=F) {
   partitions <- sample(1:n.partitions, nrow(beta), replace=T)
   fits <- lapply(1:n.partitions, function(part) {
-    msg("Applying limma::lmFit to partition ", part, " of ", n.partitions, ".", verbose=verbose)
+    meffil:::msg("Applying limma::lmFit to partition ", part, " of ", n.partitions, ".", verbose=verbose)
     idx <- which(partitions == part)
     lmFit(beta[idx,], design, method=method, weights=weights)
   })
@@ -368,3 +399,84 @@ lmfit.safer <- function(beta, design, method, weights, n.partitions=8, verbose=F
 }
 
 
+# Test associations between \code{variable} and each row of \code{beta}
+# while adjusting for \code{covariates}.
+ewas.by.gds <- function(variable, beta, sites, samples,
+                        covariate.sets, weights,
+                        winsorize.pct, outlier.iqr.factor,
+                        rlm, verbose) { 
+    stopifnot(all(!is.na(variable)))
+
+    stopifnot(length(variable) == length(samples))
+    stopifnot(all(sapply(covariate.sets, function(set) is.null(set) || nrow(set) == length(samples))))
+    stopifnot(is.null(weights) || length(weights) == length(variable))
+    
+    designs <- lapply(covariate.sets, function(covariates) {
+        if (is.null(covariates))
+            design <- data.frame(intercept=1, variable=variable)
+        else
+            design <- data.frame(intercept=1, variable=variable, covariates)
+        rownames(design) <- samples
+        design
+    })        
+
+    stats <- meffil:::lapply.gds(
+        beta, margin=1, sites=sites, samples=samples,
+        type="list",
+        FUN=ewas.test.models,        
+        AFUN=ifelse(rlm,meffil:::ewas.test.rlm,meffil:::ewas.test.glm),
+        designs=designs,
+        weights=weights,
+        winsorize.pct=winsorize.pct,
+        outlier.iqr.factor=outlier.iqr.factor)
+    stats <- do.call(rbind, stats)
+    
+    analyses <- lapply(1:length(designs), function(i) {
+        idx <- seq(i,nrow(stats),length(designs))
+        stats <- data.frame(stats[idx,])
+        rownames(stats) <- sites
+        stats$fdr <- p.adjust(stats$p.value, "fdr")
+        stats$p.holm <- p.adjust(stats$p.value, "holm")                
+        list(design=designs[[i]],
+             table=stats)
+    })
+    names(analyses) <- names(covariate.sets)
+    analyses
+}
+
+ewas.test.models <- function(cpg,AFUN,designs,weights,winsorize.pct,outlier.iqr.factor,...) {
+    cpg <- meffil::meffil.handle.outliers(cpg,winsorize.pct, outlier.iqr.factor)
+    idx <- which(!is.na(cpg))
+    cpg <- cpg[idx]
+    if (!is.null(weights)) weights <- weights[idx]
+    t(sapply(designs, function(design) {
+        AFUN(cpg,design[idx,],weights,...)
+    }))
+}
+
+ewas.test.glm <- function(cpg,design,weights,...) {
+    fit <- glm.fit(x=design,y=cpg,weights=weights,...)
+    ret <- coef(summary.glm(fit))["variable",]
+    names(ret) <- c("coefficient","coefficient.se","t.statistic","p.value")
+    c(ret,
+      coefficient.ci.low=ret[["coefficient"]]-1.96*ret[["coefficient.se"]],
+      coefficient.ci.high=ret[["coefficient"]]+1.96*ret[["coefficient.se"]],
+      n=sum(!is.na(cpg)))
+}
+
+ewas.test.rlm <- function(cpg,design,weights=NULL,...) {
+    tryCatch({
+        fit <- MASS::rlm(x=design,y=cpg,...)
+        ret <- lmtest::coeftest(fit, vcov=sandwich::vcovHC(fit, type="HC0"))
+        ci <- confint(ret)["variable",]
+        ret <- ret["variable",]
+        names(ret) <- c("coefficient","coefficient.se","t.statistic","p.value") 
+        c(ret,
+          coefficient.ci.low=ci[["2.5 %"]],
+          coefficient.ci.high=ci[["97.5 %"]],
+          n=sum(!is.na(cpg)))
+    }, error=function(e) {
+        c("coefficient"=NA,"coefficient.se"=NA,"t.statistic"=NA,"p.value"=NA,
+          "coefficient.ci.low"=NA,"coefficient.ci.high"=NA,n=sum(!is.na(cpg)))
+    })
+}

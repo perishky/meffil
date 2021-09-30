@@ -1,5 +1,5 @@
 Package: meffil
-Version: 1.1.2
+Version: 1.3
 Title: Efficient algorithms for DNA methylation
 Description: Tools for normalizing and analyzing the Infinium
     HumanMethylation450 BeadChip.
@@ -12,7 +12,9 @@ Author: Matthew Suderman <matthewsuderman@hotmail.com> [cre, aut],
     Josine Min [cre, aut]
 Maintainer: Matthew Suderman <matthewsuderman@hotmail.com>
 Depends: illuminaio, 
-	  MASS, 
+	  MASS,
+	  lmtest,
+	  sandwich,
           limma,
 	  sva,
 	  ggplot2,

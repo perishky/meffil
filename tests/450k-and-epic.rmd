@@ -81,7 +81,7 @@ norm.dataset <- meffil.normalize.samples(norm.objects,
 Normalization report.
 ```{r}
 beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
-pcs <- meffil.methylation.pcs(beta, verbose=T)
+pcs <- meffil.methylation.pcs(beta, sites=meffil.get.autosomal.sites("common"), verbose=T)
 
 parameters <- meffil.normalization.parameters(norm.objects)
 parameters$batch.threshold <- 0.01

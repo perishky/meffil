@@ -116,7 +116,7 @@ beta.meffil <- meffil.get.beta(norm.meffil$M, norm.meffil$U)
 
 Compute principal components of the normalized methylation matrix.
 ```{r comparison-meffil-pcs, cache=T}
-pcs <- meffil.methylation.pcs(beta.meffil, verbose=T)
+pcs <- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites("450k"), verbose=T)
 ```
 
 Generate a normalization report.
@@ -294,6 +294,7 @@ counts.meffil <- t(meffil.cell.count.estimates(norm.objects))
 ```
 
 ```{r, results="hide"}
+require("FlowSorted.Blood.450k")
 counts.minfi <- estimateCellCounts(raw.minfi)
 counts.minfi <- counts.minfi[rownames(counts.meffil), colnames(counts.meffil)]
 ```

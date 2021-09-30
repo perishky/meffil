@@ -270,6 +270,24 @@ hr {
 <pre><code>## Loading required package: MASS
 </code></pre>
 
+<pre><code>## Loading required package: lmtest
+</code></pre>
+
+<pre><code>## Loading required package: zoo
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric
+</code></pre>
+
+<pre><code>## Loading required package: sandwich
+</code></pre>
+
 <pre><code>## Loading required package: limma
 </code></pre>
 
@@ -282,7 +300,7 @@ hr {
 <pre><code>## Loading required package: nlme
 </code></pre>
 
-<pre><code>## This is mgcv 1.8-24. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
+<pre><code>## This is mgcv 1.8-28. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
 </code></pre>
 
 <pre><code>## Loading required package: genefilter
@@ -298,9 +316,6 @@ hr {
 </code></pre>
 
 <pre><code>## Loading required package: BiocParallel
-</code></pre>
-
-<pre><code>## Loading required package: methods
 </code></pre>
 
 <pre><code>## Loading required package: ggplot2
@@ -386,6 +401,33 @@ hr {
 <pre><code>## Loading required package: gdsfmt
 </code></pre>
 
+<pre><code>## Loading required package: SmartSVA
+</code></pre>
+
+<pre><code>## Loading required package: isva
+</code></pre>
+
+<pre><code>## Loading required package: qvalue
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;qvalue&#39;
+</code></pre>
+
+<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
+## 
+##     qplot
+</code></pre>
+
+<pre><code>## Loading required package: JADE
+</code></pre>
+
+<pre><code>## Loading required package: RSpectra
+</code></pre>
+
+<pre><code>## Loading required package: preprocessCore
+</code></pre>
+
 <pre><code class="r">samplesheet &lt;- meffil.read.samplesheet(base=path, pattern=&quot;Demo_SampleSheet.csv&quot;)
 </code></pre>
 
@@ -412,15 +454,15 @@ norm.file &lt;- &quot;epic-demo/normalization-report.html&quot;
 <pre><code class="r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.qc.summary] Thu Nov 29 08:56:53 2018 Sex summary TRUE 
-## [meffil.qc.summary] Thu Nov 29 08:56:53 2018 Meth vs unmeth summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:53 2018 Control means summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:54 2018 Sample detection summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:56 2018 CpG detection summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:56 2018 Sample bead numbers summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:57 2018 CpG bead numbers summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:57 2018 Cell count summary 
-## [meffil.qc.summary] Thu Nov 29 08:56:57 2018 Genotype concordance
+<pre><code>## [meffil.qc.summary] Thu Jun 24 23:31:21 2021 Sex summary TRUE 
+## [meffil.qc.summary] Thu Jun 24 23:31:21 2021 Meth vs unmeth summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:21 2021 Control means summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:21 2021 Sample detection summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:21 2021 CpG detection summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:22 2021 Sample bead numbers summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:22 2021 CpG bead numbers summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:23 2021 Cell count summary 
+## [meffil.qc.summary] Thu Jun 24 23:31:23 2021 Genotype concordance
 </code></pre>
 
 <pre><code class="r">meffil.qc.report(qc.summary,
@@ -429,7 +471,7 @@ norm.file &lt;- &quot;epic-demo/normalization-report.html&quot;
                  study=study)
 </code></pre>
 
-<pre><code>## [meffil.qc.report] Thu Nov 29 08:57:00 2018 Writing report as html file to epic-demo/qc-report.html
+<pre><code>## [meffil.qc.report] Thu Jun 24 23:31:25 2021 Writing report as html file to epic-demo/qc-report.html
 </code></pre>
 
 <pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
@@ -443,33 +485,33 @@ norm.file &lt;- &quot;epic-demo/normalization-report.html&quot;
 <pre><code class="r">norm.objects &lt;- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.normalize.quantiles] Thu Nov 29 08:57:33 2018 selecting dye correction reference 
-## [meffil.normalize.quantiles] Thu Nov 29 08:57:33 2018 creating control matrix 
-## [meffil.normalize.quantiles] Thu Nov 29 08:57:33 2018 normalizing quantiles 
-## [FUN] Thu Nov 29 08:57:33 2018 genomic.iG M 
-## [FUN] Thu Nov 29 08:57:33 2018 genomic.iG U 
-## [FUN] Thu Nov 29 08:57:33 2018 genomic.iR M 
-## [FUN] Thu Nov 29 08:57:33 2018 genomic.iR U 
-## [FUN] Thu Nov 29 08:57:33 2018 genomic.ii M 
-## [FUN] Thu Nov 29 08:57:33 2018 genomic.ii U 
-## [FUN] Thu Nov 29 08:57:33 2018 autosomal.iG M 
-## [FUN] Thu Nov 29 08:57:34 2018 autosomal.iG U 
-## [FUN] Thu Nov 29 08:57:34 2018 autosomal.iR M 
-## [FUN] Thu Nov 29 08:57:34 2018 autosomal.iR U 
-## [FUN] Thu Nov 29 08:57:34 2018 autosomal.ii M 
-## [FUN] Thu Nov 29 08:57:34 2018 autosomal.ii U 
-## [FUN] Thu Nov 29 08:57:34 2018 not.y.iG M 
-## [FUN] Thu Nov 29 08:57:34 2018 not.y.iG U 
-## [FUN] Thu Nov 29 08:57:34 2018 not.y.iR M 
-## [FUN] Thu Nov 29 08:57:34 2018 not.y.iR U 
-## [FUN] Thu Nov 29 08:57:34 2018 not.y.ii M 
-## [FUN] Thu Nov 29 08:57:34 2018 not.y.ii U 
-## [FUN] Thu Nov 29 08:57:34 2018 sex M 
-## [FUN] Thu Nov 29 08:57:34 2018 sex U 
-## [FUN] Thu Nov 29 08:57:34 2018 chrx M 
-## [FUN] Thu Nov 29 08:57:34 2018 chrx U 
-## [FUN] Thu Nov 29 08:57:34 2018 chry M 
-## [FUN] Thu Nov 29 08:57:34 2018 chry U
+<pre><code>## [meffil.normalize.quantiles] Thu Jun 24 23:31:55 2021 selecting dye correction reference 
+## [meffil.normalize.quantiles] Thu Jun 24 23:31:55 2021 creating control matrix 
+## [meffil.normalize.quantiles] Thu Jun 24 23:31:55 2021 normalizing quantiles 
+## [FUN] Thu Jun 24 23:31:55 2021 genomic.iG M 
+## [FUN] Thu Jun 24 23:31:55 2021 genomic.iG U 
+## [FUN] Thu Jun 24 23:31:55 2021 genomic.iR M 
+## [FUN] Thu Jun 24 23:31:55 2021 genomic.iR U 
+## [FUN] Thu Jun 24 23:31:55 2021 genomic.ii M 
+## [FUN] Thu Jun 24 23:31:55 2021 genomic.ii U 
+## [FUN] Thu Jun 24 23:31:55 2021 autosomal.iG M 
+## [FUN] Thu Jun 24 23:31:55 2021 autosomal.iG U 
+## [FUN] Thu Jun 24 23:31:55 2021 autosomal.iR M 
+## [FUN] Thu Jun 24 23:31:55 2021 autosomal.iR U 
+## [FUN] Thu Jun 24 23:31:55 2021 autosomal.ii M 
+## [FUN] Thu Jun 24 23:31:55 2021 autosomal.ii U 
+## [FUN] Thu Jun 24 23:31:55 2021 not.y.iG M 
+## [FUN] Thu Jun 24 23:31:55 2021 not.y.iG U 
+## [FUN] Thu Jun 24 23:31:55 2021 not.y.iR M 
+## [FUN] Thu Jun 24 23:31:55 2021 not.y.iR U 
+## [FUN] Thu Jun 24 23:31:55 2021 not.y.ii M 
+## [FUN] Thu Jun 24 23:31:55 2021 not.y.ii U 
+## [FUN] Thu Jun 24 23:31:56 2021 sex M 
+## [FUN] Thu Jun 24 23:31:56 2021 sex U 
+## [FUN] Thu Jun 24 23:31:56 2021 chrx M 
+## [FUN] Thu Jun 24 23:31:56 2021 chrx U 
+## [FUN] Thu Jun 24 23:31:56 2021 chry M 
+## [FUN] Thu Jun 24 23:31:56 2021 chry U
 </code></pre>
 
 <pre><code class="r">norm.dataset &lt;- meffil.normalize.samples(norm.objects,
@@ -483,11 +525,11 @@ norm.file &lt;- &quot;epic-demo/normalization-report.html&quot;
 
 <p>Compute principal components of the normalized methylation matrix.</p>
 
-<pre><code class="r">pcs &lt;- meffil.methylation.pcs(beta.meffil, verbose=T)
+<pre><code class="r">pcs &lt;- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites(&quot;epic&quot;), verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.methylation.pcs] Thu Nov 29 08:58:39 2018 Calculating variances 
-## [meffil.methylation.pcs] Thu Nov 29 08:58:40 2018 Calculating beta PCs
+<pre><code>## [meffil.methylation.pcs] Thu Jun 24 23:32:50 2021 Calculating CpG variance 
+## [meffil.methylation.pcs] Thu Jun 24 23:32:51 2021 Calculating beta PCs
 </code></pre>
 
 <p>Normalization report.</p>
@@ -499,10 +541,10 @@ norm.summary &lt;- meffil.normalization.summary(norm.objects=norm.objects,
                                              parameters=parameters, verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.plot.control.batch] Thu Nov 29 08:58:41 2018 Extracting batch variables 
-## [meffil.plot.control.batch] Thu Nov 29 08:58:41 2018 Testing associations 
-## [meffil.plot.probe.batch] Thu Nov 29 08:58:47 2018 Extracting batch variables 
-## [meffil.plot.probe.batch] Thu Nov 29 08:58:47 2018 Testing associations
+<pre><code>## [meffil.plot.control.batch] Thu Jun 24 23:32:51 2021 Extracting batch variables 
+## [meffil.plot.control.batch] Thu Jun 24 23:32:51 2021 Testing associations 
+## [meffil.plot.probe.batch] Thu Jun 24 23:32:52 2021 Extracting batch variables 
+## [meffil.plot.probe.batch] Thu Jun 24 23:32:52 2021 Testing associations
 </code></pre>
 
 <pre><code class="r">meffil.normalization.report(norm.summary,
@@ -511,7 +553,7 @@ norm.summary &lt;- meffil.normalization.summary(norm.objects=norm.objects,
                             study=study)
 </code></pre>
 
-<pre><code>## [meffil.normalization.report] Thu Nov 29 08:58:49 2018 Writing report as html file to epic-demo/normalization-report.html
+<pre><code>## [meffil.normalization.report] Thu Jun 24 23:32:54 2021 Writing report as html file to epic-demo/normalization-report.html
 </code></pre>
 
 <h2 id="toc_3">Horvath&#39;s clock and the EPIC microarray</h2>

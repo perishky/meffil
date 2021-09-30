@@ -122,12 +122,9 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
     counts
 }
 
-#' Estimate cell counts for a beta matrix from a reference
+#' Estimate cell counts for a methylation matrix from a reference
 #'
-#' Estimate cell type ratios from methylation profiles of purified cell populations
-#' (Infinium HumanMethylation450 BeadChip).
-#'
-#' @param beta Matrix of Illumina 450K methylation levels (rows = CpG sites, columns = subjects).
+#' @param beta Matrix of methylation levels (rows = CpG sites, columns = subjects).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @param cell.type.reference Character string name of the cell type reference
@@ -141,9 +138,10 @@ estimate.cell.counts.from.beta <- function(beta, beta.cell.types) {
 #' 
 #' @export
 meffil.estimate.cell.counts.from.betas <- function(beta, cell.type.reference, verbose=F) {
-    stopifnot(is.matrix(beta))
     reference.object <- get.cell.type.reference(cell.type.reference)
-    
+
+    stopifnot(is.matrix(beta))
+
     beta <- quantile.normalize.betas(beta, reference.object$subsets, reference.object$quantiles, verbose=verbose)
 
     cpg.sites <- intersect(rownames(beta), rownames(reference.object$beta))
