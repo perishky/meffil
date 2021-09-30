@@ -15,7 +15,7 @@ generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
 * Epigenome-wide association studies (using data from any normalization pipeline).
 * Copy number estimation.
 * Report generation summarizing all steps.
-* A manual can be found [here](https://github.com/perishky/meffil/wiki)
+* The online wiki can be found [here](https://github.com/perishky/meffil/wiki)
 * **Normalization to** and **epigenome-wide-studies and report generation for** methylation matrices stored in [Genomic Data Structure files](https://bioconductor.org/packages/release/bioc/html/gdsfmt.html). *The methylation matrix never needs to be loaded into memory*.
 
 Examples using many of these features can be found in the
@@ -25,10 +25,10 @@ Examples using many of these features can be found in the
 
 Only a few steps are needed to install `meffil` in R. First, start R and then type the following commands:
 
-         source("http://bioconductor.org/biocLite.R")
-         install.packages("devtools") # if the devtools package is not installed
-         library(devtools)
-         install_github("perishky/meffil")
+    source("http://bioconductor.org/biocLite.R")
+    install.packages("devtools") # if the devtools package is not installed
+    library(devtools)
+    install_github("perishky/meffil")
 
 ## One-step normalization
 
@@ -85,28 +85,12 @@ Only a few steps are needed to install `meffil` in R. First, start R and then ty
 
 ## More info about normalization
 
-Get some data:
+Loading `meffil`
 
-	dir.create(path <- "~/data/test_meffil", recursive=TRUE)
-
-	if (length(list.files(path, "*.idat$")) == 0) {
-	  filename <-  file.path(path, "gse55491.tar")
-	  download.file("http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&format=file", filename)
-	  cat(date(), "Extracting files from GEO archive.\n")
-	  system(paste("cd", path, ";", "tar xvf", basename(filename)))
-	  unlink(filename)
-	  cat(date(), "Unzipping IDAT files.\n")
-	  system(paste("cd", path, ";", "gunzip *.idat.gz"))
-	}
-
-Load up `meffil`
-
-	library(devtools)
-	install_github("perishky/meffil")
 	library(meffil)
 	options(mc.cores=16)
 
-These data don't actually have a samplesheet, so we can generate one from the `.idat` files:
+We generate a samplesheet automatically from the `.idat` files:
 
 	samplesheet <- meffil.create.samplesheet(path)
 
@@ -137,9 +121,14 @@ If such a matrix is available (rows = SNPs, columns = samples), then the followi
 can be omitted.  Otherwise, it is possible to obtain the matrix from a PLINK
 dataset as follows:
 
-    annotation <- qc.objects[[1]]$annotation
-    writeLines(meffil.snp.names(annotation), con="snp-names.txt")
-    command shell > plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
+	## save the SNP names in R
+	annotation <- qc.objects[[1]]$annotation
+	writeLines(meffil.snp.names(annotation), con="snp-names.txt")
+	
+	## run plink at the command line
+    plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
+
+	## load the genotype data in R
     filenames <- "genotypes.raw"
     genotypes <- meffil.extract.genotypes(filenames)
 

@@ -1141,7 +1141,7 @@ significances slightly different.</p>
 <p>It is also possible to apply a function to each CpG site
 or each sample in the dataset.</p>
 
-<pre><code class="r">v.gds &lt;- meffil:::meffil.apply.methylation(
+<pre><code class="r">v.gds &lt;- meffil.apply.methylation(
     gds.filename, bysite=T, type=&quot;double&quot;, FUN=var, na.rm=T)
 v &lt;- rowVars(beta, na.rm=T)
 all(abs(v-v.gds) &lt; 2e-16)
