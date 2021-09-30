@@ -3,11 +3,17 @@
 #' Normalize sample methylation data using normalized quantiles.
 #'
 #' @param norm.object An element of \code{\link{meffil.normalize.quantiles}()}.
+#' @param remove.poor.signal Set methylation values for poorly detected probes
+#' to missing  (Default: \code{FALSE}). Poor signal was 
+#' identified during QC by \code{\link{meffil.qc}()}
+#' as signal that failed to pass the 
+#' detection p-value threshold (\code{detection.threshold})
+#' or bead threshold (\code{bead.threshold}).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).
 #' @return List containing normalized methylated and unmethylated signals.
 #'
 #' @export
-meffil.normalize.sample <- function(norm.object, verbose=F) {
+meffil.normalize.sample <- function(norm.object, remove.poor.signal=F, verbose=F) {
     stopifnot(is.normalized.object(norm.object))
 
     ## begin backwards compatibility
@@ -45,6 +51,17 @@ meffil.normalize.sample <- function(norm.object, verbose=F) {
             }
         }
     }
+
+    if (remove.poor.signal) {
+        bad.probes <- union(
+            names(norm.object$bad.probes.beadnum),
+            names(norm.object$bad.probes.detectionp))
+        for (target in setdiff(names(mu), c("class","version"))) {
+            probe.idx <- which(names(mu[[target]]) %in% bad.probes)
+            mu[[target]][probe.idx] <- NA
+        }
+    }
+ 
     mu
 }
 

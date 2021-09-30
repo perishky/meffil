@@ -5,19 +5,35 @@
 \title{Compute principal components of a methylation matrix.}
 \usage{
 meffil.methylation.pcs(
-  normalized.beta,
-  probe.range = 5000,
-  autosomal = T,
+  beta,
+  probe.range = 50000,
+  sites = NULL,
+  samples = NULL,
+  winsorize.pct = NA,
+  outlier.iqr.factor = NA,
   verbose = F
 )
 }
 \arguments{
-\item{normalized.beta}{Output from \code{\link{meffil.normalize.samples}()},
+\item{beta}{Output from \code{\link{meffil.normalize.samples}()},
 either a matrix or a GDS filename.}
 
-\item{probe.range}{Default = 5000. How many probes to be used in calculating PCs}
+\item{probe.range}{Default = 50000. How many probes to be used in calculating PCs.}
 
-\item{autosomal}{Default = TRUE. If true, remove probes on sex chromosomes.}
+\item{sites}{Subset of CpG sites to consider (row names of beta) (Default: NULL).}
+
+\item{samples}{Subset of samples to consider (column names of beta) (Default: NULL).
+Consider only the names of the given CpG sites.}
+
+\item{winsorize.pct}{Apply to methylation levels
+winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).}
+
+\item{outlier.iqr.factor}{Apply to methylation after setting,
+for each CpG site, values less than
+\code{Q1 - outlier.iqr.factor * IQR} or more than 
+\code{Q3 + outlier.iqr.factor * IQR} to NA. Here IQR is the inter-quartile
+range of the methylation levels at the CpG site, i.e. Q3-Q1.
+Set to NA to skip this step (Default: NA).}
 
 \item{verbose=T}{Print progress messages?}
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/estimate-cell-counts.r
 \name{meffil.estimate.cell.counts.from.betas}
 \alias{meffil.estimate.cell.counts.from.betas}
-\title{Estimate cell counts for a beta matrix from a reference}
+\title{Estimate cell counts for a methylation matrix from a reference}
 \usage{
 meffil.estimate.cell.counts.from.betas(beta, cell.type.reference, verbose = F)
 }
 \arguments{
-\item{beta}{Matrix of Illumina 450K methylation levels (rows = CpG sites, columns = subjects).}
+\item{beta}{Matrix of methylation levels (rows = CpG sites, columns = subjects).}
 
 \item{cell.type.reference}{Character string name of the cell type reference
 to use for estimating cell counts. 
@@ -24,6 +24,5 @@ A matrix of cell count estimates.
 Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 }
 \description{
-Estimate cell type ratios from methylation profiles of purified cell populations
-(Infinium HumanMethylation450 BeadChip).
+Estimate cell counts for a methylation matrix from a reference
 }

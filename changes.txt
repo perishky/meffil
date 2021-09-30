@@ -1,0 +1,3 @@
+default for surrogate variables in EWAS is smartsva
+meffil.ewas can now be applied to GDS files 
+

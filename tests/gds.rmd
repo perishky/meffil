@@ -6,7 +6,7 @@ opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TR
 library(GEOquery)
 ```
 
-# Using `gdsfmt` for large datasets
+# Using `gdsfmt` for **very** large datasets
 
 ## Download example data set 
 
@@ -26,9 +26,10 @@ options(mc.cores=10)
 samplesheet <- meffil.create.samplesheet(path)
 
 samples <- read.csv(file.path(path, "samples.csv"), check.names=F, row.names=1)
-samplesheet <- data.frame(samplesheet,
-                          samples[match(samplesheet$Sample_Name, rownames(samples)),],
-                          stringsAsFactors=F, check.names=F)
+samplesheet <- data.frame(
+    samplesheet,
+    samples[match(samplesheet$Sample_Name, rownames(samples)),],
+    stringsAsFactors=F, check.names=F)
 
 samplesheet <- samplesheet[which(samplesheet[["sample type"]] == "HM450K"),]
 ```
@@ -44,19 +45,24 @@ cell.type.reference <- "gervin and lyle cord blood"
 
 Generate QC objects for each sample and QC report.
 ```{r gds-qc, cache=T}
-qc.objects <- meffil.qc(samplesheet, cell.type.reference=cell.type.reference, verbose=T)
-
+qc.objects <- meffil.qc(
+    samplesheet,
+    cell.type.reference=cell.type.reference,
+    verbose=T)
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
-meffil.qc.report(qc.summary,
-                 output.file=qc.file,
-                 author=author,
-                 study=study)
+meffil.qc.report(
+    qc.summary,
+    output.file=qc.file,
+    author=author,
+    study=study)
 ```
 
 Remove any low quality samples.
 ```{r}
 if (nrow(qc.summary$bad.samples) > 0)
-    qc.objects <- meffil.remove.samples(qc.objects, qc.summary$bad.samples$sample.name)
+    qc.objects <- meffil.remove.samples(
+        qc.objects,
+        qc.summary$bad.samples$sample.name)
 
 samplesheet <- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
 ```
@@ -71,78 +77,331 @@ Ten seems about right.
 number.pcs <- 10
 ```
 
-Normalize dataset and generate normalization report.
+Normalize the dataset.
 ```{r gds-norm, cache=T}
-norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
-beta <- meffil.normalize.samples(norm.objects,
-                                 just.beta=T, 
-                                 cpglist.remove=qc.summary$bad.cpgs$name,
-                                 verbose=T)
+norm.objects <- meffil.normalize.quantiles(
+    qc.objects,
+    number.pcs=number.pcs,
+    verbose=T)
+beta <- meffil.normalize.samples(
+    norm.objects,
+    just.beta=T,
+    remove.poor.signal=T,
+    cpglist.remove=qc.summary$bad.cpgs$name,
+    verbose=T)
 ```
 
 Normalize while saving to a GDS file.
 ```{r}
+dir.create("gds")
 gds.filename <- "gds/beta.gds"
 if (!file.exists(gds.filename)) 
-    meffil.normalize.samples(norm.objects,
-                             just.beta=T, 
-                             cpglist.remove=qc.summary$bad.cpgs$name,
-                             gds.filename=gds.filename,
-                             verbose=T)
+    meffil.normalize.samples(
+        norm.objects,
+        just.beta=T,
+        remove.poor.signal=T,
+        cpglist.remove=qc.summary$bad.cpgs$name,
+        gds.filename=gds.filename,
+        verbose=T)
 ```
 
 Load the matrix in the GDS file for comparison.
 ```{r}
-gds.file <- openfn.gds(gds.filename)
-matrix.node <- index.gdsn(gds.file, "matrix")
-beta.gds <- read.gdsn(matrix.node)
-rownames(beta.gds) <- read.gdsn(index.gdsn(gds.file, "row.names"))
-colnames(beta.gds) <- read.gdsn(index.gdsn(gds.file, "col.names"))
-closefn.gds(gds.file)
+beta.gds <- meffil.retrieve.methylation(gds.filename)
 ```
 
 It should be the same as the one generated the standard way.
 ```{r}
-all(beta.gds == beta)
+identical(beta.gds, beta)
 identical(colnames(beta.gds), colnames(beta))
 identical(rownames(beta.gds), rownames(beta))
 ```
 
-We've implemented an approach for generating principal components
-that is equivalent to the standard approach.
+Save detection p-values to a GDS file.
 ```{r}
-pcs <- meffil.methylation.pcs(beta)
-pcs.gds <- meffil.methylation.pcs(gds.filename)
+detp.filename <- "gds/detp.gds"
+if (!file.exists(detp.filename))
+    meffil.save.detection.pvalues(qc.objects, detp.filename, verbose=T)
 ```
 
-```{r}
-all(pcs.gds == pcs)
+Compare detection p-values to loading them to a matrix from QC objects.
+```{r detection-pvalues, cache=T}
+detp.gds <- meffil.retrieve.detection.pvalues(detp.filename)
+detp <- meffil.load.detection.pvalues(qc.objects)
+identical(detp, detp.gds)
 ```
 
-EWAS is not yet ready but here is the basic idea.
+Verify that correct signals have been set to missing
+in the methylation matrix.
 ```{r}
-cl <- makeCluster(getOption("mc.cores",1))
-clusterExport(cl, c("samplesheet"))
-system.time(p.gds <- clusterApply.gdsn(cl=cl,
-                           gds.fn=gds.filename,
-                           node.name="matrix",
-                           margin=1,
-                           as.is="double",
-                           FUN=function(x) {
-                               fit <- lm(x ~ lead + gender, data=data.frame(lead=samplesheet$pbconc, gender=samplesheet$gender))
-                               coef(summary(fit))["lead","Pr(>|t|)"]  
-                           }))
+idx <- which(
+    detp[rownames(beta.gds), colnames(beta.gds)]
+    >
+    qc.objects[[1]]$bad.probes.detectionp.threshold)
+all(is.na(beta.gds[idx]))
 ```
 
-We test associations in the beta matrix.
+We can load a subset from the GDS file as well:
 ```{r}
-system.time(p <- unlist(mclapply(1:nrow(beta), function(i) {
-    fit <- lm(beta[i,] ~ lead + gender, data=data.frame(lead=samplesheet$pbconc, gender=samplesheet$gender))
-    coef(summary(fit))["lead","Pr(>|t|)"]
-})))
+bw.sites <- c(
+    "cg20076442", "cg25953130", "cg04521626", "cg14097568",
+    "cg17133774", "cg00654448", "cg00442282", "cg13696490",
+    "cg12044213", "cg08817867", "cg00382138", "cg06870470",
+    "cg25557739", "cg24324628", "cg15783941", "cg14597739",
+    "cg22962123", "cg05851442", "cg23387597", "cg24973755",
+    "cg16219283", "cg25799241", "cg06658067")
+## PMID: 25869828 (bonferroni p < 0.05)
+samples <- colnames(beta)[c(1,3,5,7)]
+sub.gds <- meffil.retrieve.methylation(gds.filename, bw.sites, samples)
 ```
 
-We obtain identical results.
+It should be the same as subsetting the matrix.
 ```{r}
-table(p < 1e-3, p.gds < 1e-3)
+quantile(beta[bw.sites,samples] - sub.gds, na.rm=T)
+identical(colnames(sub.gds), samples)
+identical(rownames(sub.gds), bw.sites)
+```
+
+Compute principal components for the normalization report.
+```{r gds-pcs, cache=T}
+pcs <- meffil.methylation.pcs(beta, winsorize.pct=NA, outlier.iqr.factor=3)
+pcs.gds <- meffil.methylation.pcs(gds.filename, winsorize.pct=NA, outlier.iqr.factor=3)
+```
+
+The resulting components are exactly the same.
+```{r}
+identical(pcs.gds, pcs)
+```
+
+
+Run an EWAS from beta matrix or from GDS file:
+```{r gds-ewas, cache=T}
+variable.name <- "birth weight"
+variable <- samplesheet[[variable.name]]
+covariates <- data.frame(
+    t(meffil.cell.count.estimates(qc.objects)),
+    samplesheet[,c("socioeconomic score","gender","smoke ever",
+                   "gestational age","pbconc (ng/dl)")],
+    stringsAsFactors=F)
+
+## restrict to autosomal CpG sites as both males and females in dataset
+auto.sites <- meffil.get.autosomal.sites("450k")
+
+## from beta matrix
+ewas.ret <- meffil.ewas(
+    beta,
+    variable=variable, covariates=covariates,
+    sites=auto.sites,
+    isva=F, sva=F, smartsva=T,
+    n.sv=10,
+    winsorize.pct=NA, outlier.iqr.factor=3,
+    verbose=T)
+
+## from GDS file
+ewas.gds <- meffil.ewas(
+    gds.filename,
+    variable=variable, covariates=covariates,
+    sites=auto.sites,
+    isva=F, sva=F, smartsva=T,
+    n.sv=10,
+    winsorize.pct=NA, outlier.iqr.factor=3,
+    verbose=T)
+```
+
+Verify that we evaluated only autosomal CpG sites.
+```{r}
+length(setdiff(rownames(ewas.gds$analyses$smartsva$table), auto.sites))==0
+```
+
+We obtain similar but not identical results
+because `limma` is used to test associations using the beta matrix
+and, because `limma` requires access to the entire matrix,
+`glm` is used to test associations using the GDS file.
+```{r}
+sapply(names(ewas.ret$analyses), function(model) {
+    cor(ewas.ret$analyses[[model]]$table[,"coefficient"],
+        ewas.gds$analyses[[model]]$table[,"coefficient"], use="p")
+})
+
+sapply(names(ewas.ret$analyses), function(model) {
+    table(matrix=ewas.ret$analyses[[model]]$table[,"p.value"] < 1e-5,
+          gds=ewas.gds$analyses[[model]]$table[,"p.value"] < 1e-5)
+}, simplify=F)
+```
+
+Is there some evidence of replicating previously
+identified associations with `r variable.name`?
+```{r}
+sapply(ewas.ret$analyses,
+       function(obj) quantile(obj$table[bw.sites,"p.value"]))
+sapply(ewas.gds$analyses,
+       function(obj) quantile(obj$table[bw.sites,"p.value"]))
+```
+
+Generate the EWAS report using either the beta matrix or the GDS file.
+
+```{r gds-ewas-report, message=F, cache=T}
+ewas.parameters <- meffil.ewas.parameters(max.plots=10)
+
+## using the beta matrix
+summary.ret <- meffil.ewas.summary(
+    ewas.ret,
+    beta,
+    selected.cpg.sites=bw.sites,
+    parameters=ewas.parameters, verbose=T)
+
+meffil.ewas.report(summary.ret,
+                   output.file="gds/ewas.html",
+                   author="Me",
+                   study=paste(variable.name,
+                       "in cord blood DNA methylation (GEO:GSE69633)"))
+
+## or using the GDS file
+summary.gds <- meffil.ewas.summary(
+    ewas.gds,
+    gds.filename,
+    selected.cpg.sites=bw.sites,
+    parameters=ewas.parameters, verbose=T)
+
+meffil.ewas.report(summary.gds,
+                   output.file="gds/ewas-gds.html",
+                   author="Me",
+                   study=paste(variable.name,
+                       "in cord blood DNA methylation (GEO:GSE69633)"))
+```
+
+
+Robust linear regression in EWAS is also possible.
+When analysing the beta matrix, we test associations
+using `limma::lmFit` with the 'robust' option
+which applies `MASS::rlm` to each CpG site.
+When analysing the GDS file, we similarly
+test associations  using `MASS::rlm`
+and then
+calculate statistical significance using `lmtest::coeftest`
+with `vcov=sandwich::vcovHC(fit, type="HC0")`.
+
+```{r gds-ewas-robust, cache=T}
+## from matrix
+robust.ret <- meffil.ewas(
+    beta,
+    variable=variable, covariates=covariates,
+    sites=auto.sites,
+    isva=F, sva=F, smartsva=T,
+    n.sv=10,
+    rlm=T,
+    winsorize.pct=NA, outlier.iqr.factor=3,
+    verbose=T)
+
+## from GDS file
+robust.gds <- meffil.ewas(
+    gds.filename,
+    variable=variable, covariates=covariates,
+    sites=auto.sites,
+    isva=F, sva=F, smartsva=T,
+    n.sv=10,
+    rlm=T,
+    winsorize.pct=NA, outlier.iqr.factor=3,
+    verbose=T)
+```
+
+As expected, results somewhat different for robust regression.
+```{r}
+sapply(names(robust.ret$analyses), function(model) {
+    cor(ewas.ret$analyses[[model]]$table[,"coefficient"],
+        robust.ret$analyses[[model]]$table[,"coefficient"], use="p")
+})
+
+sapply(names(robust.ret$analyses), function(model) {
+    table(ewas=ewas.ret$analyses[[model]]$table[,"p.value"] < 1e-5,
+          robust=robust.ret$analyses[[model]]$table[,"p.value"] < 1e-5)
+},simplify=F)
+```
+
+Between the robust matrix and GDS analyses,
+coefficients identical but p-values different because
+statistical handled differently in 'limma'. 
+```{r}
+sapply(names(robust.ret$analyses), function(model) {
+    cor(robust.ret$analyses[[model]]$table[,"coefficient"],
+        robust.gds$analyses[[model]]$table[,"coefficient"], use="p")
+})
+
+sapply(names(robust.ret$analyses), function(model) {
+    table(matrix=robust.ret$analyses[[model]]$table[,"p.value"] < 1e-5,
+          gds=robust.gds$analyses[[model]]$table[,"p.value"] < 1e-5)
+}, simplify=F)
+```
+
+
+Finally, it is possible to perform EWAS on subsamples of the dataset.
+We'll remove some potential lead exposure outliers from analysis.
+```{r}
+pb <- samplesheet[["pbconc (ng/dl)"]]
+samples <- samplesheet[["Sample_Name"]][pb < 8]
+```
+
+```{r gds-ewas-subset, cache=T}
+## from matrix
+sub.ret <- meffil.ewas(
+    beta,
+    variable=variable, covariates=covariates,
+    sites=auto.sites,
+    samples=samples,
+    isva=F, sva=F, smartsva=T,
+    n.sv=10,
+    winsorize.pct=NA, outlier.iqr.factor=3,
+    verbose=T)
+
+## from GDS file
+sub.gds <- meffil.ewas(
+    gds.filename,
+    variable=variable, covariates=covariates,
+    sites=auto.sites,
+    samples=samples,
+    isva=F, sva=F, smartsva=T,
+    n.sv=10,
+    winsorize.pct=NA, outlier.iqr.factor=3,
+    verbose=T)
+```
+
+Check that the model used the correct samples.
+```{r}
+identical(samples, rownames(sub.gds$analyses$none$design))
+```
+
+Again, coefficients are identical but statistical
+significances slightly different.
+```{r}
+sapply(names(sub.ret$analyses), function(model) {
+    cor(sub.ret$analyses[[model]]$table[,"coefficient"],
+        sub.gds$analyses[[model]]$table[,"coefficient"], use="p")
+})
+
+sapply(names(sub.ret$analyses), function(model) {
+    table(matrix=sub.ret$analyses[[model]]$table[,"p.value"] < 1e-5,
+          gds=sub.gds$analyses[[model]]$table[,"p.value"] < 1e-5)
+}, simplify=F)
+```
+
+There are only slight differences from the full dataset analysis.
+```{r}
+sapply(names(sub.gds$analyses), function(model) {
+    cor(sub.gds$analyses[[model]]$table[,"coefficient"],
+        ewas.gds$analyses[[model]]$table[,"coefficient"], use="p")
+})
+
+sapply(names(sub.gds$analyses), function(model) {
+    table(sub=sub.gds$analyses[[model]]$table[,"p.value"] < 1e-5,
+          full=ewas.gds$analyses[[model]]$table[,"p.value"] < 1e-5)
+}, simplify=F)
+```
+
+It is also possible to apply a function to each CpG site
+or each sample in the dataset.
+```{r gds-apply, cache=T}
+v.gds <- meffil:::meffil.apply.methylation(
+    gds.filename, bysite=T, type="double", FUN=var, na.rm=T)
+v <- rowVars(beta, na.rm=T)
+all(abs(v-v.gds) < 2e-16)
 ```

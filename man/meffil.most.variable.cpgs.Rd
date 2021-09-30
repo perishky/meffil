@@ -4,12 +4,34 @@
 \alias{meffil.most.variable.cpgs}
 \title{Most variable CpG sites}
 \usage{
-meffil.most.variable.cpgs(beta, n = 1000)
+meffil.most.variable.cpgs(
+  beta,
+  n = 1000,
+  sites = NULL,
+  samples = NULL,
+  winsorize.pct = NA,
+  outlier.iqr.factor = NA
+)
 }
 \arguments{
-\item{beta}{Methylation matrix (rows = CpG sites, columns = samples).}
+\item{beta}{Output from \code{\link{meffil.normalize.samples}()},
+either a matrix or a GDS filename.}
 
 \item{n}{Number of CpG sites to return.}
+
+\item{sites}{Subset of CpG sites to consider (row names of beta) (Default: NULL).}
+
+\item{samples}{Subset of samples to consider (column names of beta) (Default: NULL).}
+
+\item{winsorize.pct}{Apply to methylation levels
+winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).}
+
+\item{outlier.iqr.factor}{Apply to methylation after setting,
+for each CpG site, values less than
+\code{Q1 - outlier.iqr.factor * IQR} or more than 
+\code{Q3 + outlier.iqr.factor * IQR} to NA. Here IQR is the inter-quartile
+range of the methylation levels at the CpG site, i.e. Q3-Q1.
+Set to NA to skip this step (Default: NA).}
 }
 \value{
 The \code{n} CpG site identifiers (rownames of \code{x}) with the greatest variance in \code{x}.

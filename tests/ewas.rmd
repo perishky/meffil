@@ -82,7 +82,7 @@ norm.dataset <- meffil.normalize.samples(norm.objects,
                                          verbose=T)
 
 beta <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
-pcs <- meffil.methylation.pcs(beta, verbose=T)
+pcs <- meffil.methylation.pcs(beta, sites=meffil.get.autosomal.sites("450k"), verbose=T)
 
 parameters <- meffil.normalization.parameters(norm.objects)
 norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
@@ -118,6 +118,7 @@ covariates <- data.frame(t(meffil.cell.count.estimates(qc.objects)),
 ewas.ret <- meffil.ewas(beta,
                         variable=variable,
                         covariates=covariates,
+                        isva=F, sva=F, smartsva=T,
                         most.variable=50000,
                         verbose=T)
 ```
@@ -139,19 +140,20 @@ meffil.ewas.report(ewas.summary,
 
 
 ```{r}
-idx <- sample(order(ewas.ret$analyses$sva$table$p.value)[1:1000],100)
+idx <- sample(order(ewas.ret$analyses$smartsva$table$p.value)[1:1000],100)
 sub.sites <- rownames(beta)[idx]
-sub.covariates <- cbind(covariates, with(ewas.ret$analyses$sva, design[,grep("^X[0-9]+$", colnames(design))]))
+sub.covariates <- cbind(covariates, with(ewas.ret$analyses$smartsva, design[,grep("^X[0-9]+$", colnames(design))]))
 
-ewas.sub.ret <- meffil.ewas(beta[sub.sites,],
+ewas.sub.ret <- meffil.ewas(beta,
                             variable=variable,
+                            sites=sub.sites,
                             covariates=sub.covariates,
-                            sva=F, isva=F, 
+                            sva=F, isva=F, smartsva=F,
                             verbose=T)
 
 ewas.parameters <- meffil.ewas.parameters(sig.threshold=0.05/length(sub.sites),max.plots=10)
 ewas.summary <- meffil.ewas.summary(ewas.sub.ret,
-                                    beta[sub.sites,],
+                                    beta,
                                     selected.cpg.sites=sub.sites,
                                     parameters=ewas.parameters, verbose=T)
 
@@ -169,18 +171,15 @@ meffil.ewas.report(ewas.summary,
 
 
 
-How well does SVA and ISVA capture batch effects
+How well does SVA capture batch effects
 that are not explicitly included in the model?
 
 ```{r}
 slide <- model.matrix(~ 0 + Slide, samplesheet)
 row <- model.matrix(~ 0 + sentrix_row, samplesheet)
 
-sv <- ewas.ret$analyses$sva$design
+sv <- ewas.ret$analyses$smartsva$design
 sv <- sv[,grep("X", colnames(sv))]
-
-isv <- ewas.ret$analyses$isva$design
-isv <- isv[,grep("X", colnames(isv))]
 
 library(penalized)
 
@@ -189,11 +188,9 @@ prediction.accuracy <- function(v, p) {
     sum((fit$predictions > 0.5) == (v == 1))/length(v)
 }
 
-cbind(isva=apply(row, 2, prediction.accuracy, isv),
-      sva =apply(row, 2, prediction.accuracy, sv))
+apply(row, 2, prediction.accuracy, sv)
 
-cbind(isva=apply(slide, 2, prediction.accuracy, isv),
-      sva =apply(slide, 2, prediction.accuracy, sv))
+apply(slide, 2, prediction.accuracy, sv)
 ```
 
 
@@ -228,7 +225,7 @@ Compare meffil EWAS to EWAS 'done by hand'.
 test.ret <- meffil.ewas(beta,
                         variable=variable,
                         covariates=covariates,
-                        isva=F,sva=T,
+                        isva=F,sva=T,smartsva=F,
                         most.variable=50000,
                         random.seed=20161123,
                         verbose=T)
@@ -250,40 +247,18 @@ apply(abs(cor(test.ret$sv, sva.ret$sv)), 2, max)
 mod <- cbind(mod, sva.ret$sv)
 fit <- lm.fit(mod, t(beta.win))
 
-cor(fit$coefficients["variable",], ewas.ret$analyses$sva$table$coefficient)
-```
-
-Check to see how outliers are being handled:
-```{r}
-test.ret <- meffil.ewas(beta,
-                        variable=variable,
-                        covariates=covariates,
-                        isva=F,sva=F,
-                        winsorize=NA,
-                        outlier.iqr.factor=3,
-                        verbose=T)
-outlier.mask <- beta
-outlier.mask[] <- F
-outlier.mask[test.ret$too.lo] <- T
-outlier.mask[test.ret$too.hi] <- T
-
-q13 <- rowQuantiles(beta, probs=c(0.25, 0.75))
-factor <- 3*(q13[,2] - q13[,1])
-lo.threshold <- q13[,1] - factor
-hi.threshold <- q13[,2] + factor
-all((beta < lo.threshold | beta > hi.threshold)
-    == outlier.mask)
+cor(fit$coefficients["variable",], test.ret$analyses$sva$table$coefficient)
 ```
 
 View EWAS effect estimates next to genes and other genomic landmarks
 by generating genome browser tracks and uploading them
 to https://genome.ucsc.edu/cgi-bin/hgCustom.
 ```{r}
-meffil.ewas.bedgraph(ewas.ret, "ewas/sva.bed", "sva", name="ga", description=ewas.study)
+meffil.ewas.bedgraph(ewas.ret, "ewas/sva.bed", "smartsva", name="ga", description=ewas.study)
 header <- paste0("track type=bedGraph name='ga-custom' description='",
                  ewas.study,
                  "' visibility=full color=200,100,0 altColor=0,100,200 priority=20")
-meffil.ewas.bedgraph(ewas.ret, "ewas/sva-custom.bed", "sva", header=header)
-meffil.ewas.bedgraph(ewas.ret, "ewas/sva-minimal.bed", "sva")                    
+meffil.ewas.bedgraph(ewas.ret, "ewas/sva-custom.bed", "smartsva", header=header)
+meffil.ewas.bedgraph(ewas.ret, "ewas/sva-minimal.bed", "smartsva")                    
 ```
 
