@@ -4,10 +4,17 @@
 \alias{meffil.normalize.sample}
 \title{Normalize Infinium HumanMethylation450 BeadChip}
 \usage{
-meffil.normalize.sample(norm.object, verbose = F)
+meffil.normalize.sample(norm.object, remove.poor.signal = F, verbose = F)
 }
 \arguments{
 \item{norm.object}{An element of \code{\link{meffil.normalize.quantiles}()}.}
+
+\item{remove.poor.signal}{Set methylation values for poorly detected probes
+to missing  (Default: \code{FALSE}). Poor signal was 
+identified during QC by \code{\link{meffil.qc}()}
+as signal that failed to pass the 
+detection p-value threshold (\code{detection.threshold})
+or bead threshold (\code{bead.threshold}).}
 
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution (Default: \code{FALSE}).}
 }

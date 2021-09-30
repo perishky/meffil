@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>Using <code>gdsfmt</code> for large datasets</title>
+<title>Using <code>gdsfmt</code> for <strong>very</strong> large datasets</title>
 
 <script type="text/javascript">
 window.onload = function() {
@@ -205,7 +205,7 @@ hr {
 <div id="toc_header">Table of Contents</div>
 <ul>
 <li>
-<a href="#toc_0">Using &lt;code&gt;gdsfmt&lt;/code&gt; for large datasets</a>
+<a href="#toc_0">Using &lt;code&gt;gdsfmt&lt;/code&gt; for &lt;strong&gt;very&lt;/strong&gt; large datasets</a>
 <ul>
 <li>
 <a href="#toc_1">Download example data set</a>
@@ -219,7 +219,7 @@ hr {
 </div>
 
 
-<h1 id="toc_0">Using <code>gdsfmt</code> for large datasets</h1>
+<h1 id="toc_0">Using <code>gdsfmt</code> for <strong>very</strong> large datasets</h1>
 
 <h2 id="toc_1">Download example data set</h2>
 
@@ -273,195 +273,6 @@ embryonic stem cells and umbilical cord blood. Epigenetics
 <pre><code class="r">library(meffil)
 </code></pre>
 
-<pre><code>## Loading required package: illuminaio
-</code></pre>
-
-<pre><code>## Loading required package: MASS
-</code></pre>
-
-<pre><code>## Loading required package: lmtest
-</code></pre>
-
-<pre><code>## Loading required package: zoo
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;zoo&#39;
-</code></pre>
-
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     as.Date, as.Date.numeric
-</code></pre>
-
-<pre><code>## Loading required package: sandwich
-</code></pre>
-
-<pre><code>## Loading required package: limma
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;limma&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:BiocGenerics&#39;:
-## 
-##     plotMA
-</code></pre>
-
-<pre><code>## Loading required package: sva
-</code></pre>
-
-<pre><code>## Loading required package: mgcv
-</code></pre>
-
-<pre><code>## Loading required package: nlme
-</code></pre>
-
-<pre><code>## This is mgcv 1.8-28. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.
-</code></pre>
-
-<pre><code>## Loading required package: genefilter
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;genefilter&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:MASS&#39;:
-## 
-##     area
-</code></pre>
-
-<pre><code>## Loading required package: BiocParallel
-</code></pre>
-
-<pre><code>## Loading required package: ggplot2
-</code></pre>
-
-<pre><code>## Loading required package: plyr
-</code></pre>
-
-<pre><code>## Loading required package: reshape2
-</code></pre>
-
-<pre><code>## Loading required package: gridExtra
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;gridExtra&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:Biobase&#39;:
-## 
-##     combine
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:BiocGenerics&#39;:
-## 
-##     combine
-</code></pre>
-
-<pre><code>## Loading required package: matrixStats
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;matrixStats&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:plyr&#39;:
-## 
-##     count
-</code></pre>
-
-<pre><code>## The following objects are masked from &#39;package:genefilter&#39;:
-## 
-##     rowSds, rowVars
-</code></pre>
-
-<pre><code>## The following objects are masked from &#39;package:Biobase&#39;:
-## 
-##     anyMissing, rowMedians
-</code></pre>
-
-<pre><code>## Loading required package: multcomp
-</code></pre>
-
-<pre><code>## Loading required package: mvtnorm
-</code></pre>
-
-<pre><code>## Loading required package: survival
-</code></pre>
-
-<pre><code>## Loading required package: TH.data
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;TH.data&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:MASS&#39;:
-## 
-##     geyser
-</code></pre>
-
-<pre><code>## Loading required package: lme4
-</code></pre>
-
-<pre><code>## Loading required package: Matrix
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;lme4&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:nlme&#39;:
-## 
-##     lmList
-</code></pre>
-
-<pre><code>## Loading required package: fastICA
-</code></pre>
-
-<pre><code>## Loading required package: DNAcopy
-</code></pre>
-
-<pre><code>## Loading required package: quadprog
-</code></pre>
-
-<pre><code>## Loading required package: statmod
-</code></pre>
-
-<pre><code>## Loading required package: gdsfmt
-</code></pre>
-
-<pre><code>## Loading required package: SmartSVA
-</code></pre>
-
-<pre><code>## Loading required package: isva
-</code></pre>
-
-<pre><code>## Loading required package: qvalue
-</code></pre>
-
-<pre><code>## 
-## Attaching package: &#39;qvalue&#39;
-</code></pre>
-
-<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
-## 
-##     qplot
-</code></pre>
-
-<pre><code>## Loading required package: JADE
-</code></pre>
-
-<pre><code>## Loading required package: RSpectra
-</code></pre>
-
-<pre><code>## Loading required package: preprocessCore
-</code></pre>
-
 <pre><code class="r">options(mc.cores=10)
 samplesheet &lt;- meffil.create.samplesheet(path)
 
@@ -491,30 +302,30 @@ cell.type.reference &lt;- &quot;gervin and lyle cord blood&quot;
     verbose=T)
 </code></pre>
 
-<pre><code>## [read.idat] Thu Jun 24 21:55:23 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
-## [read.idat] Thu Jun 24 21:55:23 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
-## [extract.detection.pvalues] Thu Jun 24 21:55:24 2021  
-## [extract.beadnum] Thu Jun 24 21:55:29 2021  
-## [extract.snp.betas] Thu Jun 24 21:55:31 2021  
-## [extract.controls] Thu Jun 24 21:55:31 2021  
-## [background.correct] Thu Jun 24 21:55:33 2021 background correction for dye = R 
-## [background.correct] Thu Jun 24 21:55:36 2021 background correction for dye = G 
-## [dye.bias.correct] Thu Jun 24 21:55:39 2021  
-## [FUN] Thu Jun 24 21:55:42 2021 predicting sex
+<pre><code>## [read.idat] Thu Sep 30 15:30:42 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
+## [read.idat] Thu Sep 30 15:30:43 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
+## [extract.detection.pvalues] Thu Sep 30 15:30:44 2021  
+## [extract.beadnum] Thu Sep 30 15:30:46 2021  
+## [extract.snp.betas] Thu Sep 30 15:30:49 2021  
+## [extract.controls] Thu Sep 30 15:30:49 2021  
+## [background.correct] Thu Sep 30 15:30:50 2021 background correction for dye = R 
+## [background.correct] Thu Sep 30 15:30:52 2021 background correction for dye = G 
+## [dye.bias.correct] Thu Sep 30 15:30:54 2021  
+## [FUN] Thu Sep 30 15:30:57 2021 predicting sex
 </code></pre>
 
 <pre><code class="r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.qc.summary] Thu Jun 24 21:57:40 2021 Sex summary TRUE 
-## [meffil.qc.summary] Thu Jun 24 21:57:40 2021 Meth vs unmeth summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:40 2021 Control means summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:40 2021 Sample detection summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:42 2021 CpG detection summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:42 2021 Sample bead numbers summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:44 2021 CpG bead numbers summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:45 2021 Cell count summary 
-## [meffil.qc.summary] Thu Jun 24 21:57:46 2021 Genotype concordance
+<pre><code>## [meffil.qc.summary] Thu Sep 30 15:33:30 2021 Sex summary TRUE 
+## [meffil.qc.summary] Thu Sep 30 15:33:30 2021 Meth vs unmeth summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:30 2021 Control means summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:30 2021 Sample detection summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:31 2021 CpG detection summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:31 2021 Sample bead numbers summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:33 2021 CpG bead numbers summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:33 2021 Cell count summary 
+## [meffil.qc.summary] Thu Sep 30 15:33:34 2021 Genotype concordance
 </code></pre>
 
 <pre><code class="r">meffil.qc.report(
@@ -524,13 +335,7 @@ cell.type.reference &lt;- &quot;gervin and lyle cord blood&quot;
     study=study)
 </code></pre>
 
-<pre><code>## [meffil.qc.report] Thu Jun 24 21:57:46 2021 Writing report as html file to gds/qc-report.html
-</code></pre>
-
-<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
-</code></pre>
-
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+<pre><code>## [meffil.qc.report] Thu Sep 30 15:33:34 2021 Writing report as html file to gds/qc-report.html
 </code></pre>
 
 <p>Remove any low quality samples.</p>
@@ -548,7 +353,7 @@ samplesheet &lt;- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
 <pre><code class="r">print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
 </code></pre>
 
-<p><img src="data:image/png;base64,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mgUAW7ZsWbp06TXXXPP6668fOXKktLR037593nfl5uZ+/fXX3tlvvvmmeZsWi0WZOHjwoDKxYcMGm8321VdfzZw5s6ioyG63+5TR+sf5yM3N/f77710ulzK7Z88e7x5QK29ppeBW+Ns+nVssQJdu2PaoqanxpsyOHTsSExMTEhLaWXCb30snvgt/UlJShg8fPn/+/OYvLl++/OTJk5mZmR36DUGBiNpAJIScP39eFMVWlhk8ePDQoUPvvPPOI0eOrFu37rHHHuvTpw8A1NbW/v73v9+4ceOZM2eWLl1K03SvXr2877rzzjvLysoef/zxsrKyt99+++OPP1ZeT0xM5DjuX//6V01Nzdtvv71x40bldb1eX11dvWfPnrq6updeemnjxo01NTXNy2j943zccMMNGo3m4YcfPn369Pr16xcsWDBz5szWN4W/gtvkb/t0brHm2vPtePnbsO00bdq0H3/8cfv27X/84x+V4GtnwW1+L534LlqxePHiDz744O67796+fft333337LPPzp07d/78+YSQDv2GoICE8gRmANq8yvzMM88YDIYXX3yx+QLKWXOlM4fi/PnzkydPjouLS0tLmzt3rnLlQZKkJ554IjU1VRCEAQMGrF271qfxXbt2DR482Gg0jhw5cvny5co1ClmWly1bppzGyszMnDlzpnLuX5KkmTNnmkym7t27z549+9///rfJZFq7dq33okqLH+ej+Un6I0eOjBkzxmg05ubmvvTSS/5WrbkWC27zooq/7dPOzahc9CgvL1eWmT9/vveiSovfTivLt7hhfZbv3r17SUmJMj1u3DjlosqAAQNmzZqVlpaWlpb2+OOPe69atGe92vO9tPhdyO2+ynxpaxMmTEhLSzMYDIMGDVJ6I7SzEqQKIuPwX2qzWCyCILAsG+pCog1uWNTVMBARQqhJ1J5DRAihjsJARAihJhiICCHUBAMRIYSaYCAihFATDESEEGoSeYM7SJLkvRWfkDDtNqRuYSq2Fs6FAUAYrmbYFqZua136X4lhIiZnIqZQL6fTqYx6TwhJSEiwWCxOpzPwZmmaFgTh0icEdE5CQoLNZrv0tuVOUMZx8d7JG6C4uDi3263WahqNxubDIgTCZDJJkqTWaqpYmMFgoCiqnQMptUnFwnQ6Hcdxyt01gTMYDMo9S4E3RVGUVqtV7iNSJCYmBt5scOAh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" alt="plot of chunk unnamed-chunk-6"/></p>
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-6"/></p>
 
 <p>Ten seems about right.</p>
 
@@ -563,71 +368,63 @@ samplesheet &lt;- samplesheet[match(names(qc.objects), rownames(samplesheet)),]
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.normalize.quantiles] Thu Jun 24 21:58:25 2021 selecting dye correction reference 
-## [meffil.normalize.quantiles] Thu Jun 24 21:58:25 2021 creating control matrix 
-## [meffil.normalize.quantiles] Thu Jun 24 21:58:25 2021 normalizing quantiles 
-## [FUN] Thu Jun 24 21:58:25 2021 genomic.iG M 
-## [FUN] Thu Jun 24 21:58:26 2021 genomic.iG U 
-## [FUN] Thu Jun 24 21:58:26 2021 genomic.iR M 
-## [FUN] Thu Jun 24 21:58:26 2021 genomic.iR U 
-## [FUN] Thu Jun 24 21:58:26 2021 genomic.ii M 
-## [FUN] Thu Jun 24 21:58:26 2021 genomic.ii U 
-## [FUN] Thu Jun 24 21:58:26 2021 autosomal.iG M 
-## [FUN] Thu Jun 24 21:58:27 2021 autosomal.iG U 
-## [FUN] Thu Jun 24 21:58:27 2021 autosomal.iR M 
-## [FUN] Thu Jun 24 21:58:27 2021 autosomal.iR U 
-## [FUN] Thu Jun 24 21:58:27 2021 autosomal.ii M 
-## [FUN] Thu Jun 24 21:58:27 2021 autosomal.ii U 
-## [FUN] Thu Jun 24 21:58:28 2021 not.y.iG M 
-## [FUN] Thu Jun 24 21:58:29 2021 not.y.iG U 
-## [FUN] Thu Jun 24 21:58:29 2021 not.y.iR M 
-## [FUN] Thu Jun 24 21:58:29 2021 not.y.iR U 
-## [FUN] Thu Jun 24 21:58:29 2021 not.y.ii M 
-## [FUN] Thu Jun 24 21:58:29 2021 not.y.ii U 
-## [FUN] Thu Jun 24 21:58:29 2021 sex M 
-## [FUN] Thu Jun 24 21:58:30 2021 sex U 
-## [FUN] Thu Jun 24 21:58:30 2021 chrx M 
-## [FUN] Thu Jun 24 21:58:30 2021 chrx U 
-## [FUN] Thu Jun 24 21:58:30 2021 chry M 
-## [FUN] Thu Jun 24 21:58:30 2021 chry U
+<pre><code>## [meffil.normalize.quantiles] Thu Sep 30 15:34:11 2021 selecting dye correction reference 
+## [meffil.normalize.quantiles] Thu Sep 30 15:34:11 2021 creating control matrix 
+## [meffil.normalize.quantiles] Thu Sep 30 15:34:11 2021 normalizing quantiles 
+## [FUN] Thu Sep 30 15:34:11 2021 genomic.iG M 
+## [FUN] Thu Sep 30 15:34:11 2021 genomic.iG U 
+## [FUN] Thu Sep 30 15:34:11 2021 genomic.iR M 
+## [FUN] Thu Sep 30 15:34:11 2021 genomic.iR U 
+## [FUN] Thu Sep 30 15:34:11 2021 genomic.ii M 
+## [FUN] Thu Sep 30 15:34:11 2021 genomic.ii U 
+## [FUN] Thu Sep 30 15:34:12 2021 autosomal.iG M 
+## [FUN] Thu Sep 30 15:34:12 2021 autosomal.iG U 
+## [FUN] Thu Sep 30 15:34:12 2021 autosomal.iR M 
+## [FUN] Thu Sep 30 15:34:12 2021 autosomal.iR U 
+## [FUN] Thu Sep 30 15:34:12 2021 autosomal.ii M 
+## [FUN] Thu Sep 30 15:34:12 2021 autosomal.ii U 
+## [FUN] Thu Sep 30 15:34:12 2021 not.y.iG M 
+## [FUN] Thu Sep 30 15:34:12 2021 not.y.iG U 
+## [FUN] Thu Sep 30 15:34:12 2021 not.y.iR M 
+## [FUN] Thu Sep 30 15:34:12 2021 not.y.iR U 
+## [FUN] Thu Sep 30 15:34:13 2021 not.y.ii M 
+## [FUN] Thu Sep 30 15:34:13 2021 not.y.ii U 
+## [FUN] Thu Sep 30 15:34:13 2021 sex M 
+## [FUN] Thu Sep 30 15:34:13 2021 sex U 
+## [FUN] Thu Sep 30 15:34:13 2021 chrx M 
+## [FUN] Thu Sep 30 15:34:13 2021 chrx U 
+## [FUN] Thu Sep 30 15:34:13 2021 chry M 
+## [FUN] Thu Sep 30 15:34:13 2021 chry U
 </code></pre>
 
 <pre><code class="r">beta &lt;- meffil.normalize.samples(
     norm.objects,
-    just.beta=T, 
+    just.beta=T,
+    remove.poor.signal=T,
     cpglist.remove=qc.summary$bad.cpgs$name,
     verbose=T)
 </code></pre>
 
-<pre><code>## [read.idat] Thu Jun 24 21:58:31 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
-## [read.idat] Thu Jun 24 21:58:31 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
-## [background.correct] Thu Jun 24 21:58:31 2021 background correction for dye = R 
-## [background.correct] Thu Jun 24 21:58:33 2021 background correction for dye = G 
-## [dye.bias.correct] Thu Jun 24 21:58:35 2021  
-## [meffil.normalize.sample] Thu Jun 24 21:58:39 2021 Normalizing methylated and unmethylated signals.
+<pre><code>## [read.idat] Thu Sep 30 15:34:14 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
+## [read.idat] Thu Sep 30 15:34:14 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
+## [background.correct] Thu Sep 30 15:34:14 2021 background correction for dye = R 
+## [background.correct] Thu Sep 30 15:34:15 2021 background correction for dye = G 
+## [dye.bias.correct] Thu Sep 30 15:34:17 2021  
+## [meffil.normalize.sample] Thu Sep 30 15:34:18 2021 Normalizing methylated and unmethylated signals.
 </code></pre>
 
 <p>Normalize while saving to a GDS file.</p>
 
-<pre><code class="r">gds.filename &lt;- &quot;gds/beta.gds&quot;
+<pre><code class="r">dir.create(&quot;gds&quot;)
+gds.filename &lt;- &quot;gds/beta.gds&quot;
 if (!file.exists(gds.filename)) 
     meffil.normalize.samples(
         norm.objects,
-        just.beta=T, 
+        just.beta=T,
+        remove.poor.signal=T,
         cpglist.remove=qc.summary$bad.cpgs$name,
         gds.filename=gds.filename,
         verbose=T)
-</code></pre>
-
-<pre><code>## [read.idat] Thu Jun 24 22:00:02 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Grn.idat 
-## [read.idat] Thu Jun 24 22:00:02 2021 Reading data-450k-lead/GSM1704996_5815073001_R04C01_Red.idat 
-## [background.correct] Thu Jun 24 22:00:02 2021 background correction for dye = R 
-## [background.correct] Thu Jun 24 22:00:04 2021 background correction for dye = G 
-## [dye.bias.correct] Thu Jun 24 22:00:05 2021  
-## [meffil.normalize.sample] Thu Jun 24 22:00:07 2021 Normalizing methylated and unmethylated signals.
-</code></pre>
-
-<pre><code>## [1] &quot;gds/beta.gds&quot;
 </code></pre>
 
 <p>Load the matrix in the GDS file for comparison.</p>
@@ -637,7 +434,7 @@ if (!file.exists(gds.filename))
 
 <p>It should be the same as the one generated the standard way.</p>
 
-<pre><code class="r">all(beta.gds == beta)
+<pre><code class="r">identical(beta.gds, beta)
 </code></pre>
 
 <pre><code>## [1] TRUE
@@ -650,6 +447,36 @@ if (!file.exists(gds.filename))
 </code></pre>
 
 <pre><code class="r">identical(rownames(beta.gds), rownames(beta))
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p>Save detection p-values to a GDS file.</p>
+
+<pre><code class="r">detp.filename &lt;- &quot;gds/detp.gds&quot;
+if (!file.exists(detp.filename))
+    meffil.save.detection.pvalues(qc.objects, detp.filename, verbose=T)
+</code></pre>
+
+<p>Compare detection p-values to loading them to a matrix from QC objects.</p>
+
+<pre><code class="r">detp.gds &lt;- meffil.retrieve.detection.pvalues(detp.filename)
+detp &lt;- meffil.load.detection.pvalues(qc.objects)
+identical(detp, detp.gds)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p>Verify that correct signals have been set to missing
+in the methylation matrix.</p>
+
+<pre><code class="r">idx &lt;- which(
+    detp[rownames(beta.gds), colnames(beta.gds)]
+    &gt;
+    qc.objects[[1]]$bad.probes.detectionp.threshold)
+all(is.na(beta.gds[idx]))
 </code></pre>
 
 <pre><code>## [1] TRUE
@@ -671,7 +498,7 @@ sub.gds &lt;- meffil.retrieve.methylation(gds.filename, bw.sites, samples)
 
 <p>It should be the same as subsetting the matrix.</p>
 
-<pre><code class="r">quantile(beta[bw.sites,samples] - sub.gds)
+<pre><code class="r">quantile(beta[bw.sites,samples] - sub.gds, na.rm=T)
 </code></pre>
 
 <pre><code>##   0%  25%  50%  75% 100% 
@@ -698,11 +525,10 @@ pcs.gds &lt;- meffil.methylation.pcs(gds.filename, winsorize.pct=NA, outlier.iqr
 
 <p>The resulting components are exactly the same.</p>
 
-<pre><code class="r">quantile(pcs.gds - pcs)
+<pre><code class="r">identical(pcs.gds, pcs)
 </code></pre>
 
-<pre><code>##   0%  25%  50%  75% 100% 
-##    0    0    0    0    0
+<pre><code>## [1] TRUE
 </code></pre>
 
 <p>Run an EWAS from beta matrix or from GDS file:</p>
@@ -729,28 +555,28 @@ ewas.ret &lt;- meffil.ewas(
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas] Thu Jun 24 22:06:10 2021 Simplifying any categorical variables. 
-## [meffil.ewas] Thu Jun 24 22:06:10 2021 Removing 0 missing case(s). 
-## [meffil.ewas] Thu Jun 24 22:06:10 2021 Removing 0 covariates with no variance. 
-## [meffil.ewas] Thu Jun 24 22:06:10 2021 Computing surrogate variables ... 
-## [add.surrogate.variables] Thu Jun 24 22:06:10 2021 Calculating CpG variance 
-## [add.surrogate.variables] Thu Jun 24 22:06:36 2021 smartSVA. 
+<pre><code>## [meffil.ewas] Thu Sep 30 15:43:19 2021 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Sep 30 15:43:19 2021 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Sep 30 15:43:19 2021 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Sep 30 15:43:19 2021 Computing surrogate variables ... 
+## [add.surrogate.variables] Thu Sep 30 15:43:20 2021 Calculating CpG variance 
+## [add.surrogate.variables] Thu Sep 30 15:45:11 2021 smartSVA. 
 ## 
-## [meffil.ewas] Thu Jun 24 22:06:38 2021 Starting EWAS ... 
-## [:::] [meffil] [ewas.by.matrix] Thu Jun 24 22:06:38 2021 Handling methylation outliers 
-## [FUN] Thu Jun 24 22:06:58 2021 EWAS for covariate set none 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:06:58 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:06:58 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:07:58 2021 Empirical Bayes 
-## [FUN] Thu Jun 24 22:08:06 2021 EWAS for covariate set all 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:08:06 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:08:06 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:09:17 2021 Empirical Bayes 
-## [FUN] Thu Jun 24 22:09:30 2021 EWAS for covariate set smartsva 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:09:30 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:09:30 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:10:54 2021 Empirical Bayes 
-## [meffil.ewas] Thu Jun 24 22:11:14 2021 Finished EWAS.
+## [meffil.ewas] Thu Sep 30 15:45:12 2021 Starting EWAS ... 
+## [:::] [meffil] [ewas.by.matrix] Thu Sep 30 15:45:13 2021 Handling methylation outliers 
+## [FUN] Thu Sep 30 15:46:52 2021 EWAS for covariate set none 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:46:52 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:46:52 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:47:50 2021 Empirical Bayes 
+## [FUN] Thu Sep 30 15:47:57 2021 EWAS for covariate set all 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:47:57 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:47:57 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:49:09 2021 Empirical Bayes 
+## [FUN] Thu Sep 30 15:49:21 2021 EWAS for covariate set smartsva 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:49:21 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:49:21 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 15:50:43 2021 Empirical Bayes 
+## [meffil.ewas] Thu Sep 30 15:51:06 2021 Finished EWAS.
 </code></pre>
 
 <pre><code class="r">## from GDS file
@@ -764,15 +590,15 @@ ewas.gds &lt;- meffil.ewas(
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas] Thu Jun 24 22:11:15 2021 Simplifying any categorical variables. 
-## [meffil.ewas] Thu Jun 24 22:11:15 2021 Removing 0 missing case(s). 
-## [meffil.ewas] Thu Jun 24 22:11:15 2021 Removing 0 covariates with no variance. 
-## [meffil.ewas] Thu Jun 24 22:11:15 2021 Computing surrogate variables ... 
-## [add.surrogate.variables] Thu Jun 24 22:11:15 2021 Calculating CpG variance 
-## [add.surrogate.variables] Thu Jun 24 22:15:25 2021 smartSVA. 
+<pre><code>## [meffil.ewas] Thu Sep 30 15:51:06 2021 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Sep 30 15:51:06 2021 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Sep 30 15:51:06 2021 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Sep 30 15:51:06 2021 Computing surrogate variables ... 
+## [add.surrogate.variables] Thu Sep 30 15:51:07 2021 Calculating CpG variance 
+## [add.surrogate.variables] Thu Sep 30 15:56:02 2021 smartSVA. 
 ## 
-## [meffil.ewas] Thu Jun 24 22:15:27 2021 Starting EWAS ... 
-## [meffil.ewas] Thu Jun 24 22:20:18 2021 Finished EWAS.
+## [meffil.ewas] Thu Sep 30 15:56:04 2021 Starting EWAS ... 
+## [meffil.ewas] Thu Sep 30 16:02:46 2021 Finished EWAS.
 </code></pre>
 
 <p>Verify that we evaluated only autosomal CpG sites.</p>
@@ -819,8 +645,8 @@ and, because <code>limma</code> requires access to the entire matrix,
 ## $smartsva
 ##        gds
 ## matrix   FALSE   TRUE
-##   FALSE 473720      3
-##   TRUE       3      1
+##   FALSE 473722      2
+##   TRUE       0      3
 </code></pre>
 
 <p>Is there some evidence of replicating previously
@@ -831,23 +657,23 @@ identified associations with birth weight?</p>
 </code></pre>
 
 <pre><code>##              none         all    smartsva
-## 0%   0.0004026485 0.003711389 0.002113075
-## 25%  0.0501725774 0.102152725 0.151480112
-## 50%  0.1816682485 0.541918163 0.457341807
-## 75%  0.3812018042 0.722570579 0.856115457
-## 100% 0.8421407085 0.994666201 0.971797360
+## 0%   0.0004026113 0.003710946 0.001720293
+## 25%  0.0501710713 0.104000730 0.163027844
+## 50%  0.1816655006 0.541913053 0.458828053
+## 75%  0.3811988178 0.722567452 0.782721074
+## 100% 0.8421397063 0.994666139 0.982522540
 </code></pre>
 
 <pre><code class="r">sapply(ewas.gds$analyses,
        function(obj) quantile(obj$table[bw.sites,&quot;p.value&quot;]))
 </code></pre>
 
-<pre><code>##              none         all    smartsva
-## 0%   0.0004747239 0.004331558 0.002630861
-## 25%  0.0531554832 0.108521164 0.163082673
-## 50%  0.1873995401 0.548843365 0.469819563
-## 75%  0.3874028134 0.727362185 0.859906282
-## 100% 0.8441400700 0.994763187 0.972545474
+<pre><code>##              none         all   smartsva
+## 0%   0.0004747239 0.004331558 0.00216657
+## 25%  0.0531554832 0.110540662 0.17492445
+## 50%  0.1873995401 0.548843365 0.47209430
+## 75%  0.3874028134 0.727362185 0.78838397
+## 100% 0.8441400700 0.994763187 0.98298543
 </code></pre>
 
 <p>Generate the EWAS report using either the beta matrix or the GDS file.</p>
@@ -862,68 +688,68 @@ summary.ret &lt;- meffil.ewas.summary(
     parameters=ewas.parameters, verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas.summary] Fri Jun 25 06:37:01 2021 QQ plots 
-## [meffil.ewas.summary] Fri Jun 25 06:37:31 2021 Manhattan plots 
-## [meffil.ewas.summary] Fri Jun 25 06:37:34 2021 CpG site plots: 33 
-## [FUN] Fri Jun 25 06:37:34 2021 Plotting cg12050271 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg01916115 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg02423817 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg25256924 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg14009561 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg08284496 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg14263391 
-## [FUN] Fri Jun 25 06:37:35 2021 Plotting cg20082877 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg01700462 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg11173131 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg20076442 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg25953130 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg04521626 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg14097568 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg17133774 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg00654448 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg00442282 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg13696490 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg12044213 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg08817867 
-## [FUN] Fri Jun 25 06:37:36 2021 Plotting cg00382138 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg06870470 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg25557739 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg24324628 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg15783941 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg14597739 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg22962123 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg05851442 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg23387597 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg24973755 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg16219283 
-## [FUN] Fri Jun 25 06:37:37 2021 Plotting cg25799241 
-## [FUN] Fri Jun 25 06:37:38 2021 Plotting cg06658067 
-## [meffil.ewas.summary] Fri Jun 25 06:37:38 2021 Sample characteristics 
-## [meffil.ewas.sample.characteristics] Fri Jun 25 06:37:38 2021 summarizing variables 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 variable of interest 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 Bcell 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 CD14 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 CD4T 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 CD8T 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 Gran 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 NK 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 socioeconomic.score 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 gender 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 smoke.ever 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 gestational.age 
-## [summarize.variable] Fri Jun 25 06:37:38 2021 pbconc..ng.dl. 
-## [meffil.ewas.covariate.associations] Fri Jun 25 06:37:38 2021 covariate associations 
-## [FUN] Fri Jun 25 06:37:38 2021 Bcell 
-## [FUN] Fri Jun 25 06:37:38 2021 CD14 
-## [FUN] Fri Jun 25 06:37:38 2021 CD4T 
-## [FUN] Fri Jun 25 06:37:38 2021 CD8T 
-## [FUN] Fri Jun 25 06:37:38 2021 Gran 
-## [FUN] Fri Jun 25 06:37:38 2021 NK 
-## [FUN] Fri Jun 25 06:37:38 2021 socioeconomic.score 
-## [FUN] Fri Jun 25 06:37:38 2021 gender 
-## [FUN] Fri Jun 25 06:37:38 2021 smoke.ever 
-## [FUN] Fri Jun 25 06:37:38 2021 gestational.age 
-## [FUN] Fri Jun 25 06:37:38 2021 pbconc..ng.dl.
+<pre><code>## [meffil.ewas.summary] Thu Sep 30 16:03:22 2021 QQ plots 
+## [meffil.ewas.summary] Thu Sep 30 16:03:56 2021 Manhattan plots 
+## [meffil.ewas.summary] Thu Sep 30 16:03:59 2021 CpG site plots: 33 
+## [FUN] Thu Sep 30 16:03:59 2021 Plotting cg12050271 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg01916115 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg02423817 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg25256924 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg14009561 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg08284496 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg14263391 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg20082877 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg01700462 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg11173131 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg20076442 
+## [FUN] Thu Sep 30 16:04:04 2021 Plotting cg25953130 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg04521626 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg14097568 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg17133774 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg00654448 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg00442282 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg13696490 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg12044213 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg08817867 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg00382138 
+## [FUN] Thu Sep 30 16:04:05 2021 Plotting cg06870470 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg25557739 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg24324628 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg15783941 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg14597739 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg22962123 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg05851442 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg23387597 
+## [FUN] Thu Sep 30 16:04:06 2021 Plotting cg24973755 
+## [FUN] Thu Sep 30 16:04:07 2021 Plotting cg16219283 
+## [FUN] Thu Sep 30 16:04:07 2021 Plotting cg25799241 
+## [FUN] Thu Sep 30 16:04:07 2021 Plotting cg06658067 
+## [meffil.ewas.summary] Thu Sep 30 16:04:07 2021 Sample characteristics 
+## [meffil.ewas.sample.characteristics] Thu Sep 30 16:04:07 2021 summarizing variables 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 variable of interest 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 Bcell 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 CD14 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 CD4T 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 CD8T 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 Gran 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 NK 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 socioeconomic.score 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 gender 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 smoke.ever 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 gestational.age 
+## [summarize.variable] Thu Sep 30 16:04:07 2021 pbconc..ng.dl. 
+## [meffil.ewas.covariate.associations] Thu Sep 30 16:04:07 2021 covariate associations 
+## [FUN] Thu Sep 30 16:04:07 2021 Bcell 
+## [FUN] Thu Sep 30 16:04:07 2021 CD14 
+## [FUN] Thu Sep 30 16:04:07 2021 CD4T 
+## [FUN] Thu Sep 30 16:04:07 2021 CD8T 
+## [FUN] Thu Sep 30 16:04:07 2021 Gran 
+## [FUN] Thu Sep 30 16:04:07 2021 NK 
+## [FUN] Thu Sep 30 16:04:07 2021 socioeconomic.score 
+## [FUN] Thu Sep 30 16:04:07 2021 gender 
+## [FUN] Thu Sep 30 16:04:07 2021 smoke.ever 
+## [FUN] Thu Sep 30 16:04:07 2021 gestational.age 
+## [FUN] Thu Sep 30 16:04:07 2021 pbconc..ng.dl.
 </code></pre>
 
 <pre><code class="r">meffil.ewas.report(summary.ret,
@@ -933,7 +759,7 @@ summary.ret &lt;- meffil.ewas.summary(
                        &quot;in cord blood DNA methylation (GEO:GSE69633)&quot;))
 </code></pre>
 
-<pre><code>## [meffil.ewas.report] Fri Jun 25 06:37:38 2021 Writing report as html file to gds/ewas.html
+<pre><code>## [meffil.ewas.report] Thu Sep 30 16:04:07 2021 Writing report as html file to gds/ewas.html
 </code></pre>
 
 <pre><code class="r">## or using the GDS file
@@ -944,68 +770,68 @@ summary.gds &lt;- meffil.ewas.summary(
     parameters=ewas.parameters, verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas.summary] Fri Jun 25 06:39:14 2021 QQ plots 
-## [meffil.ewas.summary] Fri Jun 25 06:39:43 2021 Manhattan plots 
-## [meffil.ewas.summary] Fri Jun 25 06:39:47 2021 CpG site plots: 33 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg12050271 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg01916115 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg02423817 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg25256924 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg14009561 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg08284496 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg14263391 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg20082877 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg01700462 
-## [FUN] Fri Jun 25 06:39:47 2021 Plotting cg11173131 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg20076442 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg25953130 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg04521626 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg14097568 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg17133774 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg00654448 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg00442282 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg13696490 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg12044213 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg08817867 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg00382138 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg06870470 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg25557739 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg24324628 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg15783941 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg14597739 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg22962123 
-## [FUN] Fri Jun 25 06:39:48 2021 Plotting cg05851442 
-## [FUN] Fri Jun 25 06:39:49 2021 Plotting cg23387597 
-## [FUN] Fri Jun 25 06:39:49 2021 Plotting cg24973755 
-## [FUN] Fri Jun 25 06:39:49 2021 Plotting cg16219283 
-## [FUN] Fri Jun 25 06:39:49 2021 Plotting cg25799241 
-## [FUN] Fri Jun 25 06:39:49 2021 Plotting cg06658067 
-## [meffil.ewas.summary] Fri Jun 25 06:39:49 2021 Sample characteristics 
-## [meffil.ewas.sample.characteristics] Fri Jun 25 06:39:49 2021 summarizing variables 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 variable of interest 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 Bcell 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 CD14 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 CD4T 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 CD8T 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 Gran 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 NK 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 socioeconomic.score 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 gender 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 smoke.ever 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 gestational.age 
-## [summarize.variable] Fri Jun 25 06:39:49 2021 pbconc..ng.dl. 
-## [meffil.ewas.covariate.associations] Fri Jun 25 06:39:49 2021 covariate associations 
-## [FUN] Fri Jun 25 06:39:49 2021 Bcell 
-## [FUN] Fri Jun 25 06:39:49 2021 CD14 
-## [FUN] Fri Jun 25 06:39:49 2021 CD4T 
-## [FUN] Fri Jun 25 06:39:49 2021 CD8T 
-## [FUN] Fri Jun 25 06:39:49 2021 Gran 
-## [FUN] Fri Jun 25 06:39:49 2021 NK 
-## [FUN] Fri Jun 25 06:39:49 2021 socioeconomic.score 
-## [FUN] Fri Jun 25 06:39:49 2021 gender 
-## [FUN] Fri Jun 25 06:39:49 2021 smoke.ever 
-## [FUN] Fri Jun 25 06:39:49 2021 gestational.age 
-## [FUN] Fri Jun 25 06:39:49 2021 pbconc..ng.dl.
+<pre><code>## [meffil.ewas.summary] Thu Sep 30 16:06:22 2021 QQ plots 
+## [meffil.ewas.summary] Thu Sep 30 16:06:51 2021 Manhattan plots 
+## [meffil.ewas.summary] Thu Sep 30 16:06:54 2021 CpG site plots: 33 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg12050271 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg01916115 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg07910050 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg02423817 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg25256924 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg14009561 
+## [FUN] Thu Sep 30 16:07:30 2021 Plotting cg08284496 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg14263391 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg01700462 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg11173131 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg20076442 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg25953130 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg04521626 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg14097568 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg17133774 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg00654448 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg00442282 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg13696490 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg12044213 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg08817867 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg00382138 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg06870470 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg25557739 
+## [FUN] Thu Sep 30 16:07:31 2021 Plotting cg24324628 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg15783941 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg14597739 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg22962123 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg05851442 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg23387597 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg24973755 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg16219283 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg25799241 
+## [FUN] Thu Sep 30 16:07:32 2021 Plotting cg06658067 
+## [meffil.ewas.summary] Thu Sep 30 16:07:32 2021 Sample characteristics 
+## [meffil.ewas.sample.characteristics] Thu Sep 30 16:07:32 2021 summarizing variables 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 variable of interest 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 Bcell 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 CD14 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 CD4T 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 CD8T 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 Gran 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 NK 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 socioeconomic.score 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 gender 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 smoke.ever 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 gestational.age 
+## [summarize.variable] Thu Sep 30 16:07:32 2021 pbconc..ng.dl. 
+## [meffil.ewas.covariate.associations] Thu Sep 30 16:07:32 2021 covariate associations 
+## [FUN] Thu Sep 30 16:07:32 2021 Bcell 
+## [FUN] Thu Sep 30 16:07:32 2021 CD14 
+## [FUN] Thu Sep 30 16:07:32 2021 CD4T 
+## [FUN] Thu Sep 30 16:07:32 2021 CD8T 
+## [FUN] Thu Sep 30 16:07:32 2021 Gran 
+## [FUN] Thu Sep 30 16:07:32 2021 NK 
+## [FUN] Thu Sep 30 16:07:32 2021 socioeconomic.score 
+## [FUN] Thu Sep 30 16:07:32 2021 gender 
+## [FUN] Thu Sep 30 16:07:32 2021 smoke.ever 
+## [FUN] Thu Sep 30 16:07:32 2021 gestational.age 
+## [FUN] Thu Sep 30 16:07:32 2021 pbconc..ng.dl.
 </code></pre>
 
 <pre><code class="r">meffil.ewas.report(summary.gds,
@@ -1015,18 +841,18 @@ summary.gds &lt;- meffil.ewas.summary(
                        &quot;in cord blood DNA methylation (GEO:GSE69633)&quot;))
 </code></pre>
 
-<pre><code>## [meffil.ewas.report] Fri Jun 25 06:39:49 2021 Writing report as html file to gds/ewas-gds.html
+<pre><code>## [meffil.ewas.report] Thu Sep 30 16:07:32 2021 Writing report as html file to gds/ewas-gds.html
 </code></pre>
 
 <p>Robust linear regression in EWAS is also possible.
 When analysing the beta matrix, we test associations
-using \code{limma::lmFit} with the &#39;robust&#39; option
-which applies \code{MASS::rlm} to each CpG site.
+using <code>limma::lmFit</code> with the &#39;robust&#39; option
+which applies <code>MASS::rlm</code> to each CpG site.
 When analysing the GDS file, we similarly
-test associations  using \code{MASS::rlm}
+test associations  using <code>MASS::rlm</code>
 and then
-calculate statistical significance using \code{\link{lmtest::coeftest}}
-with \code{vcov=\link{sandwich::vcovHC}(fit, type=&ldquo;HC0&rdquo;)}.</p>
+calculate statistical significance using <code>lmtest::coeftest</code>
+with <code>vcov=sandwich::vcovHC(fit, type=&quot;HC0&quot;)</code>.</p>
 
 <pre><code class="r">## from matrix
 robust.ret &lt;- meffil.ewas(
@@ -1040,28 +866,28 @@ robust.ret &lt;- meffil.ewas(
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas] Thu Jun 24 22:22:05 2021 Simplifying any categorical variables. 
-## [meffil.ewas] Thu Jun 24 22:22:05 2021 Removing 0 missing case(s). 
-## [meffil.ewas] Thu Jun 24 22:22:05 2021 Removing 0 covariates with no variance. 
-## [meffil.ewas] Thu Jun 24 22:22:05 2021 Computing surrogate variables ... 
-## [add.surrogate.variables] Thu Jun 24 22:22:06 2021 Calculating CpG variance 
-## [add.surrogate.variables] Thu Jun 24 22:22:28 2021 smartSVA. 
+<pre><code>## [meffil.ewas] Thu Sep 30 16:18:09 2021 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Sep 30 16:18:09 2021 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Sep 30 16:18:09 2021 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Sep 30 16:18:09 2021 Computing surrogate variables ... 
+## [add.surrogate.variables] Thu Sep 30 16:18:09 2021 Calculating CpG variance 
+## [add.surrogate.variables] Thu Sep 30 16:19:58 2021 smartSVA. 
 ## 
-## [meffil.ewas] Thu Jun 24 22:22:30 2021 Starting EWAS ... 
-## [:::] [meffil] [ewas.by.matrix] Thu Jun 24 22:22:30 2021 Handling methylation outliers 
-## [FUN] Thu Jun 24 22:22:52 2021 EWAS for covariate set none 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:22:52 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:22:52 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:36:43 2021 Empirical Bayes 
-## [FUN] Thu Jun 24 22:36:49 2021 EWAS for covariate set all 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:36:49 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 22:36:49 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 23:03:18 2021 Empirical Bayes 
-## [FUN] Thu Jun 24 23:03:31 2021 EWAS for covariate set smartsva 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 23:03:31 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 23:03:31 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Thu Jun 24 23:49:00 2021 Empirical Bayes 
-## [meffil.ewas] Thu Jun 24 23:49:27 2021 Finished EWAS.
+## [meffil.ewas] Thu Sep 30 16:20:00 2021 Starting EWAS ... 
+## [:::] [meffil] [ewas.by.matrix] Thu Sep 30 16:20:00 2021 Handling methylation outliers 
+## [FUN] Thu Sep 30 16:21:41 2021 EWAS for covariate set none 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 16:21:41 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 16:21:41 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 16:35:21 2021 Empirical Bayes 
+## [FUN] Thu Sep 30 16:35:27 2021 EWAS for covariate set all 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 16:35:27 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 16:35:27 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 17:00:19 2021 Empirical Bayes 
+## [FUN] Thu Sep 30 17:00:31 2021 EWAS for covariate set smartsva 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 17:00:31 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 17:00:31 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 17:40:39 2021 Empirical Bayes 
+## [meffil.ewas] Thu Sep 30 17:41:01 2021 Finished EWAS.
 </code></pre>
 
 <pre><code class="r">## from GDS file
@@ -1076,15 +902,15 @@ robust.gds &lt;- meffil.ewas(
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas] Thu Jun 24 23:49:28 2021 Simplifying any categorical variables. 
-## [meffil.ewas] Thu Jun 24 23:49:28 2021 Removing 0 missing case(s). 
-## [meffil.ewas] Thu Jun 24 23:49:28 2021 Removing 0 covariates with no variance. 
-## [meffil.ewas] Thu Jun 24 23:49:28 2021 Computing surrogate variables ... 
-## [add.surrogate.variables] Thu Jun 24 23:49:29 2021 Calculating CpG variance 
-## [add.surrogate.variables] Thu Jun 24 23:54:12 2021 smartSVA. 
+<pre><code>## [meffil.ewas] Thu Sep 30 17:41:01 2021 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Sep 30 17:41:01 2021 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Sep 30 17:41:01 2021 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Sep 30 17:41:01 2021 Computing surrogate variables ... 
+## [add.surrogate.variables] Thu Sep 30 17:41:02 2021 Calculating CpG variance 
+## [add.surrogate.variables] Thu Sep 30 17:45:54 2021 smartSVA. 
 ## 
-## [meffil.ewas] Thu Jun 24 23:54:14 2021 Starting EWAS ... 
-## [meffil.ewas] Fri Jun 25 00:09:43 2021 Finished EWAS.
+## [meffil.ewas] Thu Sep 30 17:45:56 2021 Starting EWAS ... 
+## [meffil.ewas] Thu Sep 30 18:02:16 2021 Finished EWAS.
 </code></pre>
 
 <p>As expected, results somewhat different for robust regression.</p>
@@ -1096,7 +922,7 @@ robust.gds &lt;- meffil.ewas(
 </code></pre>
 
 <pre><code>##      none       all  smartsva 
-## 0.9682555 0.9631388 0.9452245
+## 0.9685718 0.9634527 0.9456245
 </code></pre>
 
 <pre><code class="r">sapply(names(robust.ret$analyses), function(model) {
@@ -1114,14 +940,14 @@ robust.gds &lt;- meffil.ewas(
 ## $all
 ##        robust
 ## ewas     FALSE   TRUE
-##   FALSE 472936    789
+##   FALSE 472932    793
 ##   TRUE       0      2
 ## 
 ## $smartsva
 ##        robust
 ## ewas     FALSE   TRUE
-##   FALSE 464969   8754
-##   TRUE       0      4
+##   FALSE 464923   8801
+##   TRUE       0      3
 </code></pre>
 
 <p>Between the robust matrix and GDS analyses,
@@ -1153,14 +979,14 @@ statistical handled differently in &#39;limma&#39;. </p>
 ## $all
 ##        gds
 ## matrix   FALSE   TRUE
-##   FALSE 472108    828
-##   TRUE     464    327
+##   FALSE 472108    824
+##   TRUE     468    327
 ## 
 ## $smartsva
 ##        gds
 ## matrix   FALSE   TRUE
-##   FALSE 463826   1143
-##   TRUE    7419   1339
+##   FALSE 463667   1256
+##   TRUE    7427   1377
 </code></pre>
 
 <p>Finally, it is possible to perform EWAS on subsamples of the dataset.
@@ -1182,28 +1008,28 @@ sub.ret &lt;- meffil.ewas(
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas] Fri Jun 25 00:10:20 2021 Simplifying any categorical variables. 
-## [meffil.ewas] Fri Jun 25 00:10:20 2021 Removing 0 missing case(s). 
-## [meffil.ewas] Fri Jun 25 00:10:20 2021 Removing 0 covariates with no variance. 
-## [meffil.ewas] Fri Jun 25 00:10:20 2021 Computing surrogate variables ... 
-## [add.surrogate.variables] Fri Jun 25 00:10:21 2021 Calculating CpG variance 
-## [add.surrogate.variables] Fri Jun 25 00:10:52 2021 smartSVA. 
+<pre><code>## [meffil.ewas] Thu Sep 30 18:02:48 2021 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Sep 30 18:02:48 2021 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Sep 30 18:02:48 2021 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Sep 30 18:02:48 2021 Computing surrogate variables ... 
+## [add.surrogate.variables] Thu Sep 30 18:02:49 2021 Calculating CpG variance 
+## [add.surrogate.variables] Thu Sep 30 18:04:51 2021 smartSVA. 
 ## 
-## [meffil.ewas] Fri Jun 25 00:10:55 2021 Starting EWAS ... 
-## [:::] [meffil] [ewas.by.matrix] Fri Jun 25 00:10:56 2021 Handling methylation outliers 
-## [FUN] Fri Jun 25 00:11:22 2021 EWAS for covariate set none 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:11:22 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:11:22 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:12:43 2021 Empirical Bayes 
-## [FUN] Fri Jun 25 00:12:51 2021 EWAS for covariate set all 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:12:51 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:12:51 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:14:37 2021 Empirical Bayes 
-## [FUN] Fri Jun 25 00:14:53 2021 EWAS for covariate set smartsva 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:14:53 2021 Linear regression with limma::lmFit 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:14:53 2021 Linear regression with only fixed effects 
-## [:::] [meffil] [ewas.limma] Fri Jun 25 00:16:47 2021 Empirical Bayes 
-## [meffil.ewas] Fri Jun 25 00:17:12 2021 Finished EWAS.
+## [meffil.ewas] Thu Sep 30 18:04:53 2021 Starting EWAS ... 
+## [:::] [meffil] [ewas.by.matrix] Thu Sep 30 18:04:53 2021 Handling methylation outliers 
+## [FUN] Thu Sep 30 18:06:43 2021 EWAS for covariate set none 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:06:43 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:06:43 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:07:55 2021 Empirical Bayes 
+## [FUN] Thu Sep 30 18:08:02 2021 EWAS for covariate set all 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:08:02 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:08:02 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:09:20 2021 Empirical Bayes 
+## [FUN] Thu Sep 30 18:09:34 2021 EWAS for covariate set smartsva 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:09:34 2021 Linear regression with limma::lmFit 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:09:34 2021 Linear regression with only fixed effects 
+## [:::] [meffil] [ewas.limma] Thu Sep 30 18:11:15 2021 Empirical Bayes 
+## [meffil.ewas] Thu Sep 30 18:11:39 2021 Finished EWAS.
 </code></pre>
 
 <pre><code class="r">## from GDS file
@@ -1218,15 +1044,15 @@ sub.gds &lt;- meffil.ewas(
     verbose=T)
 </code></pre>
 
-<pre><code>## [meffil.ewas] Fri Jun 25 00:17:13 2021 Simplifying any categorical variables. 
-## [meffil.ewas] Fri Jun 25 00:17:13 2021 Removing 0 missing case(s). 
-## [meffil.ewas] Fri Jun 25 00:17:13 2021 Removing 0 covariates with no variance. 
-## [meffil.ewas] Fri Jun 25 00:17:13 2021 Computing surrogate variables ... 
-## [add.surrogate.variables] Fri Jun 25 00:17:14 2021 Calculating CpG variance 
-## [add.surrogate.variables] Fri Jun 25 00:22:40 2021 smartSVA. 
+<pre><code>## [meffil.ewas] Thu Sep 30 18:11:40 2021 Simplifying any categorical variables. 
+## [meffil.ewas] Thu Sep 30 18:11:40 2021 Removing 0 missing case(s). 
+## [meffil.ewas] Thu Sep 30 18:11:40 2021 Removing 0 covariates with no variance. 
+## [meffil.ewas] Thu Sep 30 18:11:40 2021 Computing surrogate variables ... 
+## [add.surrogate.variables] Thu Sep 30 18:11:41 2021 Calculating CpG variance 
+## [add.surrogate.variables] Thu Sep 30 18:16:26 2021 smartSVA. 
 ## 
-## [meffil.ewas] Fri Jun 25 00:22:43 2021 Starting EWAS ... 
-## [meffil.ewas] Fri Jun 25 00:27:35 2021 Finished EWAS.
+## [meffil.ewas] Thu Sep 30 18:16:28 2021 Starting EWAS ... 
+## [meffil.ewas] Thu Sep 30 18:20:51 2021 Finished EWAS.
 </code></pre>
 
 <p>Check that the model used the correct samples.</p>
@@ -1271,8 +1097,8 @@ significances slightly different.</p>
 ## $smartsva
 ##        gds
 ## matrix   FALSE   TRUE
-##   FALSE 473716      2
-##   TRUE       3      1
+##   FALSE 473715      1
+##   TRUE       2      2
 </code></pre>
 
 <p>There are only slight differences from the full dataset analysis.</p>
@@ -1284,7 +1110,7 @@ significances slightly different.</p>
 </code></pre>
 
 <pre><code>##      none       all  smartsva 
-## 0.9915950 0.9775753 0.9151441
+## 0.9918069 0.9778087 0.9126206
 </code></pre>
 
 <pre><code class="r">sapply(names(sub.gds$analyses), function(model) {
@@ -1308,8 +1134,20 @@ significances slightly different.</p>
 ## $smartsva
 ##        full
 ## sub      FALSE   TRUE
-##   FALSE 473716      3
+##   FALSE 473713      4
 ##   TRUE       2      1
+</code></pre>
+
+<p>It is also possible to apply a function to each CpG site
+or each sample in the dataset.</p>
+
+<pre><code class="r">v.gds &lt;- meffil:::meffil.apply.methylation(
+    gds.filename, bysite=T, type=&quot;double&quot;, FUN=var, na.rm=T)
+v &lt;- rowVars(beta, na.rm=T)
+all(abs(v-v.gds) &lt; 2e-16)
+</code></pre>
+
+<pre><code>## [1] TRUE
 </code></pre>
 
 </body>
