@@ -9,6 +9,7 @@ meffil.normalize.samples(
   pseudo = 100,
   just.beta = T,
   cpglist.remove = NULL,
+  remove.poor.signal = F,
   max.bytes = 2^30 - 1,
   gds.filename = NULL,
   verbose = F,
@@ -26,6 +27,13 @@ return the normalized methylated and unmethylated matrices (Default: TRUE).}
 
 \item{cpglist.remove}{Optional list of CpGs to exclude from final output}
 
+\item{remove.poor.signal}{Set methylation values for poorly detected probes
+to missing  (Default: \code{FALSE}). Poor signal was 
+identified during QC by \code{\link{meffil.qc}()}
+as signal that failed to pass the 
+detection p-value threshold (\code{detection.threshold})
+or bead threshold (\code{bead.threshold}).}
+
 \item{gds.filename}{If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
 This is for cases where the output is too large to fit into main memory.
 The GDS option assumes that argument \code{just.beta == TRUE}.}
@@ -41,7 +49,7 @@ equal to methylated signal/(methylated + unmethylated signal + pseudo).
 Otherwise, a list containing two matrices, the normalized methylated and unmethylated signals.
 If \code{gds.filename} is not \code{NULL}, then the output is saved to the GDS file
 rather than retained in memory and returned to the caller.
-The library 'gdsfmt' must be installed.
+The library 'gdsfmt' must be installed in this case.
 }
 \description{
 Normalize a set of samples using their normalized quality control objects.

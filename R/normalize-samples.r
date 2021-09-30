@@ -7,6 +7,12 @@
 #' estimate more stable when calculating methylation levels (Default: 100).
 #' @param just.beta If \code{TRUE}, then return just the normalized methylation levels; otherwise,
 #' return the normalized methylated and unmethylated matrices (Default: TRUE).
+#' @param remove.poor.signal Set methylation values for poorly detected probes
+#' to missing  (Default: \code{FALSE}). Poor signal was 
+#' identified during QC by \code{\link{meffil.qc}()}
+#' as signal that failed to pass the 
+#' detection p-value threshold (\code{detection.threshold})
+#' or bead threshold (\code{bead.threshold}).
 #' @param cpglist.remove Optional list of CpGs to exclude from final output
 #' @param verbose If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).
 #' @param gds.filename If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
@@ -19,13 +25,14 @@
 #' Otherwise, a list containing two matrices, the normalized methylated and unmethylated signals.
 #' If \code{gds.filename} is not \code{NULL}, then the output is saved to the GDS file
 #' rather than retained in memory and returned to the caller.
-#' The library 'gdsfmt' must be installed.
+#' The library 'gdsfmt' must be installed in this case.
 #' 
 #' @export
 meffil.normalize.samples <- function(norm.objects, 
                                      pseudo=100,
                                      just.beta=T,
                                      cpglist.remove=NULL,
+                                     remove.poor.signal=F,
                                      max.bytes=2^30-1, ## maximum number of bytes for mclapply
                                      gds.filename=NULL,
                                      verbose=F,
@@ -52,7 +59,7 @@ meffil.normalize.samples <- function(norm.objects,
         ret <- mcsapply.safe(
             norm.objects,
             FUN=function(object) {
-                mu <- meffil.normalize.sample(object, verbose=verbose)
+                mu <- meffil.normalize.sample(object, remove.poor.signal=remove.poor.signal, verbose=verbose)
                 m.idx <- match(sites, names(mu$M))
                 u.idx <- match(sites, names(mu$U))
                 if (just.beta)
@@ -76,7 +83,7 @@ meffil.normalize.samples <- function(norm.objects,
         mcsapply.to.gds(
             norm.objects,
             FUN=function(object) {
-                mu <- meffil.normalize.sample(object, verbose=verbose)
+                mu <- meffil.normalize.sample(object, remove.poor.signal=remove.poor.signal, verbose=verbose)
                 m.idx <- match(sites, names(mu$M))
                 u.idx <- match(sites, names(mu$U))
                 ret <- get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)

@@ -6,7 +6,7 @@ opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TR
 library(GEOquery)
 ```
 
-# Using `gdsfmt` for large datasets
+# Using `gdsfmt` for **very** large datasets
 
 ## Download example data set 
 
@@ -85,18 +85,21 @@ norm.objects <- meffil.normalize.quantiles(
     verbose=T)
 beta <- meffil.normalize.samples(
     norm.objects,
-    just.beta=T, 
+    just.beta=T,
+    remove.poor.signal=T,
     cpglist.remove=qc.summary$bad.cpgs$name,
     verbose=T)
 ```
 
 Normalize while saving to a GDS file.
-```{r gds-norm-dataset, cache=T}
+```{r}
+dir.create("gds")
 gds.filename <- "gds/beta.gds"
 if (!file.exists(gds.filename)) 
     meffil.normalize.samples(
         norm.objects,
-        just.beta=T, 
+        just.beta=T,
+        remove.poor.signal=T,
         cpglist.remove=qc.summary$bad.cpgs$name,
         gds.filename=gds.filename,
         verbose=T)
@@ -109,9 +112,33 @@ beta.gds <- meffil.retrieve.methylation(gds.filename)
 
 It should be the same as the one generated the standard way.
 ```{r}
-all(beta.gds == beta)
+identical(beta.gds, beta)
 identical(colnames(beta.gds), colnames(beta))
 identical(rownames(beta.gds), rownames(beta))
+```
+
+Save detection p-values to a GDS file.
+```{r}
+detp.filename <- "gds/detp.gds"
+if (!file.exists(detp.filename))
+    meffil.save.detection.pvalues(qc.objects, detp.filename, verbose=T)
+```
+
+Compare detection p-values to loading them to a matrix from QC objects.
+```{r detection-pvalues, cache=T}
+detp.gds <- meffil.retrieve.detection.pvalues(detp.filename)
+detp <- meffil.load.detection.pvalues(qc.objects)
+identical(detp, detp.gds)
+```
+
+Verify that correct signals have been set to missing
+in the methylation matrix.
+```{r}
+idx <- which(
+    detp[rownames(beta.gds), colnames(beta.gds)]
+    >
+    qc.objects[[1]]$bad.probes.detectionp.threshold)
+all(is.na(beta.gds[idx]))
 ```
 
 We can load a subset from the GDS file as well:
@@ -130,7 +157,7 @@ sub.gds <- meffil.retrieve.methylation(gds.filename, bw.sites, samples)
 
 It should be the same as subsetting the matrix.
 ```{r}
-quantile(beta[bw.sites,samples] - sub.gds)
+quantile(beta[bw.sites,samples] - sub.gds, na.rm=T)
 identical(colnames(sub.gds), samples)
 identical(rownames(sub.gds), bw.sites)
 ```
@@ -143,7 +170,7 @@ pcs.gds <- meffil.methylation.pcs(gds.filename, winsorize.pct=NA, outlier.iqr.fa
 
 The resulting components are exactly the same.
 ```{r}
-quantile(pcs.gds - pcs)
+identical(pcs.gds, pcs)
 ```
 
 
@@ -246,13 +273,13 @@ meffil.ewas.report(summary.gds,
 
 Robust linear regression in EWAS is also possible.
 When analysing the beta matrix, we test associations
-using \code{limma::lmFit} with the 'robust' option
-which applies \code{MASS::rlm} to each CpG site.
+using `limma::lmFit` with the 'robust' option
+which applies `MASS::rlm` to each CpG site.
 When analysing the GDS file, we similarly
-test associations  using \code{MASS::rlm}
+test associations  using `MASS::rlm`
 and then
-calculate statistical significance using \code{\link{lmtest::coeftest}}
-with \code{vcov=\link{sandwich::vcovHC}(fit, type="HC0")}.
+calculate statistical significance using `lmtest::coeftest`
+with `vcov=sandwich::vcovHC(fit, type="HC0")`.
 
 ```{r gds-ewas-robust, cache=T}
 ## from matrix
@@ -368,4 +395,13 @@ sapply(names(sub.gds$analyses), function(model) {
     table(sub=sub.gds$analyses[[model]]$table[,"p.value"] < 1e-5,
           full=ewas.gds$analyses[[model]]$table[,"p.value"] < 1e-5)
 }, simplify=F)
+```
+
+It is also possible to apply a function to each CpG site
+or each sample in the dataset.
+```{r gds-apply, cache=T}
+v.gds <- meffil:::meffil.apply.methylation(
+    gds.filename, bysite=T, type="double", FUN=var, na.rm=T)
+v <- rowVars(beta, na.rm=T)
+all(abs(v-v.gds) < 2e-16)
 ```
