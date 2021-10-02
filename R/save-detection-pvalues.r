@@ -64,6 +64,6 @@ meffil.save.detection.pvalues <- function(qc.objects,
 #' 
 #'
 #' @export
-meffil.retrieve.detection.pvalues <- function(gds.filename, sites=NULL, samples=NULL) {
+meffil.gds.detection.pvalues <- function(gds.filename, sites=NULL, samples=NULL) {
     retrieve.gds.matrix(gds.filename, sites, samples)
 }

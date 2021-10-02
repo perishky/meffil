@@ -5,7 +5,7 @@
 #' @param probe.range Default = 50000. How many probes to be used in calculating PCs.
 #' @param sites Subset of CpG sites to consider (row names of beta) (Default: NULL).
 #' @param samples Subset of samples to consider (column names of beta) (Default: NULL).
-#' Consider only the names of the given CpG sites.
+#' @param  autosomal If true, remove probes on sex chromosomes (Default: TRUE).
 #' @param winsorize.pct Apply to methylation levels
 #' winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).
 #' @param outlier.iqr.factor Apply to methylation after setting,
@@ -19,10 +19,10 @@
 #' @return the principal components of \code{normalized.beta}.
 #'
 #' @export
-meffil.methylation.pcs <- function (beta, probe.range = 50000, sites=NULL, samples=NULL, winsorize.pct=NA, outlier.iqr.factor=NA, full.obj=F, verbose = F) {
+meffil.methylation.pcs <- function (beta, probe.range = 50000, sites=NULL, samples=NULL, autosomal=T, winsorize.pct=NA, outlier.iqr.factor=NA, full.obj=F, verbose = F) {
     meffil:::msg("Calculating CpG variance", verbose = verbose)
-
-    var.sites <- meffil.most.variable.cpgs(beta, probe.range, sites, samples, winsorize.pct, outlier.iqr.factor)
+    
+    var.sites <- meffil.most.variable.cpgs(beta, probe.range, sites, samples, autosomal, winsorize.pct, outlier.iqr.factor)
 
     if (is.matrix(beta)) {
         beta <- beta[var.sites,,drop=F]

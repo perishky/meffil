@@ -9,6 +9,7 @@ meffil.most.variable.cpgs(
   n = 1000,
   sites = NULL,
   samples = NULL,
+  autosomal = T,
   winsorize.pct = NA,
   outlier.iqr.factor = NA
 )
@@ -22,6 +23,8 @@ either a matrix or a GDS filename.}
 \item{sites}{Subset of CpG sites to consider (row names of beta) (Default: NULL).}
 
 \item{samples}{Subset of samples to consider (column names of beta) (Default: NULL).}
+
+\item{autosomal}{If true, remove probes on sex chromosomes (Default: TRUE).}
 
 \item{winsorize.pct}{Apply to methylation levels
 winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).}
