@@ -429,7 +429,7 @@ if (!file.exists(gds.filename))
 
 <p>Load the matrix in the GDS file for comparison.</p>
 
-<pre><code class="r">beta.gds &lt;- meffil.retrieve.methylation(gds.filename)
+<pre><code class="r">beta.gds &lt;- meffil.gds.methylation(gds.filename)
 </code></pre>
 
 <p>It should be the same as the one generated the standard way.</p>
@@ -461,7 +461,7 @@ if (!file.exists(detp.filename))
 
 <p>Compare detection p-values to loading them to a matrix from QC objects.</p>
 
-<pre><code class="r">detp.gds &lt;- meffil.retrieve.detection.pvalues(detp.filename)
+<pre><code class="r">detp.gds &lt;- meffil.gds.detection.pvalues(detp.filename)
 detp &lt;- meffil.load.detection.pvalues(qc.objects)
 identical(detp, detp.gds)
 </code></pre>
@@ -493,7 +493,7 @@ all(is.na(beta.gds[idx]))
     &quot;cg16219283&quot;, &quot;cg25799241&quot;, &quot;cg06658067&quot;)
 ## PMID: 25869828 (bonferroni p &lt; 0.05)
 samples &lt;- colnames(beta)[c(1,3,5,7)]
-sub.gds &lt;- meffil.retrieve.methylation(gds.filename, bw.sites, samples)
+sub.gds &lt;- meffil.gds.methylation(gds.filename, bw.sites, samples)
 </code></pre>
 
 <p>It should be the same as subsetting the matrix.</p>
@@ -1141,7 +1141,7 @@ significances slightly different.</p>
 <p>It is also possible to apply a function to each CpG site
 or each sample in the dataset.</p>
 
-<pre><code class="r">v.gds &lt;- meffil.apply.methylation(
+<pre><code class="r">v.gds &lt;- meffil.gds.apply(
     gds.filename, bysite=T, type=&quot;double&quot;, FUN=var, na.rm=T)
 v &lt;- rowVars(beta, na.rm=T)
 all(abs(v-v.gds) &lt; 2e-16)

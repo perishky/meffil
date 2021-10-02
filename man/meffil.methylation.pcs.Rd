@@ -9,8 +9,10 @@ meffil.methylation.pcs(
   probe.range = 50000,
   sites = NULL,
   samples = NULL,
+  autosomal = T,
   winsorize.pct = NA,
   outlier.iqr.factor = NA,
+  full.obj = F,
   verbose = F
 )
 }
@@ -22,18 +24,21 @@ either a matrix or a GDS filename.}
 
 \item{sites}{Subset of CpG sites to consider (row names of beta) (Default: NULL).}
 
-\item{samples}{Subset of samples to consider (column names of beta) (Default: NULL).
-Consider only the names of the given CpG sites.}
+\item{samples}{Subset of samples to consider (column names of beta) (Default: NULL).}
+
+\item{autosomal}{If true, remove probes on sex chromosomes (Default: TRUE).}
 
 \item{winsorize.pct}{Apply to methylation levels
 winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).}
 
 \item{outlier.iqr.factor}{Apply to methylation after setting,
 for each CpG site, values less than
-\code{Q1 - outlier.iqr.factor * IQR} or more than 
+\code{Q1 - outlier.iqr.factor * IQR} or more than
 \code{Q3 + outlier.iqr.factor * IQR} to NA. Here IQR is the inter-quartile
 range of the methylation levels at the CpG site, i.e. Q3-Q1.
 Set to NA to skip this step (Default: NA).}
+
+\item{full.obj}{Default = FALSE.  If true, then return the full `prcomp` object rather than just the PCs.}
 
 \item{verbose=T}{Print progress messages?}
 }

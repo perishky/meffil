@@ -105,5 +105,13 @@ mcsapply.safe <- function (X, FUN, ..., max.bytes=2^30-1) {
     ret
 }
 
+partition.integer.subsequence <- function(start, end, n) {
+    stopifnot(start <= end)
+    stopifnot(n <= end-start+1)
+    partitions <- floor(seq(start,end+1,length.out=n+1))
+    cbind(start=head(partitions, n=-1),
+          end=tail(partitions, n=-1) - 1)
+}
+
 
 

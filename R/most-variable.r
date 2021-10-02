@@ -7,6 +7,7 @@
 #' @param n Number of CpG sites to return.
 #' @param sites Subset of CpG sites to consider (row names of beta) (Default: NULL).
 #' @param samples Subset of samples to consider (column names of beta) (Default: NULL).
+#' @param  autosomal If true, remove probes on sex chromosomes (Default: TRUE).
 #' @param winsorize.pct Apply to methylation levels
 #' winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).
 #' @param outlier.iqr.factor Apply to methylation after setting,
@@ -18,7 +19,7 @@
 #' @return The \code{n} CpG site identifiers (rownames of \code{x}) with the greatest variance in \code{x}.
 #' 
 #' @export
-meffil.most.variable.cpgs <- function(beta, n=1000, sites=NULL, samples=NULL, winsorize.pct=NA, outlier.iqr.factor=NA) {
+meffil.most.variable.cpgs <- function(beta, n=1000, sites=NULL, samples=NULL, autosomal=T, winsorize.pct=NA, outlier.iqr.factor=NA) {
     stopifnot(n > 0)
     if (is.matrix(beta)) {    
         stopifnot(!is.null(rownames(beta)))
@@ -30,9 +31,16 @@ meffil.most.variable.cpgs <- function(beta, n=1000, sites=NULL, samples=NULL, wi
         all.sites <- beta.dims[[1]]
         all.samples <- beta.dims[[2]]
     }
+    
     if (is.null(sites)) sites <- all.sites
     else sites <- intersect(sites, all.sites)
     stopifnot(length(sites)>0)
+
+    if (autosomal) {
+        featureset <- meffil:::guess.featureset(all.sites)
+        autosomal.sites <- meffil.get.autosomal.sites(featureset)
+        sites <- intersect(autosomal.sites, sites)
+    }
     
     if (is.null(samples)) samples <- all.samples
     else samples <- intersect(samples, all.samples)
