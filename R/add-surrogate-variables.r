@@ -9,8 +9,8 @@ add.surrogate.variables <- function(beta, sites, samples,
     stopifnot(is.null(covariates) || nrow(covariates) == length(samples)) 
     
     meffil:::msg("Calculating CpG variance", verbose = verbose)
-    var.sites <- meffil.most.variable.cpgs(beta, most.variable, sites, samples, winsorize.pct, outlier.iqr.factor)
-
+    var.sites <- meffil.most.variable.cpgs(beta, n=most.variable, sites=sites, samples=samples, winsorize.pct=winsorize.pct, outlier.iqr.factor=outlier.iqr.factor)
+  
     if (is.matrix(beta)) {
         beta <- beta[var.sites,,drop=F]
         if (!is.null(samples))
