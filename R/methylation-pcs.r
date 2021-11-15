@@ -35,7 +35,7 @@ meffil.methylation.pcs <- function (beta, probe.range = 50000, sites=NULL, sampl
     beta <- meffil:::impute.matrix(beta, margin=1)
     
     meffil:::msg("Calculating beta PCs", verbose = verbose)
-    ret <- prcomp(t(beta))$x
+    ret <- prcomp(t(beta))
     if (!full.obj)
         ret <- ret$x
     ret
