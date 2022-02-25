@@ -1,5 +1,6 @@
 library(devtools)
 library(meffil)
+library(pkgload)
 
 library(openxlsx) ## load.450k.manifest() uses read.xlsx()
 library(FlowSorted.CordBlood.450k) ## create.andrews.bakulski.reference() 
@@ -32,6 +33,9 @@ create.gse35069.references() ## ~15 minutes
 
 source("gse68456-reference.r")
 create.gse68456.reference()
+
+source("idoloptimized-references.r")
+create.idoloptimized.references()
 
 source("gervin-lyle-reference.r")
 create.gervin.lyle.reference("~/work/data/gervin-lyle-cord-blood-reference")
