@@ -14,11 +14,13 @@ obtained from \code{\link{meffil.add.cell.type.reference}()}.}
 }
 \value{
 Two \link{ggplot2} boxplot objects:
-- \code{betas} Contains one box per sample or reference cell type
+\itemize{
+\item \code{betas} Contains one box per sample or reference cell type
 representing the distribution of methylation levels for the CpG sites used to
 estimate cell counts.
-- \code{counts} Contains one box per reference cell type
+\item \code{counts} Contains one box per reference cell type
 representing the distribution of cell count estimates across the samples.
+}
 }
 \description{
 Cell count estimate quality plot

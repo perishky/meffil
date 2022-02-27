@@ -49,24 +49,27 @@ create.saliva.reference <- function() {
 
     samplesheet <- rbind(samples.blood[,cols], samples.buccal[,cols])
 
-    ds <- meffil.normalize.dataset(samplesheet,
-                                   just.beta=F,
-                                   qc.file="saliva-qc-report.html",
-                                   author="author",
-                                   study="blood and buccal",
-                                   number.pcs=number.pcs,
-                                   norm.file="saliva-normalization-report.html",
-                                   featureset="common",
-                                   verbose=verbose)
-
+    ds <- meffil.normalize.dataset(
+        samplesheet,
+        just.beta=F,
+        qc.file="saliva-qc-report.html",
+        author="author",
+        study="blood and buccal",
+        number.pcs=number.pcs,
+        norm.file="saliva-normalization-report.html",
+        featureset="common",
+        verbose=verbose)
+    
     samplesheet <- samplesheet[match(colnames(ds$M), samplesheet$Sample_Name),]
     
     cell.types <- c("Buccal","CD4T","CD8T","Mono","Bcell","NK","Gran")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("saliva gse48472",
-                                   ds$M[,selected], ds$U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "saliva gse48472",
+        ds$M[,selected], ds$U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        description="Saliva reference composed of buccal cell data from Slieker et al. Epigenetics Chromatin 2013 and (blood) immune cell data from Reinius et al. PLoS One 2012",
+        verbose=verbose)
 }

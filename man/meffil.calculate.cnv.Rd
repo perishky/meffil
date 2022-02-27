@@ -31,10 +31,12 @@ Based on the algorithm developed in \code{R/CopyNumber450k} bioconductor package
 }
 \details{
 The following default values are being used:
-- trim = 0.1
-- min.width = 5
-- nperm = 10000
-- alpha = 0.001
-- undo.splits = "sdundo"
-- undo.SD = 2
+\itemize{
+\item trim = 0.1
+\item min.width = 5
+\item nperm = 10000
+\item alpha = 0.001
+\item undo.splits = "sdundo"
+\item undo.SD = 2
+}
 }

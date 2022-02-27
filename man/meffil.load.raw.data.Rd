@@ -27,7 +27,7 @@ return the methylated and unmethylated matrices (Default: TRUE).}
 \item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}.}
 }
 \value{
-If \code{just.beta == TRUE}, the matrix of 
+If \code{just.beta == TRUE}, the matrix of
 methylation levels between between 0 and 1
 equal to methylated signal/(methylated + unmethylated signal + pseudo).
 Otherwise, a list containing two matrices, the methylated and unmethylated signals.

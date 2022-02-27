@@ -28,9 +28,9 @@ return the normalized methylated and unmethylated matrices (Default: TRUE).}
 \item{cpglist.remove}{Optional list of CpGs to exclude from final output}
 
 \item{remove.poor.signal}{Set methylation values for poorly detected probes
-to missing  (Default: \code{FALSE}). Poor signal was 
+to missing  (Default: \code{FALSE}). Poor signal was
 identified during QC by \code{\link{meffil.qc}()}
-as signal that failed to pass the 
+as signal that failed to pass the
 detection p-value threshold (\code{detection.threshold})
 or bead threshold (\code{bead.threshold}).}
 
@@ -43,7 +43,7 @@ The GDS option assumes that argument \code{just.beta == TRUE}.}
 \item{...}{Arguments passed to \code{\link[parallel]{mclapply}()}.}
 }
 \value{
-If \code{just.beta == TRUE}, the normalized matrix of 
+If \code{just.beta == TRUE}, the normalized matrix of
 methylation levels between between 0 and 1
 equal to methylated signal/(methylated + unmethylated signal + pseudo).
 Otherwise, a list containing two matrices, the normalized methylated and unmethylated signals.

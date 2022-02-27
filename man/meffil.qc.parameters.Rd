@@ -19,15 +19,15 @@ meffil.qc.parameters(
 )
 }
 \arguments{
-\item{colour.code}{Default value = NULL <what param does>}
+\item{colour.code}{Default value = NULL}
 
-\item{control.categories}{Default value = control.probe.categories() <what param does>}
+\item{control.categories}{Default value = control.probe.categories()}
 
 \item{sex.outlier.sd}{Sets the standard deviation multiple at which sex outliers are identified. Default value = 3.}
 
 \item{meth.unmeth.outlier.sd}{Sets the standard deviation multiple at which methylated/unmethylated signal outliers are identified. Default value = 3.}
 
-\item{control.means.outlier.sd}{Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5 <what param does>}
+\item{control.means.outlier.sd}{Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5}
 
 \item{detectionp.samples.threshold}{Detection p-value threshold.  Probes with values above this are considered undetected. Default value = 0.05}
 

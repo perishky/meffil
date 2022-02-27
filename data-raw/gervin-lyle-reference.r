@@ -9,17 +9,18 @@ create.gervin.lyle.reference <- function(data.dir, verbose=T) {
     
     samplesheet <- meffil.read.samplesheet(data.dir, "csv$")
     
-    ds <- meffil.normalize.dataset(samplesheet,
-                                   just.beta=F,
-                                   qc.file="gervin-and-lyle-qc-report.html",
-                                   author="Kristina Gervin and Robert Lyle",
-                                   study="Purified cord blood cell type methylation",
-                                   number.pcs=number.pcs,
-                                   norm.file="gervin-and-lyle-normalization-report.html",
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
-
+    ds <- meffil.normalize.dataset(
+        samplesheet,
+        just.beta=F,
+        qc.file="gervin-and-lyle-qc-report.html",
+        author="Kristina Gervin and Robert Lyle",
+        study="Purified cord blood cell type methylation",
+        number.pcs=number.pcs,
+        norm.file="gervin-and-lyle-normalization-report.html",
+        chip="450k",
+        featureset="common",
+        verbose=verbose)
+    
     ## pc.plot <- meffil.plot.pc.fit(ds$norm.objects)
     ## suggests that number.pcs should be 8
     
@@ -31,11 +32,13 @@ create.gervin.lyle.reference <- function(data.dir, verbose=T) {
     samplesheet$cell.type[which(samplesheet$cell.type == "CD8")] <- "CD8T"
     cell.types <- c("CD14", "Bcell", "CD4T", "CD8T", "NK","Gran")
     selected <- samplesheet$cell.type %in% cell.types
-    meffil.add.cell.type.reference("gervin and lyle cord blood",
-                                   ds$M[,selected], ds$U[,selected],
-                                   cell.types=samplesheet$cell.type[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "gervin and lyle cord blood",
+        ds$M[,selected], ds$U[,selected],
+        cell.types=samplesheet$cell.type[selected],
+        chip="450k",
+        featureset="common",
+        description="Cord blood reference of Gervin et al. Epigenetics 2016",
+        verbose=verbose)
 }
 

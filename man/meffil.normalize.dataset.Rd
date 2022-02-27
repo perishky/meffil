@@ -79,10 +79,12 @@ Other:}
 }
 \value{
 A list:
-- qc.summary \code{\link{meffil.qc.summary}()} output.
-- norm \code{\link{meffil.normalize.quantiles}()} output.
-- beta Normalized beta matrix (methylation levels).
-- norm.summary \code{\link{meffil.normalization.summary}()} output.
+\itemize{
+\item qc.summary \code{\link{meffil.qc.summary}()} output.
+\item norm \code{\link{meffil.normalize.quantiles}()} output.
+\item beta Normalized beta matrix (methylation levels).
+\item norm.summary \code{\link{meffil.normalization.summary}()} output.
+}
 }
 \description{
 Apply functional normalization to a set of Infinium HumanMethylation450 BeadChip IDAT files.

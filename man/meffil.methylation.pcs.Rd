@@ -38,7 +38,7 @@ for each CpG site, values less than
 range of the methylation levels at the CpG site, i.e. Q3-Q1.
 Set to NA to skip this step (Default: NA).}
 
-\item{full.obj}{Default = FALSE.  If true, then return the full `prcomp` object rather than just the PCs.}
+\item{full.obj}{Default = FALSE.  If true, then return the full \code{prcomp} object rather than just the PCs.}
 
 \item{verbose=T}{Print progress messages?}
 }

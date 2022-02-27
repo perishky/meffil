@@ -94,7 +94,7 @@ set methylation levels less than
 range of the methylation levels at the CpG site, i.e. Q3-Q1.
 Set to NA to skip this step (Default: NA).}
 
-\item{most.variable}{Apply (Independent) Surrogate Variable Analysis to the 
+\item{most.variable}{Apply (Independent) Surrogate Variable Analysis to the
 given most variable CpG sites (Default: 50000).}
 
 \item{featureset}{Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).}

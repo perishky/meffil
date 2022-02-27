@@ -24,7 +24,7 @@ Sample genotypes are matched to sample qc.objects using
 List
 }
 \description{
-Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels, 
+Performs a number of QC analyses including checking for sex differences, methylated vs unmethylated levels,
 deviation from control probe means, detection p-values and bead numbers per sample and probe.
 }
 \details{

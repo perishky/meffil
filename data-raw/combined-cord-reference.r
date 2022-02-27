@@ -38,11 +38,13 @@ create.combined.cord.reference <- function(verbose=T) {
     cell.types <- c("CD8T", "CD4T", "NK",
                     "Bcell", "Mono", "Gran", "nRBC")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("combined cord blood",
-                                   M[,selected], U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   specific.sites=IDOLOptimizedCpGsCordBlood,
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "combined cord blood",
+        M[,selected], U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        specific.sites=IDOLOptimizedCpGsCordBlood,
+        description="Derived from FlowSorted.CordBloodCombined.450k",
+        verbose=verbose)
 }
