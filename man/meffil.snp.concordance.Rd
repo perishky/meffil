@@ -13,12 +13,12 @@ meffil.snp.concordance(
 }
 \value{
 Returns a list of two vectors:
-    - one providing concordances between genotypes and SNP betas for matched samples,
-    - a second providing concordances between genotypes and SNP betas for matched SNPs.
+- one providing concordances between genotypes and SNP betas for matched samples,
+- a second providing concordances between genotypes and SNP betas for matched SNPs.
 as well as the genotype matrix derived from 'snp.betas'.
 }
 \description{
 genotypes <- meffil.extract.genotypes(raw.filenames)
 snp.betas <- meffil.snp.betas(qc.objects)
-meffil.snp.concordance(snp.betas, genotypes[rownames(snp.betas),colnames(snp.betas)])
+meffil.snp.concordance(snp.betas, genotypes\link{rownames(snp.betas),colnames(snp.betas)})
 }

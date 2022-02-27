@@ -16,6 +16,7 @@ meffil.add.cell.type.reference(
   number.quantiles = 500,
   subsets = NULL,
   object = NULL,
+  description = NULL,
   verbose = F
 )
 }
@@ -47,6 +48,8 @@ of those maximally different between the cell types within the reference.}
 If not \code{NULL}, then this reference is added
 and all other function arguments are ignored (Default: NULL).}
 
+\item{description}{Text description of the reference (Default: NULL).}
+
 \item{verbose}{If \code{TRUE}, then status messages are printed during execution
 (Default: \code{FALSE}).}
 }
@@ -55,14 +58,16 @@ A list specifying a cell type reference object that can be used by
 \code{\link{meffil.estimate.cell.counts}()} to estimate cell counts
 in another dataset.
 The object is a list containing:
-- \code{beta} The normalized methylation values of sites
+\itemize{
+\item \code{beta} The normalized methylation values of sites
 differentially methylated between cell types.
-- \code{quantiles} The average quantiles of methylated and unmethylated signals
+\item \code{quantiles} The average quantiles of methylated and unmethylated signals
 of probe sets defined by \code{subsets} (see below).
 e.g. \code{quantiles[[name]]$M} provides the quantiles (\code{number.quantiles} quantiles)
 of the probes specified by \code{subsets[[name]]}.
-- \code{subsets} Probes on the microarray partitioned by relationship to CpG islands,
+\item \code{subsets} Probes on the microarray partitioned by relationship to CpG islands,
 either in an island, in a shore or far from an island.
+}
 }
 \description{
 Create a cell type reference object for estimating cell counts

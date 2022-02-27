@@ -14,7 +14,7 @@ The first two columns will be compared.}
 A list whose elements depends on the types of the two variables.
 In each case, the list contains the following elements:
 \describe{
-\item{var1}{Name of the first variable, i.e. colnames(vars)[1].}
+\item{var1}{Name of the first variable, i.e. colnames(vars)\link{1}.}
 \item{var2}{Name of the second variable.}
 \item{r}{Spearman's correlation between the variables. This may be meaningless if one variable is an unordered factor.}
 \item{r.p}{P-value corresponding to the correlation between the variables.}

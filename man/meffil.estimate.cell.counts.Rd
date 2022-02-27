@@ -8,7 +8,7 @@ meffil.estimate.cell.counts(qc.object, cell.type.reference, verbose = T)
 }
 \arguments{
 \item{cell.type.reference}{Character string name of the cell type reference
-to use for estimating cell counts. 
+to use for estimating cell counts.
 See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.add.cell.type.reference}()}.}
@@ -20,10 +20,12 @@ references.  New references can be created using
 }
 \value{
 A list:
-- \code{counts} Cell count estimates.
-- \code{beta} Normalized methylation levels of sites used to differentiate
-- \code{reference} Name of the cell type reference used.
+\itemize{
+\item \code{counts} Cell count estimates.
+\item \code{beta} Normalized methylation levels of sites used to differentiate
+\item \code{reference} Name of the cell type reference used.
 between reference cell types.
+}
 
 Results should be nearly identical to \code{\link[minfi]{estimateCellCounts}()}.
 }

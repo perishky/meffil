@@ -46,18 +46,22 @@ create.idoloptmized.references <- function(verbose=T) {
                     "Bcell", "Mono", "Neu")
     stopifnot(all(cell.types %in% samplesheet$CellType))
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("blood idoloptimized epic",
-                                   M[,selected], U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="epic",
-                                   featureset="epic",
-                                   specific.sites=IDOLOptimizedCpGs,
-                                   verbose=verbose)
-    meffil.add.cell.type.reference("blood idoloptimized 450k",
-                                   M[,selected], U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="epic",
-                                   featureset="common",
-                                   specific.sites=IDOLOptimizedCpGs450klegacy,
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "blood idoloptimized epic",
+        M[,selected], U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="epic",
+        featureset="epic",
+        specific.sites=IDOLOptimizedCpGs,
+        description="Derived from FlowSorted.Blood.EPIC",
+        verbose=verbose)
+    meffil.add.cell.type.reference(
+        "blood idoloptimized",
+        M[,selected], U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="epic",
+        featureset="common",
+        specific.sites=IDOLOptimizedCpGs450klegacy,
+        description="Derived from FlowSorted.Blood.450k",
+        verbose=verbose)
 }

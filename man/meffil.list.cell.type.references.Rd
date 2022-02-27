@@ -9,3 +9,26 @@ meffil.list.cell.type.references()
 \description{
 List of available cell type references
 }
+\details{
+Names and description of available references:
+\itemize{
+\item "andrews and bakulski cord blood" Derived from FlowSorted.CordBlood.450k
+\item "blood gse35069" Adult blood reference of Reinius et al. PLoS One 2012
+\item "blood gse35069 chen" Adult blood reference of Reinius et al. PLoS One 2012 restricted to CpG sites of Table E2 in Chen et al. J Allergy Clin Immunol 2017
+\item "blood gse35069 complete" Adult blood reference of Reinius et al. PLoS One 2012 with neutrophils and eosinophils
+\item "blood idoloptimized" Derived from FlowSorted.Blood.450k
+\item "blood idoloptimized epic" Derived from FlowSorted.Blood.EPIC
+\item "combined cord blood" Derived from FlowSorted.CordBloodCombined.450k
+\item "cord blood gse68456" Cord blood reference of Goede et al. Clin Epigenetics 2015
+\item "gervin and lyle cord blood" Cord blood reference of Gervin et al. Epigenetics 2016
+\item "guintivano dlpfc" Derived from FlowSorted.DLPFC.450k
+\item "saliva gse48472" Saliva reference composed of buccal cell data from Slieker et al. Epigenetics Chromatin 2013 and (blood) immune cell data from Reinius et al. PLoS One 2012
+}
+}
+\examples{
+## obtain a list of references
+references <- meffil.list.cell.type.references()
+## show descriptions for each
+comment(references)
+
+}

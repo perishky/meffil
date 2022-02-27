@@ -31,7 +31,7 @@ winsorized to the given level. Set to NA to avoid winsorizing (Default: NA).}
 
 \item{outlier.iqr.factor}{Apply to methylation after setting,
 for each CpG site, values less than
-\code{Q1 - outlier.iqr.factor * IQR} or more than 
+\code{Q1 - outlier.iqr.factor * IQR} or more than
 \code{Q3 + outlier.iqr.factor * IQR} to NA. Here IQR is the inter-quartile
 range of the methylation levels at the CpG site, i.e. Q3-Q1.
 Set to NA to skip this step (Default: NA).}

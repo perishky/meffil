@@ -10,7 +10,7 @@ meffil.estimate.cell.counts.from.betas(beta, cell.type.reference, verbose = F)
 \item{beta}{Matrix of methylation levels (rows = CpG sites, columns = subjects).}
 
 \item{cell.type.reference}{Character string name of the cell type reference
-to use for estimating cell counts. 
+to use for estimating cell counts.
 See \code{\link{meffil.list.cell.type.references}()} for a list of available
 references.  New references can be created using
 \code{\link{meffil.add.cell.type.reference}()}.}

@@ -26,10 +26,12 @@ create.dlpfc.reference <- function(verbose=T) {
     U <- getUnmeth(reference)
     cell.types <- c("NeuN_neg","NeuN_pos")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("guintivano dlpfc",
-                                   M[,selected], U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "guintivano dlpfc",
+        M[,selected], U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        description="Derived from FlowSorted.DLPFC.450k",
+        verbose=verbose)
 }

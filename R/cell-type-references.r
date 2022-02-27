@@ -1,8 +1,27 @@
 #' List of available cell type references
 #'
+#' @details Names and description of available references:
+#' ```{r results="asis",echo=F}
+#' references <- comment(meffil.list.cell.type.references())
+#' references <- references[order(names(references))]
+#' for (i in 1:length(references)) 
+#'   cat("\n*", paste0('"',names(references)[i],'"'), references[[i]])
+#' cat("\n")
+#' #' @md
+#' ```
+#' 
+#' @examples
+#' ## obtain a list of references
+#' references <- meffil.list.cell.type.references()
+#' ## show descriptions for each
+#' comment(references)
+#' 
 #' @export
 meffil.list.cell.type.references <- function() {
-    ls(reference.globals)
+    references <- ls(reference.globals)
+    structure(
+        references,
+        comment=sapply(reference.globals, function(ref) ref$description))
 }
  
 get.cell.type.reference <- function(name) {
@@ -32,6 +51,7 @@ get.cell.type.reference <- function(name) {
 #' @param object Cell type reference previously created by this function.
 #' If not \code{NULL}, then this reference is added
 #' and all other function arguments are ignored (Default: NULL).
+#' @param description Text description of the reference (Default: NULL).
 #' @param verbose If \code{TRUE}, then status messages are printed during execution
 #' (Default: \code{FALSE}).
 #' @return A list specifying a cell type reference object that can be used by
@@ -56,12 +76,14 @@ meffil.add.cell.type.reference <- function(name, M, U, cell.types,
                                            number.quantiles=500,
                                            subsets=NULL,
                                            object=NULL,
+                                           description=NULL,
                                            verbose=F) {
     if (is.null(object)) {
         object <- create.cell.type.reference(M,U,cell.types,chip,featureset,
                                              number.sites,specific.sites,number.quantiles,
                                              subsets,verbose)
         object$name <- name
+        object$description <- description
     }
     else
         stopifnot(is.cell.type.reference(object))

@@ -26,13 +26,13 @@ meffil.read.samplesheet(
 \item{basenames}{Output from \code{\link{meffil.basenames}}}
 }
 \value{
-A \code{data.frame} containing the columns of all the sample sheets. 
-As described in details, a column named \code{Sentrix_Position} is renamed 
-to \code{Array} and \code{Sentrix_ID} is renamed to \code{Slide}.  In addition 
+A \code{data.frame} containing the columns of all the sample sheets.
+As described in details, a column named \code{Sentrix_Position} is renamed
+to \code{Array} and \code{Sentrix_ID} is renamed to \code{Slide}.  In addition
 the \code{data.frame} will contain a column named \code{Basename}.
 }
 \description{
-Reading an Illumina methylation sample sheet, containing pheno-data 
+Reading an Illumina methylation sample sheet, containing pheno-data
 information for the samples in an experiment.
 }
 \details{
@@ -41,7 +41,7 @@ subdirectories depending on the argument \code{recursive} for
 \dQuote{sample sheet} files (see below).  These files are identified
 solely on the base of their filename given by the arguments
 \code{pattern} and \code{ignore.case} (note the use of a dollarsign to
-mean end of file name).#' 
+mean end of file name).#'
 
 In case multiple sheet files are found, they are all read and the
 return object will contain the concatenation of the files.
@@ -53,7 +53,7 @@ may contain a header, in which case it is assumed that all lines up to
 and including a line starting with \code{\[Data\]} should be dropped.
 This is modelled after a sample sheet file Illumina provides.  It is
 also very similar to the \code{targets} file made used by the popular
-\code{limma} package (see the extensive package vignette).#' 
+\code{limma} package (see the extensive package vignette).#'
 
 An attempt at guessing the file path to the IDAT files represented in
 the sheet is made.  This should be doublechecked and might need to

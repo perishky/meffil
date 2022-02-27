@@ -84,34 +84,40 @@ create.gse35069.references <- function() {
     
     cell.types <- c("CD4T","CD8T","Mono","Bcell","NK","Neu","Eos")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("blood gse35069 complete",
-                                   ds$M[,selected], ds$U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "blood gse35069 complete",
+        ds$M[,selected], ds$U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        description="Adult blood reference of Reinius et al. PLoS One 2012 with neutrophils and eosinophils",
+        verbose=verbose)
     
     cell.types <- c("CD4T","CD8T","Mono","Bcell","NK","Gran")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("blood gse35069",
-                                   ds$M[,selected], ds$U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
-
+    meffil.add.cell.type.reference(
+        "blood gse35069",
+        ds$M[,selected], ds$U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        description="Adult blood reference of Reinius et al. PLoS One 2012",
+        verbose=verbose)
+    
 
     cpg.sites <- read.csv("chen-table-e2.csv",stringsAsFactors=F)    
 
     cell.types <- c("CD4T","CD8T","Mono","Bcell","NK","Neu","Eos")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("blood gse35069 chen",
-                                   ds$M[,selected], ds$U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   specific.sites=cpg.sites$cpg,
-                                   verbose=verbose)    
+    meffil.add.cell.type.reference(
+        "blood gse35069 chen",
+        ds$M[,selected], ds$U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        specific.sites=cpg.sites$cpg,
+        description="Adult blood reference of Reinius et al. PLoS One 2012 restricted to CpG sites of Table E2 in Chen et al. J Allergy Clin Immunol 2017",
+        verbose=verbose)    
 }
 
 

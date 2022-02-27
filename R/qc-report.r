@@ -714,11 +714,11 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
 #' Specify parameters for QC
 #'
 #' 
-#' @param  colour.code Default value = NULL <what param does>
-#' @param  control.categories Default value = control.probe.categories() <what param does>
+#' @param  colour.code Default value = NULL 
+#' @param  control.categories Default value = control.probe.categories()
 #' @param  sex.outlier.sd Sets the standard deviation multiple at which sex outliers are identified. Default value = 3.
 #' @param  meth.unmeth.outlier.sd Sets the standard deviation multiple at which methylated/unmethylated signal outliers are identified. Default value = 3.
-#' @param  control.means.outlier.sd Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5 <what param does>
+#' @param  control.means.outlier.sd Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5 
 #' @param  detectionp.samples.threshold Detection p-value threshold.  Probes with values above this are considered undetected. Default value = 0.05
 #' @param  beadnum.samples.threshold A sample is excluded if the given proportion of probes has low bead number. Default value = 0.05
 #' @param  detectionp.cpgs.threshold A sample is excluded if the given proporition of probes are undetected. Default value = 0.05

@@ -53,9 +53,11 @@ create.gse68456.reference <- function() {
     norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=verbose)
     ds <- meffil.normalize.samples(norm.objects, just.beta=F, verbose=T)
 
-    meffil.add.cell.type.reference("cord blood gse68456", ds$M, ds$U,
-                                   cell.types=samplesheet$cell.type,
-                                   chip=chip,
-                                   featureset=featureset,
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "cord blood gse68456", ds$M, ds$U,
+        cell.types=samplesheet$cell.type,
+        chip=chip,
+        featureset=featureset,
+        description="Cord blood reference of Goede et al. Clin Epigenetics 2015",
+        verbose=verbose)
 }

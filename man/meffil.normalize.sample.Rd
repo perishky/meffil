@@ -10,9 +10,9 @@ meffil.normalize.sample(norm.object, remove.poor.signal = F, verbose = F)
 \item{norm.object}{An element of \code{\link{meffil.normalize.quantiles}()}.}
 
 \item{remove.poor.signal}{Set methylation values for poorly detected probes
-to missing  (Default: \code{FALSE}). Poor signal was 
+to missing  (Default: \code{FALSE}). Poor signal was
 identified during QC by \code{\link{meffil.qc}()}
-as signal that failed to pass the 
+as signal that failed to pass the
 detection p-value threshold (\code{detection.threshold})
 or bead threshold (\code{bead.threshold}).}
 

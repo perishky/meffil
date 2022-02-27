@@ -24,10 +24,12 @@ create.andrews.bakulski.reference <- function(verbose=T) {
     U <- getUnmeth(reference)
     cell.types <- c("Bcell", "CD4T", "CD8T", "Gran", "Mono", "NK", "nRBC")
     selected <- samplesheet$CellType %in% cell.types
-    meffil.add.cell.type.reference("andrews and bakulski cord blood",
-                                   M[,selected], U[,selected],
-                                   cell.types=samplesheet$CellType[selected],
-                                   chip="450k",
-                                   featureset="common",
-                                   verbose=verbose)
+    meffil.add.cell.type.reference(
+        "andrews and bakulski cord blood",
+        M[,selected], U[,selected],
+        cell.types=samplesheet$CellType[selected],
+        chip="450k",
+        featureset="common",
+        description="Derived from FlowSorted.CordBlood.450k",
+        verbose=verbose)
 }

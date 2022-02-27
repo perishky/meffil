@@ -52,6 +52,6 @@ and quantiles.
 }
 \description{
 Read in control matrices for each sample.
-Perform background correction and R/G dye bias correction. 
+Perform background correction and R/G dye bias correction.
 Predict sex
 }

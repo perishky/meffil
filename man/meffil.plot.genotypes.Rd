@@ -26,15 +26,17 @@ and genetic profiles for a SNP are deemed a mismatch (Default: 0.99).}
 }
 \value{
 A list consisting of:
-- \code{graphs} A list of \link{ggplot2} objects.  The first \code{snp.betas}
+\itemize{
+\item \code{graphs} A list of \link{ggplot2} objects.  The first \code{snp.betas}
 plots the beta distributions of each SNP probe in the microarray.
 The second and third plots are added only if the \code{genotypes} parameter
 is not \code{NULL}. The second plot shows the distribution of SNP concordances,
 and the third plot shows the distribution of sample concordances.
-- \code{tabs} Contains two data frames if the
+\item \code{tabs} Contains two data frames if the
 \code{genotypes} parameter is not \code{NULL}.  The first \code{samples}
 lists the concordances of each sample, the second \code{snps} lists the
 concordances of each SNP.
+}
 }
 \description{
 Plot SNP beta and sample genotype concordances
