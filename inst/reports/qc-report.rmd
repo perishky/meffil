@@ -10,11 +10,7 @@ qc.summary$parameters
 ```
 ## Number of samples
 
-```{r}
-
 There are `r nrow(qc.summary$sex.summary$tab)` samples analysed.
-
-```
 
 ## Sex mismatches
 
