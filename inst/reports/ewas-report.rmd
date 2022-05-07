@@ -75,8 +75,8 @@ The following table shows overlaps between
 associations under different sets of covariates:
 ```{r}
 p.value.idx <- grep("p.value", colnames(tab))
-tab.overlaps <- apply(tab[,p.value.idx], 2, function(p.a) {
-    apply(tab[,p.value.idx], 2, function(p.b) {
+tab.overlaps <- apply(tab[,p.value.idx,drop=F], 2, function(p.a) {
+    apply(tab[,p.value.idx,drop=F], 2, function(p.b) {
         sum(p.a < ewas.summary$parameters$sig.threshold
             & p.b < ewas.summary$parameters$sig.threshold, na.rm=T)
     })
