@@ -122,8 +122,8 @@ can be omitted.  Otherwise, it is possible to obtain the matrix from a PLINK
 dataset as follows:
 
 	## save the SNP names in R
-	annotation <- qc.objects[[1]]$annotation
-	writeLines(meffil.snp.names(annotation), con="snp-names.txt")
+	featureset <- qc.objects[[1]]$featureset
+	writeLines(meffil.snp.names(featureset), con="snp-names.txt")
 	
 	## run plink at the command line
     plink --bfile dataset --extract snp-names.txt --recodeA --out genotypes.raw --noweb
