@@ -276,7 +276,7 @@ test.pairwise.associations <- function(y,x) {
 
                 r2s <- sapply(fits, function(fit) {
                     fit <- summary(fit)
-                    if (class(fit) == "summary.lm")
+                    if ("summary.lm" %in% class(fit))
                         fit$r.squared
                     else NA
                 })
