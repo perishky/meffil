@@ -149,7 +149,7 @@ predict.design.matrix <- function (qc.objects, number.pcs, new.idx,
 # From PCA applied to the raw control matrix,
 # derive the corresponding design matrix using the first \code{number.pcs} principal components.
 pca.to.design.matrix <- function(pca.ret, number.pcs, fixed.effects=NULL, random.effects=NULL) {
-    if (class(pca.ret) != "matrix")
+    if (! "matrix" %in% class(pca.ret))
         pca.ret <- pca.ret$x
     if (missing(number.pcs)) 
         number.pcs <- ncol(pca.ret)
