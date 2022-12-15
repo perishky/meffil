@@ -162,7 +162,7 @@ check.manifest <- function(manifest) {
                           "AddressA_ID"="character",
                           "AddressB_ID"="character",
                           "Infinium_Design_Type"=c("I","II",""),
-                          "CHR"=c(1:22,"X","Y",""),
+                          "CHR"=c(0:22,"X","Y","M",""),
                           "MAPINFO"="integer",
                           "AlleleA_ProbeSeq"="character",
                           "UCSC_RefGene_Name"="character",
