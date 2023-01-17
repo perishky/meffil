@@ -719,10 +719,10 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
 #' @param  sex.outlier.sd Sets the standard deviation multiple at which sex outliers are identified. Default value = 3.
 #' @param  meth.unmeth.outlier.sd Sets the standard deviation multiple at which methylated/unmethylated signal outliers are identified. Default value = 3.
 #' @param  control.means.outlier.sd Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5 
-#' @param  detectionp.samples.threshold Detection p-value threshold.  Probes with values above this are considered undetected. Default value = 0.05
-#' @param  beadnum.samples.threshold A sample is excluded if the given proportion of probes has low bead number. Default value = 0.05
-#' @param  detectionp.cpgs.threshold A sample is excluded if the given proporition of probes are undetected. Default value = 0.05
-#' @param  beadnum.cpgs.threshold A probe is excluded if the given proportion of samples have low bead number. Default value = 0.05
+#' @param  beadnum.samples.threshold Maximum threshold on the fraction of probes with too few detected beads (minimum number of detected beads is defined by setting the `beads.threshold` parameter of `meffil.qc()` or `meffil.normalize.dataset()`). Samples with probe fractions above this will be excluded from the final dataset. Default value = 0.2
+#' @param  detectionp.samples.threshold Maximum threshold on the fraction of undetected probes (probe detection is defined by setting the maximum probe detection p-value threshold parameter `detection.threshold` of `meffil.qc()` or `meffil.normalize.dataset()`).  Samples with probe fractions above this will be excluded from the final dataset. Default value = 0.2
+#' @param  beadnum.cpgs.threshold Same as `beadnum.samples.threshold` but used to identify poor quality probes in terms of the fraction of samples in which the probe has too few detected beads. Default value = 0.2
+#' @param  detectionp.cpgs.threshold Same as `detectionp.cpgs.threshold` but used to identify poor quality probes in terms of the fraction of samples in which the probe is undetected. Default value = 0.2
 #' @param  snp.concordance.threshold Minimum required concordance between supplied genotypes and genotypes estimated from a SNP probe. Default value = 0.99
 #' @param  sample.genotype.concordance.threshold Minimum required concordance between supplied genotypes and genotypes estimated from SNP probes for a given individual. Default value = 0.9 <what param does>
 #' @export
