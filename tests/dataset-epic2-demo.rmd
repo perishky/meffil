@@ -1,0 +1,12 @@
+Information about the new EPIC v2 microarray can be obtained here:
+
+https://www.illumina.com/products/by-type/microarray-kits/infinium-methylation-epic.html
+
+```{r, echo=F}
+knitr::read_chunk("dataset-epic2-demo.r")
+```
+
+```{r download-epic2-demo-dataset}
+```
+
+

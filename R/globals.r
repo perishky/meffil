@@ -22,6 +22,7 @@ load.globals <- function() {
 # for loading whenever the package is loaded.
 save.globals <- function(dir) {
     require(devtools)
+    require(pkgload)
     save.env <- function(filename, env) {
         save(list=ls(env),
              file=filename,
