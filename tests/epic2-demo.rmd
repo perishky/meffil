@@ -1,0 +1,119 @@
+```{r epic-demo-init, echo=FALSE, message=F}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+```
+
+# Normalize an EPIC v2 dataset
+
+## Download example data set 
+
+```{r child = 'dataset-epic2-demo.rmd'}
+```
+
+```{r}
+path <- download.epic2.demo.dataset()
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
+samplesheet <- meffil.read.samplesheet(base=path, pattern="SampleSheet")
+```
+
+Parameters.
+```{r}
+qc.file <- "epic2-demo/qc-report.html"
+author <- "Illumina, et al."
+study <- "EPIC demo dataset"
+number.pcs <- 2
+norm.file <- "epic2-demo/normalization-report.html"
+```
+
+Generate QC objects.
+```{r epic-demo-qc, cache=T}
+qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069 complete", verbose=T)
+## If you get an error relating to a function from
+## the 'preprocessCore' R package, 
+## then you may need to reinstall it as follows: 
+## BiocManager::install("preprocessCore", configure.args="--disable-threading", force = TRUE)
+```
+
+QC report.
+```{r}
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+```
+
+Normalization dataset.
+```{r epic-demo-norm, cache=T}
+norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+
+norm.dataset <- meffil.normalize.samples(norm.objects,
+                                         just.beta=F, 
+                                         cpglist.remove=qc.summary$bad.cpgs$name,
+                                         verbose=T)
+```
+
+```{r}
+beta.meffil <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+```
+
+Compute principal components of the normalized methylation matrix.
+```{r epic-demo-pcs, cache=T}
+pcs <- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites("epic"), verbose=T)
+```
+
+Normalization report.
+```{r}
+parameters <- meffil.normalization.parameters(norm.objects)
+parameters$batch.threshold <- 0.01
+norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
+                                             parameters=parameters, verbose=T)
+
+meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+```
+
+
+## Horvath's clock and the EPIC v2 microarray
+
+```{r}
+#require(RCurl)
+#clock <- read.csv(textConnection(getURL("https://labs.genetics.ucla.edu/horvath/dnamage/AdditionalFile3.csv")), comment.char="#", stringsAsFactors=F)
+clock <- read.csv("AdditionalFile3.csv", comment.char="#", stringsAsFactors=F)
+length(setdiff(clock$CpGmarker, rownames(beta.meffil)))
+nrow(clock)
+length(intersect(clock$CpGmarker, rownames(beta.meffil)))/nrow(clock)
+```
+
+20 of the 'clock' sites are missing.
+
+## Hannum predictor CpG sites and the EPIC microarray
+
+71 CpG sites were used in the Hannum et al. age predictor:
+
+> Hannum G, et al.
+> Genome-wide methylation profiles reveal quantitative views of human aging rates.
+> Mol Cell. 2013 Jan 24;49(2):359-67.
+
+The list can be obtained from here:
+http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3780611/bin/NIHMS418935-supplement-02.xlsx
+
+```{r}
+hannum.sites <- readLines("hannum.txt")
+length(hannum.sites)
+length(setdiff(hannum.sites, rownames(beta.meffil)))
+length(intersect(hannum.sites, rownames(beta.meffil)))/length(hannum.sites)
+```
+
+6 of the 71 sites are missing.

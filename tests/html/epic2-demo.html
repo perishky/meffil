@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Normalize an EPIC v2 dataset</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/styles/github.min.css">
+<script src="https://cdn.jsdelivr.net/combine/gh/highlightjs/cdn-release@11.6.0/build/highlight.min.js,npm/@xiee/utils/js/load-highlight.js" async></script>
+
+
+
+<style type="text/css">
+body, td {
+  font-family: sans-serif;
+  background-color: white;
+  font-size: 13px;
+}
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+}
+tt, code, pre {
+  font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+a:visited { color: #80007f; }
+pre, img { max-width: 100%; }
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+code[class] { background-color: #F8F8F8; }
+code.language-undefined { background-color: inherit; }
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color:#666;
+  margin:0;
+  padding-left: 1em;
+  border-left: 0.5em #eee solid;
+}
+hr { border: 1px #ddd dashed; }
+
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    filter:none !important;
+  }
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  a, a:visited { text-decoration: underline; }
+  hr {
+    visibility: hidden;
+    page-break-before: always;
+  }
+  pre, blockquote {
+    padding-right: 1em;
+    page-break-inside: avoid;
+  }
+  tr, img { page-break-inside: avoid; }
+  img { max-width: 100% !important; }
+  @page :left { margin: 15mm 20mm 15mm 10mm; }
+  @page :right { margin: 15mm 10mm 15mm 20mm; }
+  p, h2, h3 { orphans: 3; widows: 3; }
+  h2, h3 { page-break-after: avoid; }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<div id="TOC">
+<ul>
+<li>Normalize an EPIC v2 dataset
+<ul>
+<li>Download example data set</li>
+<li>Normalize dataset</li>
+<li>Horvath’s clock and the EPIC v2 microarray</li>
+<li>Hannum predictor CpG sites and the EPIC microarray</li>
+</ul>
+</li>
+</ul>
+</div>
+<h1>Normalize an EPIC v2 dataset</h1>
+<h2>Download example data set</h2>
+<p>Information about the new EPIC v2 microarray can be obtained here:</p>
+<p><a href="https://www.illumina.com/products/by-type/microarray-kits/infinium-methylation-epic.html">https://www.illumina.com/products/by-type/microarray-kits/infinium-methylation-epic.html</a></p>
+<pre><code class="language-r">download.epic2.demo.dataset &lt;- function() {
+    dir.create(path &lt;- &quot;data-epic2-demo&quot;)
+    
+    if (length(list.files(path, &quot;*.idat$&quot;)) == 0) {
+        download.zip &lt;- function(url, path) {
+            filename &lt;- file.path(path, &quot;data.zip&quot;)
+            download.file(url, filename)
+            filenames &lt;- unzip(filename, junkpaths=T, exdir=path)
+            unlink(filename)
+            invisible(filenames)
+        }    
+
+        url &lt;- &quot;https://support.illumina.com/content/dam/illumina-support/documents/downloads/productfiles/methylationepic/DemoDataEPIC_v2.zip&quot;
+        download.zip(url, file.path(path, &quot;data.zip&quot;))
+    }
+    
+    path
+}
+</code></pre>
+<pre><code class="language-r">path &lt;- download.epic2.demo.dataset()
+</code></pre>
+<h2>Normalize dataset</h2>
+<p>Create samplesheet</p>
+<pre><code class="language-r">library(meffil)
+samplesheet &lt;- meffil.read.samplesheet(base=path, pattern=&quot;SampleSheet&quot;)
+</code></pre>
+<pre><code>## [read.450k.sheet] Found the following CSV files:
+## [1] &quot;data-epic2-demo/Demo_EPIC-8v2-0_A1_SampleSheet_16.csv&quot;
+</code></pre>
+<p>Parameters.</p>
+<pre><code class="language-r">qc.file &lt;- &quot;epic2-demo/qc-report.html&quot;
+author &lt;- &quot;Illumina, et al.&quot;
+study &lt;- &quot;EPIC demo dataset&quot;
+number.pcs &lt;- 2
+norm.file &lt;- &quot;epic2-demo/normalization-report.html&quot;
+</code></pre>
+<p>Generate QC objects.</p>
+<pre><code class="language-r">qc.objects &lt;- meffil.qc(samplesheet, cell.type.reference=&quot;blood gse35069 complete&quot;, verbose=T)
+## If you get an error relating to a function from
+## the 'preprocessCore' R package, 
+## then you may need to reinstall it as follows: 
+## BiocManager::install(&quot;preprocessCore&quot;, configure.args=&quot;--disable-threading&quot;, force = TRUE)
+</code></pre>
+<p>QC report.</p>
+<pre><code class="language-r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
+</code></pre>
+<pre><code>## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Sex summary TRUE 
+## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Meth vs unmeth summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Control means summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Sample detection summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:17 2023 CpG detection summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:17 2023 Sample bead numbers summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:19 2023 CpG bead numbers summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:20 2023 Cell count summary 
+## [meffil.qc.summary] Wed Feb 15 10:33:20 2023 Genotype concordance
+</code></pre>
+<pre><code class="language-r">meffil.qc.report(qc.summary,
+                 output.file=qc.file,
+                 author=author,
+                 study=study)
+</code></pre>
+<pre><code>## [meffil.qc.report] Wed Feb 15 10:33:21 2023 Writing report as html file to epic2-demo/qc-report.html
+</code></pre>
+<p>Normalization dataset.</p>
+<pre><code class="language-r">norm.objects &lt;- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
+</code></pre>
+<pre><code>## [meffil.normalize.quantiles] Wed Feb 15 10:33:31 2023 selecting dye correction reference 
+## [meffil.normalize.quantiles] Wed Feb 15 10:33:31 2023 creating control matrix 
+## [meffil.normalize.quantiles] Wed Feb 15 10:33:31 2023 normalizing quantiles 
+## [FUN] Wed Feb 15 10:33:31 2023 genomic.iG M 
+## [FUN] Wed Feb 15 10:33:31 2023 genomic.iG U 
+## [FUN] Wed Feb 15 10:33:31 2023 genomic.iR M 
+## [FUN] Wed Feb 15 10:33:31 2023 genomic.iR U 
+## [FUN] Wed Feb 15 10:33:31 2023 genomic.ii M 
+## [FUN] Wed Feb 15 10:33:31 2023 genomic.ii U 
+## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iG M 
+## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iG U 
+## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iR M 
+## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iR U 
+## [FUN] Wed Feb 15 10:33:31 2023 autosomal.ii M 
+## [FUN] Wed Feb 15 10:33:31 2023 autosomal.ii U 
+## [FUN] Wed Feb 15 10:33:31 2023 not.y.iG M 
+## [FUN] Wed Feb 15 10:33:31 2023 not.y.iG U 
+## [FUN] Wed Feb 15 10:33:31 2023 not.y.iR M 
+## [FUN] Wed Feb 15 10:33:31 2023 not.y.iR U 
+## [FUN] Wed Feb 15 10:33:31 2023 not.y.ii M 
+## [FUN] Wed Feb 15 10:33:31 2023 not.y.ii U 
+## [FUN] Wed Feb 15 10:33:31 2023 sex M 
+## [FUN] Wed Feb 15 10:33:31 2023 sex U 
+## [FUN] Wed Feb 15 10:33:32 2023 chrx M 
+## [FUN] Wed Feb 15 10:33:32 2023 chrx U 
+## [FUN] Wed Feb 15 10:33:32 2023 chry M 
+## [FUN] Wed Feb 15 10:33:32 2023 chry U
+</code></pre>
+<pre><code class="language-r">norm.dataset &lt;- meffil.normalize.samples(norm.objects,
+                                         just.beta=F, 
+                                         cpglist.remove=qc.summary$bad.cpgs$name,
+                                         verbose=T)
+</code></pre>
+<pre><code class="language-r">beta.meffil &lt;- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+</code></pre>
+<p>Compute principal components of the normalized methylation matrix.</p>
+<pre><code class="language-r">pcs &lt;- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites(&quot;epic&quot;), verbose=T)
+</code></pre>
+<pre><code>## [meffil.methylation.pcs] Wed Feb 15 10:35:06 2023 Calculating CpG variance 
+## [meffil.methylation.pcs] Wed Feb 15 10:35:07 2023 Calculating beta PCs
+</code></pre>
+<p>Normalization report.</p>
+<pre><code class="language-r">parameters &lt;- meffil.normalization.parameters(norm.objects)
+parameters$batch.threshold &lt;- 0.01
+norm.summary &lt;- meffil.normalization.summary(norm.objects=norm.objects,
+                                             pcs=pcs,
+                                             parameters=parameters, verbose=T)
+</code></pre>
+<pre><code>## [meffil.plot.control.batch] Wed Feb 15 10:35:07 2023 Extracting batch variables 
+## [meffil.plot.control.batch] Wed Feb 15 10:35:07 2023 Testing associations 
+## [meffil.plot.probe.batch] Wed Feb 15 10:35:13 2023 Extracting batch variables 
+## [meffil.plot.probe.batch] Wed Feb 15 10:35:13 2023 Testing associations
+</code></pre>
+<pre><code class="language-r">meffil.normalization.report(norm.summary,
+                            output.file=norm.file,
+                            author=author,
+                            study=study)
+</code></pre>
+<pre><code>## [meffil.normalization.report] Wed Feb 15 10:35:19 2023 Writing report as html file to epic2-demo/normalization-report.html
+</code></pre>
+<h2>Horvath’s clock and the EPIC v2 microarray</h2>
+<pre><code class="language-r">#require(RCurl)
+#clock &lt;- read.csv(textConnection(getURL(&quot;https://labs.genetics.ucla.edu/horvath/dnamage/AdditionalFile3.csv&quot;)), comment.char=&quot;#&quot;, stringsAsFactors=F)
+clock &lt;- read.csv(&quot;AdditionalFile3.csv&quot;, comment.char=&quot;#&quot;, stringsAsFactors=F)
+length(setdiff(clock$CpGmarker, rownames(beta.meffil)))
+</code></pre>
+<pre><code>## [1] 14
+</code></pre>
+<pre><code class="language-r">nrow(clock)
+</code></pre>
+<pre><code>## [1] 354
+</code></pre>
+<pre><code class="language-r">length(intersect(clock$CpGmarker, rownames(beta.meffil)))/nrow(clock)
+</code></pre>
+<pre><code>## [1] 0.960452
+</code></pre>
+<p>20 of the ‘clock’ sites are missing.</p>
+<h2>Hannum predictor CpG sites and the EPIC microarray</h2>
+<p>71 CpG sites were used in the Hannum et al. age predictor:</p>
+<blockquote>
+<p>Hannum G, et al.
+Genome-wide methylation profiles reveal quantitative views of human aging rates.
+Mol Cell. 2013 Jan 24;49(2):359-67.</p>
+</blockquote>
+<p>The list can be obtained from here:
+<a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3780611/bin/NIHMS418935-supplement-02.xlsx">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3780611/bin/NIHMS418935-supplement-02.xlsx</a></p>
+<pre><code class="language-r">hannum.sites &lt;- readLines(&quot;hannum.txt&quot;)
+length(hannum.sites)
+</code></pre>
+<pre><code>## [1] 71
+</code></pre>
+<pre><code class="language-r">length(setdiff(hannum.sites, rownames(beta.meffil)))
+</code></pre>
+<pre><code>## [1] 7
+</code></pre>
+<pre><code class="language-r">length(intersect(hannum.sites, rownames(beta.meffil)))/length(hannum.sites)
+</code></pre>
+<pre><code>## [1] 0.9014085
+</code></pre>
+<p>6 of the 71 sites are missing.</p>
+
+
+<script src="https://cdn.jsdelivr.net/combine/npm/@xiee/utils/js/center-img.min.js" async></script>
+</body>
+
+</html>

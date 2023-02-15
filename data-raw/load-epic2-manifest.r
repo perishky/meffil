@@ -20,6 +20,18 @@ load.epic2.manifest <- function() {
     ## appears to be SNPs in probe with MAF at least 0.01
 
     manifest$CHR <- sub("^chr","",manifest$CHR) 
+
+    excluded.addresses <- c(
+        "[Controls]",
+        "21630339",
+        "24669308")
+    idx <- which(manifest$AddressA_ID %in% excluded.addresses
+                 | manifest$AddressB_ID %in% excluded.addresses
+                 | manifest$IlmnID %in% excluded.addresses
+                 | manifest$IlmnID %in% excluded.addresses
+                 | as.character(manifest$IlmnID) == "[Controls]")
+    if (length(idx) > 0)
+         manifest <- manifest[-idx,]
     
     manifest
 }
