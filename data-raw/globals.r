@@ -82,6 +82,11 @@ if (!"guintivano dlpfc" %in% meffil.list.cell.type.references()) {
     create.dlpfc.reference()
 }
 
+if (!"blood gse167998" %in% meffil.list.cell.type.references()) {
+    source("gse167998-reference.r")
+    create.gse167998.reference()
+}
+
 ## save the global variables so they can be loaded by the package
 meffil:::save.globals("../inst") ## see ../R/globals.r
 
