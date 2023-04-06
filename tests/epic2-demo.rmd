@@ -1,4 +1,4 @@
-```{r epic-demo-init, echo=FALSE, message=F}
+```{r epic2-demo-init, echo=FALSE, message=F}
 library(knitr)
 library(Cairo)
 opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
@@ -34,7 +34,7 @@ norm.file <- "epic2-demo/normalization-report.html"
 ```
 
 Generate QC objects.
-```{r epic-demo-qc, cache=T}
+```{r epic2-demo-qc, cache=T}
 qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069 complete", verbose=T)
 ## If you get an error relating to a function from
 ## the 'preprocessCore' R package, 
@@ -52,7 +52,7 @@ meffil.qc.report(qc.summary,
 ```
 
 Normalization dataset.
-```{r epic-demo-norm, cache=T}
+```{r epic2-demo-norm, cache=T}
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
 
 norm.dataset <- meffil.normalize.samples(norm.objects,
@@ -66,7 +66,7 @@ beta.meffil <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
 ```
 
 Compute principal components of the normalized methylation matrix.
-```{r epic-demo-pcs, cache=T}
+```{r epic2-demo-pcs, cache=T}
 pcs <- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites("epic"), verbose=T)
 ```
 
@@ -116,4 +116,15 @@ length(setdiff(hannum.sites, rownames(beta.meffil)))
 length(intersect(hannum.sites, rownames(beta.meffil)))/length(hannum.sites)
 ```
 
-6 of the 71 sites are missing.
+7 of the 71 sites are missing.
+
+## Duplicated probes
+
+Several thousand probes appear in duplicate across the microarray.
+For example, cg06373096 appears `r length(grep("cg06373096",rownames(beta.meffil)))` times.
+Here is the correlations between these duplicates:
+
+```{r}
+cor(t(beta.meffil[grep("cg06373096",rownames(beta.meffil)),]))
+colMeans(cor(t(beta.meffil[grep("cg06373096",rownames(beta.meffil)),])))
+```
