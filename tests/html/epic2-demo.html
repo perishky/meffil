@@ -82,18 +82,6 @@ hr { border: 1px #ddd dashed; }
 </head>
 
 <body>
-<div id="TOC">
-<ul>
-<li>Normalize an EPIC v2 dataset
-<ul>
-<li>Download example data set</li>
-<li>Normalize dataset</li>
-<li>Horvath’s clock and the EPIC v2 microarray</li>
-<li>Hannum predictor CpG sites and the EPIC microarray</li>
-</ul>
-</li>
-</ul>
-</div>
 <h1>Normalize an EPIC v2 dataset</h1>
 <h2>Download example data set</h2>
 <p>Information about the new EPIC v2 microarray can be obtained here:</p>
@@ -144,53 +132,53 @@ norm.file &lt;- &quot;epic2-demo/normalization-report.html&quot;
 <p>QC report.</p>
 <pre><code class="language-r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
 </code></pre>
-<pre><code>## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Sex summary TRUE 
-## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Meth vs unmeth summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Control means summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:13 2023 Sample detection summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:17 2023 CpG detection summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:17 2023 Sample bead numbers summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:19 2023 CpG bead numbers summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:20 2023 Cell count summary 
-## [meffil.qc.summary] Wed Feb 15 10:33:20 2023 Genotype concordance
+<pre><code>## [meffil.qc.summary] Thu Apr  6 17:36:27 2023 Sex summary TRUE 
+## [meffil.qc.summary] Thu Apr  6 17:36:27 2023 Meth vs unmeth summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:27 2023 Control means summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:27 2023 Sample detection summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:28 2023 CpG detection summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:29 2023 Sample bead numbers summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:30 2023 CpG bead numbers summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:30 2023 Cell count summary 
+## [meffil.qc.summary] Thu Apr  6 17:36:30 2023 Genotype concordance
 </code></pre>
 <pre><code class="language-r">meffil.qc.report(qc.summary,
                  output.file=qc.file,
                  author=author,
                  study=study)
 </code></pre>
-<pre><code>## [meffil.qc.report] Wed Feb 15 10:33:21 2023 Writing report as html file to epic2-demo/qc-report.html
+<pre><code>## [meffil.qc.report] Thu Apr  6 17:36:31 2023 Writing report as html file to epic2-demo/qc-report.html
 </code></pre>
 <p>Normalization dataset.</p>
 <pre><code class="language-r">norm.objects &lt;- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
 </code></pre>
-<pre><code>## [meffil.normalize.quantiles] Wed Feb 15 10:33:31 2023 selecting dye correction reference 
-## [meffil.normalize.quantiles] Wed Feb 15 10:33:31 2023 creating control matrix 
-## [meffil.normalize.quantiles] Wed Feb 15 10:33:31 2023 normalizing quantiles 
-## [FUN] Wed Feb 15 10:33:31 2023 genomic.iG M 
-## [FUN] Wed Feb 15 10:33:31 2023 genomic.iG U 
-## [FUN] Wed Feb 15 10:33:31 2023 genomic.iR M 
-## [FUN] Wed Feb 15 10:33:31 2023 genomic.iR U 
-## [FUN] Wed Feb 15 10:33:31 2023 genomic.ii M 
-## [FUN] Wed Feb 15 10:33:31 2023 genomic.ii U 
-## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iG M 
-## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iG U 
-## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iR M 
-## [FUN] Wed Feb 15 10:33:31 2023 autosomal.iR U 
-## [FUN] Wed Feb 15 10:33:31 2023 autosomal.ii M 
-## [FUN] Wed Feb 15 10:33:31 2023 autosomal.ii U 
-## [FUN] Wed Feb 15 10:33:31 2023 not.y.iG M 
-## [FUN] Wed Feb 15 10:33:31 2023 not.y.iG U 
-## [FUN] Wed Feb 15 10:33:31 2023 not.y.iR M 
-## [FUN] Wed Feb 15 10:33:31 2023 not.y.iR U 
-## [FUN] Wed Feb 15 10:33:31 2023 not.y.ii M 
-## [FUN] Wed Feb 15 10:33:31 2023 not.y.ii U 
-## [FUN] Wed Feb 15 10:33:31 2023 sex M 
-## [FUN] Wed Feb 15 10:33:31 2023 sex U 
-## [FUN] Wed Feb 15 10:33:32 2023 chrx M 
-## [FUN] Wed Feb 15 10:33:32 2023 chrx U 
-## [FUN] Wed Feb 15 10:33:32 2023 chry M 
-## [FUN] Wed Feb 15 10:33:32 2023 chry U
+<pre><code>## [meffil.normalize.quantiles] Thu Apr  6 17:31:15 2023 selecting dye correction reference 
+## [meffil.normalize.quantiles] Thu Apr  6 17:31:15 2023 creating control matrix 
+## [meffil.normalize.quantiles] Thu Apr  6 17:31:15 2023 normalizing quantiles 
+## [FUN] Thu Apr  6 17:31:15 2023 genomic.iG M 
+## [FUN] Thu Apr  6 17:31:15 2023 genomic.iG U 
+## [FUN] Thu Apr  6 17:31:15 2023 genomic.iR M 
+## [FUN] Thu Apr  6 17:31:15 2023 genomic.iR U 
+## [FUN] Thu Apr  6 17:31:15 2023 genomic.ii M 
+## [FUN] Thu Apr  6 17:31:15 2023 genomic.ii U 
+## [FUN] Thu Apr  6 17:31:15 2023 autosomal.iG M 
+## [FUN] Thu Apr  6 17:31:15 2023 autosomal.iG U 
+## [FUN] Thu Apr  6 17:31:15 2023 autosomal.iR M 
+## [FUN] Thu Apr  6 17:31:16 2023 autosomal.iR U 
+## [FUN] Thu Apr  6 17:31:16 2023 autosomal.ii M 
+## [FUN] Thu Apr  6 17:31:16 2023 autosomal.ii U 
+## [FUN] Thu Apr  6 17:31:16 2023 not.y.iG M 
+## [FUN] Thu Apr  6 17:31:16 2023 not.y.iG U 
+## [FUN] Thu Apr  6 17:31:16 2023 not.y.iR M 
+## [FUN] Thu Apr  6 17:31:16 2023 not.y.iR U 
+## [FUN] Thu Apr  6 17:31:16 2023 not.y.ii M 
+## [FUN] Thu Apr  6 17:31:16 2023 not.y.ii U 
+## [FUN] Thu Apr  6 17:31:16 2023 sex M 
+## [FUN] Thu Apr  6 17:31:16 2023 sex U 
+## [FUN] Thu Apr  6 17:31:16 2023 chrx M 
+## [FUN] Thu Apr  6 17:31:16 2023 chrx U 
+## [FUN] Thu Apr  6 17:31:16 2023 chry M 
+## [FUN] Thu Apr  6 17:31:16 2023 chry U
 </code></pre>
 <pre><code class="language-r">norm.dataset &lt;- meffil.normalize.samples(norm.objects,
                                          just.beta=F, 
@@ -202,8 +190,8 @@ norm.file &lt;- &quot;epic2-demo/normalization-report.html&quot;
 <p>Compute principal components of the normalized methylation matrix.</p>
 <pre><code class="language-r">pcs &lt;- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites(&quot;epic&quot;), verbose=T)
 </code></pre>
-<pre><code>## [meffil.methylation.pcs] Wed Feb 15 10:35:06 2023 Calculating CpG variance 
-## [meffil.methylation.pcs] Wed Feb 15 10:35:07 2023 Calculating beta PCs
+<pre><code>## [meffil.methylation.pcs] Thu Apr  6 17:33:03 2023 Calculating CpG variance 
+## [meffil.methylation.pcs] Thu Apr  6 17:33:05 2023 Calculating beta PCs
 </code></pre>
 <p>Normalization report.</p>
 <pre><code class="language-r">parameters &lt;- meffil.normalization.parameters(norm.objects)
@@ -212,17 +200,17 @@ norm.summary &lt;- meffil.normalization.summary(norm.objects=norm.objects,
                                              pcs=pcs,
                                              parameters=parameters, verbose=T)
 </code></pre>
-<pre><code>## [meffil.plot.control.batch] Wed Feb 15 10:35:07 2023 Extracting batch variables 
-## [meffil.plot.control.batch] Wed Feb 15 10:35:07 2023 Testing associations 
-## [meffil.plot.probe.batch] Wed Feb 15 10:35:13 2023 Extracting batch variables 
-## [meffil.plot.probe.batch] Wed Feb 15 10:35:13 2023 Testing associations
+<pre><code>## [meffil.plot.control.batch] Thu Apr  6 17:36:44 2023 Extracting batch variables 
+## [meffil.plot.control.batch] Thu Apr  6 17:36:44 2023 Testing associations 
+## [meffil.plot.probe.batch] Thu Apr  6 17:36:49 2023 Extracting batch variables 
+## [meffil.plot.probe.batch] Thu Apr  6 17:36:49 2023 Testing associations
 </code></pre>
 <pre><code class="language-r">meffil.normalization.report(norm.summary,
                             output.file=norm.file,
                             author=author,
                             study=study)
 </code></pre>
-<pre><code>## [meffil.normalization.report] Wed Feb 15 10:35:19 2023 Writing report as html file to epic2-demo/normalization-report.html
+<pre><code>## [meffil.normalization.report] Thu Apr  6 17:36:54 2023 Writing report as html file to epic2-demo/normalization-report.html
 </code></pre>
 <h2>Horvath’s clock and the EPIC v2 microarray</h2>
 <pre><code class="language-r">#require(RCurl)
@@ -263,7 +251,56 @@ length(hannum.sites)
 </code></pre>
 <pre><code>## [1] 0.9014085
 </code></pre>
-<p>6 of the 71 sites are missing.</p>
+<p>7 of the 71 sites are missing.</p>
+<h2>Duplicated probes</h2>
+<p>Several thousand probes appear in duplicate across the microarray.
+For example, cg06373096 appears 10 times.
+Here is the correlations between these duplicates:</p>
+<pre><code class="language-r">cor(t(beta.meffil[grep(&quot;cg06373096&quot;,rownames(beta.meffil)),]))
+</code></pre>
+<pre><code>##                  cg06373096 cg06373096_TC12 cg06373096_TC13 cg06373096_TC14
+## cg06373096        1.0000000       0.8243699       0.7592742       0.7793531
+## cg06373096_TC12   0.8243699       1.0000000       0.7897399       0.7397427
+## cg06373096_TC13   0.7592742       0.7897399       1.0000000       0.7173957
+## cg06373096_TC14   0.7793531       0.7397427       0.7173957       1.0000000
+## cg06373096_TC15   0.8752993       0.7641724       0.8347072       0.8772968
+## cg06373096_TC16   0.8825980       0.8154338       0.7713652       0.8267420
+## cg06373096_TC17   0.7712993       0.7361161       0.6659681       0.6809560
+## cg06373096_TC18   0.8289695       0.6955757       0.6189466       0.5692075
+## cg06373096_TC19   0.7045560       0.7007004       0.8266329       0.7450534
+## cg06373096_TC110  0.8118309       0.5930558       0.7121591       0.7932888
+##                  cg06373096_TC15 cg06373096_TC16 cg06373096_TC17
+## cg06373096             0.8752993       0.8825980       0.7712993
+## cg06373096_TC12        0.7641724       0.8154338       0.7361161
+## cg06373096_TC13        0.8347072       0.7713652       0.6659681
+## cg06373096_TC14        0.8772968       0.8267420       0.6809560
+## cg06373096_TC15        1.0000000       0.8176969       0.7212996
+## cg06373096_TC16        0.8176969       1.0000000       0.6575714
+## cg06373096_TC17        0.7212996       0.6575714       1.0000000
+## cg06373096_TC18        0.6435677       0.8375359       0.5615424
+## cg06373096_TC19        0.7625179       0.6663931       0.5967316
+## cg06373096_TC110       0.8022731       0.7850622       0.6125044
+##                  cg06373096_TC18 cg06373096_TC19 cg06373096_TC110
+## cg06373096             0.8289695       0.7045560        0.8118309
+## cg06373096_TC12        0.6955757       0.7007004        0.5930558
+## cg06373096_TC13        0.6189466       0.8266329        0.7121591
+## cg06373096_TC14        0.5692075       0.7450534        0.7932888
+## cg06373096_TC15        0.6435677       0.7625179        0.8022731
+## cg06373096_TC16        0.8375359       0.6663931        0.7850622
+## cg06373096_TC17        0.5615424       0.5967316        0.6125044
+## cg06373096_TC18        1.0000000       0.6419688        0.6092255
+## cg06373096_TC19        0.6419688       1.0000000        0.6502503
+## cg06373096_TC110       0.6092255       0.6502503        1.0000000
+</code></pre>
+<pre><code class="language-r">colMeans(cor(t(beta.meffil[grep(&quot;cg06373096&quot;,rownames(beta.meffil)),])))
+</code></pre>
+<pre><code>##       cg06373096  cg06373096_TC12  cg06373096_TC13  cg06373096_TC14 
+##        0.8237550        0.7658907        0.7696189        0.7729036 
+##  cg06373096_TC15  cg06373096_TC16  cg06373096_TC17  cg06373096_TC18 
+##        0.8098831        0.8060399        0.7003989        0.7006540 
+##  cg06373096_TC19 cg06373096_TC110 
+##        0.7294804        0.7369650
+</code></pre>
 
 
 <script src="https://cdn.jsdelivr.net/combine/npm/@xiee/utils/js/center-img.min.js" async></script>
