@@ -10,6 +10,7 @@ meffil.normalize.samples(
   just.beta = T,
   cpglist.remove = NULL,
   remove.poor.signal = F,
+  dup.fun = function(x) median(x, na.rm = T),
   max.bytes = 2^30 - 1,
   gds.filename = NULL,
   verbose = F,
@@ -33,6 +34,10 @@ identified during QC by \code{\link{meffil.qc}()}
 as signal that failed to pass the
 detection p-value threshold (\code{detection.threshold})
 or bead threshold (\code{bead.threshold}).}
+
+\item{dup.fun}{Function to collapse duplicate probes
+(EPIC v2 has over 5000 duplicated probes). If NULL, then
+duplicates are not collapsed (Default: median).}
 
 \item{gds.filename}{If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
 This is for cases where the output is too large to fit into main memory.

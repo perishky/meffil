@@ -13,6 +13,7 @@ List of available cell type references
 Names and description of available references:
 \itemize{
 \item "andrews and bakulski cord blood" Derived from FlowSorted.CordBlood.450k
+\item "blood gse167998" Adult blood reference of Salas et al. Nat Comms 2022
 \item "blood gse35069" Adult blood reference of Reinius et al. PLoS One 2012
 \item "blood gse35069 chen" Adult blood reference of Reinius et al. PLoS One 2012 restricted to CpG sites of Table E2 in Chen et al. J Allergy Clin Immunol 2017
 \item "blood gse35069 complete" Adult blood reference of Reinius et al. PLoS One 2012 with neutrophils and eosinophils

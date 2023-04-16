@@ -13,6 +13,9 @@
 #' as signal that failed to pass the 
 #' detection p-value threshold (\code{detection.threshold})
 #' or bead threshold (\code{bead.threshold}).
+#' @param dup.fun Function to collapse duplicate probes 
+#' (EPIC v2 has over 5000 duplicated probes). If NULL, then
+#' duplicates are not collapsed (Default: median).
 #' @param cpglist.remove Optional list of CpGs to exclude from final output
 #' @param verbose If \code{TRUE}, then detailed status messages are printed during execution (Default: \code{FALSE}).
 #' @param gds.filename If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
@@ -33,6 +36,7 @@ meffil.normalize.samples <- function(norm.objects,
                                      just.beta=T,
                                      cpglist.remove=NULL,
                                      remove.poor.signal=F,
+                                     dup.fun=function(x) median(x,na.rm=T),
                                      max.bytes=2^30-1, ## maximum number of bytes for mclapply
                                      gds.filename=NULL,
                                      verbose=F,
@@ -55,6 +59,10 @@ meffil.normalize.samples <- function(norm.objects,
     if(!is.null(cpglist.remove))
         sites <- setdiff(sites, cpglist.remove)
 
+    dups <- NULL
+    if (!is.null(dup.fun)) 
+        dups <- identify.dups(sites)
+
     if (is.null(gds.filename)) {
         ret <- mcsapply.safe(
             norm.objects,
@@ -74,9 +82,16 @@ meffil.normalize.samples <- function(norm.objects,
             ret <- list(M=ret[1:length(sites),],
                         U=ret[(length(sites)+1):nrow(ret),])
             dimnames(ret$M) <- dimnames(ret$U) <- list(sites, names(norm.objects))
+            if (length(dups) > 0) {
+                ret$M <- collapse.dups(ret$M, dups, dup.fun)
+                ret$U <- collapse.dups(ret$U, dups, dup.fun)
+            }
         }
-        else
+        else {
             dimnames(ret) <- list(sites, names(norm.objects))
+            if (length(dups) > 0)
+                ret <- collapse.dups(ret, dups, dup.fun)
+        }
         ret
     } else {
         require(gdsfmt)
@@ -88,6 +103,8 @@ meffil.normalize.samples <- function(norm.objects,
                 u.idx <- match(sites, names(mu$U))
                 ret <- get.beta(unname(mu$M[m.idx]), unname(mu$U[u.idx]), pseudo)
                 names(ret) <- sites
+                if (length(dups) > 0)
+                    ret <- collapse.dups(ret, dups, dup.fun)
                 ret
             },
             ...,
@@ -125,4 +142,5 @@ meffil.normalize.samples <- function(norm.objects,
 # However, no errors were generated (tested with a tryCatch).
 # It seems that mclapply and big.matrix do not play well together all the time.
 # We have replaced this with the less elegant approach implemented in mcsapply().
+
 

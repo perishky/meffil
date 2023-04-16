@@ -21,6 +21,7 @@ meffil.normalize.dataset(
   fixed.effects = NULL,
   random.effects = NULL,
   pseudo = 100,
+  dup.fun = function(x) median(x, na.rm = T),
   just.beta = T,
   gds.filename = NULL,
   probe.range = 5000,
@@ -55,6 +56,10 @@ along with control matrix principal components (Default: NULL).}
 Arguments to \code{\link{meffil.normalize.samples}()}:}
 
 \item{pseudo}{Arguments to \code{\link{meffil.methylation.pcs}()}.}
+
+\item{dup.fun}{Function to collapse duplicate probes
+(EPIC v2 has over 5000 duplicated probes). If NULL, then
+duplicates are not collapsed (Default: median).}
 
 \item{gds.filename}{If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
 This is for cases where the output is too large to fit into main memory.
