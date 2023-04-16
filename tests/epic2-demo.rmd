@@ -45,43 +45,48 @@ qc.objects <- meffil.qc(samplesheet, cell.type.reference="blood gse35069 complet
 QC report.
 ```{r}
 qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
-meffil.qc.report(qc.summary,
-                 output.file=qc.file,
-                 author=author,
-                 study=study)
+meffil.qc.report(
+    qc.summary,
+    output.file=qc.file,
+    author=author,
+    study=study)
 ```
 
 Normalization dataset.
 ```{r epic2-demo-norm, cache=T}
-norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
-
-norm.dataset <- meffil.normalize.samples(norm.objects,
-                                         just.beta=F, 
-                                         cpglist.remove=qc.summary$bad.cpgs$name,
-                                         verbose=T)
-```
-
-```{r}
-beta.meffil <- meffil.get.beta(norm.dataset$M, norm.dataset$U)
+norm.objects <- meffil.normalize.quantiles(
+    qc.objects,
+    number.pcs=number.pcs,
+    verbose=T)
+beta.meffil <- meffil.normalize.samples(
+    norm.objects,
+    just.beta=T, 
+    cpglist.remove=qc.summary$bad.cpgs$name,
+    verbose=T)
 ```
 
 Compute principal components of the normalized methylation matrix.
 ```{r epic2-demo-pcs, cache=T}
-pcs <- meffil.methylation.pcs(beta.meffil, sites=meffil.get.autosomal.sites("epic"), verbose=T)
+pcs <- meffil.methylation.pcs(
+    beta.meffil,
+    sites=meffil.get.autosomal.sites("epic"),
+    verbose=T)
 ```
 
 Normalization report.
 ```{r}
 parameters <- meffil.normalization.parameters(norm.objects)
 parameters$batch.threshold <- 0.01
-norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
-                                             pcs=pcs,
-                                             parameters=parameters, verbose=T)
-
-meffil.normalization.report(norm.summary,
-                            output.file=norm.file,
-                            author=author,
-                            study=study)
+norm.summary <- meffil.normalization.summary(
+    norm.objects=norm.objects,
+    pcs=pcs,
+    parameters=parameters,
+    verbose=T)
+meffil.normalization.report(
+    norm.summary,
+    output.file=norm.file,
+    author=author,
+    study=study)
 ```
 
 
@@ -96,7 +101,7 @@ nrow(clock)
 length(intersect(clock$CpGmarker, rownames(beta.meffil)))/nrow(clock)
 ```
 
-20 of the 'clock' sites are missing.
+Some of the 'clock' sites are missing.
 
 ## Hannum predictor CpG sites and the EPIC microarray
 
@@ -116,15 +121,63 @@ length(setdiff(hannum.sites, rownames(beta.meffil)))
 length(intersect(hannum.sites, rownames(beta.meffil)))/length(hannum.sites)
 ```
 
-7 of the 71 sites are missing.
+Some but not all of the sites are missing.
 
 ## Duplicated probes
 
 Several thousand probes appear in duplicate across the microarray.
-For example, cg06373096 appears `r length(grep("cg06373096",rownames(beta.meffil)))` times.
-Here is the correlations between these duplicates:
+By default, the `meffil.normalize.samples` function collapses
+duplicated probes by taking their median.
+It is possible to a different summarizing function by setting the
+`dup.fun` argument.
+It is also possible to keep the duplicate probes by
+setting `dup.fun` to `NULL` as follows:
+
+```{r epic2-demo-dups,cache=T}
+beta.dup <- meffil.normalize.samples(
+    norm.objects,
+    just.beta=T, 
+    cpglist.remove=qc.summary$bad.cpgs$name,
+    dup.fun=NULL,
+    verbose=T)
+```
+
+We can then collapse the duplicate probes as follows:
 
 ```{r}
-cor(t(beta.meffil[grep("cg06373096",rownames(beta.meffil)),]))
-colMeans(cor(t(beta.meffil[grep("cg06373096",rownames(beta.meffil)),])))
+beta.nodup <- meffil.collapse.dups(beta.dup)
+```
+
+This function also has a `dup.fun` argument allowing the user
+to specify a different summarizing function.
+
+For example, cg06373096 appears
+`r length(grep("cg06373096",rownames(beta.dup)))` times.
+
+```{r}
+quantile(beta.nodup["cg06373096",]-beta.meffil["cg06373096",],na.rm=T)
+quantile(colMedians(beta.dup[grepl("cg06373096",rownames(beta.dup)),],na.rm=T)-beta.meffil["cg06373096",],na.rm=T)
+```
+
+Here are the correlations between these duplicates:
+
+```{r}
+cor(t(beta.dup[grep("cg06373096",rownames(beta.dup)),]))
+colMeans(cor(t(beta.dup[grep("cg06373096",rownames(beta.dup)),])))
+```
+
+How do matrices differ when we collapse
+duplicates (`beta.meffil` and `beta.dup`)
+or not (`beta.dup`)?
+
+```{r}
+identical(rownames(beta.nodup), rownames(beta.meffil))
+all(rownames(beta.nodup) %in% sub("_.*", "", rownames(beta.dup)))
+all(sub("_.*", "", rownames(beta.dup)) %in% rownames(beta.nodup))
+```
+
+```{r}
+dim(beta.meffil)
+dim(beta.nodup)
+dim(beta.dup)
 ```

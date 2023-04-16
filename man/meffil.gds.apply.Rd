@@ -32,9 +32,6 @@ otherwise to each sample (column) (Default: TRUE).}
 
 \item{...}{}
 }
-\value{
-
-}
 \description{
 Return a vector or list of values obtained by applying a function
 to the margins of a methylation or detection p-value matrix

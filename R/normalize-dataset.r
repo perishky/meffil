@@ -37,6 +37,9 @@
 #'
 #' Arguments to \code{\link{meffil.normalize.samples}()}:
 #' @param just.beta
+#' @param dup.fun Function to collapse duplicate probes 
+#' (EPIC v2 has over 5000 duplicated probes). If NULL, then
+#' duplicates are not collapsed (Default: median).
 #' @param gds.filename If not \code{NULL} (default), then saves the output to a GDS (Genomic Data Structure).
 #' This is for cases where the output is too large to fit into main memory.
 #' The GDS option assumes that argument \code{just.beta == TRUE}.
@@ -88,6 +91,7 @@ meffil.normalize.dataset <- function(samplesheet,
 
                                      ## meffil.normalize.samples
                                      pseudo=100,
+                                     dup.fun=function(x) median(x, na.rm=T),
                                      just.beta=T,
                                      gds.filename=NULL,
 
@@ -132,6 +136,7 @@ meffil.normalize.dataset <- function(samplesheet,
     
     norm <- meffil.normalize.samples(norm.objects,
                                      pseudo=pseudo,
+                                     dup.fun=dup.fun,
                                      just.beta=just.beta,
                                      gds.filename=gds.filename,
                                      cpglist.remove=qc.summary$bad.cpgs$name,

@@ -27,19 +27,19 @@ meffil.qc.parameters(
 
 \item{meth.unmeth.outlier.sd}{Sets the standard deviation multiple at which methylated/unmethylated signal outliers are identified. Default value = 3.}
 
-\item{control.means.outlier.sd}{Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5.}
+\item{control.means.outlier.sd}{Sets the standard deviation multiple at which control probe signals are identified as outliers. Default value = 5}
 
-\item{beadnum.samples.threshold}{Maximum threshold on the fraction of probes with too few detected beads (minimum number of detected beads is defined by setting the \code{beads.threshold} parameter of \code{meffil.qc()} or \code{meffil.normalize.dataset()}). Samples with probe fractions above this will be excluded from the final dataset. Default value = 0.2.}
+\item{detectionp.samples.threshold}{Maximum threshold on the fraction of undetected probes (probe detection is defined by setting the maximum probe detection p-value threshold parameter \code{detection.threshold} of \code{meffil.qc()} or \code{meffil.normalize.dataset()}).  Samples with probe fractions above this will be excluded from the final dataset. Default value = 0.2}
 
-\item{detectionp.samples.threshold}{Maximum threshold on the fraction of undetected probes (probe detection is defined by setting the maximum probe detection p-value threshold parameter \code{detection.threshold} of \code{meffil.qc()} or \code{meffil.normalize.dataset()}).  Samples with probe fractions above this will be excluded from the final dataset. Default value = 0.2.}
+\item{beadnum.samples.threshold}{Maximum threshold on the fraction of probes with too few detected beads (minimum number of detected beads is defined by setting the \code{beads.threshold} parameter of \code{meffil.qc()} or \code{meffil.normalize.dataset()}). Samples with probe fractions above this will be excluded from the final dataset. Default value = 0.2}
 
-\item{beadnum.cpgs.threshold}{Same as \code{beadnum.samples.threshold} but used to identify poor quality probes in terms of the fraction of samples in which the probe has too few detected beads. Default value = 0.2.}
-  
-\item{detectionp.cpgs.threshold}{Same as \code{detectionp.cpgs.threshold} but used to identify poor quality probes in terms of the fraction of samples in which the probe is undetected. Default value = 0.2.}
+\item{detectionp.cpgs.threshold}{Same as \code{detectionp.cpgs.threshold} but used to identify poor quality probes in terms of the fraction of samples in which the probe is undetected. Default value = 0.2}
+
+\item{beadnum.cpgs.threshold}{Same as \code{beadnum.samples.threshold} but used to identify poor quality probes in terms of the fraction of samples in which the probe has too few detected beads. Default value = 0.2}
 
 \item{snp.concordance.threshold}{Minimum required concordance between supplied genotypes and genotypes estimated from a SNP probe. Default value = 0.99}
 
-\item{sample.genotype.concordance.threshold}{Minimum required concordance between supplied genotypes and genotypes estimated from SNP probes for a given individual. Default value = 0.9 <what param does>}
+\item{sample.genotype.concordance.threshold}{Minimum required concordance between supplied genotypes and genotypes estimated from SNP probes for a given individual. Default value = 0.9 \if{html}{\out{<what param does>}}}
 }
 \value{
 List of parameter values
