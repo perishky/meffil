@@ -5,10 +5,10 @@
 > Bioinformatics. 2018 Jun 21.
 
 Efficient algorithms for analyzing DNA methylation data
-generated using Infinium HumanMethylation450 or MethylationEPIC BeadChips:
+generated using Infinium HumanMethylation450 or MethylationEPIC **(v1 and v2)** BeadChips:
 
 * Functional normalization for large datasets using parallelization.
-* Normalization of datasets with mixed Infinium HumanMethylation450 and MethylationEPIC BeadChips.
+* Normalization of datasets with mixed Infinium HumanMethylation450 and MethylationEPIC **(v1 and v2)** BeadChips.
 * Inclusion of user-defined fixed and random effects in functional normalization procedure.
 * Cell count estimation using predefined and user-defined reference datasets.
 * Use of predefined and user-defined microarray probe annotations.
