@@ -1,0 +1,122 @@
+```{r complex-demo-init, echo=FALSE, message=F}
+library(knitr)
+library(Cairo)
+opts_chunk$set(warning=FALSE, fig.width=6, fig.height=6, dev="CairoPNG", stop=TRUE)
+
+```
+
+# Normalize an 450K, EPIC and EPIC v2 dataset
+
+## Download example data set 
+
+```{r child = 'dataset-450k-demo.rmd'}
+```
+```{r child = 'dataset-epic-demo.rmd'}
+```
+```{r child = 'dataset-epic2-demo.rmd'}
+```
+
+```{r}
+path.450k <- download.450k.demo.dataset()
+path.epic <- download.epic.demo.dataset()
+path.epic2 <- download.epic2.demo.dataset()
+```
+
+## Normalize dataset 
+
+Create samplesheet
+```{r}
+library(meffil)
+samplesheet.450k <- meffil.create.samplesheet(path=path.450k)
+samplesheet.epic <- meffil.read.samplesheet(base=path.epic, pattern="Demo_SampleSheet.csv")
+samplesheet.epic2 <- meffil.read.samplesheet(base=path.epic2, pattern="SampleSheet")
+samplesheet.450k$chip <- "450k"
+samplesheet.epic$chip <- "epic"
+samplesheet.epic2$chip <- "epic2"
+common.cols <- intersect(colnames(samplesheet.450k),colnames(samplesheet.epic))
+common.cols <- intersect(common.cols, colnames(samplesheet.epic2))
+samplesheet <- rbind(
+    samplesheet.450k[1:10,common.cols],
+    samplesheet.epic[,common.cols],
+    samplesheet.epic2[,common.cols])
+```
+
+Parameters.
+```{r}
+qc.file <- "complex-demo/qc-report.html"
+author <- "Illumina, et al."
+study <- "450k/epic/epic2 demo dataset"
+number.pcs <- 2
+norm.file <- "complex-demo/normalization-report.html"
+```
+
+Generate QC objects.
+```{r complex-demo-qc, cache=T}
+options(mc.core=20)
+qc.objects <- meffil.qc(samplesheet, featureset="450kepicepic2", cell.type.reference="blood gse35069 complete", verbose=T)
+```
+
+QC report.
+```{r}
+qc.summary <- meffil.qc.summary(qc.objects, verbose=T)
+meffil.qc.report(
+    qc.summary,
+    output.file=qc.file,
+    author=author,
+    study=study)
+```
+
+Normalization dataset.
+```{r complex-demo-norm, cache=T}
+norm.objects <- meffil.normalize.quantiles(
+    qc.objects,
+    number.pcs=number.pcs,
+    verbose=T)
+beta.meffil <- meffil.normalize.samples(
+    norm.objects,
+    just.beta=T, 
+    cpglist.remove=qc.summary$bad.cpgs$name,
+    verbose=T)
+```
+
+Compute principal components of the normalized methylation matrix.
+```{r complex-demo-pcs, cache=T}
+pcs <- meffil.methylation.pcs(
+    beta.meffil,
+    sites=meffil.get.autosomal.sites("epic"),
+    verbose=T)
+```
+
+Normalization report.
+```{r}
+parameters <- meffil.normalization.parameters(norm.objects)
+parameters$batch.threshold <- 0.01
+norm.summary <- meffil.normalization.summary(
+    norm.objects=norm.objects,
+    pcs=pcs,
+    parameters=parameters,
+    verbose=T)
+meffil.normalization.report(
+    norm.summary,
+    output.file=norm.file,
+    author=author,
+    study=study)
+```
+
+It looks like the normalized methylation retains
+has a strong association with chip.
+```{r}
+chip <- samplesheet$chip
+stats <- t(apply(pcs,2,function(pc) {
+    fit <- coef(summary(lm(pc ~ chip)))
+    fit[which.min(fit[-1,"Pr(>|t|)"])+1,]
+}))
+stats[stats[,"Pr(>|t|)"] < 0.05,]
+```
+This isn't surprising given that the data for each
+chip comes from a different study.
+If there was reason to believe that the the chip
+associations were entirely technical,
+then we could remove some of this variation
+by including 'chip' as a random effect
+in the functional normalization.
