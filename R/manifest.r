@@ -10,11 +10,9 @@ meffil.list.chips <- function() {
 
 #' List of feature sets available.
 #'
-#' By default, there is '450k', 'epic' and 'common'.
-#' The 'common' feature set contains features in common to both the
-#' '450k' and 'epic' feature sets.
-#' This feature set can be used to handle datasets
-#' with mixed EPIC and HumanMethylation450 microarrays.
+#' Sets of features for individual platforms (e.g. "450k" for the Illumina HumanMethylation450 Beadchip)
+#' as well as for mixed platforms (e.g. "450k:epic:epic2" for
+#' combinations of Illumina HumanMethylation450, MethylationEPIC and MethylationEPICv2). 
 #'
 #' In most cases, a feature corresponds to the two probes
 #' from which it's value is derived.  Each CpG represented
@@ -26,7 +24,13 @@ meffil.list.chips <- function() {
 #' 
 #' @export
 meffil.list.featuresets <- function() {
-    ls(featureset.globals)
+    fsnames <- ls(meffil:::featureset.globals)
+    fsnames0 <- setdiff(fsnames,"common")
+    if (length(fsnames0) > 1) {
+        fsnames0 <- unlist(lapply(2:length(fsnames0), function(m) apply(combn(fsnames0,m),2,paste,collapse=":")))
+        fsnames <- c(fsnames, fsnames0)
+    }
+    fsnames
 }
 
 #' Obtain a list of features in a feature set.
@@ -38,8 +42,22 @@ meffil.list.featuresets <- function() {
 #' 
 #' @export
 meffil.featureset <- function(featureset="450k") {
-   stopifnot(is.character(featureset) && featureset %in% meffil.list.featuresets())
-   get(featureset, featureset.globals)
+   featuresets <- featureset
+   is.combo <- !featureset %in% ls(meffil:::featureset.globals)
+   if (is.combo)
+       featuresets <- unlist(strsplit(featureset, ":"))
+   missingsets <- setdiff(featuresets, ls(meffil:::featureset.globals))
+   if (length(missingsets) > 0)
+       stop(
+           paste(missingsets,collapse="/"),
+           ifelse(length(missingsets)==1," is ", " are "),
+           " not a valid featureset.")
+   features <- get(featuresets[1], meffil:::featureset.globals)
+   if (is.combo) {
+       for (featureset2 in featuresets[-1])
+           features <- features[which(features[[featureset2]]),]
+   }
+   features
 }
 
 #' Obtain a list of probes for a given feature set (chip).
@@ -52,9 +70,6 @@ meffil.featureset <- function(featureset="450k") {
 #' 
 #' @export
 meffil.probe.info <- function(chip="450k", featureset=chip) {
-    if (missing(chip))
-        chip <- featureset
-    
     probes <- get(chip, probe.globals)
     if (featureset != chip) {
         features <- meffil.featureset(featureset)
@@ -85,7 +100,7 @@ meffil.probe.info <- function(chip="450k", featureset=chip) {
 #' \item{"AddressA_ID"}{character}
 #' \item{"AddressB_ID"}{character}
 #' \item{"Infinium_Design_Type"}{values "I","II" or ""}
-#' \item{"CHR"}{values "1"-"22", "X" or "Y"}
+#' \item{"CHR"}{values "0"-"22", "M", "X" or "Y"}
 #' \item{"MAPINFO"}{integer}
 #' \item{"AlleleA_ProbeSeq"}{character}
 #' \item{UCSC_RefGene_Name}{character}
@@ -102,7 +117,7 @@ meffil.add.chip <- function(name, manifest) {
     features <- extract.featureset(manifest)
     probes <- extract.probes(manifest)
 
-    assign(name, features, featureset.globals)
+    meffil.add.featureset(name, features)
     assign(name, probes, probe.globals)
 
     invisible(manifest)
@@ -122,7 +137,7 @@ meffil.add.chip <- function(name, manifest) {
 #' \item{"name"}{character}
 #' \item{"target"}{character}
 #' \item{"type"}{values "i","ii" or "control"}
-#' \item{"chromosome"}{values "chr1"-"chr22", "chrX" or "chrY"}
+#' \item{"chromosome"}{values "chr0"-"chr22", "chrM", "chrX" or "chrY"}
 #' \item{"position"}{integer}
 #' \item{"gene.symbol"}{character},
 #' \item{"gene.accession"}{character},
@@ -133,8 +148,16 @@ meffil.add.chip <- function(name, manifest) {
 #' }
 #' @export
 meffil.add.featureset <- function(name, features) {
-    check.featureset(features)
-    assign(name, features, featureset.globals)
+    meffil:::check.featureset(features)
+    fnames <- with(features, paste(type,target,name))
+    for (name2 in meffil.list.featuresets()) {
+        features2 <- get(name2, meffil:::featureset.globals)
+        fnames2 <- with(features2, paste(type,target,name))
+        features2[[name]] <- fnames2 %in% fnames
+        features[[name2]] <- fnames %in% fnames2
+        assign(name2, features2, meffil:::featureset.globals)
+    }
+    assign(name, features, meffil:::featureset.globals)
     invisible(features)
 }
 
@@ -143,7 +166,7 @@ check.featureset <- function(features) {
                      list("type"=c("i","ii","control"),
                           "target"="character",
                           "name"="character",
-                          "chromosome"=paste("chr",c(1:22,"X","Y"),sep=""),
+                          "chromosome"=paste("chr",c(0:22,"X","Y","M"),sep=""),
                           "position"="integer",
                           "gene.symbol"="character",
                           "gene.accession"="character",

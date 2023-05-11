@@ -53,7 +53,7 @@ norm.file <- "complex-demo/normalization-report.html"
 Generate QC objects.
 ```{r complex-demo-qc, cache=T}
 options(mc.core=20)
-qc.objects <- meffil.qc(samplesheet, featureset="450kepicepic2", cell.type.reference="blood gse35069 complete", verbose=T)
+qc.objects <- meffil.qc(samplesheet, featureset="450k:epic:epic2", cell.type.reference="blood gse35069 complete", verbose=T)
 ```
 
 QC report.

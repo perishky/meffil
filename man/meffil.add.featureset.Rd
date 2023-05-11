@@ -22,7 +22,7 @@ The \code{features} data frame must contain the following columns:
 \item{"name"}{character}
 \item{"target"}{character}
 \item{"type"}{values "i","ii" or "control"}
-\item{"chromosome"}{values "chr1"-"chr22", "chrX" or "chrY"}
+\item{"chromosome"}{values "chr0"-"chr22", "chrM", "chrX" or "chrY"}
 \item{"position"}{integer}
 \item{"gene.symbol"}{character},
 \item{"gene.accession"}{character},

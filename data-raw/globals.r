@@ -40,28 +40,6 @@ if (!"common" %in% meffil.list.featuresets()) {
     meffil.add.featureset("common", featureset.both)
 }
 
-chips <- meffil.list.chips()
-for (m in 2:length(chips)) {
-    combinations <- combn(chips,m=m)
-    fnames <- function(featureset) {
-        if (is.character(featureset))
-            featureset <- meffil.featureset(featureset)
-        with(featureset, paste(type,target,name))
-    }
-    for (i in 1:ncol(combinations)) {
-        fsname <- do.call(paste0, as.list(combinations[,i]))
-        if (fsname %in% meffil.list.featuresets()) 
-            next
-        fs <- meffil.featureset(combinations[1,i])
-        common <- fnames(fs)
-        for (j in 2:nrow(combinations)) 
-            common <- intersect(common, fnames(combinations[j,i]))
-        fs <- fs[fnames(fs) %in% common,]
-        cat("adding common featureset", fsname, "\n")
-        meffil.add.featureset(fsname, fs)
-    }
-}
-
 ## create blood cell type references
 if (!"blood gse35069" %in% meffil.list.cell.type.references()) {
     source("gse35069-references.r")

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Normalize an 450K, EPIC and EPIC v2 dataset</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/styles/github.min.css">
+<script src="https://cdn.jsdelivr.net/combine/gh/highlightjs/cdn-release@11.6.0/build/highlight.min.js,npm/@xiee/utils/js/load-highlight.js" async></script>
+
+
+
+<style type="text/css">
+body, td {
+  font-family: sans-serif;
+  background-color: white;
+  font-size: 13px;
+}
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+}
+tt, code, pre {
+  font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+a:visited { color: #80007f; }
+pre, img { max-width: 100%; }
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+code[class] { background-color: #F8F8F8; }
+code.language-undefined { background-color: inherit; }
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color:#666;
+  margin:0;
+  padding-left: 1em;
+  border-left: 0.5em #eee solid;
+}
+hr { border: 1px #ddd dashed; }
+
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    filter:none !important;
+  }
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  a, a:visited { text-decoration: underline; }
+  hr {
+    visibility: hidden;
+    page-break-before: always;
+  }
+  pre, blockquote {
+    padding-right: 1em;
+    page-break-inside: avoid;
+  }
+  tr, img { page-break-inside: avoid; }
+  img { max-width: 100% !important; }
+  @page :left { margin: 15mm 20mm 15mm 10mm; }
+  @page :right { margin: 15mm 10mm 15mm 20mm; }
+  p, h2, h3 { orphans: 3; widows: 3; }
+  h2, h3 { page-break-after: avoid; }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>Normalize an 450K, EPIC and EPIC v2 dataset</h1>
+<h2>Download example data set</h2>
+<blockquote>
+<p>Prickett AR, Ishida M, Böhm S, Frost JM et al. Genome-wide methylation
+analysis in Silver-Russell syndrome patients. Hum Genet 2015
+Mar;134(3):317-32. PMID: 25563730</p>
+</blockquote>
+<p>Retrieve the data from the Gene Expression Omnibus (GEO) website
+(<a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491">http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE55491</a>).</p>
+<pre><code class="language-r">download.450k.demo.dataset &lt;- function() {
+    dir.create(path &lt;- &quot;data-450k-demo&quot;)
+    
+    if (length(list.files(path, &quot;*.idat$&quot;)) == 0) {
+        filename &lt;-  file.path(path, &quot;gse55491.tar&quot;)
+        download.file(&quot;http://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE55491&amp;format=file&quot;, filename)
+        cat(date(), &quot;Extracting files from GEO archive.\n&quot;)
+        system(paste(&quot;cd&quot;, path, &quot;;&quot;, &quot;tar xvf&quot;, basename(filename)))
+        unlink(filename)
+        cat(date(), &quot;Unzipping IDAT files.\n&quot;)
+        system(paste(&quot;cd&quot;, path, &quot;;&quot;, &quot;gunzip *.idat.gz&quot;))
+
+        library(GEOquery)
+        geo &lt;- getGEO(&quot;GSE55491&quot;, GSEMatrix=F)
+        geo &lt;- lapply(geo@gsms, function(gsm) unlist(gsm@header))
+        geo &lt;- do.call(rbind, geo)
+        geo &lt;- as.data.frame(geo, stringAsFactors=F)
+        geo$group &lt;- geo$characteristics_ch13
+        geo$sex &lt;-   geo$characteristics_ch11
+        write.csv(geo, file=file.path(path, &quot;samples.csv&quot;))
+    }
+    
+    path
+}
+</code></pre>
+<p>Information about the new EPIC microarray can be obtained here:</p>
+<p><a href="http://support.illumina.com/array/array_kits/infinium-methylationepic-beadchip-kit/downloads.html">http://support.illumina.com/array/array_kits/infinium-methylationepic-beadchip-kit/downloads.html</a></p>
+<pre><code class="language-r">download.epic.demo.dataset &lt;- function() {
+    dir.create(path &lt;- &quot;data-epic-demo&quot;)
+    
+    if (length(list.files(path, &quot;*.idat$&quot;)) == 0) {
+        download.zip &lt;- function(url, path) {
+            filename &lt;- file.path(path, &quot;data.zip&quot;)
+            download.file(url, filename)
+            filenames &lt;- unzip(filename, junkpaths=T, exdir=path)
+            unlink(filename)
+            invisible(filenames)
+        }    
+        
+        ftp.url &lt;- &quot;ftp://webdata2:webdata2@ussd-ftp.illumina.com/downloads/productfiles/methylationEPIC&quot;
+                
+        download.zip(file.path(ftp.url, &quot;infinium-methylationepic-demo-dataset.zip&quot;), path)
+    }
+    
+    path
+}
+</code></pre>
+<p>Information about the new EPIC v2 microarray can be obtained here:</p>
+<p><a href="https://www.illumina.com/products/by-type/microarray-kits/infinium-methylation-epic.html">https://www.illumina.com/products/by-type/microarray-kits/infinium-methylation-epic.html</a></p>
+<pre><code class="language-r">download.epic2.demo.dataset &lt;- function() {
+    dir.create(path &lt;- &quot;data-epic2-demo&quot;)
+    
+    if (length(list.files(path, &quot;*.idat$&quot;)) == 0) {
+        download.zip &lt;- function(url, path) {
+            filename &lt;- file.path(path, &quot;data.zip&quot;)
+            download.file(url, filename)
+            filenames &lt;- unzip(filename, junkpaths=T, exdir=path)
+            unlink(filename)
+            invisible(filenames)
+        }    
+
+        url &lt;- &quot;https://support.illumina.com/content/dam/illumina-support/documents/downloads/productfiles/methylationepic/DemoDataEPIC_v2.zip&quot;
+        download.zip(url, file.path(path, &quot;data.zip&quot;))
+    }
+    
+    path
+}
+</code></pre>
+<pre><code class="language-r">path.450k &lt;- download.450k.demo.dataset()
+path.epic &lt;- download.epic.demo.dataset()
+path.epic2 &lt;- download.epic2.demo.dataset()
+</code></pre>
+<h2>Normalize dataset</h2>
+<p>Create samplesheet</p>
+<pre><code class="language-r">library(meffil)
+samplesheet.450k &lt;- meffil.create.samplesheet(path=path.450k)
+samplesheet.epic &lt;- meffil.read.samplesheet(base=path.epic, pattern=&quot;Demo_SampleSheet.csv&quot;)
+</code></pre>
+<pre><code>## [read.450k.sheet] Found the following CSV files:
+## [1] &quot;data-epic-demo/Demo_SampleSheet.csv&quot;
+</code></pre>
+<pre><code class="language-r">samplesheet.epic2 &lt;- meffil.read.samplesheet(base=path.epic2, pattern=&quot;SampleSheet&quot;)
+</code></pre>
+<pre><code>## [read.450k.sheet] Found the following CSV files:
+## [1] &quot;data-epic2-demo/Demo_EPIC-8v2-0_A1_SampleSheet_16.csv&quot;
+</code></pre>
+<pre><code class="language-r">samplesheet.450k$chip &lt;- &quot;450k&quot;
+samplesheet.epic$chip &lt;- &quot;epic&quot;
+samplesheet.epic2$chip &lt;- &quot;epic2&quot;
+common.cols &lt;- intersect(colnames(samplesheet.450k),colnames(samplesheet.epic))
+common.cols &lt;- intersect(common.cols, colnames(samplesheet.epic2))
+samplesheet &lt;- rbind(
+    samplesheet.450k[1:10,common.cols],
+    samplesheet.epic[,common.cols],
+    samplesheet.epic2[,common.cols])
+</code></pre>
+<p>Parameters.</p>
+<pre><code class="language-r">qc.file &lt;- &quot;complex-demo/qc-report.html&quot;
+author &lt;- &quot;Illumina, et al.&quot;
+study &lt;- &quot;450k/epic/epic2 demo dataset&quot;
+number.pcs &lt;- 2
+norm.file &lt;- &quot;complex-demo/normalization-report.html&quot;
+</code></pre>
+<p>Generate QC objects.</p>
+<pre><code class="language-r">options(mc.core=20)
+qc.objects &lt;- meffil.qc(samplesheet, featureset=&quot;450k:epic:epic2&quot;, cell.type.reference=&quot;blood gse35069 complete&quot;, verbose=T)
+</code></pre>
+<p>QC report.</p>
+<pre><code class="language-r">qc.summary &lt;- meffil.qc.summary(qc.objects, verbose=T)
+</code></pre>
+<pre><code>## [meffil.qc.summary] Thu May 11 16:25:07 2023 Sex summary TRUE 
+## [meffil.qc.summary] Thu May 11 16:25:07 2023 Meth vs unmeth summary 
+## [meffil.qc.summary] Thu May 11 16:25:07 2023 Control means summary 
+## [meffil.qc.summary] Thu May 11 16:25:07 2023 Sample detection summary 
+## [meffil.qc.summary] Thu May 11 16:25:09 2023 CpG detection summary 
+## [meffil.qc.summary] Thu May 11 16:25:10 2023 Sample bead numbers summary 
+## [meffil.qc.summary] Thu May 11 16:25:11 2023 CpG bead numbers summary 
+## [meffil.qc.summary] Thu May 11 16:25:11 2023 Cell count summary 
+## [meffil.qc.summary] Thu May 11 16:25:11 2023 Genotype concordance
+</code></pre>
+<pre><code class="language-r">meffil.qc.report(
+    qc.summary,
+    output.file=qc.file,
+    author=author,
+    study=study)
+</code></pre>
+<pre><code>## [meffil.qc.report] Thu May 11 16:25:11 2023 Writing report as html file to complex-demo/qc-report.html
+</code></pre>
+<p>Normalization dataset.</p>
+<pre><code class="language-r">norm.objects &lt;- meffil.normalize.quantiles(
+    qc.objects,
+    number.pcs=number.pcs,
+    verbose=T)
+</code></pre>
+<pre><code>## [meffil.normalize.quantiles] Thu May 11 16:25:21 2023 selecting dye correction reference 
+## [meffil.normalize.quantiles] Thu May 11 16:25:21 2023 creating control matrix 
+## [meffil.normalize.quantiles] Thu May 11 16:25:21 2023 normalizing quantiles 
+## [FUN] Thu May 11 16:25:21 2023 genomic.iG M 
+## [FUN] Thu May 11 16:25:21 2023 genomic.iG U 
+## [FUN] Thu May 11 16:25:21 2023 genomic.iR M 
+## [FUN] Thu May 11 16:25:21 2023 genomic.iR U 
+## [FUN] Thu May 11 16:25:21 2023 genomic.ii M 
+## [FUN] Thu May 11 16:25:21 2023 genomic.ii U 
+## [FUN] Thu May 11 16:25:21 2023 autosomal.iG M 
+## [FUN] Thu May 11 16:25:21 2023 autosomal.iG U 
+## [FUN] Thu May 11 16:25:21 2023 autosomal.iR M 
+## [FUN] Thu May 11 16:25:21 2023 autosomal.iR U 
+## [FUN] Thu May 11 16:25:21 2023 autosomal.ii M 
+## [FUN] Thu May 11 16:25:21 2023 autosomal.ii U 
+## [FUN] Thu May 11 16:25:21 2023 not.y.iG M 
+## [FUN] Thu May 11 16:25:22 2023 not.y.iG U 
+## [FUN] Thu May 11 16:25:22 2023 not.y.iR M 
+## [FUN] Thu May 11 16:25:22 2023 not.y.iR U 
+## [FUN] Thu May 11 16:25:22 2023 not.y.ii M 
+## [FUN] Thu May 11 16:25:22 2023 not.y.ii U 
+## [FUN] Thu May 11 16:25:22 2023 sex M 
+## [FUN] Thu May 11 16:25:22 2023 sex U 
+## [FUN] Thu May 11 16:25:22 2023 chrx M 
+## [FUN] Thu May 11 16:25:22 2023 chrx U 
+## [FUN] Thu May 11 16:25:22 2023 chry M 
+## [FUN] Thu May 11 16:25:22 2023 chry U
+</code></pre>
+<pre><code class="language-r">beta.meffil &lt;- meffil.normalize.samples(
+    norm.objects,
+    just.beta=T, 
+    cpglist.remove=qc.summary$bad.cpgs$name,
+    verbose=T)
+</code></pre>
+<p>Compute principal components of the normalized methylation matrix.</p>
+<pre><code class="language-r">pcs &lt;- meffil.methylation.pcs(
+    beta.meffil,
+    sites=meffil.get.autosomal.sites(&quot;epic&quot;),
+    verbose=T)
+</code></pre>
+<pre><code>## [meffil.methylation.pcs] Thu May 11 16:27:27 2023 Calculating CpG variance 
+## [meffil.methylation.pcs] Thu May 11 16:27:29 2023 Calculating beta PCs
+</code></pre>
+<p>Normalization report.</p>
+<pre><code class="language-r">parameters &lt;- meffil.normalization.parameters(norm.objects)
+parameters$batch.threshold &lt;- 0.01
+norm.summary &lt;- meffil.normalization.summary(
+    norm.objects=norm.objects,
+    pcs=pcs,
+    parameters=parameters,
+    verbose=T)
+</code></pre>
+<pre><code>## [meffil.plot.control.batch] Thu May 11 16:27:29 2023 Extracting batch variables 
+## [meffil.plot.control.batch] Thu May 11 16:27:29 2023 Testing associations 
+## [meffil.plot.probe.batch] Thu May 11 16:27:33 2023 Extracting batch variables 
+## [meffil.plot.probe.batch] Thu May 11 16:27:33 2023 Testing associations
+</code></pre>
+<pre><code class="language-r">meffil.normalization.report(
+    norm.summary,
+    output.file=norm.file,
+    author=author,
+    study=study)
+</code></pre>
+<pre><code>## [meffil.normalization.report] Thu May 11 16:27:36 2023 Writing report as html file to complex-demo/normalization-report.html
+</code></pre>
+<p>It looks like the normalized methylation retains
+has a strong association with chip.</p>
+<pre><code class="language-r">chip &lt;- samplesheet$chip
+stats &lt;- t(apply(pcs,2,function(pc) {
+    fit &lt;- coef(summary(lm(pc ~ chip)))
+    fit[which.min(fit[-1,&quot;Pr(&gt;|t|)&quot;])+1,]
+}))
+stats[stats[,&quot;Pr(&gt;|t|)&quot;] &lt; 0.05,]
+</code></pre>
+<pre><code>##     Estimate Std. Error  t value     Pr(&gt;|t|)
+## PC1 90.42404   15.10665 5.985712 2.554382e-06
+## PC2 31.68942   12.30709 2.574892 1.606936e-02
+## PC3 58.88792   13.92749 4.228180 2.572938e-04
+## PC5 27.00016    3.95589 6.825306 3.033529e-07
+</code></pre>
+<p>This isn’t surprising given that the data for each
+chip comes from a different study.
+If there was reason to believe that the the chip
+associations were entirely technical,
+then we could remove some of this variation
+by including ‘chip’ as a random effect
+in the functional normalization.</p>
+
+
+<script src="https://cdn.jsdelivr.net/combine/npm/@xiee/utils/js/center-img.min.js" async></script>
+</body>
+
+</html>

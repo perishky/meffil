@@ -7,11 +7,9 @@
 meffil.list.featuresets()
 }
 \description{
-By default, there is '450k', 'epic' and 'common'.
-The 'common' feature set contains features in common to both the
-'450k' and 'epic' feature sets.
-This feature set can be used to handle datasets
-with mixed EPIC and HumanMethylation450 microarrays.
+Sets of features for individual platforms (e.g. "450k" for the Illumina HumanMethylation450 Beadchip)
+as well as for mixed platforms (e.g. "450k:epic:epic2" for
+combinations of Illumina HumanMethylation450, MethylationEPIC and MethylationEPICv2).
 }
 \details{
 In most cases, a feature corresponds to the two probes
