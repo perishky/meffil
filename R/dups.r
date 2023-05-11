@@ -4,7 +4,7 @@
 #'
 #' @param beta Methylation matrix returned by
 #' \code{\link{meffil.normalize.samples}()}.
-#' @param dup.fun Function to collapse duplicate probes 
+#' @param dup.fun Function to collapse duplicate probes
 #' (Default: median).
 #' @return The input matrix with duplicated probes
 #' (i.e. row names identical after stripping everything
@@ -25,7 +25,7 @@ identify.dups <- function(sites) {
     is.dup <- grepl("_", sites)
     sites[is.dup] <- sub("_.*", "", sites[is.dup])
     is.dup <- is.dup | sites %in% sites[is.dup]
-    if (sum(is.dup) > 0) 
+    if (sum(is.dup) > 0)
         split(which(is.dup), sites[is.dup])
     else
         NULL
@@ -45,4 +45,3 @@ collapse.dups <- function(beta, dups, dup.fun=function(x) median(x,na.rm=T)) {
         rbind(beta.nodup, t(beta.undup))
     }
 }
-
