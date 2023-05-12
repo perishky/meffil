@@ -116,7 +116,6 @@ meffil.add.chip <- function(name, manifest) {
     
     features <- extract.featureset(manifest)
     probes <- extract.probes(manifest)
-
     meffil.add.featureset(name, features)
     assign(name, probes, probe.globals)
 
