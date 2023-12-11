@@ -221,17 +221,20 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
         meth[which(meth < min.value)] <- min.value
         meth[which(meth > 1-min.value)] <- 1-min.value
 
-        if (is.null(covariates)) {
-            fit <- betareg(meth ~ variable)
-            base <- betareg(meth ~ 1)
-        }
-        else {
-            fit <- betareg(meth ~ variable + ., data=covariates)
-            base <- betareg(meth ~ ., data=covariates)
-        }
-        p.value.beta <- lrtest(fit, base)[2,"Pr(>Chisq)"]
-
-        stats.desc <- paste(stats.desc, "; p[beta] = ", format(p.value.beta, digits=3), sep="")
+        stats.desc <- tryCatch({
+            if (is.null(covariates)) {
+                fit <- betareg(meth ~ variable)
+                base <- betareg(meth ~ 1)
+            }
+            else {
+                fit <- betareg(meth ~ variable + ., data=covariates)
+                base <- betareg(meth ~ ., data=covariates)
+            }
+            p.value.beta <- lrtest(fit, base)[2,"Pr(>Chisq)"]            
+            paste(stats.desc,"; p[beta] = ",format(p.value.beta, digits=3),sep="")
+        }, error=function(e) {
+            stats.desc
+        })
     }
     y.axis.label <- "DNA methylation"
     if (!is.null(covariates)) {
@@ -253,3 +256,4 @@ cpg.plot <- function(methylation, variable, covariates=NULL, title="") {
     (p + ggtitle(title) +
      xlab(stats.desc) + ylab(y.axis.label))
 }
+
