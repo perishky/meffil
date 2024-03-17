@@ -149,10 +149,7 @@ meffil.normalize.dataset <- function(samplesheet,
     if (is.null(norm.parameters))
         norm.parameters <- meffil.normalization.parameters(norm.objects)
 
-    sites <- NULL
-    if (autosomal) 
-        sites <- meffil:::autosomal.sites(beta)
-    pcs <- meffil.methylation.pcs(beta, probe.range=probe.range, sites=sites, verbose=verbose)
+    pcs <- meffil.methylation.pcs(beta, probe.range=probe.range, autosomal=autosomal, verbose=verbose)
     
     norm.summary <- meffil.normalization.summary(norm.objects=norm.objects,
                                                  pcs=pcs,

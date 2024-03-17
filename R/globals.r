@@ -1,8 +1,9 @@
 .onLoad <- function(libname, pkgname) {
-    assign("probe.globals", new.env(), envir=parent.env(environment()))    
+    assign("probe.globals", new.env(), envir=parent.env(environment()))
     assign("featureset.globals", new.env(), envir=parent.env(environment()))
     assign("reference.globals", new.env(), envir=parent.env(environment()))
     assign("cnv.globals", new.env(), envir=parent.env(environment()))
+    assign("features.globals", new.env(), envir=parent.env(environment()))
     load.globals()
 }
 
@@ -16,6 +17,7 @@ load.globals <- function() {
     load.env(system.file("featuresets.rda", package="meffil"), featureset.globals)
     load.env(system.file("references.rda", package="meffil"), reference.globals)
     load.env(system.file("cnv.rda", package="meffil"), cnv.globals)
+    assign("features", get.all.features(), features.globals)
 }
 
 # called by ../data-raw/globals.r to save generated global variables to Rdata files

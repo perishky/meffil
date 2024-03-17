@@ -51,7 +51,7 @@
 #' Set to NA to skip this step (Default: NA).
 #' @param most.variable Apply (Independent) Surrogate Variable Analysis to the 
 #' given most variable CpG sites (Default: 50000).
-#' @param featureset Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).
+#' @param featureset No longer used (Default: NA). 
 #' @param verbose Set to TRUE if status updates to be printed (Default: FALSE).
 #'
 #' @export
@@ -88,10 +88,8 @@ meffil.ewas <- function(beta, variable,
         if (robust)
             warning("'robust' is ignored when 'beta' is a GDS filename")
     }
-    
-    if (is.na(featureset))
-        featureset <- guess.featureset(all.sites)
-    features <- meffil.get.features(featureset)
+
+    features <- meffil.all.features()
 
     if (!is.null(sites))
         sites <- intersect(all.sites, sites)
@@ -161,7 +159,7 @@ meffil.ewas <- function(beta, variable,
     surrogates.ret <- NULL
     if (isva || sva || smartsva) {
         meffil:::msg("Computing surrogate variables ...", verbose=verbose)
-        sva.sites <- intersect(sites, meffil:::autosomal.sites(beta))
+        sva.sites <- meffil.autosomal.subset(sites)
         sva.sets <- add.surrogate.variables(
             beta, sva.sites, samples,
             most.variable,

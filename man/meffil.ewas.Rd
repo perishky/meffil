@@ -97,7 +97,7 @@ Set to NA to skip this step (Default: NA).}
 \item{most.variable}{Apply (Independent) Surrogate Variable Analysis to the
 given most variable CpG sites (Default: 50000).}
 
-\item{featureset}{Name from \code{\link{meffil.list.featuresets}()}  (Default: NA).}
+\item{featureset}{No longer used (Default: NA).}
 
 \item{verbose}{Set to TRUE if status updates to be printed (Default: FALSE).}
 }

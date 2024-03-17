@@ -64,7 +64,7 @@ print(meffil.plot.pc.fit(qc.objects, n.cross=3)$plot)
 ```
 
 Normalize dataset.
-```{r, 450-demo-norm, cache=T}
+```{r, 450k-demo-norm, cache=T}
 number.pcs <- 2
 norm.objects <- meffil.normalize.quantiles(qc.objects, number.pcs=number.pcs, verbose=T)
 norm.dataset <- meffil.normalize.samples(norm.objects,

@@ -1,12 +1,11 @@
-autosomal.sites <- function(beta) {
-    if (is.matrix(beta))
-        all.sites <- rownames(beta)
-    else {
-        all.sites <- retrieve.gds.cpg.sites(beta)   
-    }    
-    featureset <- meffil:::guess.featureset(all.sites)
-    autosomal.sites <- meffil.get.autosomal.sites(featureset)
-    intersect(autosomal.sites, all.sites)
+#' Restrict to subset of features targetting autosomal CpG sites
+#'
+#' @param features A vector of feature names. 
+#' @return Subset of the input targetting autosomal CpG sites
+#' @export
+meffil.autosomal.subset <- function(features) {
+    all.features <- meffil.all.features()
+    features <- all.features[all.features$name %in% features,] 
+    features$name[meffil:::is.autosomal(features$chromosome)]
 }
-
 

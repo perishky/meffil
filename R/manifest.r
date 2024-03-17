@@ -60,6 +60,15 @@ meffil.featureset <- function(featureset="450k") {
    features
 }
 
+#' Feature information for all Illumina Beadchips
+#'
+#' @return A data frame listing all features.
+#' @export
+meffil.all.features <- function() {
+    get("features", features.globals)
+}
+
+
 #' Obtain a list of probes for a given feature set (chip).
 #'
 #' @param chip Name returned by \code{\link{meffil.list.chips()}}  (Default: "450k").
@@ -157,6 +166,7 @@ meffil.add.featureset <- function(name, features) {
         assign(name2, features2, meffil:::featureset.globals)
     }
     assign(name, features, meffil:::featureset.globals)
+    assign("features", meffil:::get.all.features(), meffil:::features.globals)
     invisible(features)
 }
 
@@ -174,6 +184,20 @@ check.featureset <- function(features) {
                           "relation.to.island"="character",
                           "snp.exclude"="logical"))
 }
+
+get.all.features <- function() {
+    featuresets <- meffil.list.featuresets()
+    featuresets <- lapply(featuresets, function(x) {
+        meffil.get.features(x)
+    })    
+    all.features <- featuresets[[which.max(sapply(featuresets, nrow))]]
+    featuresets <- lapply(featuresets, function(fs) {
+        fs[which(!fs$name %in% all.features$name),]
+    })
+    all.features <- rbind(all.features, do.call(rbind, featuresets))
+    all.features[match(unique(all.features$name), all.features$name),]
+}
+
 
 check.manifest <- function(manifest) {
     stopifnot(is.data.frame(manifest))

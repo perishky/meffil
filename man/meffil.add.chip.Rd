@@ -26,11 +26,7 @@ The manifest must contain the following columns:
 \item{"AddressA_ID"}{character}
 \item{"AddressB_ID"}{character}
 \item{"Infinium_Design_Type"}{values "I","II" or ""}
-<<<<<<< HEAD
 \item{"CHR"}{values "0"-"22", "M", "X" or "Y"}
-=======
-\item{"CHR"}{values "1"-"22", "X" or "Y"}
->>>>>>> 4c286cc0dda4dce864edf2818e3f7195b670ade8
 \item{"MAPINFO"}{integer}
 \item{"AlleleA_ProbeSeq"}{character}
 \item{UCSC_RefGene_Name}{character}

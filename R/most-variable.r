@@ -36,11 +36,8 @@ meffil.most.variable.cpgs <- function(beta, n=1000, sites=NULL, samples=NULL, au
     else sites <- intersect(sites, all.sites)
     stopifnot(length(sites)>0)
 
-    if (autosomal) {
-        featureset <- meffil:::guess.featureset(all.sites)
-        autosomal.sites <- meffil.get.autosomal.sites(featureset)
-        sites <- intersect(autosomal.sites, sites)
-    }
+    if (autosomal)
+        sites <- meffil.autosomal.subset(sites)
     
     if (is.null(samples)) samples <- all.samples
     else samples <- intersect(samples, all.samples)
