@@ -1,13 +1,29 @@
 #' Concordance between genotypes and SNP betas
 #'
-#' genotypes <- meffil.extract.genotypes(raw.filenames)
-#' snp.betas <- meffil.snp.betas(qc.objects)
-#' meffil.snp.concordance(snp.betas, genotypes[rownames(snp.betas),colnames(snp.betas)])
+#' Calculating cordance between methylation-derived genotypes and user-provided genotypes 
+#' is a bit complicated because some beadchip probes might not perform well and some samples 
+#' provide poor-quality data. We require, when calculating concordances, 
+#' that only high-quality probes for high-quality samples are included in calculations. 
+#' Formally, a high-quality SNP is a SNP for which `snp.threshold`% of the genotypes (in high-quality samples) 
+#' determined by DNA methylation match those provided by the user.  
+#' A high-quality sample is a sample for which `sample.threshold`% of the genotypes (from high-quality probes) 
+#' determined by DNA methylation match those provided by the user.  
 #'
+#' @param snp.betas Matrix of methylation-derived genotypes (rows=SNPs, columns=samples)
+#' @param genotypes Matrix of user-provided genotypes (rows=SNPs, columns=samples)
+#' @param snp.threshold Minimum percentage (of high-quality) samples whose user-provided genotypes for a SNP must 
+#' match the methylation-derived genotypes to be called high-quality (Default: 0.99). 
+#' @param sample.threshold Minimum percentage (of high-quality) SNPs whose user-provided genotypes for a sample must
+#' match the methylation-derived genotypes to be called high-quality (Default: 0.9).
 #' @return Returns a list of two vectors:
 #'     - one providing concordances between genotypes and SNP betas for matched samples,
 #'     - a second providing concordances between genotypes and SNP betas for matched SNPs.
 #' as well as the genotype matrix derived from 'snp.betas'.
+#' @examples
+#' genotypes <- meffil.extract.genotypes(raw.filenames)
+#' snp.betas <- meffil.snp.betas(qc.objects)
+#' meffil.snp.concordance(snp.betas, genotypes[rownames(snp.betas),colnames(snp.betas)])
+#'
 #' @export
 meffil.snp.concordance <- function(snp.betas, genotypes,
                                    snp.threshold=0.99,
