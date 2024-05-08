@@ -1,6 +1,6 @@
 #' Concordance between genotypes and SNP betas
 #'
-#' Calculating cordance between methylation-derived genotypes and user-provided genotypes 
+#' Calculating concordance between methylation-derived genotypes and user-provided genotypes 
 #' is a bit complicated because some beadchip probes might not perform well and some samples 
 #' provide poor-quality data. We require, when calculating concordances, 
 #' that only high-quality probes for high-quality samples are included in calculations. 
