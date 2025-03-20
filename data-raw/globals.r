@@ -92,6 +92,11 @@ if (!"blood gse167998" %in% meffil.list.cell.type.references()) {
     create.gse167998.reference()
 }
 
+if (!"saliva gse147318" %in% meffil.list.cell.type.references()) {
+    source("saliva-gse147318-reference.r")
+    create.saliva.gse147318.reference()
+}
+
 ## save the global variables so they can be loaded by the package
 meffil:::save.globals("../inst") ## see ../R/globals.r
 
