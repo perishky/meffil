@@ -25,7 +25,7 @@ meffil.list.chips <- function() {
 #' @export
 meffil.list.featuresets <- function() {
     fsnames <- ls(meffil:::featureset.globals)
-    fsnames0 <- setdiff(fsnames,"common")
+    fsnames0 <- setdiff(fsnames,c("mouse","common"))
     if (length(fsnames0) > 1) {
         fsnames0 <- unlist(lapply(2:length(fsnames0), function(m) apply(combn(fsnames0,m),2,paste,collapse=":")))
         fsnames <- c(fsnames, fsnames0)
@@ -120,12 +120,12 @@ meffil.probe.info <- function(chip="450k", featureset=chip) {
 #' \item{"snp.exclude"}{logical}
 #' }
 #' @export
-meffil.add.chip <- function(name, manifest) {
+meffil.add.chip <- function(name, manifest, intersections=TRUE) {
     check.manifest(manifest)
     
     features <- extract.featureset(manifest)
     probes <- extract.probes(manifest)
-    meffil.add.featureset(name, features)
+    meffil.add.featureset(name, features, intersections)
     assign(name, probes, probe.globals)
 
     invisible(manifest)
@@ -155,15 +155,17 @@ meffil.add.chip <- function(name, manifest) {
 #' \item{"snp.exclude"}{logical}
 #' }
 #' @export
-meffil.add.featureset <- function(name, features) {
+meffil.add.featureset <- function(name, features, intersections=TRUE) {
     meffil:::check.featureset(features)
-    fnames <- with(features, paste(type,target,name))
-    for (name2 in meffil.list.featuresets()) {
-        features2 <- get(name2, meffil:::featureset.globals)
-        fnames2 <- with(features2, paste(type,target,name))
-        features2[[name]] <- fnames2 %in% fnames
-        features[[name2]] <- fnames %in% fnames2
-        assign(name2, features2, meffil:::featureset.globals)
+    if (intersections) {
+        fnames <- with(features, paste(type,target,name))
+        for (name2 in meffil.list.featuresets()) {
+            features2 <- get(name2, meffil:::featureset.globals)
+            fnames2 <- with(features2, paste(type,target,name))
+            features2[[name]] <- fnames2 %in% fnames
+            features[[name2]] <- fnames %in% fnames2
+            assign(name2, features2, meffil:::featureset.globals)
+        }
     }
     assign(name, features, meffil:::featureset.globals)
     assign("features", meffil:::get.all.features(), meffil:::features.globals)
@@ -188,8 +190,8 @@ check.featureset <- function(features) {
 get.all.features <- function() {
     featuresets <- meffil.list.featuresets()
     featuresets <- lapply(featuresets, function(x) {
-        meffil.get.features(x)
-    })    
+        meffil.get.features(x)[,c("type","target","name","chromosome","position","gene.symbol")]
+    })
     all.features <- featuresets[[which.max(sapply(featuresets, nrow))]]
     featuresets <- lapply(featuresets, function(fs) {
         fs[which(!fs$name %in% all.features$name),]

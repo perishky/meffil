@@ -23,7 +23,7 @@ load.globals <- function() {
 # called by ../data-raw/globals.r to save generated global variables to Rdata files
 # for loading whenever the package is loaded.
 save.globals <- function(dir) {
-    require(devtools)
+    require(remotes)
     require(pkgload)
     save.env <- function(filename, env) {
         save(list=ls(env),

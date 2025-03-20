@@ -665,8 +665,9 @@ meffil.plot.genotypes <- function(qc.objects, genotypes=NULL,
     tabs <- list()
     
     snp.betas <- meffil.snp.betas(qc.objects)
-    
-    data <- lapply(rownames(snp.betas), function(snp.name) 
+
+    show.snps <- rownames(snp.betas)[1:min(65,nrow(snp.betas))]
+    data <- lapply(show.snps, function(snp.name) 
                    data.frame(snp=snp.name, beta=snp.betas[snp.name,],stringsAsFactors=F))
     data <- do.call(rbind, data)
     graphs$snp.beta <- (ggplot(data=data, aes(beta)) +

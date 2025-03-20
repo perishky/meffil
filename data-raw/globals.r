@@ -1,4 +1,3 @@
-library(devtools)
 library(meffil)
 library(pkgload)
 
@@ -38,6 +37,12 @@ if (!"common" %in% meffil.list.featuresets()) {
 
     ## add this common featureset
     meffil.add.featureset("common", featureset.both)
+}
+
+if (!"mouse" %in% meffil.list.featuresets()) {
+    source("load-mouse-manifest.r")
+    manifest.mouse <- load.mouse.manifest()
+    meffil.add.chip("mouse",manifest.mouse,intersections=F)
 }
 
 ## create blood cell type references
