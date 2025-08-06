@@ -4,7 +4,7 @@
 \alias{meffil.add.chip}
 \title{Add a new chip for analysis.}
 \usage{
-meffil.add.chip(name, manifest)
+meffil.add.chip(name, manifest, intersections = TRUE)
 }
 \arguments{
 \item{name}{Name of the new chip.}

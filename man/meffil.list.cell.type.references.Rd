@@ -23,6 +23,7 @@ Names and description of available references:
 \item "cord blood gse68456" Cord blood reference of Goede et al. Clin Epigenetics 2015
 \item "gervin and lyle cord blood" Cord blood reference of Gervin et al. Epigenetics 2016
 \item "guintivano dlpfc" Derived from FlowSorted.DLPFC.450k
+\item "saliva gse147318" Child saliva reference of Middleton et al. Epigenetics 2022
 \item "saliva gse48472" Saliva reference composed of buccal cell data from Slieker et al. Epigenetics Chromatin 2013 and (blood) immune cell data from Reinius et al. PLoS One 2012
 }
 }

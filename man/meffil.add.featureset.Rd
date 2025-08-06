@@ -4,7 +4,7 @@
 \alias{meffil.add.featureset}
 \title{Add a feature set.}
 \usage{
-meffil.add.featureset(name, features)
+meffil.add.featureset(name, features, intersections = TRUE)
 }
 \arguments{
 \item{name}{Name of the new feature set.}

@@ -1,5 +1,5 @@
 Package: meffil
-Version: 1.4.0
+Version: 1.5.0
 Title: Efficient algorithms for DNA methylation
 Description: Tools for normalizing and analyzing the Infinium
     HumanMethylation450 BeadChip.
@@ -43,5 +43,5 @@ URL: https://github.com/perishky/meffil
 LazyData: yes
 biocViews: DNAMethylation, Microarray, TwoChannel, DataImport, Preprocessing,
     QualityControl
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
