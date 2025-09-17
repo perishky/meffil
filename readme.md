@@ -25,10 +25,11 @@ Examples using many of these features can be found in the
 
 Only a few steps are needed to install `meffil` in R. First, start R and then type the following commands:
 
-    source("http://bioconductor.org/biocLite.R")
-    install.packages("devtools") # if the devtools package is not installed
-    library(devtools)
-    install_github("perishky/meffil")
+    if (!require("BiocManager", quietly = TRUE))
+    	install.packages("BiocManager")
+	if (!require("remotes"))
+    	install.packages("remotes") 
+    remotes::install_github("perishky/meffil")
 
 ## One-step normalization
 
