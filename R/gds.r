@@ -161,9 +161,9 @@ lapply.gds <- function(gds.filename, margin, sites=NULL, samples=NULL, type, FUN
     stopifnot(length(samples)>0)
 
     cores <- getOption("mc.cores", 1)
-    cl <- parallel::makeCluster(cores)
-    
-    ret <- clusterApply.gdsn(
+    if (cores > 1) {
+      cl <- parallel::makeCluster(cores)
+      ret <- clusterApply.gdsn(
         cl=cl,
         gds.fn=gds.filename,
         node.name="matrix",
@@ -172,6 +172,18 @@ lapply.gds <- function(gds.filename, margin, sites=NULL, samples=NULL, type, FUN
         as.is=type,
         FUN=FUN,
         ...)
+    } else {
+      gds.file <- openfn.gds(gds.filename, allow.duplicate=TRUE)
+      on.exit({ closefn.gds(gds.file) })
+      matrix.node <- index.gdsn(gds.file, "matrix")
+      ret <- apply.gdsn(
+        node=matrix.node,
+        margin=margin,
+        selection=list(all.sites %in% sites, all.samples %in% samples),
+        as.is=type,
+        FUN=FUN,
+        ...)
+    }
     if (margin == 1) {
         names(ret) <- all.sites[which(all.sites %in% sites)]
         ret <- ret[sites]
