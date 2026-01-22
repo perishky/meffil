@@ -121,12 +121,12 @@ meffil.probe.info <- function(chip="450k", featureset=chip) {
 #' }
 #' @export
 meffil.add.chip <- function(name, manifest, intersections=TRUE) {
-    check.manifest(manifest)
+    meffil:::check.manifest(manifest)
     
-    features <- extract.featureset(manifest)
-    probes <- extract.probes(manifest)
+    features <- meffil:::extract.featureset(manifest)
+    probes <- meffil:::extract.probes(manifest)
     meffil.add.featureset(name, features, intersections)
-    assign(name, probes, probe.globals)
+    assign(name, probes, meffil:::probe.globals)
 
     invisible(manifest)
 }
@@ -159,7 +159,7 @@ meffil.add.featureset <- function(name, features, intersections=TRUE) {
     meffil:::check.featureset(features)
     if (intersections) {
         fnames <- with(features, paste(type,target,name))
-        for (name2 in meffil.list.featuresets()) {
+        for (name2 in setdiff(ls(envir=meffil:::featureset.globals), name)) {
             features2 <- get(name2, meffil:::featureset.globals)
             fnames2 <- with(features2, paste(type,target,name))
             features2[[name]] <- fnames2 %in% fnames

@@ -1,14 +1,15 @@
 load.epic2.manifest <- function() {
-    ## https://emea.support.illumina.com/array/array_kits/infinium-methylationepic-beadchip-kit/downloads.html
-    ## download this file: https://emea.support.illumina.com/content/dam/illumina-support/documents/downloads/productfiles/methylationepic/MethylationEPIC_v2%20Files.zip
-
-    filename <- "MethylationEPIC v2.0 Files/EPIC-8v2-0_A1.csv"
+    ## download this file https://emea.support.illumina.com/content/dam/illumina-support/documents/downloads/productfiles/methylationepic/InfiniumMethylationEPICv2.0ProductFiles(ZIPFormat).zip
+    filename = "MethylationEPIC v2.0 Files/EPIC-8v2-0_A1.csv"
 
     cat("Reading", basename(filename), "\n")
 
-    manifest <- read.csv(filename, skip=7, stringsAsFactors=F)
+    require(data.table)
+    require(rtracklayer)
+    require(GenomicRanges)
+    manifest <- fread(filename, skip=7, data.table=F)
 
-    required.columns <- c("SNP_MinorAlleleFrequency","Name","AddressA_ID","AddressB_ID","IlmnID")
+    required.columns <- c("SNP_MinorAlleleFrequency","Name","AddressA_ID","AddressB_ID","IlmnID","CHR","MAPINFO")
     stopifnot(all(required.columns %in% colnames(manifest)))
     
     ## add snp exclusions
@@ -22,8 +23,31 @@ load.epic2.manifest <- function() {
     manifest$snp.exclude <- manifest$Name %in% manifest$Name[which(freq > 0.01)]
     ## appears to be SNPs in probe with MAF at least 0.01
 
-    manifest$CHR <- sub("^chr","",manifest$CHR) 
+    ## convert coordinates from hg38 to hg19 for consistency with previous manifests
+    ## (for some reason illumina only provides hg38)
+    chainfile = "hg38ToHg19.over.chain"
+    download.file(
+      paste0("https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/",chainfile,".gz"),
+      destfile=paste0(chainfile,".gz"))
+    system(paste0("gunzip ", chainfile,".gz"))
+    chain = rtracklayer::import.chain("hg38ToHg19.over.chain")
+    sites = with(manifest, data.frame(chr=CHR,start=MAPINFO,end=MAPINFO+1))
+    rownames(sites) = manifest$IlmnID
+    sites = na.omit(sites)
+    sites.gr = GenomicRanges::makeGRangesFromDataFrame(sites)  
+    sites.hg19 = rtracklayer::liftOver(sites.gr,chain)
+    sites.hg19 = as.data.frame(sites.hg19)
+    sites.hg19$name = sites.hg19$group_name
+    idx = match(sites.hg19$name,manifest$IlmnID)
+    manifest$CHR_GRCh38 = manifest$CHR
+    manifest$MAPINFO_GRCh38 = manifest$MAPINFO
+    manifest$CHR = NA
+    manifest$MAPINFO = NA
+    manifest$CHR[idx] = as.character(sites.hg19$seqnames)
+    manifest$MAPINFO[idx] = sites.hg19$start
 
+    manifest$CHR = sub("^chr","",manifest$CHR)
+  
     excluded.addresses <- c(
         "[Controls]",
         "21630339",

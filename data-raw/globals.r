@@ -25,6 +25,12 @@ if (!"epic2" %in% meffil.list.chips()) {
     meffil.add.chip("epic2",manifest.epic2)
 }
 
+if (!"msa" %in% meffil.list.chips()) {
+    source("load-msa-manifest.r")
+    manifest.msa <- load.msa.manifest()
+    meffil.add.chip("msa",manifest.msa)
+}
+
 if (!"common" %in% meffil.list.featuresets()) {
     ## create featureset common to both epic and 450k microarrays
     featureset.450k <- meffil.featureset("450k")
